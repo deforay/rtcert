@@ -74,6 +74,9 @@ class UsersTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         $userRoleMap = new UserRoleMapTable($dbAdapter);
         $userTokenMap = new UserTokenMapTable($dbAdapter);
+        $userDistrictMap = new UserDistrictMapTable($dbAdapter);
+        $userProvinceMap = new UserProvinceMapTable($dbAdapter);
+        $userCountryMap = new UserCountryMapTable($dbAdapter);
         $config = new \Zend\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         $password = sha1($params['password'] . $configResult["password"]["salt"]);
@@ -99,6 +102,20 @@ class UsersTable extends AbstractTableGateway {
                         $userTokenMap->insert(array('user_id'=>$lastInsertId,'token'=>trim($splitToken[$t])));
                     }
                 }
+                //Add User-District, User-Province, User-Country
+                if(isset($params['district']) && !empty($params['district'])){
+                    for($i=0;$i < count($params['district']);$i++){
+                       $userDistrictMap->insert(array('user_id'=>$lastInsertId,'location_id'=>$params['district'][$i]));
+                    }
+                }else if(isset($params['province']) && !empty($params['province'])){
+                    for($i=0;$i < count($params['province']);$i++){
+                       $userProvinceMap->insert(array('user_id'=>$lastInsertId,'location_id'=>$params['province'][$i]));
+                    }
+                }else if(isset($params['country']) && !empty($params['country'])){
+                    for($i=0;$i < count($params['country']);$i++){
+                       $userCountryMap->insert(array('user_id'=>$lastInsertId,'country_id'=>$params['country'][$i]));
+                    }
+                }
             }
             return $lastInsertId;
         }
@@ -110,6 +127,9 @@ class UsersTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         $userRoleMap = new UserRoleMapTable($dbAdapter);
         $userTokenMap = new UserTokenMapTable($dbAdapter);
+        $userDistrictMap = new UserDistrictMapTable($dbAdapter);
+        $userProvinceMap = new UserProvinceMapTable($dbAdapter);
+        $userCountryMap = new UserCountryMapTable($dbAdapter);
         $userId=base64_decode($params['userId']);
         if (isset($params['password']) && $params['password'] != '') {
             $config = new \Zend\Config\Reader\Ini();
@@ -135,6 +155,24 @@ class UsersTable extends AbstractTableGateway {
                     $splitToken = explode(",",$params['token']);
                     for($t=0;$t<count($splitToken); $t++){
                         $userTokenMap->insert(array('user_id'=>$userId,'token'=>trim($splitToken[$t])));
+                    }
+                }
+                //Remove User-District, User-Province, User-Country
+                $userDistrictMap->delete(array('user_id'=>$userId));
+                $userProvinceMap->delete(array('user_id'=>$userId));
+                $userCountryMap->delete(array('user_id'=>$userId));
+                //Add User-District, User-Province, User-Country
+                if(isset($params['district']) && !empty($params['district'])){
+                    for($i=0;$i < count($params['district']);$i++){
+                       $userDistrictMap->insert(array('user_id'=>$userId,'location_id'=>$params['district'][$i]));
+                    }
+                }else if(isset($params['province']) && !empty($params['province'])){
+                    for($i=0;$i < count($params['province']);$i++){
+                       $userProvinceMap->insert(array('user_id'=>$userId,'location_id'=>$params['province'][$i]));
+                    }
+                }else if(isset($params['country']) && !empty($params['country'])){
+                    for($i=0;$i < count($params['country']);$i++){
+                       $userCountryMap->insert(array('user_id'=>$userId,'country_id'=>$params['country'][$i]));
                     }
                 }
             }
@@ -289,17 +327,64 @@ class UsersTable extends AbstractTableGateway {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('u'=>'users'))
-                               ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array('role_id'),'left')
+                               ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array('role_id'))
+                               ->join(array('r' => 'roles'), "r.role_id=urm.role_id", array('access_level'))
                                ->where(array('id'=>$id));
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $queryResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         if($queryResult){
+            //User-Token
             $userTokenQuery = $sql->select()->from(array('u_t_map' => 'user_token_map'))
                                             ->columns(array('token'))
                                             ->where(array('user_id'=>$id))
                                             ->order("token ASC");
             $userTokenQueryStr = $sql->getSqlStringForSqlObject($userTokenQuery);
             $queryResult['userToken'] = $dbAdapter->query($userTokenQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+            //User-District
+            $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
+                                               ->columns(array('location_id'))
+                                               ->join(array('l_d'=>'location_details'),'l_d.location_id=u_d_map.location_id',array('parent_location','country'))
+                                               ->where(array('user_id'=>$id));
+            $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+            $queryResult['userDistricts'] = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+            if(isset($queryResult['userDistricts']) && count($queryResult['userDistricts']) >0){
+                $provinces = array();
+                $countries = array();
+                foreach($queryResult['userDistricts'] as $district){
+                    if(!in_array($district['parent_location'],$provinces)){
+                       $provinces[] = $district['parent_location'];
+                    }
+                    if(!in_array($district['country'],$countries)){
+                       $countries[] = $district['country'];
+                    }
+                    
+                }
+                $queryResult['selectedProvinces'] = $provinces;
+                $queryResult['selectedCountries'] = $countries;
+            }
+            //User-Province
+            $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
+                                               ->columns(array('location_id'))
+                                               ->join(array('l_d'=>'location_details'),'l_d.location_id=u_p_map.location_id',array('country'))
+                                               ->where(array('user_id'=>$id));
+            $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+            $queryResult['userProvinces'] = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+            if(isset($queryResult['userProvinces']) && count($queryResult['userProvinces']) >0){
+                $countries = array();
+                foreach($queryResult['userProvinces'] as $province){
+                    if(!in_array($province['country'],$countries)){
+                       $countries[] = $province['country'];
+                    }
+                    
+                }
+                $queryResult['selectedCountries'] = $countries;
+            }
+            //User-Country
+            $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
+                                              ->columns(array('country_id'))
+                                              ->where(array('user_id'=>$id));
+            $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+            $queryResult['userCountries'] = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
         return $queryResult;
     }

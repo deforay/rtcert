@@ -21,6 +21,10 @@ use Application\Model\ResourcesTable;
 use Application\Model\TempMailTable;
 use Application\Model\UserTokenMapTable;
 use Application\Model\AuditMailTable;
+use Application\Model\LocationDetailsTable;
+use Application\Model\UserCountryMapTable;
+use Application\Model\UserProvinceMapTable;
+use Application\Model\UserDistrictMapTable;
 
 use Application\Service\OdkFormService;
 use Application\Service\UserService;
@@ -175,9 +179,30 @@ class Module
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new TempMailTable($dbAdapter);
                     return $table;
-                },'UserTokenMapTable' => function($sm) {
+                },
+		'UserTokenMapTable' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new UserTokenMapTable($dbAdapter);
+                    return $table;
+                },
+		'LocationDetailsTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new LocationDetailsTable($dbAdapter);
+                    return $table;
+                },
+		'UserCountryMapTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new UserCountryMapTable($dbAdapter);
+                    return $table;
+                },
+		'UserProvinceMapTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new UserProvinceMapTable($dbAdapter);
+                    return $table;
+                },
+		'UserDistrictMapTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new UserDistrictMapTable($dbAdapter);
                     return $table;
                 },
 		

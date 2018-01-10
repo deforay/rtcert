@@ -28,10 +28,21 @@ class UsersController extends AbstractActionController {
             return $this->redirect()->toRoute("users");
         }
         $roleSerive = $this->getServiceLocator()->get('RoleService');
+        $commonSerive = $this->getServiceLocator()->get('CommonService');
         //$odkFormSerive = $this->getServiceLocator()->get('OdkFormService');
         $roleResult = $roleSerive->getAllActiveRoles();
+        $countryResult = $commonSerive->getAllActiveCountries();
+        $provinceResult = $commonSerive->getAllProvinces();
+        $districtResult = $commonSerive->getAllDistricts();
         //$tokenResult = $odkFormSerive->getSpiV3FormUniqueTokens();
-        return new ViewModel(array('roleResults' => $roleResult,'tokenResults' => $tokenResult));
+        return new ViewModel(
+                            array(
+                                  'roleResults' => $roleResult,
+                                  'countryResult'=>$countryResult,
+                                  'provinceResult'=>$provinceResult,
+                                  'districtResult'=>$districtResult
+                                  )
+                            );
     }
 
     public function editAction() {
@@ -43,14 +54,35 @@ class UsersController extends AbstractActionController {
             return $this->redirect()->toRoute("users");
         } else {
             $id = base64_decode($this->params()->fromRoute('id'));
-            $result = $userSerive->getUser($id);
             $roleSerive = $this->getServiceLocator()->get('RoleService');
-            
+            $commonSerive = $this->getServiceLocator()->get('CommonService');
+            $result = $userSerive->getUser($id);
             $roleResult = $roleSerive->getAllActiveRoles();
-            
+            $countryResult = $commonSerive->getAllActiveCountries();
+            $selectedCountries = array();
+            if(isset($result['userCountries']) && count($result['userCountries']) >0){
+                foreach($result['userCountries'] as $country){
+                    $selectedCountries[] = $country['country_id'];
+                }
+            }else if(isset($result['selectedCountries']) && count($result['selectedCountries']) >0){
+              $selectedCountries = $result['selectedCountries'];
+            }
+            $provinceResult = $commonSerive->getSelectedCountryProvinces($selectedCountries);
+            $params = array();
+            if(isset($result['userProvinces']) && count($result['userProvinces']) >0){
+                    foreach($result['userProvinces'] as $province){
+                       $params['province'][] = $province['location_id'];
+                    }
+            }else if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0){
+                $params['province'] = $result['selectedProvinces'];
+            }
+            $districtResult = $commonSerive->getProvinceDistricts($params);
             return new ViewModel(array(
                 'result' => $result,
-                'roleResults' => $roleResult
+                'roleResults' => $roleResult,
+                'countryResult'=>$countryResult,
+                'provinceResult'=>$provinceResult,
+                'districtResult'=>$districtResult
             ));
         }
     }

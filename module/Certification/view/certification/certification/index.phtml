@@ -27,19 +27,19 @@ $acl = $this->layout()->acl;
     </div>
 
     <div class="main-content">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <ul class="nav nav-tabs" id="certificationTab" role="tablist">
             <li class="nav-item active">
-              <a class="nav-link active" id="c-to-be-sent-tab" data-toggle="tab" href="#c-to-be-sent" role="tab" aria-controls="c-to-be-sent" aria-selected="true">Certificates to be sent</a>
+              <a class="nav-link active" id="to-be-sent-tab" data-toggle="tab" href="#to-be-sent" role="tab" aria-controls="to-be-sent" aria-selected="true">Certificates to be sent</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="c-testers-tab" data-toggle="tab" href="#c-testers" role="tab" aria-controls="c-testers" aria-selected="false">Certified Testers</a>
+              <a class="nav-link" id="certified-tab" data-toggle="tab" href="#certified" role="tab" aria-controls="certified" aria-selected="false">Certified Testers</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="f-testers-tab" data-toggle="tab" href="#f-testers" role="tab" aria-controls="f-testers" aria-selected="false">Pending or Failed Testers</a>
+              <a class="nav-link" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="false">Pending or Failed Testers</a>
             </li>
         </ul>
-        <div class="tab-content" id="myTabContent">
-          <div class="tab-pane active" id="c-to-be-sent" role="tabpanel" aria-labelledby="c-to-be-sent-tab">
+        <div class="tab-content" id="certificationContent">
+          <div class="tab-pane active" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
             <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
                     <tr>
@@ -118,7 +118,7 @@ $acl = $this->layout()->acl;
                 </tbody>
             </table>
           </div>
-          <div class="tab-pane fade" id="c-testers" role="tabpanel" aria-labelledby="c-testers-tab">
+          <div class="tab-pane fade" id="certified" role="tabpanel" aria-labelledby="certified-tab">
             <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr >
@@ -192,7 +192,7 @@ $acl = $this->layout()->acl;
                 </tbody>
             </table>
           </div>
-          <div class="tab-pane fade" id="f-testers" role="tabpanel" aria-labelledby="f-testers-tab">
+          <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
             <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr>
@@ -265,7 +265,7 @@ $acl = $this->layout()->acl;
 
 
 <script type="text/javascript" language="javascript" >
-$('#myTab a').on('click', function (e) {
+$('#certificationTab a').on('click', function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
@@ -281,17 +281,11 @@ function pendingInit(){
 }
 
 
-    $(document).ready(function () {
-        toBeSentInit();
-        certifiedInit();
-        pendingInit();
-    
-    });
+$(document).ready(function () {
+    toBeSentInit();
+    certifiedInit();
+    pendingInit();
+
+});
 
 </script>
-
-
-
-
-
-

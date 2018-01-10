@@ -527,3 +527,38 @@ ALTER TABLE `spi_form_v_3_duplicate` ADD `facilityid` INT(11) NULL DEFAULT NULL 
 -- Amit 03 Jan 2018
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\CertificationMail', 'index', 'Access');
 
+-- Pal 09 Jan 2018
+ALTER TABLE `roles` ADD `access_level` INT(11) NULL DEFAULT NULL AFTER `role_name`;
+
+CREATE TABLE `country` (
+  `country_id` int(11) NOT NULL,
+  `country_name` varchar(45) DEFAULT NULL,
+  `country_code` varchar(45) DEFAULT NULL,
+  `country_status` varchar(45) NOT NULL DEFAULT 'active'
+)
+
+ALTER TABLE `country`
+  ADD PRIMARY KEY (`country_id`);
+  
+ALTER TABLE `country`
+  MODIFY `country_id` int(11) NOT NULL AUTO_INCREMENT
+  
+CREATE TABLE `location_details` (
+  `location_id` int(11) NOT NULL,
+  `parent_location` int(11) DEFAULT '0',
+  `location_name` varchar(255) DEFAULT NULL,
+  `location_code` varchar(255) DEFAULT NULL,
+  `latitude` varchar(255) DEFAULT NULL,
+  `longitude` varchar(255) DEFAULT NULL,
+  `country` int(11) NOT NULL
+)
+
+ALTER TABLE `location_details`
+  ADD PRIMARY KEY (`location_id`),
+  ADD KEY `country` (`country`);
+  
+ALTER TABLE `location_details`
+  MODIFY `location_id` int(11) NOT NULL AUTO_INCREMENT
+  
+alter table location_details add FOREIGN key(country) REFERENCES country(country_id)
+

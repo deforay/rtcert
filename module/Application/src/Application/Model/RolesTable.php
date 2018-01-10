@@ -35,6 +35,7 @@ class RolesTable extends AbstractTableGateway  {
                 'category_id' => 1,
                 'role_name' => $params['roleName'],
                 'role_code' => $params['roleCode'],
+                'access_level' => $params['accessLevel'],
                 'description' => $params['description'],
                 'status' => 'active'
             );
@@ -51,6 +52,7 @@ class RolesTable extends AbstractTableGateway  {
             $rolesdata = array(
                 'role_name' => $params['roleName'],
                 'role_code' => $params['roleCode'],
+                'access_level' => $params['accessLevel'],
                 'description' => $params['description'],
                 'status' => $params['status']
             );
@@ -64,7 +66,7 @@ class RolesTable extends AbstractTableGateway  {
          * you want to insert a non-database field (for example a counter or static image)
         */
 
-        $aColumns = array('role_name','role_code','status');
+        $aColumns = array('role_name','role_code','access_level','status');
 
         /*
          * Paging
@@ -181,12 +183,23 @@ class RolesTable extends AbstractTableGateway  {
             $update = false;
         }
         foreach ($rResult as $aRow) {
+            $accessLevel = '';
+            if($aRow['access_level'] == 1){
+                $accessLevel = 'Global';
+            }else if($aRow['access_level'] == 2){
+                $accessLevel = 'Country';
+            }else if($aRow['access_level'] == 3){
+                $accessLevel = 'Province/State';
+            }else if($aRow['access_level'] == 4){
+                $accessLevel = 'District/City';
+            }
             $row = array();
             $row[] = ucwords($aRow['role_name']);
             $row[] = $aRow['role_code'];
+            $row[] = $accessLevel;
             $row[] = ucwords($aRow['status']);
             if($update){
-            $row[] = '<a href="/roles/edit/' . base64_encode($aRow['role_id']) . '" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';
+              $row[] = '<a href="/roles/edit/' . base64_encode($aRow['role_id']) . '" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';
             }
             $output['aaData'][] = $row;
         }

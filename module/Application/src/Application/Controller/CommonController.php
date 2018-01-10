@@ -50,6 +50,34 @@ class CommonController extends AbstractActionController {
             ));
         }
     }
+    
+    public function getCountryLocationsAction(){
+        $result = "";
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $common = $this->getServiceLocator()->get('CommonService');
+            $result = $common->getCountryLocations($params);
+        }
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' => $result))
+                ->setTerminal(true);
+        return $viewModel;
+    }
+    
+    public function getProvinceDistrictsAction(){
+        $result = "";
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $common = $this->getServiceLocator()->get('CommonService');
+            $result = $common->getProvinceDistricts($params);
+        }
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' => $result))
+                ->setTerminal(true);
+        return $viewModel;
+    }
 
 }
 
