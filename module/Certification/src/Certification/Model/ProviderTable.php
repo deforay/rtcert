@@ -2,6 +2,7 @@
 
 namespace Certification\Model;
 
+use Zend\Session\Container;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\TableGateway\AbstractTableGateway;
@@ -16,16 +17,16 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function fetchAll() {
-
+        $logincontainer = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id'));
         $sqlSelect->join('certification_facilities', ' certification_facilities.id = provider.facility_id ', array('facility_name', 'facility_address'), 'left')
-                ->join('certification_districts', 'certification_districts.id =certification_facilities.district', array('district_name'), 'left')
-                ->join('certification_regions', 'certification_regions.id =certification_districts.region', array('region_name'), 'left')
-
-        ;
+                  ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'), 'left')
+                  ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'), 'left');
         $sqlSelect->order('certification_reg_no desc');
-
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$logincontainer->district).')');
+        }
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
         return $resultSet;
     }
@@ -41,7 +42,6 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function saveProvider(\Certification\Model\Provider $provider) {
-
         $last_name = strtoupper($provider->last_name);
         $first_name = strtoupper($provider->first_name);
         $middle_name = strtoupper($provider->middle_name);
@@ -132,24 +132,37 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     /**
-     * to get districts list
-     * @param type $q (region id)
+     * to get facilities list
+     * @param type $q (district id)
      * @return type array
      */
-    public function getDistrict($q) {
+     public function getRegion($params) {
+        $logincontainer = new Container('credo');
+        $regionWhere = '';
+        if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $regionWhere = ' AND location_id IN('.implode(',',$logincontainer->region).')';
+        }
         $db = $this->tableGateway->getAdapter();
-        $sql = "SELECT id,district_name,region FROM certification_districts WHERE region = '" . $q . "'";
+        $sql = "SELECT location_id, location_name FROM location_details WHERE parent_location = 0 AND country ='" . $params['q'] . "'".$regionWhere;
+        $statement = $db->query($sql);
+        $result = $statement->execute();
+        return $result;
+    }
+    
+     public function getDistrict($q) {
+        $logincontainer = new Container('credo');
+        $districtWhere = '';
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $districtWhere = ' AND location_id IN('.implode(',',$logincontainer->district).')';
+        }
+        $db = $this->tableGateway->getAdapter();
+        $sql = "SELECT location_id, location_name FROM location_details WHERE parent_location = '" . $q . "'".$districtWhere;
         $statement = $db->query($sql);
         $result = $statement->execute();
 //        print_r($result);
         return $result;
     }
-
-    /**
-     * to get facilities list
-     * @param type $q (district id)
-     * @return type array
-     */
+    
     public function getFacility($q) {
         $db = $this->tableGateway->getAdapter();
         $sql = "SELECT id, facility_name, district FROM certification_facilities where district='" . $q . "'";
@@ -158,18 +171,30 @@ class ProviderTable extends AbstractTableGateway {
         return $result;
     }
 
-    public function DistrictName($district) {
+//    public function DistrictName($district) {
+//        $db = $this->tableGateway->getAdapter();
+//        $sql = "SELECT id, district_name FROM certification_districts WHERE id = '" . $district . "'";
+//        $statement = $db->query($sql);
+//        $result = $statement->execute();
+//
+//        foreach ($result as $res) {
+//            $district_name = $res['district_name'];
+//            $id = $res['id'];
+//        }
+////       die(print_r($id));
+//        return array('district_id' => $id, 'district_name' => $district_name);
+//    }
+
+    public function getCountryIdbyRegion($location) {
         $db = $this->tableGateway->getAdapter();
-        $sql = "SELECT id, district_name FROM certification_districts WHERE id = '" . $district . "'";
+        $sql = "SELECT country FROM location_details WHERE location_id ='" . $location . "'";
         $statement = $db->query($sql);
         $result = $statement->execute();
-
         foreach ($result as $res) {
-            $district_name = $res['district_name'];
-            $id = $res['id'];
+            $country_id = $res['country'];
         }
 //       die(print_r($id));
-        return array('district_id' => $id, 'district_name' => $district_name);
+        return array('country_id' => $country_id);
     }
 
     public function FacilityName($facility) {
@@ -185,6 +210,19 @@ class ProviderTable extends AbstractTableGateway {
         return array('facility_id' => $id, 'facility_name' => $facility_name);
     }
 
+    public function getAllActiveCountries(){
+        $logincontainer = new Container('credo');
+        $countryWhere = 'WHERE country_status = "active"';
+        if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $countryWhere = 'WHERE country_id IN('.implode(',',$logincontainer->country).') AND country_status = "active"';
+        }
+        $db = $this->tableGateway->getAdapter();
+        $sql = 'SELECT country_id, country_name FROM country '.$countryWhere.' ORDER by country_name asc';
+        $statement = $db->query($sql);
+        $countryResult = $statement->execute();
+        return $countryResult;
+    }
+    
     public function deleteProvider($id) {
         $this->tableGateway->delete(array('id' => (int) $id));
     }

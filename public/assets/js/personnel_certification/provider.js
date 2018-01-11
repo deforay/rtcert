@@ -22,6 +22,8 @@ function validateForm() {
     var q = document.forms["form"]["facility_id"].value;
 
     var s = document.forms["form"]["select_time"].value;
+    
+    var t = document.forms["form"]["country"].value;
 
     var elmt = document.getElementById("Last Name");
     var elmt2 = document.getElementById("First Name");
@@ -42,6 +44,7 @@ function validateForm() {
     var elmt16 = document.getElementById("Facility in charge Phone");
     var elmt17 = document.getElementById("Facility Name");
     var elmt19 = document.getElementById("Time");
+    var elmt20 = document.getElementById("Country");
 
     if (a == null || a == "")
     {
@@ -75,17 +78,23 @@ function validateForm() {
         alert('Invalid Email Address for "' + elmt5.id + '"');
         return false;
     }
-
+  
+    if (t == null || t == "") {
+        elmt20.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
+        alert("Please select ''" + elmt20.id + "''");
+        return false;
+    }
+    
     if (f == null || f == "") {
         elmt7.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
-        alert("Please enter the ''" + elmt7.id + "''");
+        alert("Please select ''" + elmt7.id + "''");
         return false;
     }
 
 
     if (g == null || g == "") {
         elmt8.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
-        alert("Please enter the ''" + elmt8.id + "''");
+        alert("Please select ''" + elmt8.id + "''");
         return false;
     }
 
@@ -116,7 +125,7 @@ function validateForm() {
 
     if (q == null || q == "") {
         elmt17.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
-        alert("Please enter the ''" + elmt17.id + "''");
+        alert("Please select ''" + elmt17.id + "''");
         return false;
     }
 

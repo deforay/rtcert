@@ -2,6 +2,7 @@
 
 namespace Certification\Form;
 
+use Zend\Session\Container;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Form;
 
@@ -12,11 +13,12 @@ class ProviderForm extends Form {
     public function __construct(AdapterInterface $dbAdapter) {
 
         $this->adapter = $dbAdapter;
-
+        
         parent::__construct("provider");
+       
         $this->setAttributes(array('method' => 'post',
         ));
-
+       
         $this->add(array(
             'name' => 'id',
             'type' => 'Hidden',
@@ -67,14 +69,26 @@ class ProviderForm extends Form {
                 'label' => 'Middle Name (3rd name)',
             ),
         ));
-
+        
+         $this->add(array(
+            'name' => 'country',
+            'type' => 'select',
+            'options' => array(
+                'label' => 'Country',
+                'disable_inarray_validator' => true,
+                'empty_option' => 'Please Choose a Country',
+                'value_options' => $this->getAllActiveCountries(),
+            ),
+        ));
+         
         $this->add(array(
             'name' => 'region',
             'type' => 'select',
             'options' => array(
                 'label' => 'Region',
-                'empty_option' => 'Please Choose a Region',
-                'value_options' => $this->getRegions(),
+                'disable_inarray_validator' => true,
+                'empty_option' => 'Please Choose a Country First',
+                //'value_options' => $this->getAllRegions(),
             ),
         ));
         $this->add(array(
@@ -83,7 +97,8 @@ class ProviderForm extends Form {
             'options' => array(
                 'label' => 'District',
                 'disable_inarray_validator' => true,
-                'empty_option' => 'Please Choose a Region first',
+                'empty_option' => 'Please Choose a Region First',
+                //'value_options' => $this->getAllDistricts(),
             ),
         ));
 
@@ -241,6 +256,47 @@ class ProviderForm extends Form {
         $selectData = [];
         foreach ($result as $res) {
             $selectData[$res['id']] = $res['region_name'];
+        }
+        return $selectData;
+    }
+    
+    public function getAllActiveCountries() {
+        $logincontainer = new Container('credo');
+        $countryWhere = 'WHERE country_status = "active"';
+        if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $countryWhere = 'WHERE country_id IN('.implode(',',$logincontainer->country).') AND country_status = "active"';
+        }
+        $dbAdapter = $this->adapter;
+        $sql = 'SELECT country_id, country_name FROM country '.$countryWhere.' ORDER by country_name asc';
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        $selectData = [];
+        foreach ($result as $res) {
+            $selectData[$res['country_id']] = $res['country_name'];
+        }
+        return $selectData;
+    }
+    
+    public function getAllRegions(){
+        $dbAdapter = $this->adapter;
+        $sql = 'SELECT location_id, location_name FROM location_details WHERE parent_location = 0 ORDER by location_name asc';
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        $selectData = [];
+        foreach ($result as $res) {
+            $selectData[$res['location_id']] = $res['location_name'];
+        }
+        return $selectData;
+    }
+    
+    public function getAllDistricts(){
+        $dbAdapter = $this->adapter;
+        $sql = 'SELECT location_id, location_name FROM location_details WHERE parent_location != 0 ORDER by location_name asc';
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        $selectData = [];
+        foreach ($result as $res) {
+            $selectData[$res['location_id']] = $res['location_name'];
         }
         return $selectData;
     }

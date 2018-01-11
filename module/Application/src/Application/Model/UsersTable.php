@@ -42,7 +42,7 @@ class UsersTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from(array('u' => 'users'))
                                 ->join(array('urm' => 'user_role_map'), 'urm.user_id=u.id', array('role_id'))
-                                ->join(array('r' => 'roles'), 'r.role_id=urm.role_id', array('role_name','role_code'))
+                                ->join(array('r' => 'roles'), 'r.role_id=urm.role_id', array('role_name','role_code','access_level'))
                                 ->where(array('login' => $username, 'password' => $password,'u.status' =>'active'));
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -57,10 +57,56 @@ class UsersTable extends AbstractTableGateway {
             foreach($userTokenResult as $userToken){
                 $token[] = $userToken['token'];
             }
+            $country = array();
+            $region = array();
+            $district = array();
+            if(isset($sResult->access_level) && $sResult->access_level!= null && trim($sResult->access_level)!= '' && (int)$sResult->access_level == 4){
+                $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
+                                         ->join(array('l_d'=>'location_details'),'l_d.location_id=u_d_map.location_id',array('location_id','parent_location','country'))
+                                         ->where(array('u_d_map.user_id'=>$sResult->id))
+                                         ->order("location_name ASC");
+                $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+                $userDistrictResult = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+                if(isset($userDistrictResult) && count($userDistrictResult) > 0){
+                    foreach($userDistrictResult as $userDistrict){
+                        $district[] = $userDistrict['location_id'];
+                        if(!in_array($userDistrict['parent_location'],$region)){ $region[] = $userDistrict['parent_location']; }
+                        if(!in_array($userDistrict['country'],$country)){ $country[] = $userDistrict['country']; }
+                    }
+                }
+            }
+            if(isset($sResult->access_level) && $sResult->access_level!= null && trim($sResult->access_level)!= '' && (int)$sResult->access_level == 3){
+                $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
+                                         ->join(array('l_d'=>'location_details'),'l_d.location_id=u_p_map.location_id',array('location_id','country'))
+                                         ->where(array('u_p_map.user_id'=>$sResult->id))
+                                         ->order("location_name ASC");
+                $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+                $userProvinceResult = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+                if(isset($userProvinceResult) && count($userProvinceResult) > 0){
+                    foreach($userProvinceResult as $userProvince){
+                        $region[] = $userProvince['location_id'];
+                        if(!in_array($userProvince['country'],$country)){ $country[] = $userProvince['country']; }
+                    }
+                }
+            }
+            if(isset($sResult->access_level) && $sResult->access_level!= null && trim($sResult->access_level)!= '' && (int)$sResult->access_level == 2){
+                $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
+                                        ->where(array('u_c_map.user_id'=>$sResult->id));
+                $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+                $userCountryResult = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+                if(isset($userCountryResult) && count($userCountryResult) > 0){
+                    foreach($userCountryResult as $userCountry){
+                        $country[] = $userCountry['country_id'];
+                    }
+                }
+            }
             $logincontainer->userId = $sResult->id;
             $logincontainer->login = $sResult->login;
             $logincontainer->roleCode = $sResult->role_code;
             $logincontainer->token = $token;
+            $logincontainer->district = $district;
+            $logincontainer->region = $region;
+            $logincontainer->country = $country;
             return 'dashboard';
         } else {
             $container->alertMsg = 'Please check your login credentials';

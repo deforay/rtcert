@@ -3,10 +3,10 @@
 namespace Certification\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Provider;
 use Certification\Form\ProviderForm;
-use Zend\Session\Container;
 
 class ProviderController extends AbstractActionController {
 
@@ -103,38 +103,79 @@ class ProviderController extends AbstractActionController {
                 return $this->redirect()->toRoute('provider');
             }
         }
-        $district = $this->getProviderTable()->DistrictName($provider->district);
-        $facility = $this->getProviderTable()->FacilityName($provider->facility_id);
-
+        $location = $this->getProviderTable()->getCountryIdbyRegion($provider->region);
         return array(
             'id' => $id,
             'form' => $form,
-            'district_id' => $district['district_id'],
-            'district_name' => $district['district_name'],
-            'facility_id' => $facility['facility_id'],
-            'facility_name' => $facility['facility_name'],
+            'country_id' => $location['country_id'],
+            'region_id' => $provider->region,
+            'district_id' => $provider->district,
+            'facility_id' => $provider->facility_id,
             'time2' => $time2,
         );
     }
 
+    public function regionAction() {
+        $request = $this->getRequest();                
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = $this->getProviderTable()->getRegion($params);
+            $viewModel = new ViewModel(array(
+                'result' => $result,
+                'params'=>$params
+                ));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+        //$q = (int) $_GET['q'];
+        //$id = (isset($_GET['id']))?(int) $_GET['id']:'';
+        //$result = $this->getProviderTable()->getRegion($q);
+        //return array(
+        //    'result' => $result,
+        //    'id'=>$id
+        //);
+    }
+    
     public function districtAction() {
-
         $q = (int) $_GET['q'];
+        $id = (isset($_GET['id']))?(int) $_GET['id']:'';
         $result = $this->getProviderTable()->getDistrict($q);
         return array(
             'result' => $result,
+            'id'=>$id
         );
     }
 
     public function facilityAction() {
-
         $q = (int) $_GET['q'];
+        $id = (isset($_GET['id']))?(int) $_GET['id']:'';
         $result = $this->getProviderTable()->getFacility($q);
         return array(
             'result' => $result,
+            'id'=>$id
         );
     }
 
+    public function setCountrySelectionAction() {
+        $request = $this->getRequest();                
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = $this->getProviderTable()->getAllActiveCountries();
+            $viewModel = new ViewModel(array(
+                'result' => $result,
+                'params'=>$params
+                ));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+        //$id = (int) $_GET['id'];
+        //$result = $this->getProviderTable()->getAllActiveCountries();
+        //return array(
+        //    'id'=>$id,
+        //    'result' => $result,
+        //);
+    }
+    
     public function deleteAction() {
         $id = (int) $this->params()->fromRoute('id', 0);
 

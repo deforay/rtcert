@@ -2,8 +2,8 @@
 echo '<select ><option value="">Please choose a District</option>';
 
 foreach ($result as $res) {
-     
-    echo "<option  value=".$res['id'].">" . $res['district_name'] . " </option> ";
+     $selected = (isset($id) && trim($id)!='' && $id == $res['location_id'])? 'selected="selected"':'';
+    echo "<option  value=".$res['location_id']." ".$selected.">" . $res['location_name'] . " </option> ";
 }
 
 echo '</select>';
