@@ -162,11 +162,6 @@ $(document).ready(function () {
     recommendInit();
     recommendedInit();
     approvedInit();
-    //Insert a raw HTML into data table
-    var count_elem = document.getElementById('recommendTable');
-    var div = document.createElement('div');
-    div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary" href="javascript:void(0);" onclick="manageRecommendation();" style="padding:4px;">Submit</a>';
-    count_elem.parentNode.insertBefore(div, count_elem);
 });
 
 function recommendInit(){
@@ -288,4 +283,10 @@ function manageRecommendation(){
         });
     }
 }
+
+//Insert a raw HTML into data table
+var count_elem = document.getElementById('recommendTable');
+var div = document.createElement('div');
+div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary" href="javascript:void(0);" onclick="manageRecommendation();" style="padding:4px;">Submit</a>';
+count_elem.parentNode.insertBefore(div, count_elem);
 </script>
