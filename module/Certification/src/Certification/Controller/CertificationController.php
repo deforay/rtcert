@@ -2,11 +2,13 @@
 
 namespace Certification\Controller;
 
+use Zend\Session\Container;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Json\Json;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Certification;
 use Certification\Form\CertificationForm;
-use Zend\Session\Container;
+
 
 class CertificationController extends AbstractActionController {
 
@@ -475,6 +477,28 @@ class CertificationController extends AbstractActionController {
             $viewModel->setTerminal(true);
             return $viewModel;
         } 
+    }
+    
+    public function recommendedAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->fetchAllRecommended($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function approvalAction(){
+        $request = $this->getRequest();                
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = $this->getCertificationTable()->updateCertficateApproval($params);
+            $viewModel = new ViewModel(array(
+                'result'=>$result
+                ));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
     }
 
 }

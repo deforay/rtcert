@@ -469,8 +469,154 @@ class CertificationTable {
       return $date_end_validity;
     }
     
-    public function saveCertification1(){
-        echo 'f';die;
+    public function fetchAllRecommended($parameters){
+        $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+ 
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
+                               ->where('c.approval_status IN("pending","Pending")');
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+ 
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+ 
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('c'=>'certification'))
+                                 ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                                 ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
+                                 ->where('c.approval_status IN("pending","Pending")');
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+           "sEcho" => intval($parameters['sEcho']),
+           "iTotalRecords" => $iTotal,
+           "iTotalDisplayRecords" => $iFilteredTotal,
+           "aaData" => array()
+        );
+        
+        foreach ($rResult as $aRow) {
+         $row = array();
+            $row[] = '<input class="approvalRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForApproval(this);" value="'.$aRow['id'].'"/>';
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['certification_issuer'];
+            $row[] = $aRow['date_certificate_issued'];
+            $row[] = $aRow['date_certificate_sent'];
+            $row[] = $aRow['certification_type'];
+         $output['aaData'][] = $row;
+        }
+        return $output;
     }
 
+    public function updateCertficateApproval($params){
+        $result = 0;
+        if(isset($params['approvalRow']) && count($params['approvalRow']) > 0){
+            $db = $this->tableGateway->getAdapter();
+            for($i=0;$i<count($params['approvalRow']);$i++){
+                $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' WHERE id=" . $params['approvalRow'][$i];
+
+           $result = $db->getDriver()->getConnection()->execute($sql);
+            }
+        }
+      return $result;
+    }
 }

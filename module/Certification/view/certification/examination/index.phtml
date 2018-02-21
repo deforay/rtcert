@@ -206,11 +206,11 @@ function recommendInit(){
 }
 
 function recommendedInit(){
-  $('#recommendedTable').dataTable();
+   $('#recommendedTable').dataTable();
 }
 
 function approvedInit(){
-  $('#approvedTable').dataTable();
+   $('#approvedTable').dataTable();
 }
 
 function selectForRecommendation(obj){
@@ -223,29 +223,29 @@ function selectForRecommendation(obj){
        recommendationRow.splice(examIndex, 1);
     }
     if(recommendationRow.length == 0){
-       $('#certificationIssuer').hide(); 
+       $('#certificationIssuer,.manageRecommendation').hide(); 
     }else{
-       $('#certificationIssuer').show(); 
+       $('#certificationIssuer,.manageRecommendation').show(); 
     }
     $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
 }
 
 function selectForAllRecommendation(){
+  recommendationRow = [];  
   $('#selectdeselect').val('select');
   $('.recommendationRow').prop('checked',true);
 
   var recommendIDs = $("#recommendTable input:checkbox:checked").map(function(){
       return $(this).val();
     }).get();
-  recommendationRow = [];
   recommendationRow = recommendIDs;
   if(recommendationRow.length > 0){
         $('.selectdeselect').attr('onclick','deSelectForAllRecommendation()');
         $('.selectdeselect').text('Deselect All');
         if(recommendationRow.length == 0){
-          $('#certificationIssuer').hide(); 
+            $('#certificationIssuer,.manageRecommendation').hide(); 
         }else{
-          $('#certificationIssuer').show(); 
+            $('#certificationIssuer,.manageRecommendation').show(); 
         }
         $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
   }else{
@@ -254,17 +254,17 @@ function selectForAllRecommendation(){
 }
 
 function deSelectForAllRecommendation(){
-  $('#selectdeselect').val('deselect'); 
-  $('.recommendationRow').prop('checked',false);
-  recommendationRow = [];
-  $('.selectdeselect').attr('onclick','selectForAllRecommendation()');
-  $('.selectdeselect').text('Select All');
-  if(recommendationRow.length == 0){
-    $('#certificationIssuer').hide(); 
-  }else{
-    $('#certificationIssuer').show(); 
-  }
-  $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
+    recommendationRow = [];
+    $('#selectdeselect').val('deselect'); 
+    $('.recommendationRow').prop('checked',false);
+    $('.selectdeselect').attr('onclick','selectForAllRecommendation()');
+    $('.selectdeselect').text('Select All');
+    if(recommendationRow.length == 0){
+        $('#certificationIssuer,.manageRecommendation').hide(); 
+    }else{
+        $('#certificationIssuer,.manageRecommendation').show(); 
+    }
+   $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
 }
 
 function manageRecommendation(){
@@ -278,8 +278,8 @@ function manageRecommendation(){
     }else{
         $.post("<?php echo $this->url('certification',array('action'=>'recommend')); ?>", {recommendationRow:recommendationRow,certificationIssuer:$('#certificationIssuer').val()},
         function(data){
-            deSelectForAllRecommendation();
             recommendTable.draw();
+            deSelectForAllRecommendation();
         });
     }
 }
@@ -287,6 +287,6 @@ function manageRecommendation(){
 //Insert a raw HTML into data table
 var count_elem = document.getElementById('recommendTable');
 var div = document.createElement('div');
-div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary" href="javascript:void(0);" onclick="manageRecommendation();" style="padding:4px;">Submit</a>';
+div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary manageRecommendation" href="javascript:void(0);" onclick="manageRecommendation();" style="display:none;padding:4px;">Submit</a>';
 count_elem.parentNode.insertBefore(div, count_elem);
 </script>
