@@ -632,3 +632,6 @@ ALTER TABLE `provider` ADD `certification_key` INT(11) NULL DEFAULT '0' AFTER `t
 ALTER TABLE `provider` CHANGE `certification_key` `certification_key` VARCHAR(45) NULL DEFAULT NULL;
 
 ALTER TABLE `provider` CHANGE `certification_key` `certification_key` INT(11) NULL DEFAULT NULL;
+
+-- Pal 21 Feb 2018
+ALTER TABLE `certification` ADD `approval_status` VARCHAR(45) NULL DEFAULT NULL AFTER `examination`;

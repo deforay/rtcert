@@ -3,6 +3,7 @@
 namespace Certification\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Json\Json;
 use Zend\View\Model\ViewModel;
 
 class ExaminationController extends AbstractActionController {
@@ -18,9 +19,16 @@ class ExaminationController extends AbstractActionController {
     }
 
     public function indexAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->fetchAll($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         return new ViewModel(array(
-            'examinations' => $this->getExaminationTable()->fetchAll(),
+           'recommended' => $this->getExaminationTable()->fetchAllRecommended(),
+           'approved' => $this->getExaminationTable()->fetchAllApproved()
         ));
     }
 

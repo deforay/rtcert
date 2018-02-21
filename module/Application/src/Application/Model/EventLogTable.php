@@ -31,8 +31,7 @@ class EventLogTable extends AbstractTableGateway {
             $logincontainer = new Container('credo');
             $actor_id = $logincontainer->userId;
             $common = new CommonService();
-            $currentDateTime=$common->getDateTime();
-            
+            $currentDateTime = $common->getDateTime();
             $data = array('actor'=>$actor_id,
                           'subject'=>$subject,
                           'event_type'=>$eventType,
