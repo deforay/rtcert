@@ -14,9 +14,6 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
   $adminMenu.="<li><a href=".$this->url('users',array('action' => 'index')).">Users</a></li>";
 }
 
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
-  $adminMenu.="<li><a href=" . $this->url('config',array('action' => 'index')) . ">Global Config</a></li>";
-}
 
 ?>
 <!DOCTYPE html>
@@ -30,7 +27,51 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "inde
     <title><?php echo $sessionLogin->countryName; ?> - Tester Certification </title>
     
     <style type="text/css">
-      
+.dropdown-submenu{ position: relative; }
+
+.dropdown-submenu>.dropdown-menu{
+  top:0;
+  left:100%;
+  margin-top:-6px;
+  margin-left:-1px;
+  -webkit-border-radius:0 6px 6px 6px;
+  -moz-border-radius:0 6px 6px 6px;
+  border-radius:0 6px 6px 6px;
+}
+
+.dropdown-submenu>a:after{
+  display:block;
+  content:" ";
+  float:right;
+  width:0;
+  height:0;
+  border-color:transparent;
+  border-style:solid;
+  border-width:5px 0 5px 5px;
+  border-left-color:#cccccc;
+  margin-top:5px;margin-right:-10px;
+}
+.dropdown-submenu:hover>a:after{
+  border-left-color:#555;
+}
+.dropdown-submenu.pull-left{ float: none; }
+.dropdown-submenu.pull-left>.dropdown-menu{
+  left: -100%;
+  margin-left: 10px;
+  -webkit-border-radius: 6px 0 6px 6px;
+  -moz-border-radius: 6px 0 6px 6px;
+  border-radius: 6px 0 6px 6px;
+}
+
+@media (min-width: 768px) { 
+
+}
+@media (min-width: 992px) { 
+
+}
+@media (min-width: 1200px) { 
+
+}      
     </style>
     <!-- Latest compiled and minified CSS -->
     
@@ -123,20 +164,32 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "inde
           <div id="am-navbar-collapse" class="collapse navbar-collapse">
             <?php if(isset($sessionLogin->userId)){ ?>
                             <ul class="nav navbar-nav am-top-menu">
-                            <?php if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
-                                              ?>
-                                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">System Admin <span class="caret"></span></a>
-                                  <ul role="menu" class="dropdown-menu">
-                                   
-                                              <li><a href="<?php echo $this->url('region', array('action' => 'index')); ?>">Regions</a>
-                                              <li><a href="<?php echo $this->url('district', array('action' => 'index')); ?>">Districts</a></li>
-                                              <li><a href="<?php echo $this->url('facility', array('action' => 'index')); ?>">Facilities</a></li>
-                                              <li class="divider"></li>
-                                                <?php echo $adminMenu; ?>
-                                                <li><a href="<?php echo $this->url('certification', array('action' => 'pdf-setting')); ?>">Certificate PDF Settings</a></li>
-                                            </ul>
-                                </li>
-                            <?php } ?>                                   
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                <?php if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) { ?>
+                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="<?php echo $this->url('region', array('action' => 'index')); ?>">Regions</a>
+                                            <li><a href="<?php echo $this->url('district', array('action' => 'index')); ?>">Districts</a></li>
+                                            <li><a href="<?php echo $this->url('facility', array('action' => 'index')); ?>">Facilities</a></li>
+                                        </ul>
+                                    </li>
+                                <?php }  ?>
+                                <?php if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) { ?>
+                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
+                                        <ul class="dropdown-menu">
+                                        <li><a href="<?php echo $this->url('config',array('action' => 'index')); ?>">Global Config</a></li>
+                                        <li><a href="<?php echo $this->url('certification', array('action' => 'pdf-setting')); ?>">Certificate PDF Settings</a></li>
+                                        </ul>
+                                    </li>
+                                <?php }  ?>    
+                                <li class="divider"></li>
+                                <?php echo $adminMenu; ?>                            
+                                    
+                                </ul>
+                            </li>                         
+                                              
                                 <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
                                   <ul role="menu" class="dropdown-menu">
                                    
@@ -276,6 +329,22 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "inde
             }
             ?>
       });
+
+
+
+(function($){
+	$(document).ready(function(){
+		$('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+			event.preventDefault(); 
+			event.stopPropagation(); 
+			$(this).parent().siblings().removeClass('open');
+			$(this).parent().toggleClass('open');
+		});
+	});
+})(jQuery);
+/* http://www.bootply.com/nZaxpxfiXz */
+
+
     </script>
 
   </body>
