@@ -620,8 +620,7 @@ class CertificationTable {
       return $result;
     }
     
-    public function getCertificationMapResults($params)
-    {
+    public function getCertificationMapResults($params){
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c'=>'certification'))->columns(array('examination','date_certificate_issued','final_decision'))
