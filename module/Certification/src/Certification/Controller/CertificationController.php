@@ -437,5 +437,44 @@ class CertificationController extends AbstractActionController {
         $header_text = $this->getCertificationTable()->SelectTexteHeader();
         return array('header_text' => $header_text);
     }
+    
+    public function recommendAction() {
+       $request = $this->getRequest();                
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = 0;
+            if(isset($params['recommendationRow']) && count($params['recommendationRow']) > 0){
+                for($i=0;$i<count($params['recommendationRow']);$i++){
+                    $examArray = explode('#',$params['recommendationRow'][$i]);
+                    $certification_id = $this->getCertificationTable()->certificationType($examArray[5]);
+                    $certification = new Certification();
+                    $certification->id = null;
+                    $certification->provider = $examArray[5];
+                    $certification->examination = $examArray[0];
+                    $certification->final_decision = $examArray[6];
+                    $certification->certification_issuer = $params['certificationIssuer'];
+                    $certification->date_certificate_issued = null;
+                    $certification->date_certificate_sent = null;
+                    if (empty($certification_id)) {
+                      $certification->certification_type = 'Initial';
+                    }else{
+                       $certification->certification_type = 'Recertification'; 
+                    }
+                    $result = $this->getCertificationTable()->saveCertification($certification);
+                    $last_id = $this->getCertificationTable()->last_id();
+                    $this->getCertificationTable()->updateExamination($last_id);
+                    $this->getCertificationTable()->setToActive($last_id);
+                    if (empty($certification_id) && $examArray[1] >= 80 && $examArray[3] >= 90 && $examArray[4] = 100) {
+                        $this->getCertificationTable()->certificationId($examArray[5]);
+                    }
+                }
+            }
+            $viewModel = new ViewModel(array(
+                'result'=>$result
+                ));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        } 
+    }
 
 }

@@ -164,7 +164,11 @@ class CertificationTable {
         $globalDb = new GlobalTable($dbAdapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
         $validity_end = (isset($monthValid) && trim($monthValid)!= '')?' + '.$monthValid.' month':' + 2 year';
-        $date_issued = $certification->date_certificate_issued;
+        if($certification->date_certificate_issued == null || $certification->date_certificate_issued = ''){
+           $date_issued = date('d-m-Y');
+        }else{
+           $date_issued = $certification->date_certificate_issued;
+        }
         $date_explode = explode("-", $date_issued);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
         if (isset($certification->date_certificate_sent) && $certification->date_certificate_sent!= '' && $certification->date_certificate_sent!= '0000-00-00') {
@@ -196,6 +200,7 @@ class CertificationTable {
 //        die(print_r($data));
         $id = (int) $certification->id;
         if ($id == 0) {
+            $data['approval_status'] = 'pending';
             $data['date_end_validity'] = $date_end;
             $this->tableGateway->insert($data);
         } else {
@@ -462,6 +467,10 @@ class CertificationTable {
             $date_end_validity = $res['date_end_validity'];
         }
       return $date_end_validity;
+    }
+    
+    public function saveCertification1(){
+        echo 'f';die;
     }
 
     public function getCertificationMapResults($params)

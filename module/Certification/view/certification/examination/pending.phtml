@@ -1,0 +1,127 @@
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
+<script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
+<div class="am-content">
+    <div class="page-head">
+
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Pending/Other Tests</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <ul class="nav nav-tabs" id="pendingOtherTab" role="tablist">
+            <li class="nav-item active">
+              <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="true">Incomplete Tests</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="failed-tab" data-toggle="tab" href="#failed" role="tab" aria-controls="failed" aria-selected="false">Failed Test</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="pendingOtherContent">
+          <div class="tab-pane active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+            <table id="pendingTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th  style="width:10%;">Provider </th>
+                        <th  style="width:10%;">Region</th>
+                        <th  style="width:10%;">District</th>
+                        <th  style="width:10%;">Phone</th>
+                        <th  style="width:10%;">Email</th>
+                        <th  style="width:10%;">Writen Exam Date</th>
+                        <th  style="width:10%;">Writen Test Score</th>
+                        <th  style="width:10%;">Practical Exam Date</th>
+                        <th  style="width:10%;">Practical Test Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if(isset($pendingTests) && count($pendingTests) > 0){
+                        foreach($pendingTests as $pendingTest) { ?>
+                        <tr>
+                            <td><?php echo $this->escapeHtml($pendingTest['last_name'] . ' ' . $pendingTest['first_name'] . ' ' . $pendingTest['middle_name']); ?></td>
+                            <td><?php echo (isset($pendingTest['regionName']))?$this->escapeHtml($pendingTest['regionName']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['districtName']))?$this->escapeHtml($pendingTest['districtName']):''; ?></td>
+                            <td><?php echo $this->escapeHtml($pendingTest['phone']); ?></td>
+                            <td><?php echo $this->escapeHtml($pendingTest['email']); ?></td>
+                            <td><?php echo (isset($pendingTest['writenExamDate']))?$this->escapeHtml($pendingTest['writenExamDate']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['practical_total_score']))?$this->escapeHtml($pendingTest['practical_total_score']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['practicalExamDate']))?$this->escapeHtml($pendingTest['practicalExamDate']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['final_score']))?$this->escapeHtml($pendingTest['final_score']):''; ?></td>
+                        </tr>
+                    <?php } } else{ ?>
+                       <tr><td colspan="9">No data available in table</td></tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="failed" role="tabpanel" aria-labelledby="failed-tab">
+            <table id="failedTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th  style="width:10%;">Provider </th>
+                        <th  style="width:10%;">Region</th>
+                        <th  style="width:10%;">District</th>
+                        <th  style="width:10%;">Phone</th>
+                        <th  style="width:10%;">Email</th>
+                        <th  style="width:10%;">Writen Exam Date</th>
+                        <th  style="width:10%;">Writen Test Score</th>
+                        <th  style="width:10%;">Practical Exam Date</th>
+                        <th  style="width:10%;">Practical Test Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if(isset($failedTests) && count($failedTests) > 0){
+                        foreach($failedTests as $failedTest) { ?>
+                        <tr>
+                            <td><?php echo $this->escapeHtml($failedTest['last_name'] . ' ' . $failedTest['first_name'] . ' ' . $failedTest['middle_name']); ?></td>
+                            <td><?php echo (isset($failedTest['regionName']))?$this->escapeHtml($failedTest['regionName']):''; ?></td>
+                            <td><?php echo (isset($failedTest['districtName']))?$this->escapeHtml($failedTest['districtName']):''; ?></td>
+                            <td><?php echo $this->escapeHtml($failedTest['phone']); ?></td>
+                            <td><?php echo $this->escapeHtml($failedTest['email']); ?></td>
+                            <td><?php echo (isset($failedTest['writenExamDate']))?$this->escapeHtml($failedTest['writenExamDate']):''; ?></td>
+                            <td><?php echo (isset($failedTest['practical_total_score']))?$this->escapeHtml($failedTest['practical_total_score']):''; ?></td>
+                            <td><?php echo (isset($failedTest['practicalExamDate']))?$this->escapeHtml($failedTest['practicalExamDate']):''; ?></td>
+                            <td><?php echo (isset($failedTest['final_score']))?$this->escapeHtml($failedTest['final_score']):''; ?></td>
+                        </tr>
+                    <?php } } else{ ?>
+                       <tr><td colspan="9">No data available in table</td></tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" language="javascript">
+$('#pendingOtherTab a').on('click', function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+
+$(document).ready(function () {
+   pendingTestsInit();
+   failedTestsInit();
+});
+
+function pendingTestsInit(){
+  $('#pendingTestTable').dataTable();
+}
+
+function failedTestsInit(){
+  $('#failedTestTable').dataTable();
+}
+</script>
