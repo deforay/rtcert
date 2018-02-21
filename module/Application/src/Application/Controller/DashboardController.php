@@ -48,5 +48,17 @@ class DashboardController extends AbstractActionController
             return $viewModel;
         }
     }
+    public function getCertificationMapDetailsAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getCertificationMapResults($params);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result))
+                        ->setTerminal(true);
+            return $viewModel;
+        }
+    }
     
 }

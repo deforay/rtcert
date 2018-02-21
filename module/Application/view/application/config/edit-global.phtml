@@ -53,6 +53,19 @@
                         </div>
                     </div>
                     <div class="form-group">
+                      <label for="latitude" class="col-sm-2 control-label">Latitude</label>
+                        <div class="col-lg-4">
+                            <input name="latitude" id="latitude" class="form-control " placeholder="Latitude" title="Please enter latitude" value="<?php echo $config['latitude']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="longitude" class="col-sm-2 control-label">Longitude</label>
+                        <div class="col-lg-4">
+                            <input name="longitude" id="longitude" class="form-control " placeholder="Longitude" title="Please enter longitude" value="<?php echo $config['longitude']; ?>" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="month-valid" class="col-sm-2 control-label">Months certification is valid<span class="mandatory">*</span></label>
                         <div class="col-lg-4">
                             <input name="month-valid" id="month-valid" class="form-control isNumeric isRequired" placeholder="Month(s)" title="Please enter month(s)" value="<?php echo $config['month-valid']; ?>" />

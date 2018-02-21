@@ -1,0 +1,78 @@
+<?php
+$available = 0;
+if(isset($result) && count($result) > 0){
+    foreach($result as $loc){
+        if($loc['latitude'] != null && trim($loc['latitude']) != '' && $loc['longitude'] != null && trim($loc['longitude']) != ''){
+            $available+=1;
+        }
+    }
+}
+if($available > 0) { ?>
+    <div id="gmap-polyline" class="mapChart" style="height:450px !important;"></div>
+    <script>
+        $(document).ready(function(){
+            var map;
+            var bounds = new google.maps.LatLngBounds();
+            var prev_infowindow = false;
+            var mapOptions = {
+                mapTypeId: 'roadmap',
+                scrollwheel: false,
+                // center: {
+                //   lat: 20.5937,
+                //   lng: 78.9629
+                // }
+            };
+           // Display a map on the page
+           map = new google.maps.Map(document.getElementById("gmap-polyline"),mapOptions);
+            // Multiple Markers
+            var markers = [
+                //labs
+                <?php
+                if(isset($result) && count($result) > 0){
+                    foreach($result as $locInfo){
+                        if($locInfo['latitude'] != null && trim($locInfo['latitude']) != '' && $locInfo['longitude'] != null && trim($locInfo['longitude']) != ''){
+                ?>
+                {
+                 lat: "<?php echo $locInfo['latitude']; ?>",
+                 lon: "<?php echo $locInfo['longitude']; ?>",
+                 title: "<?php echo ucwords($locInfo['location_name']);?>",
+                 icon : "<?php echo $this->basePath('assets/img/location.png') ?>",
+                 label : "<h5><?php echo ucwords($locInfo['location_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['locCount']; ?></span>"
+                },
+                <?php } } } ?>
+            ];
+            
+            // Loop through our array of markers & place each one on the map
+            for( i = 0; i < markers.length; i++ ) {
+                var position = new google.maps.LatLng(markers[i]['lat'], markers[i]['lon']);
+                bounds.extend(position);
+                marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    //title: markers[i]['title'],
+                    icon : markers[i]['icon']
+                });
+                marker['infowindow'] = new google.maps.InfoWindow({
+                    content: markers[i]['label']    
+                });
+                google.maps.event.addListener(marker, 'mouseover', function() {
+                    if( prev_infowindow ) {
+                       prev_infowindow.close();
+                    }
+                    prev_infowindow = this['infowindow'];
+                    prev_infowindow.open(map, this);
+                    setTimeout(function() { prev_infowindow.close(); }, 3000);
+                });
+                // Automatically center the map fitting all markers on the screen
+                map.fitBounds(bounds);
+            }
+            // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+            var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+                this.setZoom(6);
+                google.maps.event.removeListener(boundsListener);
+            });
+         });
+    </script>
+<?php } else { ?>
+    <div style="text-align:center;"><h5><strong><?php echo $this->translate('Sorry..Location not available'); ?>.</strong></h5></div>
+<?php } ?>

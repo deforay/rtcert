@@ -77,7 +77,8 @@ class ProviderForm extends Form {
                 'label' => 'Country',
                 'disable_inarray_validator' => true,
                 'empty_option' => 'Please Choose a Country',
-                'value_options' => $this->getAllActiveCountries()
+                'value_options' => $this->getAllActiveCountries(),
+                'value'=>1,
             ),
         ));
          

@@ -30,7 +30,10 @@ class LocationDetailsTable extends AbstractTableGateway {
         $data = array(
               'parent_location'  =>0,
               'location_name'  =>strtoupper($region->location_name),
-              'country'  =>$region->country,
+              //'country'  =>$region->country,
+              'country'  =>1,
+              'latitude'=>$region->latitude,
+              'longitude'=>$region->longitude,
          );
         $id = (int) $region->location_id;
         if ($id == 0) {
@@ -48,7 +51,8 @@ class LocationDetailsTable extends AbstractTableGateway {
         $data = array(
               'parent_location'  =>$district->parent_location,
               'location_name'  =>strtoupper($district->location_name),
-              'country'  =>$row->country,
+              //'country'  =>$row->country,
+              'country'  =>1,
          );
         $id = (int) $district->location_id;
         if ($id == 0) {

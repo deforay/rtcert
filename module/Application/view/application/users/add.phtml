@@ -70,7 +70,7 @@ $tokenArray = array();
 			 </div>
 		    </div>
 		    <div class="row">
-			<div class="form-group col-lg-6 accessLevel country province district" onchange="getCountryLocations();" style="display:none;">
+			<div class="form-group col-lg-6 accessLevel country  " onchange="getCountryLocations();" style="display:none;">
 			    <label>Country <span class="mandatory">*</span></label>
 			    <select class="form-control" name="country[]" id="country" multiple title="Please select country">
 				    <?php
@@ -192,19 +192,25 @@ $tokenArray = array();
 		var roleAccessLevel = $(this).find(':selected').attr('data-access-level');
 		if(roleAccessLevel == 2){
 		      $('.accessLevel').hide();
-		      $('.country').show();
-		      $('#country').val('').change();
+		      //$('.country').show();
+			  $('#country').val('').change();
+			  	$("#country").val(1);
+				getCountryLocations();
 		}else if(roleAccessLevel == 3){
 		      $('.accessLevel').hide();
 		      $('.province').show();
 		      $('#country').val('').change();
-		      $('#province').val('').change();
+			  $('#province').val('').change();
+			  $("#country").val(1);
+		getCountryLocations();
 		}else if(roleAccessLevel == 4){
 		      $('.accessLevel').hide();
 		      $('.district').show();
 		      $('#country').val('').change();
 		      $('#province').val('').change();
-		      $('#district').val('').change();
+			  $('#district').val('').change();
+			  $("#country").val(1);
+		getCountryLocations();
 		}else{
 		      $('.accessLevel').hide();
 		      $('#country').val('').change();

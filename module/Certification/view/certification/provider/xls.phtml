@@ -87,7 +87,7 @@ $sessionLogin = new Container('credo');
                                 echo $this->form()->openTag($form);
                                 ?>
                                 <?php echo $this->formHidden($form->get('id')->setAttribute('class', 'form-control')) ?>
-                                <div class="form-group col-lg-6">
+                                <div class="form-group col-lg-6" style="display:none;">
                                     <?= $this->formLabel($form->get('country')); ?>
                                     <?= $this->formElement($form->get('country')); ?>
                                     <?= $this->formElementErrors($form->get('country')); ?>
@@ -153,6 +153,10 @@ $sessionLogin = new Container('credo');
     <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.blockUI.min.js'); ?>"></script>
     <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/certification.js'); ?>"></script>
     <script>
+    $(document).ready(function () {
+        $("#Country").val(1);
+        showRegion(1);
+    });
     function showRegion(str) {
             if (str == "") {
                document.getElementById("Region").innerHTML = "<option value=''>Please Choose a Country First</option>";
