@@ -632,3 +632,6 @@ ALTER TABLE `provider` ADD `certification_key` INT(11) NULL DEFAULT '0' AFTER `t
 ALTER TABLE `provider` CHANGE `certification_key` `certification_key` VARCHAR(45) NULL DEFAULT NULL;
 
 ALTER TABLE `provider` CHANGE `certification_key` `certification_key` INT(11) NULL DEFAULT NULL;
+
+-- saravanan 21-Feb-2018
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Latitude', 'latitude', NULL), (NULL, 'Longitude', 'longitude', NULL);

@@ -89,7 +89,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 					     <option value="inactive" <?php if($result->status=='inactive'){echo 'selected=selected';}?>>Inactive</option>
 				     </select>
 			 </div>
-			<div class="form-group col-lg-6 accessLevel country province district" onchange="getCountryLocations('change');">
+			<div class="form-group col-lg-6 accessLevel country" onchange="getCountryLocations('change');">
 			     <label>Country <span class="mandatory">*</span></label>
 			     <select class="form-control" name="country[]" id="country" multiple title="Please select country">
 				     <?php
@@ -101,8 +101,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 				     ?>
 			     </select>
 			 </div>
-		   </div>
-		    <div class="row">
+		   
 			<div class="form-group col-lg-6 accessLevel province district" onchange="getProvinceDistricts('change');">
 			   <label>Province/State <span class="mandatory">*</span></label>
 			    <select class="form-control" name="province[]" id="province" multiple title="Please select province">
@@ -212,16 +211,22 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 		var roleAccessLevel = (frmSrc == 'load')?'<?php echo $result->access_level; ?>':$('#roleId').find(':selected').attr('data-access-level');
 		if(roleAccessLevel == 2){
 		      $('.accessLevel').hide();
-		      $('.country').show();
-		      if(frmSrc == 'change') { $('#country').val('').change(); }
+			  //$('.country').show();
+			  if(frmSrc == 'change') { $('#country').val('').change(); }
+			  $("#country").val(1);
+		getCountryLocations();
 		}else if(roleAccessLevel == 3){
 		      $('.accessLevel').hide();
-		      $('.province').show();
-		      if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); }
+			  $('.province').show();
+			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); }
+			  $("#country").val(1);
+		getCountryLocations();
 		}else if(roleAccessLevel == 4){
 		      $('.accessLevel').hide();
-		      $('.district').show();
-		      if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change();  $('#district').val('').change();}
+			  $('.district').show();
+			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change();  $('#district').val('').change();}
+			  $("#country").val(1);
+		getCountryLocations();
 		}else{
 		      $('.accessLevel').hide();
 		      if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change();  $('#district').val('').change();}

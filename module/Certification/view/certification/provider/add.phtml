@@ -222,7 +222,7 @@ $acl = $this->layout()->acl;
                                         <?= $this->formElement($form->get('middle_name')); ?>
                                         <?= $this->formElementErrors($form->get('middle_name')); ?>
                                     </div>
-                                    <div class="form-group col-lg-4">
+                                    <div class="form-group col-lg-4" style="display:none;">
                                         <?= $this->formLabel($form->get('country')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('country')); ?>
                                         <?= $this->formElementErrors($form->get('country')); ?>
@@ -447,7 +447,8 @@ $acl = $this->layout()->acl;
         $('#provider').dataTable({
             "aProcessing": true,
             "aServerSide": true,
-        })
+        });
+        showRegion(1);
     });
 
     function showRegion(str) {

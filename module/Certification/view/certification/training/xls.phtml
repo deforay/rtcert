@@ -119,7 +119,7 @@ $sessionLogin = new Container('credo');
                                         <option value="Nurse assistant">Nurse assistant</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-lg-6">
+                                <div class="form-group col-lg-6" style="display:none;">
                                     <label>Country</label>
                                     <select class="form-control" name="country" id="country" onchange="showRegion(this.value)">
                                         <option value="">All</option>
@@ -151,7 +151,7 @@ $sessionLogin = new Container('credo');
                                 <div class="row" style="text-align:center;">
                                     <div class="form-group col-lg-12" style="margin-top: 30px">
                                         <button class="btn btn-primary" type="submit"  >GET REPORT</button> 
-                                        <a class="btn  btn-space btn-default" role="button" style="margin-top: 5px" href="<?php echo $this->url('certification', array('action' => 'xls')); ?>" >CANCEL</a>
+                                        <a class="btn  btn-space btn-default" role="button" style="margin-top: 5px" href="<?php echo $this->url('training', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </div>
                         </form>
@@ -177,6 +177,10 @@ $sessionLogin = new Container('credo');
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.blockUI.min.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/certification.js'); ?>"></script>
 <script>
+    $(document).ready(function () {
+        $("#Country").val(1);
+        showRegion(1);
+    });
     function showRegion(str) {
             if (str == "") {
                document.getElementById("Region").innerHTML = "<option value=''>All</option>";

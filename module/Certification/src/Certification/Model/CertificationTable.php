@@ -464,4 +464,18 @@ class CertificationTable {
       return $date_end_validity;
     }
 
+    public function getCertificationMapResults($params)
+    {
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('examination','date_certificate_issued','final_decision'))
+                        ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                        ->join(array('p'=>'provider'),'p.id=e.id',array('region'))
+                        ->join(array('l'=>'location_details'),'l.location_id=p.region',array('location_name','longitude','latitude','locCount' => new \Zend\Db\Sql\Expression("COUNT(l.location_id)")))
+                        ->where(array('final_decision'=>'Certified'))
+                        ->group('l.location_name');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $res = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        return $res;
+    }
 }

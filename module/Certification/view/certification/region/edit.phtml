@@ -49,6 +49,23 @@ $sessionLogin = new Container('credo');
                     'onclick' => 'emptyInput(this)',
 //                           
                 ]);
+                $form->get('latitude')->setAttributes([
+                    'class' => 'form-control',
+                    'placeholder' => 'Latitude',
+                    'autocomplete' => 'off',
+                    'id' => 'latitude',
+                    'onclick' => 'emptyInput(this)',
+//                           
+                ]);
+                $form->get('longitude')->setAttributes([
+                    'class' => 'form-control',
+                    'placeholder' => 'Longitude',
+                    'autocomplete' => 'off',
+                    'id' => 'longitude',
+                    'onclick' => 'emptyInput(this)',
+//                           
+                ]);
+                
 
 
                 $form->get('submit')->setAttributes([
@@ -59,7 +76,7 @@ $sessionLogin = new Container('credo');
                 echo $this->form()->openTag($form);
                 ?>
                 <?php echo $this->formHidden($form->get('location_id')->setAttribute('class', 'form-control')) ?>
-                <div class="row">
+                <div class="row" style="display:none;">
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('country')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('country')); ?>
@@ -71,6 +88,16 @@ $sessionLogin = new Container('credo');
                         <?= $this->formLabel($form->get('location_name')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('location_name')); ?>
                         <?= $this->formElementErrors($form->get('location_name')); ?>
+                    </div>
+                    <div class="form-group col-lg-6"> 
+                        <?= $this->formLabel($form->get('latitude')); ?>
+                        <?= $this->formElement($form->get('latitude')); ?>
+                        <?= $this->formElementErrors($form->get('latitude')); ?>
+                    </div>
+                    <div class="form-group col-lg-6"> 
+                        <?= $this->formLabel($form->get('longitude')); ?>
+                        <?= $this->formElement($form->get('longitude')); ?>
+                        <?= $this->formElementErrors($form->get('longitude')); ?>
                     </div>
                 </div>
                 <div class="col-sm-3" style="margin-top: 30px; margin-left: 5px">
