@@ -25,11 +25,17 @@ class ExaminationController extends AbstractActionController {
             $result = $this->getExaminationTable()->fetchAll($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         return new ViewModel(array(
            'recommended' => $this->getExaminationTable()->fetchAllRecommended(),
            'approved' => $this->getExaminationTable()->fetchAllApproved()
         ));
+    }
+    
+    public function pendingAction() {
+        return new ViewModel(array(
+           'pendingTests' => $this->getExaminationTable()->fetchAllPendingTests(),
+           'failedTests' => $this->getExaminationTable()->fetchAllFailedTests()
+        )); 
     }
 
 }

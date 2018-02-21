@@ -198,6 +198,38 @@ class ExaminationTable {
         return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
     
+    public function fetchAllPendingTests(){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('e'=>'examination'))
+                                ->columns(array())
+                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
+                                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
+                                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
+                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate'=>'date', 'practical_total_score'),'left')
+                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'),'left')
+                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL')
+                                ->order('e.id desc');
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+    }
+    
+    public function fetchAllFailedTests(){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('e'=>'examination'))
+                                ->columns(array())
+                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
+                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate'=>'date', 'practical_total_score'))
+                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'))
+                                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
+                                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
+                                ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)')
+                                ->order('e.id desc');
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+    }
+    
     public function getExamination($id) {
         $id = (int) $id;
         $rowset = $this->tableGateway->select(array('id' => $id));

@@ -206,6 +206,7 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
                                           <li><a href="<?php echo $this->url('written-exam', array('action' => 'add')); ?>">Written Examinations</a></li>
                                           <li><a href="<?php echo $this->url('practical-exam', array('action' => 'add')); ?>">Practical Examinations</a></li>
                                           <li><a href="<?php echo $this->url('examination', array('action' => 'index')); ?>">Recommendations</a></li>
+                                          <li><a href="<?php echo $this->url('examination', array('action' => 'pending')); ?>">Pending/Other Tests</a></li>
                                           <li class="divider"></li>
                                           <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
                                           <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>">Recertifications Reminder</a></li>
