@@ -159,8 +159,17 @@ $('#recommendationTab a').on('click', function (e) {
 var recommendTable = null;
 recommendationRow = [];
 $(document).ready(function () {
+    recommendInit();
     recommendedInit();
     approvedInit();
+    //Insert a raw HTML into data table
+    var count_elem = document.getElementById('recommendTable');
+    var div = document.createElement('div');
+    div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary" href="javascript:void(0);" onclick="manageRecommendation();" style="padding:4px;">Submit</a>';
+    count_elem.parentNode.insertBefore(div, count_elem);
+});
+
+function recommendInit(){
     recommendTable = $('#recommendTable').DataTable({
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -199,7 +208,7 @@ $(document).ready(function () {
             });
         }
     });
-});
+}
 
 function recommendedInit(){
   $('#recommendedTable').dataTable();
@@ -263,7 +272,7 @@ function deSelectForAllRecommendation(){
   $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
 }
 
-function manageExamination(){
+function manageRecommendation(){
    if(recommendationRow.length == 0){
         alert('Please select atleast one exam and then submit');
         return false;
@@ -279,9 +288,4 @@ function manageExamination(){
         });
     }
 }
-
-var count_elem = document.getElementById('recommendTable');
-var div = document.createElement('div');
-div.innerHTML = '<span class="selectedRows">0  Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary" href="javascript:void(0);" onclick="manageExamination();" style="padding:4px;">Submit</a>';
-count_elem.parentNode.insertBefore(div, count_elem);
 </script>
