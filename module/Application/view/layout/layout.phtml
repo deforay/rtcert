@@ -3,6 +3,16 @@ use Zend\Session\Container;
 $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
+$config = $this->GlobalConfigHelper();
+if(isset($config['region']) && trim($config['region'])==""){
+  $config['region']='Region';
+}
+if(isset($config['districts']) && trim($config['districts'])==""){
+  $config['districts']='Districts';
+}
+if(isset($config['facilities']) && trim($config['facilities'])==""){
+  $config['facilities']='Facilities';
+}
 $geoGraphicalMenu = '';
 $configmenu = '';
 $adminMenu = '';
@@ -13,13 +23,13 @@ $testerReminderMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Region", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">Regions</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">".$config['region']."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\District", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">Districts</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">".$config['districts']."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">Facilities</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">".$config['facilities']."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
   $configmenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Config</a></li>";
@@ -202,7 +212,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
 
             <a href="<?php echo $dashboard; ?>" class="navbar-brand">
               <?php
-                $config = $this->GlobalConfigHelper();
                 if(isset($config) && count($config)>0 && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo". DIRECTORY_SEPARATOR . $config['logo'])){
 	        	  ?>
                   <img src="<?php echo $this->basePath('uploads/logo/'.$config['logo']); ?>" style="width:100%;margin-top:5px;"/>

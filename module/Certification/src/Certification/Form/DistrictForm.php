@@ -4,11 +4,31 @@ namespace Certification\Form;
 
 use Zend\Form\Form;
 use Zend\Db\Adapter\AdapterInterface;
+use Zend\Session\Container;
+use Application\Model\GlobalTable;
 
 class DistrictForm extends Form {
 
     public function __construct(AdapterInterface $dbAdapter) {
         $this->adapter = $dbAdapter;
+        $globalDb = new GlobalTable($dbAdapter);
+        
+        $TranslateRegionLabel=$globalDb->getGlobalValue('region');
+        if(trim($TranslateRegionLabel)==""){
+            $TranslateRegionLabel="Region";
+        }
+        $TranslateDistrictsLabel=$globalDb->getGlobalValue('districts');
+        if(trim($TranslateDistrictsLabel)==""){
+            $TranslateDistrictsLabel="Districts";
+        }
+        $TranslateFacilityLabel=$globalDb->getGlobalValue('facilities');
+        if(trim($TranslateFacilityLabel)==""){
+            $TranslateFacilityLabel="Facilities";
+        }
+        
+        $this->regionLabel=$TranslateRegionLabel;
+        $this->districtsLabel=$TranslateDistrictsLabel;
+        $this->facilityLabel=$TranslateFacilityLabel;
         // we want to ignore the name passed
         parent::__construct('district');
 
@@ -20,8 +40,8 @@ class DistrictForm extends Form {
             'name' => 'parent_location',
             'type' => 'select',
             'options' => array(
-                'label' => 'Region',
-                'empty_option' => 'Please Choose a Region',
+                'label' => $this->regionLabel,
+                'empty_option' => 'Please Choose a '.$this->regionLabel,
                 'value_options' => $this->getRegion(),
             ),
         ));
@@ -29,7 +49,7 @@ class DistrictForm extends Form {
             'name' => 'location_name',
             'type' => 'Text',
             'options' => array(
-                'label' => 'Name of District',
+                'label' => 'Name of '.$this->districtsLabel,
             ),
         ));
         $this->add(array(

@@ -40,6 +40,7 @@ class UsersTable extends AbstractTableGateway {
         $password = sha1($params['password'] . $configResult["password"]["salt"]);        
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        
         $sQuery = $sql->select()->from(array('u' => 'users'))
                                 ->join(array('urm' => 'user_role_map'), 'urm.user_id=u.id', array('role_id'))
                                 ->join(array('r' => 'roles'), 'r.role_id=urm.role_id', array('role_name','role_code','access_level'))
@@ -98,7 +99,7 @@ class UsersTable extends AbstractTableGateway {
                     }
                 }
             }
-        
+            
             $logincontainer->userId = $sResult->id;
             $logincontainer->login = $sResult->login;
             $logincontainer->roleId = $sResult->role_id;
@@ -107,6 +108,7 @@ class UsersTable extends AbstractTableGateway {
             $logincontainer->district = $district;
             $logincontainer->region = $region;
             $logincontainer->country = $country;
+            
             return 'dashboard';
         } else {
             $container->alertMsg = 'Please check your login credentials';
