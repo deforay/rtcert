@@ -11,6 +11,7 @@ use Zend\Db\Sql\Expression;
 //use Zend\Db\Sql\Where;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
+use Zend\Session\Container;
 
 class CertificationTable {
 
@@ -355,6 +356,9 @@ class CertificationTable {
     }
 
     public function report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility) {
+        $logincontainer = new Container('credo');
+        $roleCode = $logincontainer->roleCode;
+
         $db = $this->tableGateway->getAdapter();
         $sql = 'select certification.certification_issuer,certification.certification_type, certification.date_certificate_issued,certification.date_end_validity, certification.final_decision,provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, written_exam.exam_type as written_exam_type,written_exam.exam_admin as written_exam_admin,written_exam.date as written_exam_date,written_exam.qa_point,written_exam.rt_point,written_exam.safety_point,written_exam.specimen_point, written_exam.testing_algo_point, written_exam.report_keeping_point,written_exam.EQA_PT_points, written_exam.ethics_point, written_exam.inventory_point, written_exam.total_points,written_exam.final_score, practical_exam.exam_type as practical_exam_type , practical_exam.exam_admin as practical_exam_admin , practical_exam.Sample_testing_score, practical_exam.direct_observation_score,practical_exam.practical_total_score,practical_exam.date as practical_exam_date from certification,examination,written_exam,practical_exam,provider,location_details as l_d_r,location_details as l_d_d, country as c, certification_facilities WHERE certification.examination= examination.id and examination.id_written_exam= written_exam.id_written_exam and examination.practical_exam_id= practical_exam.practice_exam_id and provider.id=examination.provider and provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
 
@@ -374,20 +378,32 @@ class CertificationTable {
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
+        }else{
+            if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND c.country_id IN('.implode(',',$logincontainer->country).')';
+            }
         }
         
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
+        }else{
+            if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_r.location_id IN('.implode(',',$logincontainer->region).')';
+            }
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
+        }else{
+            if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_d.location_id IN('.implode(',',$logincontainer->district).')';
+            }
         }
 
         if (!empty($facility)) {
             $sql = $sql . ' and certification_facilities.id=' . $facility;
         }
-//        die($sql);
+        //die($sql);
         //echo $sql;die;
         $statement = $db->query($sql);
         $result = $statement->execute();
