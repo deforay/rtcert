@@ -138,7 +138,7 @@ class PracticalExamTable extends AbstractTableGateway {
     public function attemptNumber($provider) {
         $common = new CommonService($this->sm);
         $db = $this->tableGateway->getAdapter();
-        $sql1 = 'select date_certificate_issued, date_end_validity, certification_id from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and final_decision="certified" and provider=' . $provider.' ORDER BY date_certificate_issued DESC LIMIT 1';
+        $sql1 = 'select date_certificate_issued, date_end_validity, certification_id from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and approval_status="approved" and final_decision="certified" and provider=' . $provider.' ORDER BY date_certificate_issued DESC LIMIT 1';
         $statement1 = $db->query($sql1);
         $result1 = $statement1->execute();
         foreach ($result1 as $res1) {
@@ -171,7 +171,7 @@ class PracticalExamTable extends AbstractTableGateway {
         }
         $sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, 
                 date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,
-                certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and final_decision in ("failed","pending") and date_certificate_issued >' . $date_certificate_issued . ' and provider=' . $provider . ') as tab';
+                certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and (approval_status in("rejected","Rejected") or final_decision in ("failed","pending")) and date_certificate_issued >' . $date_certificate_issued . ' and provider=' . $provider . ') as tab';
 //        die($sql);
         $statement = $db->query($sql);
         $result = $statement->execute();

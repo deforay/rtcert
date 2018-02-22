@@ -22,7 +22,7 @@
               <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="true">Incomplete Tests</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="failed-tab" data-toggle="tab" href="#failed" role="tab" aria-controls="failed" aria-selected="false">Failed Test</a>
+              <a class="nav-link" id="failed-tab" data-toggle="tab" href="#failed" role="tab" aria-controls="failed" aria-selected="false">Failed Tests</a>
             </li>
         </ul>
         <div class="tab-content" id="pendingOtherContent">
@@ -51,9 +51,9 @@
                             <td><?php echo (isset($pendingTest['districtName']))?$this->escapeHtml($pendingTest['districtName']):''; ?></td>
                             <td><?php echo $this->escapeHtml($pendingTest['phone']); ?></td>
                             <td><?php echo $this->escapeHtml($pendingTest['email']); ?></td>
-                            <td><?php echo (isset($pendingTest['writenExamDate']))?$this->escapeHtml($pendingTest['writenExamDate']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['writenExamDate']))?date("d-M-Y", strtotime($this->escapeHtml($pendingTest['writenExamDate']))):''; ?></td>
                             <td><?php echo (isset($pendingTest['practical_total_score']))?$this->escapeHtml($pendingTest['practical_total_score']):''; ?></td>
-                            <td><?php echo (isset($pendingTest['practicalExamDate']))?$this->escapeHtml($pendingTest['practicalExamDate']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['practicalExamDate']))?date("d-M-Y", strtotime($this->escapeHtml($pendingTest['practicalExamDate']))):''; ?></td>
                             <td><?php echo (isset($pendingTest['final_score']))?$this->escapeHtml($pendingTest['final_score']):''; ?></td>
                         </tr>
                     <?php } } else{ ?>
@@ -87,9 +87,9 @@
                             <td><?php echo (isset($failedTest['districtName']))?$this->escapeHtml($failedTest['districtName']):''; ?></td>
                             <td><?php echo $this->escapeHtml($failedTest['phone']); ?></td>
                             <td><?php echo $this->escapeHtml($failedTest['email']); ?></td>
-                            <td><?php echo (isset($failedTest['writenExamDate']))?$this->escapeHtml($failedTest['writenExamDate']):''; ?></td>
-                            <td><?php echo (isset($failedTest['practical_total_score']))?$this->escapeHtml($failedTest['practical_total_score']):''; ?></td>
-                            <td><?php echo (isset($failedTest['practicalExamDate']))?$this->escapeHtml($failedTest['practicalExamDate']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['writenExamDate']))?date("d-M-Y", strtotime($this->escapeHtml($pendingTest['writenExamDate']))):''; ?></td>
+                            <td><?php echo (isset($pendingTest['practical_total_score']))?$this->escapeHtml($pendingTest['practical_total_score']):''; ?></td>
+                            <td><?php echo (isset($pendingTest['practicalExamDate']))?date("d-M-Y", strtotime($this->escapeHtml($pendingTest['practicalExamDate']))):''; ?></td>
                             <td><?php echo (isset($failedTest['final_score']))?$this->escapeHtml($failedTest['final_score']):''; ?></td>
                         </tr>
                     <?php } } else{ ?>

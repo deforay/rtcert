@@ -72,7 +72,7 @@ class Module implements ConfigProviderInterface {
                 'Certification\Model\CertificationTable' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $tableGateway = $sm->get('CertificationTableGateway');
-                    $table = new \Certification\Model\CertificationTable($tableGateway,$dbAdapter);
+                    $table = new \Certification\Model\CertificationTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'CertificationTableGateway' => function ($sm) {
