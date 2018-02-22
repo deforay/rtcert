@@ -9,6 +9,7 @@ use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Select;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
+use Zend\Session\Container;
 
 class TrainingTable extends AbstractTableGateway {
 
@@ -95,6 +96,9 @@ class TrainingTable extends AbstractTableGateway {
      }
 
      public function report($type_of_competency,$type_of_training,$training_organization_id,$training_certificate,$typeHiv,$jobTitle,$country,$region,$district,$facility) {
+        $logincontainer = new Container('credo');
+        $roleCode = $logincontainer->roleCode;
+
         $db = $this->tableGateway->getAdapter();
         $sql = 'SELECT provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, type_of_competency, last_training_date, type_of_training, length_of_training, facilitator, training_certificate, date_certificate_issued, Comments, training_organization_name, type_organization FROM provider,training, location_details as l_d_r,location_details as l_d_d,country as c,certification_facilities, training_organization where provider.id=training.Provider_id and provider.region=l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id and provider.facility_id=certification_facilities.id and training.training_organization_id=training_organization.training_organization_id';
        
@@ -123,14 +127,26 @@ class TrainingTable extends AbstractTableGateway {
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
+        }else{
+            if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND c.country_id IN('.implode(',',$logincontainer->country).')';
+            }
         }
         
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
+        }else{
+            if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_r.location_id IN('.implode(',',$logincontainer->region).')';
+            }
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
+        }else{
+            if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_d.location_id IN('.implode(',',$logincontainer->district).')';
+            }
         }
 
         if (!empty($facility)) {

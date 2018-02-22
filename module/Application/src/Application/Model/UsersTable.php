@@ -405,6 +405,7 @@ class UsersTable extends AbstractTableGateway {
                     if(!in_array($district['country'],$countries)){
                        $countries[] = $district['country'];
                     }
+                    
                 }
                 $queryResult['selectedProvinces'] = $provinces;
                 $queryResult['selectedCountries'] = $countries;
@@ -422,6 +423,7 @@ class UsersTable extends AbstractTableGateway {
                     if(!in_array($province['country'],$countries)){
                        $countries[] = $province['country'];
                     }
+                    
                 }
                 $queryResult['selectedCountries'] = $countries;
             }
@@ -434,5 +436,4 @@ class UsersTable extends AbstractTableGateway {
         }
         return $queryResult;
     }
-    
 }

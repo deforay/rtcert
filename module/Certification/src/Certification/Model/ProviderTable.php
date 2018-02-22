@@ -233,19 +233,34 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle) {
+        $logincontainer = new Container('credo');
+        $roleCode = $logincontainer->roleCode;
+
         $db = $this->tableGateway->getAdapter();
         $sql = 'select provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name, l_d_r.location_name as region_name, l_d_d.location_name as district_name, c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name FROM provider, certification_facilities, country as c, location_details as l_d_r, location_details as l_d_d WHERE provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
         
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
+        }else{
+            if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND c.country_id IN('.implode(',',$logincontainer->country).')';
+            }
         }
         
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
+        }else{
+            if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_r.location_id IN('.implode(',',$logincontainer->region).')';
+            }
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
+        }else{
+            if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
+                $sql = $sql .' AND l_d_d.location_id IN('.implode(',',$logincontainer->district).')';
+            }
         }
 
         if (!empty($facility)) {
@@ -269,4 +284,5 @@ class ProviderTable extends AbstractTableGateway {
         $result = $statement->execute();
         return $result;
     }
+
 }

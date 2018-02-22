@@ -604,7 +604,6 @@ class CommonService {
         $locationDetailsDb = $this->sm->get('LocationDetailsTable');
         return $locationDetailsDb->delete(array('location_id'=>$id));
     }
-    
 }
 
 ?>
