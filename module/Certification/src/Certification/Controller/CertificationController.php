@@ -37,12 +37,7 @@ class CertificationController extends AbstractActionController {
                         'action' => 'edit',
                         'certification_id' => base64_encode($certification_id)));
         } else {
-
-            return new ViewModel(array(
-                'certifications' => $this->getCertificationTable()->fetchAll(),
-                'certifications2' => $this->getCertificationTable()->fetchAll2(),
-                'certifications3' => $this->getCertificationTable()->fetchAll3(),
-            ));
+            return new ViewModel(array());
         }
     }
 
@@ -175,12 +170,10 @@ class CertificationController extends AbstractActionController {
             $jobTitle = $request->getPost('jobTitle');
             $dateRange = $request->getPost('dateRange');
             if (!empty($dateRange)) {
-
                 $array = explode(" ", $dateRange);
                 $startDate = date("Y-m-d", strtotime($array[0]));
                 $endDate = date("Y-m-d", strtotime($array[2]));
             } else {
-
                 $startDate = "";
                 $endDate = "";
             }
@@ -498,6 +491,33 @@ class CertificationController extends AbstractActionController {
                 ));
             $viewModel->setTerminal(true);
             return $viewModel;
+        }
+    }
+    
+    public function toBeSentAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->fetchAllToBeSentCertificate($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function certifiedAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->fetchAllCertifiedTester($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function pendingAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->fetchAllFailedTester($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 

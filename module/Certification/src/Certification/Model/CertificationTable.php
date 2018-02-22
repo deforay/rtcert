@@ -2,6 +2,7 @@
 
 namespace Certification\Model;
 
+use Zend\Session\Container;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
@@ -11,17 +12,17 @@ use Zend\Db\Sql\Expression;
 //use Zend\Db\Sql\Where;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
-use Zend\Session\Container;
 
 class CertificationTable {
 
     protected $tableGateway;
+    public $sm = null;
 
-    public function __construct(TableGateway $tableGateway, Adapter $adapter) {
+    public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm=null) {
         $this->tableGateway = $tableGateway;
         $this->adapter = $adapter;
+        $this->sm = $sm;
     }
-
 
     public function getQuickStats(){
         $dbAdapter = $this->tableGateway->getAdapter();
@@ -114,12 +115,11 @@ class CertificationTable {
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'));
         $sqlSelect->join('examination', 'examination.id = certification.examination ', array('provider'), 'left')
-                ->join('provider', 'provider.id = examination.provider ', array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'), 'left')
+                ->join('provider', 'provider.id = examination.provider ', array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'), 'left')
+                ->where(array('approval_status' => 'approved'))
                 ->where(array('final_decision' => 'certified'));
         $sqlSelect->order('id desc');
-
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     /**
@@ -131,7 +131,8 @@ class CertificationTable {
         $sqlSelect->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'));
         $sqlSelect->join('examination', 'examination.id = certification.examination ', array('provider'), 'left')
                 ->join('provider', 'provider.id = examination.provider ', array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no'), 'left')
-                ->where(array('final_decision' => 'failed'))
+                ->where(array('approval_status' => 'rejected'))
+                ->where(array('final_decision' => 'failed'), \Zend\Db\Sql\Where::OP_OR)
                 ->where(array('final_decision' => 'pending'), \Zend\Db\Sql\Where::OP_OR);
         $sqlSelect->order('id desc');
 
@@ -315,10 +316,10 @@ class CertificationTable {
         $sqlSelect->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'));
         $sqlSelect->join('examination', 'examination.id = certification.examination ', array('provider'), 'left')
                 ->join('provider', 'provider.id = examination.provider ', array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'), 'left')
+                ->where(array('approval_status' => 'approved'))
                 ->where(array('final_decision' => 'certified'))
                 ->where(array('certificate_sent' => 'no'));
         $sqlSelect->order('id desc');
-
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
         return $resultSet;
     }
@@ -486,7 +487,7 @@ class CertificationTable {
     }
     
     public function fetchAllRecommended($parameters){
-        $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
 
         /*
@@ -615,8 +616,8 @@ class CertificationTable {
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
-            $row[] = $aRow['date_certificate_issued'];
-            $row[] = $aRow['date_certificate_sent'];
+            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
+            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
             $row[] = $aRow['certification_type'];
          $output['aaData'][] = $row;
         }
@@ -634,6 +635,452 @@ class CertificationTable {
             }
         }
       return $result;
+    }
+    
+    public function fetchAllToBeSentCertificate($parameters){
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+ 
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
+                               ->order('c.id desc');
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+ 
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+ 
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
+                               ->order('c.id desc');
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+           "sEcho" => intval($parameters['sEcho']),
+           "iTotalRecords" => $iTotal,
+           "iTotalDisplayRecords" => $iFilteredTotal,
+           "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['certification_issuer'];
+            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
+            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
+            $row[] = $aRow['certification_type'];
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+                if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
+                   $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
+                }else{
+                   $row[] = "<div><span class='glyphicon glyphicon-download-alt'>PDF</span></div>";
+                }
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
+                $row[] = "<a href='/certification-mail/index?".urlencode(base64_encode('email'))."=".base64_encode($aRow['email'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('provider'))."=".base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name'])."&".urlencode(base64_encode('facility_in_charge_email'))."=".base64_encode($aRow['facility_in_charge_email'])."&".urlencode(base64_encode('key2'))."=".base64_encode('key')."'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
+              $row[] = "<div style='width:120px;height:40px;overflow:auto;'><a href='javascript:void(0);' onclick='markAsSent(\"".base64_encode('certification_id')."\",\"". base64_encode($aRow['id'])."\",\"".base64_encode('key')."\",\"". base64_encode('key')."\");'><span class='glyphicon glyphicon-send'></span>&nbsp;Mark as sent</a></div>";
+            }
+         $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+    
+    public function fetchAllCertifiedTester($parameters){
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+ 
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
+                               ->order('c.id desc');
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+ 
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+ 
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('c'=>'certification'))
+                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
+                               ->order('c.id desc');
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+           "sEcho" => intval($parameters['sEcho']),
+           "iTotalRecords" => $iTotal,
+           "iTotalDisplayRecords" => $iFilteredTotal,
+           "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['certification_issuer'];
+            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
+            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
+            $row[] = $aRow['certification_type'];
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {
+               $row[] = "<a href='/certification/edit/".base64_encode($aRow['id'])."'><span class='glyphicon glyphicon-pencil'>Edit</span></a>";
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+                if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
+                   $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
+                }else{
+                   $row[] = "<div><span class='glyphicon glyphicon-download-alt'>PDF</span></div>";
+                }
+            }
+         $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+    
+    public function fetchAllFailedTester($parameters){
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_type');
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+ 
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
+                               ->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))')
+                               ->order('c.id desc');
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+ 
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+ 
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('c'=>'certification'))
+                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
+                               ->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))')
+                               ->order('c.id desc');
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+           "sEcho" => intval($parameters['sEcho']),
+           "iTotalRecords" => $iTotal,
+           "iTotalDisplayRecords" => $iFilteredTotal,
+           "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['certification_type'];
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {
+               $row[] = "<a href='/certification/edit/".base64_encode($aRow['id'])."'><span class='glyphicon glyphicon-pencil'>Edit</span></a>";
+            }
+         $output['aaData'][] = $row;
+        }
+        return $output;
     }
     
     public function getCertificationMapResults($params){
