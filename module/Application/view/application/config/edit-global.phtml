@@ -89,6 +89,24 @@
                             <input name="certificate-prefix" id="certificate-prefix" class="form-control" placeholder="Certificate Prefix" title="Please enter certificate prefix" value="<?php echo $config['certificate-prefix']; ?>" />
                         </div>
                     </div>
+                    <div class="form-group">
+                      <label for="region" class="col-sm-2 control-label">Translate Region As <span class="mandatory">*</span></label>
+                        <div class="col-lg-4">
+                            <input name="region" id="region" class="form-control isRequired" placeholder="Region" title="Please enter region" value="<?php echo $config['region']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="districts" class="col-sm-2 control-label">Translate Districts As <span class="mandatory">*</span></label>
+                        <div class="col-lg-4">
+                            <input name="districts" id="districts" class="form-control isRequired" placeholder="Districts" title="Please enter districts" value="<?php echo $config['districts']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="facilities" class="col-sm-2 control-label">Translate Facilities As <span class="mandatory">*</span></label>
+                        <div class="col-lg-4">
+                            <input name="facilities" id="facilities" class="form-control isRequired" placeholder="Facilities" title="Please enter facilities" value="<?php echo $config['facilities']; ?>" />
+                        </div>
+                    </div>
                     <hr>
                     <div class="spacer col-lg-5" align="center">
                      <input type="hidden" name="removedLogoImage" id="removedLogoImage"/>  

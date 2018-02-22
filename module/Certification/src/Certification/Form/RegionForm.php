@@ -5,6 +5,7 @@ namespace Certification\Form;
  use Zend\Session\Container;
  use Zend\Db\Adapter\AdapterInterface;
  use Zend\Form\Form;
+use Application\Model\GlobalTable;
 
  class RegionForm extends Form
  {
@@ -12,12 +13,18 @@ namespace Certification\Form;
       
      public function __construct(AdapterInterface $dbAdapter)
      {
-        $this->adapter = $dbAdapter;
-         // we want to ignore the name passed
-         parent::__construct('region');
+          $this->adapter = $dbAdapter;
+          $globalDb = new GlobalTable($dbAdapter);
+          $TranslateRegionLabel=$globalDb->getGlobalValue('region');
+          if(trim($TranslateRegionLabel)==""){
+              $TranslateRegionLabel="Region";
+          }
+          $this->regionLabel=$TranslateRegionLabel;
+          // we want to ignore the name passed
+          parent::__construct('region');
 
-         $this->setAttributes(array('method' => 'post',
-        ));
+          $this->setAttributes(array('method' => 'post',
+          ));
          
          $this->add(array(
              'name' => 'location_id',
@@ -37,7 +44,7 @@ namespace Certification\Form;
              'name' => 'location_name',
              'type' => 'Text',
              'options' => array(
-                 'label' => 'Name of Region',
+                 'label' => 'Name of '.$this->regionLabel,
              ),
          ));
          $this->add(array(

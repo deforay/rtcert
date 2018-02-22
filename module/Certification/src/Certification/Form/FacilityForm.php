@@ -4,11 +4,28 @@ namespace Certification\Form;
 
 use Zend\Form\Form;
 use Zend\Db\Adapter\AdapterInterface;
+use Zend\Session\Container;
+use Application\Model\GlobalTable;
 
 class FacilityForm extends Form {
 
     public function __construct(AdapterInterface $dbAdapter) {
         $this->adapter = $dbAdapter;
+        
+        $globalDb = new GlobalTable($dbAdapter);
+       
+        $TranslateDistrictsLabel=$globalDb->getGlobalValue('districts');
+        if(trim($TranslateDistrictsLabel)==""){
+            $TranslateDistrictsLabel="Districts";
+        }
+        $TranslateFacilityLabel=$globalDb->getGlobalValue('facilities');
+        if(trim($TranslateFacilityLabel)==""){
+            $TranslateFacilityLabel="Facilities";
+        }
+        
+        $this->districtsLabel=$TranslateDistrictsLabel;
+        $this->facilityLabel=$TranslateFacilityLabel;
+        
         // we want to ignore the name passed
         parent::__construct('certification_facilities');
 
@@ -20,8 +37,8 @@ class FacilityForm extends Form {
             'name' => 'district',
             'type' => 'select',
             'options' => array(
-                'label' => 'District',
-                'empty_option' => 'Please Choose a District',
+                'label' => $this->districtsLabel,
+                'empty_option' => 'Please Choose a '.$this->districtsLabel,
                 'value_options' => $this->getDistrict(),
             ),
         ));
@@ -29,14 +46,14 @@ class FacilityForm extends Form {
             'name' => 'facility_name',
             'type' => 'Text',
             'options' => array(
-                'label' => 'Name of Facility',
+                'label' => 'Name of '.$this->facilityLabel,
             ),
         ));
         $this->add(array(
             'name' => 'facility_address',
             'type' => 'Text',
             'options' => array(
-                'label' => 'Facility Address',
+                'label' => $this->facilityLabel.' Address',
             ),
         ));
         $this->add(array(

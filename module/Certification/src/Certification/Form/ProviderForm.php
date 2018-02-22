@@ -5,6 +5,7 @@ namespace Certification\Form;
 use Zend\Session\Container;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Form;
+use Application\Model\GlobalTable;
 
 class ProviderForm extends Form {
 
@@ -13,6 +14,23 @@ class ProviderForm extends Form {
     public function __construct(AdapterInterface $dbAdapter) {
 
         $this->adapter = $dbAdapter;
+        $globalDb = new GlobalTable($dbAdapter);
+        
+        $TranslateRegionLabel=$globalDb->getGlobalValue('region');
+        if(trim($TranslateRegionLabel)==""){
+            $TranslateRegionLabel="Region";
+        }
+        $TranslateDistrictsLabel=$globalDb->getGlobalValue('districts');
+        if(trim($TranslateDistrictsLabel)==""){
+            $TranslateDistrictsLabel="Districts";
+        }
+        $TranslateFacilityLabel=$globalDb->getGlobalValue('facilities');
+        if(trim($TranslateFacilityLabel)==""){
+            $TranslateFacilityLabel="Facilities";
+        }
+        $this->regionLabel=$TranslateRegionLabel;
+        $this->districtsLabel=$TranslateDistrictsLabel;
+        $this->facilityLabel=$TranslateFacilityLabel;
         
         parent::__construct("provider");
        
@@ -86,7 +104,7 @@ class ProviderForm extends Form {
             'name' => 'region',
             'type' => 'select',
             'options' => array(
-                'label' => 'Region',
+                'label' => $this->regionLabel,
                 'disable_inarray_validator' => true,
                 'empty_option' => 'Please Choose a Country First'
             ),
@@ -95,7 +113,7 @@ class ProviderForm extends Form {
             'name' => 'district',
             'type' => 'Select',
             'options' => array(
-                'label' => 'District',
+                'label' => $this->districtsLabel,
                 'disable_inarray_validator' => true,
                 'empty_option' => 'Please Choose a Region First'
             ),
