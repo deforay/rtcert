@@ -12,7 +12,6 @@ use Zend\Db\Sql\Expression;
 //use Zend\Db\Sql\Where;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
-use Zend\Session\Container;
 
 class CertificationTable {
 
