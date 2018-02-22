@@ -264,11 +264,9 @@ class ProviderTable extends AbstractTableGateway {
             $sql = $sql . ' and provider.current_jod="' . $jobTitle . '"';
         }
 
-
 //die($sql);
         $statement = $db->query($sql);
         $result = $statement->execute();
         return $result;
     }
-
 }

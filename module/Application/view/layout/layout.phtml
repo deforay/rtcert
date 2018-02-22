@@ -3,18 +3,78 @@ use Zend\Session\Container;
 $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$adminMenu = "";
-$auditMenu = "";
-
+$geoGraphicalMenu = '';
+$configmenu = '';
+$adminMenu = '';
+$trainingMenu = '';
+$testerMenu = '';
+$testerExamMenu = '';
+$testerReminderMenu = '';
+$certificateMenu = '';
+$reportMenu = '';
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Region", "index")) {
+  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">Regions</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\District", "index")) {
+  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">Districts</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
+  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">Facilities</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
+  $configmenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Config</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
+  $configmenu.="<li><a href=".$this->url('certification',array('action' => 'pdf-setting')).">Certificate PDF Settings</a></li>";
+}
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Roles", "index")) {
   $adminMenu.="<li><a href=".$this->url('roles',array('action' => 'index')).">Roles</a></li>";
 }
-
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index")) {
   $adminMenu.="<li><a href=".$this->url('users',array('action' => 'index')).">Users</a></li>";
 }
-
-
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
+  $trainingMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganization", "index")) {
+  $trainingMenu.="<li><a href=".$this->url('training-organization',array('action' => 'index')).">Training Organizations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "index")) {
+  $testerMenu.="<li><a href=".$this->url('provider',array('action' => 'index')).">Manage Testers</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\WrittenExam", "add")) {
+  $testerExamMenu.="<li><a href=".$this->url('written-exam',array('action' => 'add')).">Written Examinations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExam", "add")) {
+  $testerExamMenu.="<li><a href=".$this->url('practical-exam',array('action' => 'add')).">Practical Examinations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "index")) {
+  $testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'index')).">Recommendations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "pending")) {
+  $testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
+  $certificateMenu.="<li><a href=".$this->url('certification',array('action' => 'index')).">Certifications</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\CertificationMail", "index")) {
+  $certificateMenu.="<li><a href=".$this->url('certification-mail',array('action' => 'index'))."> E-mail</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "xls")) {
+  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'xls'))."> Provider Reports</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "xls")) {
+  $reportMenu.="<li><a href=".$this->url('training',array('action' => 'xls'))."> Training Reports</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "xls")) {
+  $reportMenu.="<li><a href=".$this->url('certification',array('action' => 'xls'))."> Certification Reports</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "xls")) {
+  $reportMenu.="<li><a href=".$this->url('recertification',array('action' => 'xls'))."> Recertification Reports</a></li>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -129,12 +189,7 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
                   <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" href="<?php echo $this->url('login', array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a>
                   <?php } else { ?>
                   <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" style="color: #fff;" class="mobLogin" href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a>
-                  <?php } ?>
-            
-
-
-
-            <?php 
+                  <?php }
             
             // Which page to show when clicking on Logo image - changes based on login status
             
@@ -144,7 +199,6 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
               $dashboard = "/";
             }
             ?>
-
 
             <a href="<?php echo $dashboard; ?>" class="navbar-brand">
               <?php
@@ -164,73 +218,61 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
           <div id="am-navbar-collapse" class="collapse navbar-collapse">
             <?php if(isset($sessionLogin->userId)){ ?>
                             <ul class="nav navbar-nav am-top-menu">
+                            <?php if($geoGraphicalMenu!='' || $configmenu!='' || $adminMenu!=''){ ?>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                <?php if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) { ?>
+                                <?php if($geoGraphicalMenu!='' || $configmenu!=''){ ?>
                                     <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="<?php echo $this->url('region', array('action' => 'index')); ?>">Regions</a>
-                                            <li><a href="<?php echo $this->url('district', array('action' => 'index')); ?>">Districts</a></li>
-                                            <li><a href="<?php echo $this->url('facility', array('action' => 'index')); ?>">Facilities</a></li>
+                                            <?php echo $geoGraphicalMenu; ?>
                                         </ul>
                                     </li>
-                                <?php }  ?>
-                                <?php if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) { ?>
                                     <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
                                         <ul class="dropdown-menu">
-                                        <li><a href="<?php echo $this->url('config',array('action' => 'index')); ?>">Global Config</a></li>
-                                        <li><a href="<?php echo $this->url('certification', array('action' => 'pdf-setting')); ?>">Certificate PDF Settings</a></li>
+                                          <?php echo $configmenu; ?>
                                         </ul>
                                     </li>
-                                <?php }  ?>    
                                 <li class="divider"></li>
+                                <?php }  ?>
                                 <?php echo $adminMenu; ?>                            
-                                    
                                 </ul>
-                            </li>                         
-                                              
+                            </li>
+                              <?php } if($trainingMenu!=''){ ?>
                                 <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
                                   <ul role="menu" class="dropdown-menu">
-                                   
-                                                
-                                  <li><a href="<?php echo $this->url('training', array('action' => 'index')); ?>">Manage Trainings</a></li>    
-                                  <li><a href="<?php echo $this->url('training-organization', array('action' => 'index')); ?>">Training Organizations</a></li>
-                                            </ul>
-                                </li>                                
+                                  <?php echo $trainingMenu; ?>
+                                  </ul>
+                                </li>
+                              <?php } if($testerMenu!='' || $testerExamMenu!='' || $testerReminderMenu!=''){ ?>
                                 <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
                                       <ul role="menu" class="dropdown-menu">
-                                                                              
-                                          <li><a href="<?php echo $this->url('provider', array('action' => 'index')); ?>">Manage Testers </a></li>
-                                          <li class="divider"></li>
-                                          <li><a href="<?php echo $this->url('written-exam', array('action' => 'add')); ?>">Written Examinations</a></li>
-                                          <li><a href="<?php echo $this->url('practical-exam', array('action' => 'add')); ?>">Practical Examinations</a></li>
-                                          <li><a href="<?php echo $this->url('examination', array('action' => 'index')); ?>">Recommendations</a></li>
-                                          <li><a href="<?php echo $this->url('examination', array('action' => 'pending')); ?>">Pending/Other Tests</a></li>
-                                          <li class="divider"></li>
-                                          <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
-                                          <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>">Recertifications Reminder</a></li>
-                                        </ul>
+                                      <?php if($testerMenu!=''){
+                                         echo $testerMenu; ?>
+                                        <li class="divider"></li>
+                                      <?php } if($testerExamMenu!=''){
+                                       echo $testerExamMenu; ?>
+                                        <li class="divider"></li>
+                                      <?php } ?>
+                                        <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
+                                        <?php echo $testerReminderMenu; ?>
+                                      </ul>
                                 </li>
+                              <?php } ?>
                                     
-                            <?php if($role!= 'DEO'){ ?>
+                            <?php if($role!= 'DEO' && $certificateMenu!=''){ ?>
                                   <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Manage Certifications<span class="caret"></span></a>
                                   <ul role="menu" class="dropdown-menu">
-                                    <li><a href="<?php echo $this->url('certification', array('action' => 'index')); ?>">Certifications</a></li>
-                                    <li><a href="<?php echo $this->url('certification-mail', array('action' => 'index')); ?>"> E-mail</a></li>
-                                    
-                                      </ul>
+                                    <?php echo $certificateMenu; ?>
+                                  </ul>
                                   </li>
-                                <?php } ?>
+                                <?php } if($reportMenu!=''){ ?>
                                   <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
                                         <ul role="menu" class="dropdown-menu">
-                                                <li><a href="<?php echo $this->url('provider', array('action' => 'xls')); ?>">Provider Reports</a></li>
-                                                <li><a href="<?php echo $this->url('training', array('action' => 'xls')); ?>">Training Reports</a></li>
-                                                <li><a href="<?php echo $this->url('certification', array('action' => 'xls')); ?>"> Certification Reports</a></li>
-                                                <li><a href="<?php echo $this->url('recertification', array('action' => 'xls')); ?>"> Recertification Reports</a></li>
-                                            </ul>
-                                        </li>
-                                    
+                                          <?php echo $reportMenu; ?>
+                                        </ul>
+                                  </li>
+                                  <?php } ?>
                                         <li class="dropdown">
                                           
                                         </li>

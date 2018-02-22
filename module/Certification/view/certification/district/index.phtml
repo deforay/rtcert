@@ -115,7 +115,6 @@ $acl = $this->layout()->acl;
                                 <?php if ($acl->isAllowed($role, 'Certification\Controller\District', 'edit')) { ?>
                                     <td>
                                         <div style="width:80px;overflow:auto;"><a href="<?php echo $this->url('district', array('action' => 'edit', 'id' => base64_encode($district['location_id']))); ?>"> <span class="glyphicon glyphicon-pencil">Edit</span></div>
-
                                         </a> 
                                     </td>
                                 <?php } ?>
