@@ -182,7 +182,7 @@ function recommendInit(){
         "aaSorting": [[ 1, "asc" ]],
         "fnDrawCallback": function( oSettings ) {
             $('input:checkbox').each(function () {
-                if($.inArray(this.value, recommendationRow)!= -1 || $('#selectdeselect').val() == 'select'){
+                if($.inArray(this.value, recommendationRow)!= -1){
                     $('#'+this.id).prop('checked',true);
                 }
                 if($('#selectdeselect').val() == 'deselect'){
@@ -223,9 +223,13 @@ function selectForRecommendation(obj){
        recommendationRow.splice(examIndex, 1);
     }
     if(recommendationRow.length == 0){
-       $('#certificationIssuer,.manageRecommendation').hide(); 
+       $('#certificationIssuer,.manageRecommendation').hide();
+       $('.selectdeselect').attr('onclick','selectForAllRecommendation()');
+       $('.selectdeselect').text('Select All');
     }else{
-       $('#certificationIssuer,.manageRecommendation').show(); 
+        $('#certificationIssuer,.manageRecommendation').show();
+        $('.selectdeselect').attr('onclick','deSelectForAllRecommendation()');
+        $('.selectdeselect').text('Deselect All');
     }
     $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
 }
@@ -240,13 +244,9 @@ function selectForAllRecommendation(){
     }).get();
   recommendationRow = recommendIDs;
   if(recommendationRow.length > 0){
+        $('#certificationIssuer,.manageRecommendation').show();
         $('.selectdeselect').attr('onclick','deSelectForAllRecommendation()');
-        $('.selectdeselect').text('Deselect All');
-        if(recommendationRow.length == 0){
-            $('#certificationIssuer,.manageRecommendation').hide(); 
-        }else{
-            $('#certificationIssuer,.manageRecommendation').show(); 
-        }
+        $('.selectdeselect').text('Deselect All'); 
         $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
   }else{
     alert('Data not available');
@@ -255,16 +255,12 @@ function selectForAllRecommendation(){
 
 function deSelectForAllRecommendation(){
     recommendationRow = [];
-    $('#selectdeselect').val('deselect'); 
+    $('#certificationIssuer,.manageRecommendation').hide();
+    $('#selectdeselect').val('deselect');
     $('.recommendationRow').prop('checked',false);
     $('.selectdeselect').attr('onclick','selectForAllRecommendation()');
     $('.selectdeselect').text('Select All');
-    if(recommendationRow.length == 0){
-        $('#certificationIssuer,.manageRecommendation').hide(); 
-    }else{
-        $('#certificationIssuer,.manageRecommendation').show(); 
-    }
-   $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
+    $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
 }
 
 function manageRecommendation(){
@@ -278,8 +274,8 @@ function manageRecommendation(){
     }else{
         $.post("<?php echo $this->url('certification',array('action'=>'recommend')); ?>", {recommendationRow:recommendationRow,certificationIssuer:$('#certificationIssuer').val()},
         function(data){
-            recommendTable.draw();
             deSelectForAllRecommendation();
+            recommendTable.draw();
         });
     }
 }

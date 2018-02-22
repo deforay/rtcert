@@ -313,7 +313,7 @@ function recommendedForCertificateInit(){
         "aaSorting": [[ 1, "asc" ]],
         "fnDrawCallback": function( oSettings ) {
             $('input:checkbox').each(function () {
-                if($.inArray(this.value, approvalRow)!= -1 || $('#selectdeselect').val() == 'select'){
+                if($.inArray(this.value, approvalRow)!= -1){
                     $('#'+this.id).prop('checked',true);
                 }
                 if($('#selectdeselect').val() == 'deselect'){
@@ -356,48 +356,43 @@ function selectForApproval(obj){
        approvalRow.splice(examIndex, 1);
     }
     if(approvalRow.length == 0){
-        $('#status,.manageApproval').hide(); 
+        $('#status,.manageApproval').hide();
+        $('.selectdeselect').attr('onclick','selectForAllApproval()');
+        $('.selectdeselect').text('Select All');
     }else{
-        $('#status,.manageApproval').show(); 
+        $('#status,.manageApproval').show();
+        $('.selectdeselect').attr('onclick','deSelectForAllApporval()');
+        $('.selectdeselect').text('Deselect All');
     }
     $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
 }
 
 function selectForAllApproval(){
     approvalRow = [];  
-  $('#selectdeselect').val('select');
-  $('.approvalRow').prop('checked',true);
-
-  var approvalIDs = $("#recommendedTable input:checkbox:checked").map(function(){
-      return $(this).val();
-    }).get();
-  approvalRow = approvalIDs;
-  if(approvalRow.length > 0){
+    $('#selectdeselect').val('select');
+    $('.approvalRow').prop('checked',true);
+    var approvalIDs = $("#recommendedTable input:checkbox:checked").map(function(){
+        return $(this).val();
+      }).get();
+    approvalRow = approvalIDs;
+    if(approvalRow.length > 0){
+        $('#status,.manageApproval').show();
         $('.selectdeselect').attr('onclick','deSelectForAllApporval()');
         $('.selectdeselect').text('Deselect All');
-        if(approvalRow.length == 0){
-            $('#status,.manageApproval').hide(); 
-        }else{
-            $('#status,.manageApproval').show(); 
-        }
         $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
-  }else{
-    alert('Data not available');
-  }
+    }else{
+      alert('Data not available');
+    }
 }
 
 function deSelectForAllApporval(){
     approvalRow = [];
+    $('#status,.manageApproval').hide(); 
     $('#selectdeselect').val('deselect');
     $('.approvalRow').prop('checked',false);
     $('.selectdeselect').attr('onclick','selectForAllApproval()');
     $('.selectdeselect').text('Select All');
-    if(approvalRow.length == 0){
-        $('#status,.manageApproval').hide(); 
-    }else{
-        $('#status,.manageApproval').show(); 
-    }
-   $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
+    $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
 }
 
 function manageApproval(){
@@ -410,8 +405,8 @@ function manageApproval(){
     }else{
         $.post("<?php echo $this->url('certification',array('action'=>'approval')); ?>", {approvalRow:approvalRow,status:$('#status').val()},
         function(data){
-            recommendedTable.draw();
             deSelectForAllApporval();
+            recommendedTable.draw();
         });
     }
 }
