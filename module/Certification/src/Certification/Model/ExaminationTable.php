@@ -462,7 +462,7 @@ class ExaminationTable {
     }
     
     public function fetchAllPendingTests($parameters){
-    $sessionLogin = new Container('credo);
+    $sessionLogin = new Container('credo');
         $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
         $orderColumns = array('first_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
         /*
