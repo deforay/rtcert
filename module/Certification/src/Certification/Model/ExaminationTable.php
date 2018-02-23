@@ -10,6 +10,7 @@ use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
+use Zend\Session\Container;
 
 class ExaminationTable {
 
@@ -199,6 +200,7 @@ class ExaminationTable {
     }
     
     public function fetchAllPendingTests(){
+        $logincontainer = new Container('credo');
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from(array('e'=>'examination'))
@@ -210,6 +212,13 @@ class ExaminationTable {
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'),'left')
                                 ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL')
                                 ->order('e.id desc');
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$logincontainer->region).')');
+        }else if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $sQuery->where('l_d_r.country IN('.implode(',',$logincontainer->country).')');
+        }
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
         return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }

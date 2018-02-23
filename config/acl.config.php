@@ -20,6 +20,7 @@ return array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
+            'pending' => 'allow',
         ),
         'Application\\Controller\\Config' => array(
             'index' => 'allow',

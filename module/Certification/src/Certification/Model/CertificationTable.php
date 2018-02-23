@@ -12,7 +12,6 @@ use Zend\Db\Sql\Expression;
 //use Zend\Db\Sql\Where;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
-use Zend\Session\Container;
 
 class CertificationTable {
 
@@ -488,6 +487,7 @@ class CertificationTable {
     }
     
     public function fetchAllRecommended($parameters){
+        $logincontainer = new Container('credo');
         $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
 
@@ -565,9 +565,13 @@ class CertificationTable {
         $sQuery = $sql->select()->from(array('c'=>'certification'))
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
                                ->where('c.approval_status IN("pending","Pending")');
-
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$logincontainer->region).')');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -596,8 +600,13 @@ class CertificationTable {
         $tQuery =  $sql->select()->from(array('c'=>'certification'))
                                  ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                  ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
+                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
                                  ->where('c.approval_status IN("pending","Pending")');
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$logincontainer->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -721,7 +730,11 @@ class CertificationTable {
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
                                ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
                                ->order('c.id desc');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -753,6 +766,11 @@ class CertificationTable {
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
                                ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
                                ->order('c.id desc');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -875,7 +893,11 @@ class CertificationTable {
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
                                ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
                                ->order('c.id desc');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -907,6 +929,11 @@ class CertificationTable {
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
                                ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
                                ->order('c.id desc');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -1024,9 +1051,14 @@ class CertificationTable {
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))')
                                ->order('c.id desc');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('(c.approval_status IN("rejected","Rejected") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("pending","Pending") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("failed","Failed") AND p.district IN('.implode(',',$sessionLogin->district).'))');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('(c.approval_status IN("rejected","Rejected") AND p.region IN('.implode(',',$sessionLogin->region).')) OR (c.final_decision IN("pending","Pending") AND p.region IN('.implode(',',$sessionLogin->region).')) OR (c.final_decision IN("failed","Failed") AND p.region IN('.implode(',',$sessionLogin->region).'))');
+        }else{
+            $sQuery->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -1056,8 +1088,14 @@ class CertificationTable {
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))')
                                ->order('c.id desc');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('(c.approval_status IN("rejected","Rejected") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("pending","Pending") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("failed","Failed") AND p.district IN('.implode(',',$sessionLogin->district).'))');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('(c.approval_status IN("rejected","Rejected") AND p.region IN('.implode(',',$sessionLogin->region).')) OR (c.final_decision IN("pending","Pending") AND p.region IN('.implode(',',$sessionLogin->region).')) OR (c.final_decision IN("failed","Failed") AND p.region IN('.implode(',',$sessionLogin->region).'))');
+        }else{
+            $tQuery->where('(c.approval_status IN("rejected","Rejected")) OR (c.final_decision IN("pending","Pending")) OR (c.final_decision IN("failed","Failed"))');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
