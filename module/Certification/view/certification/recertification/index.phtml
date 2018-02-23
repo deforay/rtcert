@@ -48,7 +48,7 @@ $acl = $this->layout()->acl;
 
         <div class="tab-content" id="myTabContent">
           <div class="tab-pane active" id="c-reminders" role="tabpanel" aria-labelledby="c-reminders">
-            <table id="remindersTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+            <table id="remindersTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
                     <tr>
                         <th  style="width:10%;">Professional Registration No.<br>(if available) </th>
@@ -126,19 +126,19 @@ if (isset($certification['date_certificate_sent'])) {
         </div>
         
         <div class="tab-pane" id="c-reminders-already-sent" role="tabpanel" aria-labelledby="c-reminders-already-sent">
-            <table id="remindersAlreadySentTable" class="datatables table table-bordered table-striped table-hover" style="width:100% !important;">
+            <table id="remindersAlreadySentTable" class="datatables table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Due Date</th>
-                        <th>Tester</th>
-                        <th>Certification ID</th>
-                        <th>Type of Reminder</th>
-                        <th>Reminder sent to</th>
-                        <th>Name of Recipient</th>
-                        <th>Date Reminder sent </th>
+                        <th style="width:12%;">Due Date</th>
+                        <th style="width:12%;">Tester</th>
+                        <th style="width:12%;">Certification ID</th>
+                        <th style="width:12%;">Type of Reminder</th>
+                        <th style="width:12%;">Reminder sent to</th>
+                        <th style="width:12%;">Name of Recipient</th>
+                        <th style="width:12%;">Date Reminder sent </th>
 
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Recertification', 'edit')) { ?>
-                            <th>Edit</th>
+                            <th style="width:5%;">Edit</th>
                         <?php } ?>
                     </tr>
 
@@ -184,9 +184,9 @@ if (isset($certification['date_certificate_sent'])) {
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#remindersTable').dataTable();
+        $('#remindersTable').dataTable({"bAutoWidth": false,});
     
-        $('#remindersAlreadySentTable').dataTable()
+        $('#remindersAlreadySentTable').dataTable({"bAutoWidth": false,})
     });
 </script>
 

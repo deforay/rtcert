@@ -1,5 +1,4 @@
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
@@ -81,6 +80,7 @@ $(document).ready(function () {
 
 function pendingTestsInit(){
   $('#pendingTestTable').dataTable({
+    "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
         "bDestroy": true,
@@ -114,6 +114,7 @@ function pendingTestsInit(){
 
 function failedTestsInit(){
   $('#failedTestTable').dataTable({
+    "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
         "bDestroy": true,
