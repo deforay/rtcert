@@ -487,10 +487,16 @@ class CertificationTable {
     }
     
     public function fetchAllRecommended($parameters){
-        $logincontainer = new Container('credo');
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $acl = $this->sm->get('AppAcl');
+        if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
         $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
-
+        }else{
+            $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        }
         /*
         * Paging
         */
@@ -567,10 +573,10 @@ class CertificationTable {
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
                                ->where('c.approval_status IN("pending","Pending")');
-        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
-            $sQuery->where('p.district IN('.implode(',',$logincontainer->district).')');
-        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
-            $sQuery->where('p.region IN('.implode(',',$logincontainer->region).')');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
         }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
@@ -602,10 +608,10 @@ class CertificationTable {
                                  ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                  ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
                                  ->where('c.approval_status IN("pending","Pending")');
-        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
-            $tQuery->where('p.district IN('.implode(',',$logincontainer->district).')');
-        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
-            $tQuery->where('p.region IN('.implode(',',$logincontainer->region).')');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
         }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
@@ -619,7 +625,9 @@ class CertificationTable {
         
         foreach ($rResult as $aRow) {
          $row = array();
+           if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
             $row[] = '<input class="approvalRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForApproval(this);" value="'.$aRow['id'].'"/>';
+           }
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -803,7 +811,7 @@ class CertificationTable {
                 $row[] = "<a href='/certification-mail/index?".urlencode(base64_encode('email'))."=".base64_encode($aRow['email'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('provider'))."=".base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name'])."&".urlencode(base64_encode('facility_in_charge_email'))."=".base64_encode($aRow['facility_in_charge_email'])."&".urlencode(base64_encode('key2'))."=".base64_encode('key')."'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
             }
             if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
-              $row[] = "<div style='width:120px;height:40px;overflow:auto;'><a href='javascript:void(0);' onclick='markAsSent(\"".base64_encode('certification_id')."\",\"". base64_encode($aRow['id'])."\",\"".base64_encode('key')."\",\"". base64_encode('key')."\");'><span class='glyphicon glyphicon-send'></span>&nbsp;Mark as sent</a></div>";
+              $row[] = "<div style='width:120px;height:40px;overflow:auto;'><a href='javascript:void(0);' onclick='markAsSent(\"".urlencode(base64_encode('certification_id'))."\",\"". base64_encode($aRow['id'])."\",\"".urlencode(base64_encode('key'))."\",\"". base64_encode('key')."\");'><span class='glyphicon glyphicon-send'></span>&nbsp;Mark as sent</a></div>";
             }
          $output['aaData'][] = $row;
         }

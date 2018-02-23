@@ -4,12 +4,9 @@ $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <style>
@@ -31,13 +28,13 @@ $acl = $this->layout()->acl;
         <ul class="nav nav-tabs" id="recommendationTab" role="tablist">
             <li class="nav-item active">
               <input type="hidden" id="selectdeselect"/>  
-              <a class="nav-link active" id="recommend-tab" data-toggle="tab" href="#recommend" role="tab" aria-controls="recommend" aria-selected="true">Waiting for Recommendation</a>
+              <a class="nav-link active" id="recommend-tab" data-toggle="tab" href="#recommend" role="tab" aria-controls="recommend" aria-selected="true" onclick="recommendInit();">Waiting for Recommendation</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="false">Already Recommened</a>
+              <a class="nav-link" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="false" onclick="recommendedInit();">Already Recommened</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="approved-tab" data-toggle="tab" href="#approved" role="tab" aria-controls="approved" aria-selected="false">Certification Approved</a>
+              <a class="nav-link" id="approved-tab" data-toggle="tab" href="#approved" role="tab" aria-controls="approved" aria-selected="false" onclick="approvedInit();">Certification Approved</a>
             </li>
         </ul>
         <div class="tab-content" id="recommendationContent">
@@ -45,7 +42,9 @@ $acl = $this->layout()->acl;
             <table id="recommendTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
                     <tr>
-                        <th  style="width:4%;"># </th>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
+                          <th  style="width:4%;"># </th>
+                        <?php } ?>
                         <th  style="width:10%;">Professional Registration No.<br>(if available) </th>
                         <th  style="width:10%;">Certification Registration no. </th>
                         <th  style="width:10%;">Certification ID  </th>
@@ -74,29 +73,6 @@ $acl = $this->layout()->acl;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                     if(isset($recommended) && count($recommended) > 0){
-                      foreach ($recommended as $certification){ ?>
-                        <tr>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['professional_reg_no']); ?></div></td>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_reg_no']); ?></div></td>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_id']); ?></div></td>
-                            <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['last_name'] . ' ' . $certification['first_name'] . ' ' . $certification['middle_name']); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto; color: red"><?php echo $this->escapeHtml($certification['final_decision']); ?></div></td>
-                            <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_issuer']); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto;"><?php echo date("d-M-Y", strtotime($this->escapeHtml($certification['date_certificate_issued']))); ?></div></td>
-                            <?php
-                            if (isset($certification['date_certificate_sent']) && $certification['date_certificate_sent']!= null && $certification['date_certificate_sent']!= '' && $certification['date_certificate_sent']!= '0000-00-00') {
-                                echo ' <td>' . date("d-M-Y", strtotime($this->escapeHtml($certification['date_certificate_sent']))) . '</td>';
-                            } else {
-                                echo ' <td></td>';
-                            };
-                            ?>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_type']); ?></div></td>  
-                        </tr>
-                        <?php } } else { ?>
-                           <tr><td colspan="9">No data available in table</td></tr>
-                        <?php } ?>
                 </tbody>
             </table>
           </div>
@@ -116,29 +92,6 @@ $acl = $this->layout()->acl;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    if(isset($approved) && count($approved) > 0){
-                       foreach ($approved as $certification){ ?>
-                        <tr>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['professional_reg_no']); ?></div></td>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_reg_no']); ?></div></td>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_id']); ?></div></td>
-                            <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['last_name'] . ' ' . $certification['first_name'] . ' ' . $certification['middle_name']); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto; color: red"><?php echo $this->escapeHtml($certification['final_decision']); ?></div></td>
-                            <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_issuer']); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto;"><?php echo date("d-M-Y", strtotime($this->escapeHtml($certification['date_certificate_issued']))); ?></div></td>
-                            <?php
-                            if (isset($certification['date_certificate_sent']) && $certification['date_certificate_sent']!= null && $certification['date_certificate_sent']!= '' && $certification['date_certificate_sent']!= '0000-00-00') {
-                                echo ' <td>' . date("d-M-Y", strtotime($this->escapeHtml($certification['date_certificate_sent']))) . '</td>';
-                            } else {
-                                echo ' <td></td>';
-                            };
-                            ?>
-                            <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_type']); ?></div></td>  
-                        </tr>
-                    <?php } } else { ?>
-                        <tr><td colspan="9">No data available in table</td></tr>
-                    <?php } ?>
                 </tbody>
             </table>
           </div>
@@ -169,9 +122,11 @@ function recommendInit(){
         "bScrollCollapse": false,
         "bRetrieve": false,
         "bDestroy": true,
-                    "pageLength": 50,
+        "pageLength": 50,
         "aoColumns": [
+               <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
                 {"sClass":"center","bSortable":false},
+               <?php } ?>
 		{"sClass":""},
                 {"sClass":""},
                 {"sClass":""},
@@ -206,11 +161,69 @@ function recommendInit(){
 }
 
 function recommendedInit(){
-   $('#recommendedTable').dataTable();
+   $('#recommendedTable').dataTable({
+        "bScrollCollapse": false,
+        "bRetrieve": false,
+        "bDestroy": true,
+        "pageLength": 50,
+        "aoColumns": [
+		{"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":"center"},
+                {"sClass":"center"},
+                {"sClass":""}
+        ],
+        "aaSorting": [[ 0, "asc" ]],
+        "bProcessing": true,
+        "bServerSide": true,
+        "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'recommended')); ?>",
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            $.ajax({
+                "dataType": 'json',
+                "type": "POST",
+                "url": sSource,
+                "data": aoData,
+                "success": fnCallback
+            });
+        }
+    });
 }
 
 function approvedInit(){
-   $('#approvedTable').dataTable();
+   $('#approvedTable').dataTable({
+        "bScrollCollapse": false,
+        "bRetrieve": false,
+        "bDestroy": true,
+        "pageLength": 50,
+        "aoColumns": [
+		{"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":""},
+                {"sClass":"center"},
+                {"sClass":"center"},
+                {"sClass":""}
+        ],
+        "aaSorting": [[ 0, "asc" ]],
+        "bProcessing": true,
+        "bServerSide": true,
+        "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'approved')); ?>",
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            $.ajax({
+                "dataType": 'json',
+                "type": "POST",
+                "url": sSource,
+                "data": aoData,
+                "success": fnCallback
+            });
+        }
+    });
 }
 
 function selectForRecommendation(obj){
@@ -249,7 +262,7 @@ function selectForAllRecommendation(){
           $('.selectdeselect').text('Deselect All'); 
           $('.selectedRows').html(recommendationRow.length+' Row(s) Selected');
     }else{
-      alert('Data not available');
+      alert('Selection not available');
     }
 }
 
@@ -265,7 +278,7 @@ function deSelectForAllRecommendation(){
 
 function manageRecommendation(){
    if(recommendationRow.length == 0){
-        alert('Please select atleast one exam and then submit');
+        alert('Please select atleast one row and then submit');
         return false;
     }else if($.trim($('#certificationIssuer').val()) == ''){
         alert('Please enter certificate issuer name');
@@ -280,9 +293,11 @@ function manageRecommendation(){
     }
 }
 
+<?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
 //Insert a raw HTML into data table
 var count_elem = document.getElementById('recommendTable');
 var div = document.createElement('div');
 div.innerHTML = '<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllRecommendation();" style="padding:4px;margin-bottom: 1vh;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="selectedRows">0 Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="certificationIssuer" placeholder="Certificate Issuer" style="display:none;margin-right:1%;"/><a class="btn btn-primary manageRecommendation" href="javascript:void(0);" onclick="manageRecommendation();" style="display:none;padding:4px;margin-bottom: 1vh;">Submit</a>';
 count_elem.parentNode.insertBefore(div, count_elem);
+<?php } ?>
 </script>

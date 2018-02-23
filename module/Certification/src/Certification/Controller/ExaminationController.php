@@ -25,17 +25,44 @@ class ExaminationController extends AbstractActionController {
             $result = $this->getExaminationTable()->fetchAll($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
-        return new ViewModel(array(
-           'recommended' => $this->getExaminationTable()->fetchAllRecommended(),
-           'approved' => $this->getExaminationTable()->fetchAllApproved()
-        ));
+        return new ViewModel(array());
+    }
+    
+    public function recommendedAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->fetchAllRecommended($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function approvedAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->fetchAllApproved($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
     }
     
     public function pendingAction() {
-        return new ViewModel(array(
-           'pendingTests' => $this->getExaminationTable()->fetchAllPendingTests(),
-           'failedTests' => $this->getExaminationTable()->fetchAllFailedTests()
-        )); 
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->fetchAllPendingTests($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+        return new ViewModel(array()); 
+    }
+    
+    public function failedAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->fetchAllFailedTests($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        } 
     }
 
 }
