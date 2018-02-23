@@ -106,13 +106,18 @@ class ExaminationTable {
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+
         $sQuery = $sql->select()->from(array('e'=>'examination'))
                                ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score'),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -144,6 +149,11 @@ class ExaminationTable {
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -186,6 +196,7 @@ class ExaminationTable {
     }
     
     public function fetchAllRecommended($parameters){
+        $sessionLogin = new Container('credo');
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         /*
@@ -265,7 +276,11 @@ class ExaminationTable {
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
                                 ->where('c.approval_status IN("pending","Pending")')
                                 ->order('c.date_certificate_issued desc');
-
+                                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                                    $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+                                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                                    $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+                                }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -297,6 +312,11 @@ class ExaminationTable {
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
                                 ->where('c.approval_status IN("pending","Pending")')
                                 ->order('c.date_certificate_issued desc');
+                                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                                    $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+                                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                                    $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+                                }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -324,6 +344,7 @@ class ExaminationTable {
     }
     
     public function fetchAllApproved($parameters){
+        $sessionLogin = new Container('credo');
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         /*
@@ -403,7 +424,11 @@ class ExaminationTable {
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
                                 ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")')
                                 ->order('c.date_certificate_issued desc');
-
+                                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                                    $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+                                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                                    $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+                                }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -435,6 +460,11 @@ class ExaminationTable {
                                  ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
                                  ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")')
                                  ->order('c.date_certificate_issued desc');
+                                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                                    $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+                                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                                    $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+                                }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -621,6 +651,7 @@ class ExaminationTable {
     }
     
     public function fetchAllFailedTests($parameters){
+        $sessionLogin = new Container('credo');
         $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
         $orderColumns = array('first_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
         /*
@@ -703,7 +734,13 @@ class ExaminationTable {
                                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
                                 ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)')
                                 ->order('e.id desc');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
+            $sQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
+        }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -738,6 +775,13 @@ class ExaminationTable {
                                  ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
                                  ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)')
                                  ->order('e.id desc');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
+            $tQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);

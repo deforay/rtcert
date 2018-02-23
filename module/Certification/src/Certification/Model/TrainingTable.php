@@ -20,12 +20,17 @@ class TrainingTable extends AbstractTableGateway {
     }
 
     public function fetchAll() {
+        $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('training_id', 'Provider_id', 'type_of_competency', 'last_training_date', 'type_of_training', 'length_of_training', 'training_organization_id', 'facilitator', 'training_certificate', 'date_certificate_issued', 'Comments'));
         $sqlSelect->join('provider', 'provider.id = training.Provider_id', array('last_name', 'first_name', 'middle_name', 'professional_reg_no', 'certification_id', 'certification_reg_no'), 'left')
                 ->join('training_organization', 'training_organization.training_organization_id = training.training_organization_id ', array('training_organization_name', 'type_organization'), 'left');
         $sqlSelect->order('training_id desc');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
         return $resultSet;
     }
