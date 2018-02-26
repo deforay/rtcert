@@ -2,10 +2,10 @@
 
 namespace Certification\Controller;
 
+use Zend\Session\Container;
 use Zend\Mvc\Controller\AbstractActionController;
 use Certification\Model\CertificationMail;
 use Certification\Form\CertificationMailForm;
-use Zend\Session\Container;
 
 class CertificationMailController extends AbstractActionController {
 
