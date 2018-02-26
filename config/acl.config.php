@@ -5,10 +5,12 @@ return array(
             'pdf-setting' => 'allow',
             'index' => 'allow',
             'add' => 'allow',
+            'approval' => 'allow',
             'edit' => 'allow',
             'pdf' => 'allow',
             'xls' => 'allow',
             'header-text' => 'allow',
+            'recommend' => 'allow',
         ),
         'Certification\\Controller\\CertificationMail' => array(
             'index' => 'allow',
@@ -20,6 +22,7 @@ return array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
+            'pending' => 'allow',
         ),
         'Application\\Controller\\Config' => array(
             'index' => 'allow',
@@ -229,10 +232,12 @@ return array(
             'pdf-setting' => 'allow',
             'index' => 'allow',
             'add' => 'allow',
+            'approval' => 'allow',
             'edit' => 'allow',
             'pdf' => 'allow',
             'xls' => 'allow',
             'header-text' => 'allow',
+            'recommend' => 'allow',
         ),
         'Certification\\Controller\\CertificationMail' => array(
             'index' => 'allow',

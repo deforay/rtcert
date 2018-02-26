@@ -16,10 +16,15 @@ class RecertificationTable {
     }
 
     public function fetchAll() {
+        $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('recertification_id', 'due_date', 'reminder_type', 'reminder_sent_to', 'name_of_recipient', 'date_reminder_sent', 'provider_id'))
                 ->join('provider', 'provider.id=recertification.provider_id', array('certification_id', 'last_name', 'first_name', 'middle_name'), 'left');
-
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $sqlSelect->order('recertification_id desc');
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
 //        die(print_r($resultSet));
@@ -72,12 +77,18 @@ class RecertificationTable {
      * @return type
      */
     public function fetchAll2() {
+        $sessionLogin = new Container('credo');
         $db = $this->tableGateway->getAdapter();
         $sqlSelect = "select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, "
                 . "date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,"
                 . " certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where "
                 . "examination.id = certification.examination and provider.id = examination.provider and final_decision='certified' and certificate_sent = 'yes' and reminder_sent='no' and"
                 . " datediff(now(),date_end_validity) >=-60 order by certification.id asc";
+                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                    $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                    $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+                }
         $statement = $db->query($sqlSelect);
         $resultSet = $statement->execute();
 

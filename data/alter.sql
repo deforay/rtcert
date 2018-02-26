@@ -642,3 +642,10 @@ INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global
 --ilahir 22-Feb-2018
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Region', 'region', 'Region');
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Districts', 'districts', 'Districts'), (NULL, 'Facilities', 'facilities', 'Facilities');
+
+-- Pal 22 Feb 2018
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'approval', 'Approval');
+
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'recommend', 'Recommend'); 
+-- saravanan 23-feb-2018
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Examination', 'pending', 'Pending tests');

@@ -1,5 +1,4 @@
 <?php
-
 namespace Certification\Controller;
 
 use Zend\Session\Container;
@@ -8,7 +7,6 @@ use Zend\Json\Json;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Certification;
 use Certification\Form\CertificationForm;
-
 
 class CertificationController extends AbstractActionController {
 

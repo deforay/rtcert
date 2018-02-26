@@ -80,6 +80,7 @@ $(document).ready(function () {
 
 function pendingTestsInit(){
   $('#pendingTestTable').dataTable({
+    "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
         "bDestroy": true,
@@ -113,6 +114,7 @@ function pendingTestsInit(){
 
 function failedTestsInit(){
   $('#failedTestTable').dataTable({
+    "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
         "bDestroy": true,

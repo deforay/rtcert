@@ -12,6 +12,7 @@ use Zend\Paginator\Paginator;
 use Zend\Db\Adapter\AdapterInterface;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
+use Zend\Session\Container;
 
 class WrittenExamTable extends AbstractTableGateway {
 
@@ -25,11 +26,17 @@ class WrittenExamTable extends AbstractTableGateway {
     }
 
     public function fetchAll() {
+        $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('id_written_exam', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
             'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'));
         $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name'), 'left')
                 ->where(array('display' => 'yes'));
+                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                    $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                    $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+                }
         $sqlSelect->order('id_written_exam desc');
 
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
