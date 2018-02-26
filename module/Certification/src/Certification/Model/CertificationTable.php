@@ -643,13 +643,14 @@ class CertificationTable {
     }
 
     public function updateCertficateApproval($params){
-        $result = 0;
+        $result = false;
         if(isset($params['approvalRow']) && count($params['approvalRow']) > 0){
+            $result = true;
             $db = $this->tableGateway->getAdapter();
             for($i=0;$i<count($params['approvalRow']);$i++){
                 $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' WHERE id=" . $params['approvalRow'][$i];
 
-           $result = $db->getDriver()->getConnection()->execute($sql);
+            $db->getDriver()->getConnection()->execute($sql);
             }
         }
       return $result;
