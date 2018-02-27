@@ -1,7 +1,5 @@
 <?php
-use Zend\Session\Container;
-$sessionLogin = new Container('credo');
-//var_dump($quickStats);die;
+$configResult = $this->GlobalConfigHelper();
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
@@ -312,17 +310,14 @@ $sessionLogin = new Container('credo');
 }
 
 </style>
-
       <!-- <div class="am-content">
 	<div class="page-head">
           <span style=""><h2 style="font-weight:bold;">
-					<?php echo $sessionLogin->countryName ?> <a id="showFilterBtn" class="btn btn-primary btn-sm pull-right" style="margin-right:5px;letter-spacing:0.5px;" onclick="alert('Work in progress');return false;"><span>Show Advanced Options</span></a></h2>
+	    <a id="showFilterBtn" class="btn btn-primary btn-sm pull-right" style="margin-right:5px;letter-spacing:0.5px;" onclick="alert('Work in progress');return false;"><span>Show Advanced Options</span></a></h2>
 	  </span>
         </div> -->
         <div class="main-content">
-
-    
-				<div class="row" style="margin-bottom:10px;clear:both;">
+	  <div class="row" style="margin-bottom:10px;clear:both;">
                   <div class="col-lg-3 col-sm-6">
                         <div class="card">
                             <div class="content">
@@ -349,8 +344,6 @@ $sessionLogin = new Container('credo');
                             </div>
                         </div>
                     </div>
-
-
 
                     <div class="col-lg-3 col-sm-6">
                           <div class="card">
@@ -454,7 +447,7 @@ $sessionLogin = new Container('credo');
                     <div class="col-md-6">
                         <div class="card ">
                             <div class="header">
-                                <h4 class="title"><?php echo ucwords($sessionLogin->countryName); ?></h4>
+                                <h4 class="title"><?php echo ucwords($configResult['country-name']); ?></h4>
                                 <!--<p class="category">Last 12 months</p>-->
                             </div>
                             <div class="content" style="height:500px;">
