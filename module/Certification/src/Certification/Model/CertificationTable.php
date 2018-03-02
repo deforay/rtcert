@@ -491,10 +491,10 @@ class CertificationTable {
         $acl = $this->sm->get('AppAcl');
         if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
         $aColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('c.id','professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         }else{
             $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         }
         /*
         * Paging
@@ -659,7 +659,7 @@ class CertificationTable {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
 
         /*
         * Paging
@@ -820,7 +820,7 @@ class CertificationTable {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
 
         /*
         * Paging
@@ -978,7 +978,7 @@ class CertificationTable {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_type');
 
         /*
         * Paging
