@@ -1,12 +1,9 @@
 <?php
-
 use Zend\Session\Container;
-
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 ?>
-
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
@@ -47,9 +44,11 @@ $acl = $this->layout()->acl;
                                 $form->prepare();
 
                                 $form->get('professional_reg_no')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control professional_reg_no',
                                     'placeholder' => 'Professional Registration No ',
                                     'autocomplete' => 'off',
+                                    'onclick' => 'emptyInput(this)',
+                                    'onblur' => 'checkNameValidation("provider","professional_reg_no", this, null, "The professional reg.no that you entered already exist..Please enter different reg.no")'
                                 ]);
                                 $form->get('last_name')->setAttributes([
                                     'class' => 'form-control',
@@ -106,14 +105,14 @@ $acl = $this->layout()->acl;
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'id' => 'Tester Phone Number',
                                     'autocomplete' => 'off',
                                     'onclick' => 'emptyInput(this)'
                                 ]);
                                 $form->get('email')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control testerEmail',
                                     'placeholder' => 'Email',
                                     'autocomplete' => 'off',
                                     'id' => 'Tester Email',
@@ -123,7 +122,9 @@ $acl = $this->layout()->acl;
                                     'class' => 'form-control',
                                     'placeholder' => 'Prefered Contact Method',
                                     'id' => 'Prefered Contact Method',
-                                    'onclick' => 'emptyInput(this)']);
+                                    'onclick' => 'emptyInput(this)',
+                                    'onchange' => 'managePreferedContactEmail(this.value)'
+                                ]);
 
                                 $form->get('current_jod')->setAttributes([
                                     'class' => 'form-control',
@@ -146,7 +147,7 @@ $acl = $this->layout()->acl;
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('test_site_in_charge_phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'id' => 'Testing site in charge Phone',
                                     'autocomplete' => 'off',
@@ -167,7 +168,7 @@ $acl = $this->layout()->acl;
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('facility_in_charge_phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'autocomplete' => 'off',
                                     'id' => 'Facility in charge Phone',
@@ -249,7 +250,7 @@ $acl = $this->layout()->acl;
                                         <?= $this->formElementErrors($form->get('phone')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
-                                        <?= $this->formLabel($form->get('email')); ?>
+                                        <?= $this->formLabel($form->get('email')); ?><span class="mandatory testerEmailMandatorySection" style="display:none;">*</span>
                                         <?= $this->formElement($form->get('email')); ?>
                                         <?= $this->formElementErrors($form->get('email')); ?>
                                     </div>
@@ -565,6 +566,31 @@ $acl = $this->layout()->acl;
                     tr[i].style.display = "none";
                 }
             }
+        }
+    }
+    
+    function managePreferedContactEmail(preferedContactMethod){
+        if($.trim(preferedContactMethod) == 'Email'){
+           $('.testerEmailMandatorySection').show();
+        }else{
+           $('.testerEmailMandatorySection').hide();
+        }
+    }
+    
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg){
+        var className = $(obj).attr('class').split(' ')[1];
+        var checkValue = $('.'+className).val();
+        if($.trim(checkValue)!= ''){
+            $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+            function(data) {
+                if (data > 0){
+                    alert(msg);
+                    duplicateName = false;
+                    $('.'+className).val('');
+                }else {
+                    duplicateName = true;
+                }
+            });
         }
     }
 </script>

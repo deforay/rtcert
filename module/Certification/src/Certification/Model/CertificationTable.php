@@ -736,8 +736,7 @@ class CertificationTable {
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
-                               ->order('c.id desc');
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -772,8 +771,7 @@ class CertificationTable {
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"')
-                               ->order('c.id desc');
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -899,8 +897,7 @@ class CertificationTable {
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
-                               ->order('c.id desc');
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -935,8 +932,7 @@ class CertificationTable {
                                 ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")')
-                               ->order('c.id desc');
+                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified")');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -1058,8 +1054,7 @@ class CertificationTable {
         $sQuery = $sql->select()->from(array('c'=>'certification'))
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->order('c.id desc');
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('(c.approval_status IN("rejected","Rejected") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("pending","Pending") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("failed","Failed") AND p.district IN('.implode(',',$sessionLogin->district).'))');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -1095,8 +1090,7 @@ class CertificationTable {
         $tQuery =  $sql->select()->from(array('c'=>'certification'))
                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left')
-                               ->order('c.id desc');
+                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email','facility_in_charge_email'),'left');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('(c.approval_status IN("rejected","Rejected") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("pending","Pending") AND p.district IN('.implode(',',$sessionLogin->district).')) OR (c.final_decision IN("failed","Failed") AND p.district IN('.implode(',',$sessionLogin->district).'))');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){

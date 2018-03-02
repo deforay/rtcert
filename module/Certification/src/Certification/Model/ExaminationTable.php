@@ -29,10 +29,10 @@ class ExaminationTable {
         $acl = $this->sm->get('AppAcl');
         if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) {
             $aColumns = array('e.id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_score','practical_total_score');
-            $orderColumns = array('e.id','professional_reg_no','certification_reg_no','certification_id','first_name','final_score','practical_total_score');
+            $orderColumns = array('e.id','professional_reg_no','certification_reg_no','certification_id','last_name','final_score','practical_total_score');
         }else{
             $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_score','practical_total_score');
-            $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_score','practical_total_score');
+            $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_score','practical_total_score');
         }
 
         /*
@@ -198,7 +198,7 @@ class ExaminationTable {
     public function fetchAllRecommended($parameters){
         $sessionLogin = new Container('credo');
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         /*
         * Paging
         */
@@ -274,8 +274,7 @@ class ExaminationTable {
                                 ->columns(array('provider'))
                                 ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'),'left')
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
-                                ->where('c.approval_status IN("pending","Pending")')
-                                ->order('c.date_certificate_issued desc');
+                                ->where('c.approval_status IN("pending","Pending")');
                                 if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
                                     $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
                                 }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -310,8 +309,7 @@ class ExaminationTable {
                                 ->columns(array('provider'))
                                 ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'),'left')
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
-                                ->where('c.approval_status IN("pending","Pending")')
-                                ->order('c.date_certificate_issued desc');
+                                ->where('c.approval_status IN("pending","Pending")');
                                 if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
                                     $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
                                 }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -346,7 +344,7 @@ class ExaminationTable {
     public function fetchAllApproved($parameters){
         $sessionLogin = new Container('credo');
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         /*
         * Paging
         */
@@ -422,8 +420,7 @@ class ExaminationTable {
                                 ->columns(array('provider'))
                                 ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'),'left')
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
-                                ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")')
-                                ->order('c.date_certificate_issued desc');
+                                ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")');
                                 if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
                                     $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
                                 }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -458,8 +455,7 @@ class ExaminationTable {
                                  ->columns(array('provider'))
                                  ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'),'left')
                                  ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'),'left')
-                                 ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")')
-                                 ->order('c.date_certificate_issued desc');
+                                 ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status NOT IN("pending","Pending")');
                                 if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
                                     $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
                                 }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -494,7 +490,7 @@ class ExaminationTable {
     public function fetchAllPendingTests($parameters){
     $sessionLogin = new Container('credo');
         $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
-        $orderColumns = array('first_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
+        $orderColumns = array('last_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
         /*
         * Paging
         */
@@ -573,8 +569,7 @@ class ExaminationTable {
                                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
                                 ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
-                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL')
-                                ->order('e.id desc');
+                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
 				if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -615,8 +610,7 @@ class ExaminationTable {
                                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
                                 ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
-                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL')
-                                ->order('e.id desc');
+                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
 				if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -653,7 +647,7 @@ class ExaminationTable {
     public function fetchAllFailedTests($parameters){
         $sessionLogin = new Container('credo');
         $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
-        $orderColumns = array('first_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
+        $orderColumns = array('last_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
         /*
         * Paging
         */
@@ -732,8 +726,7 @@ class ExaminationTable {
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'))
                                 ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
                                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)')
-                                ->order('e.id desc');
+                                ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -773,8 +766,7 @@ class ExaminationTable {
                                  ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'))
                                  ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
                                  ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                 ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)')
-                                 ->order('e.id desc');
+                                 ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){

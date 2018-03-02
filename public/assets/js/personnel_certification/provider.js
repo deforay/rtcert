@@ -58,6 +58,12 @@ function validateForm() {
         return false;
     }
 
+    if (j == "Email" && c == "") {
+        elmt3.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
+        alert("Please enter the ''" + elmt3.id + "''");
+        return false;
+    }
+    
     if (c != "" && reg.test(c) == false)
     {
         elmt3.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";

@@ -1,13 +1,10 @@
 <?php
 use Zend\Session\Container;
-
 $sessionLogin = new Container('credo');
 ?>
-
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
-
 <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
@@ -18,24 +15,21 @@ $sessionLogin = new Container('credo');
         <h2>Edit Tester</h2>
         <span class="muted pull-right" style="font-size:15px;"><span class="mandatory">*</span> indicates required field</span>
     </div>
-
-
     <div class="main-content">
         <div class="widget widget-fullwidth widget-small" style="padding:5px;">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-body" >
-
                             <form action="<?php $this->url('provider', array('action' => 'edit', 'id' => $this->id)); ?>" name="form" method="post" onsubmit="return validateForm()">
-
                                 <?php
                                 $form->prepare();
-
                                 $form->get('professional_reg_no')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control professional_reg_no',
                                     'placeholder' => 'Professional Registration No ',
                                     'autocomplete' => 'off',
+                                    'onclick' => 'emptyInput(this)',
+                                    'onblur' => 'checkNameValidation("provider","professional_reg_no", this, "id##'.$this->id.'", "The professional reg.no that you entered already exist..Please enter different reg.no")'
                                 ]);
                                 $form->get('last_name')->setAttributes([
                                     'class' => 'form-control',
@@ -89,24 +83,26 @@ $sessionLogin = new Container('credo');
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'id' => 'Tester Phone Number',
                                     'autocomplete' => 'off',
                                     'onclick' => 'emptyInput(this)'
                                 ]);
                                 $form->get('email')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control testerEmail',
                                     'placeholder' => 'Email',
                                     'autocomplete' => 'off',
                                     'id' => 'Tester Email',
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('prefered_contact_method')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control preferedContactMethod',
                                     'placeholder' => 'Prefered Contact Method',
                                     'id' => 'Prefered Contact Method',
-                                    'onclick' => 'emptyInput(this)']);
+                                    'onclick' => 'emptyInput(this)',
+                                    'onchange' => 'managePreferedContactEmail()'
+                                ]);
 
                                 $form->get('current_jod')->setAttributes([
                                     'class' => 'form-control',
@@ -129,7 +125,7 @@ $sessionLogin = new Container('credo');
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('test_site_in_charge_phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'id' => 'Testing site in charge Phone',
                                     'autocomplete' => 'off',
@@ -150,7 +146,7 @@ $sessionLogin = new Container('credo');
                                     'onclick' => 'emptyInput(this)']);
 
                                 $form->get('facility_in_charge_phone')->setAttributes([
-                                    'class' => 'form-control',
+                                    'class' => 'form-control checkNum',
                                     'placeholder' => 'Phone',
                                     'autocomplete' => 'off',
                                     'id' => 'Facility in charge Phone',
@@ -233,7 +229,7 @@ $sessionLogin = new Container('credo');
                                         <?= $this->formElementErrors($form->get('phone')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
-                                        <?= $this->formLabel($form->get('email')); ?>
+                                        <?= $this->formLabel($form->get('email')); ?><span class="mandatory testerEmailMandatorySection" style="display:none;">*</span>
                                         <?= $this->formElement($form->get('email')); ?>
                                         <?= $this->formElementErrors($form->get('email')); ?>
                                     </div>
@@ -296,11 +292,7 @@ $sessionLogin = new Container('credo');
                                 </fieldset>
 
                                 <fieldset>
-
-
                                     <legend style="color: #00b3ee">FACILITY IN CHARGE </legend>
-
-
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('facility_in_charge_name')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('facility_in_charge_name')); ?>
@@ -320,29 +312,20 @@ $sessionLogin = new Container('credo');
 
                                 <fieldset>
                                     <legend style="color: #00b3ee"></legend>
-
-
-
                                     <div class="form-group col-lg-4" style="margin-top: 30px"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                        <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'index')); ?>" >CANCEL</a> </div>
+                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'index')); ?>" >CANCEL</a> </div>
                                 </fieldset>
                                 <?php echo $this->form()->closeTag();
                                 ?>                         
                             </form>
-
-
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-
         <br>
         <br>
-
     </div>
-
 </div>
 
 </script>
@@ -372,6 +355,7 @@ $sessionLogin = new Container('credo');
         showRegion('<?php echo $this->country_id; ?>','<?php echo $this->region_id; ?>','load');
         showDistrict('<?php echo $this->region_id; ?>','<?php echo $this->district_id; ?>','load');
         showFacilities('<?php echo $this->district_id; ?>','<?php echo $this->facility_id; ?>','load');
+        managePreferedContactEmail();
     });
     
     function setCountrySelection(ID){
@@ -487,4 +471,29 @@ $sessionLogin = new Container('credo');
             xmlhttp.send();
         }
     }
-</script>                              
+    
+    function managePreferedContactEmail(){
+        if($.trim($('.preferedContactMethod').val()) == 'Email'){
+           $('.testerEmailMandatorySection').show();
+        }else{
+           $('.testerEmailMandatorySection').hide();
+        }
+    }
+    
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg){
+        var className = $(obj).attr('class').split(' ')[1];
+        var checkValue = $('.'+className).val();
+        if($.trim(checkValue)!= ''){
+            $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+            function(data) {
+                if (data > 0){
+                    alert(msg);
+                    duplicateName = false;
+                    $('.'+className).val('');
+                }else {
+                    duplicateName = true;
+                }
+            });
+        }
+    }
+</script>
