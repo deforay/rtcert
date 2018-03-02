@@ -87,14 +87,17 @@ $sessionLogin = new Container('credo');
                                     'placeholder' => 'Phone',
                                     'id' => 'Tester Phone Number',
                                     'autocomplete' => 'off',
-                                    'onclick' => 'emptyInput(this)'
+                                    'onclick' => 'emptyInput(this)',
+                                    'onblur' => 'checkNameValidation("provider","phone", this, "id##'.$this->id.'", "The phone no. that you entered already exist..Please enter different phone no.")'
                                 ]);
                                 $form->get('email')->setAttributes([
                                     'class' => 'form-control testerEmail',
                                     'placeholder' => 'Email',
                                     'autocomplete' => 'off',
                                     'id' => 'Tester Email',
-                                    'onclick' => 'emptyInput(this)']);
+                                    'onclick' => 'emptyInput(this)',
+                                    'onblur' => 'checkNameValidation("provider","email", this, "id##'.$this->id.'", "The email address that you entered already exist..Please enter different email address")'
+                                ]);
 
                                 $form->get('prefered_contact_method')->setAttributes([
                                     'class' => 'form-control preferedContactMethod',
