@@ -98,7 +98,10 @@ class RegionController extends AbstractActionController {
                 return $this->redirect()->toRoute('region');
             } else {
                 $container = new Container('alert');
-                $container->alertMsg = 'Unable to delete this region because it is used for one or more district(s).';
+                $config = $commonSerive->getGlobalConfigDetails();
+                $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?strtolower($config['region']):'region';
+                $districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?strtolower($config['districts']):'districts';
+                $container->alertMsg = 'Unable to delete this '.strtolower($regionLabel).' because it is used for one or more '.$districtLabel;
                 return $this->redirect()->toRoute('region');
             }
         }

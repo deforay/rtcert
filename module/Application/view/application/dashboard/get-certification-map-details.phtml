@@ -35,9 +35,9 @@ if($available > 0) { ?>
                 {
                  lat: "<?php echo $locInfo['latitude']; ?>",
                  lon: "<?php echo $locInfo['longitude']; ?>",
-                 title: "<?php echo ucwords($locInfo['location_name']);?>",
+                 title: "<?php echo ucwords($locInfo['facility_name']);?>",
                  icon : "<?php echo $this->basePath('assets/img/location.png') ?>",
-                 label : "<h5><?php echo ucwords($locInfo['location_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['locCount']; ?></span>"
+                 label : "<h5><?php echo ucwords($locInfo['facility_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['locCount']; ?></span>"
                 },
                 <?php } } } ?>
             ];

@@ -99,7 +99,10 @@ class DistrictController extends AbstractActionController {
                 return $this->redirect()->toRoute('district');
             } else {
                 $container = new Container('alert');
-                $container->alertMsg = 'Unable to delete this district because it is used for one or more facility(ies).';
+                $config = $commonSerive->getGlobalConfigDetails();
+                $districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?strtolower($config['districts']):'district';
+                $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?strtolower($config['facilities']):'facility(ies)';
+                $container->alertMsg = 'Unable to delete this '.$districtLabel.' because it is used for one or more '.$facilityLabel;
                 return $this->redirect()->toRoute('district');
             }
         }

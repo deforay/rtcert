@@ -53,6 +53,20 @@ class DistrictForm extends Form {
             ),
         ));
         $this->add(array(
+            'name' => 'latitude',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Latitude',
+            ),
+        ));
+        $this->add(array(
+            'name' => 'longitude',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Longitude',
+            ),
+        ));
+        $this->add(array(
             'name' => 'submit',
             'type' => 'Submit',
             'attributes' => array(

@@ -649,3 +649,10 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'recommend', 'Recommend'); 
 -- saravanan 23-feb-2018
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Examination', 'pending', 'Pending tests');
+
+-- Pal 22 Feb 2018
+ALTER TABLE `certification_facilities` ADD `latitude` VARCHAR(255) NULL DEFAULT NULL AFTER `district`, ADD `longitude` VARCHAR(255) NULL DEFAULT NULL AFTER `latitude`;
+
+ALTER TABLE `certification_facilities` ADD `contact_person_name` VARCHAR(255) NULL DEFAULT NULL AFTER `facility_name`, ADD `phone_no` VARCHAR(15) NULL DEFAULT NULL AFTER `contact_person_name`, ADD `email_id` VARCHAR(45) NULL DEFAULT NULL AFTER `phone_no`;
+
+UPDATE `global_config` SET `display_name` = 'Certification No. Prefix' WHERE `global_config`.`config_id` = 10;

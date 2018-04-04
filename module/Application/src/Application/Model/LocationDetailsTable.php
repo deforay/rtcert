@@ -52,6 +52,8 @@ class LocationDetailsTable extends AbstractTableGateway {
               'parent_location'  =>$district->parent_location,
               'location_name'  =>strtoupper($district->location_name),
               //'country'  =>$row->country,
+              'latitude'=>$district->latitude,
+              'longitude'=>$district->longitude,
               'country'  =>1,
          );
         $id = (int) $district->location_id;

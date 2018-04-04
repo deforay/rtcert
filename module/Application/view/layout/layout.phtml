@@ -4,15 +4,9 @@ $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $config = $this->GlobalConfigHelper();
-if(isset($config['region']) && trim($config['region'])==""){
-  $config['region']='Region';
-}
-if(isset($config['districts']) && trim($config['districts'])==""){
-  $config['districts']='Districts';
-}
-if(isset($config['facilities']) && trim($config['facilities'])==""){
-  $config['facilities']='Facilities';
-}
+$regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucwords($config['region']):'Regions';
+$districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?ucwords($config['districts']):'Districts';
+$facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?ucwords($config['facilities']):'Facilities';
 $geoGraphicalMenu = '';
 $configmenu = '';
 $adminMenu = '';
@@ -23,13 +17,13 @@ $testerReminderMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Region", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">".$config['region']."</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">".$regionLabel."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\District", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">".$config['districts']."</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">".$districtLabel."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">".$config['facilities']."</a></li>";
+  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">".$facilityLabel."</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
   $configmenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Config</a></li>";
@@ -232,14 +226,14 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                 <?php if($geoGraphicalMenu!='' || $configmenu!=''){ ?>
-                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
-                                        <ul class="dropdown-menu">
-                                            <?php echo $geoGraphicalMenu; ?>
-                                        </ul>
-                                    </li>
                                     <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
                                         <ul class="dropdown-menu">
                                           <?php echo $configmenu; ?>
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
+                                        <ul class="dropdown-menu">
+                                            <?php echo $geoGraphicalMenu; ?>
                                         </ul>
                                     </li>
                                 <li class="divider"></li>
@@ -247,12 +241,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                                 <?php echo $adminMenu; ?>                            
                                 </ul>
                             </li>
-                              <?php } if($trainingMenu!=''){ ?>
-                                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
-                                  <ul role="menu" class="dropdown-menu">
-                                  <?php echo $trainingMenu; ?>
-                                  </ul>
-                                </li>
                               <?php } if($testerMenu!='' || $testerExamMenu!='' || $testerReminderMenu!=''){ ?>
                                 <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
                                       <ul role="menu" class="dropdown-menu">
@@ -275,6 +263,12 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                                     <?php echo $certificateMenu; ?>
                                   </ul>
                                   </li>
+                                <?php } if($trainingMenu!=''){ ?>
+                                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
+                                  <ul role="menu" class="dropdown-menu">
+                                  <?php echo $trainingMenu; ?>
+                                  </ul>
+                                </li>
                                 <?php } if($reportMenu!=''){ ?>
                                   <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
                                         <ul role="menu" class="dropdown-menu">

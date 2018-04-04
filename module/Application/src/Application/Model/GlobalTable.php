@@ -145,6 +145,7 @@ class GlobalTable extends AbstractTableGateway {
         }
         return $output;
     }
+    
     public function getGlobalConfig() {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);

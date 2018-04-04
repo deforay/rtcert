@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
+use Zend\Session\Container;
 use Zend\Form\Form;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Session\Container;
 use Application\Model\GlobalTable;
 
 class FacilityForm extends Form {
@@ -50,10 +50,45 @@ class FacilityForm extends Form {
             ),
         ));
         $this->add(array(
+            'name' => 'contact_person_name',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Contact Person Name',
+            ),
+        ));
+        $this->add(array(
+            'name' => 'phone_no',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Phone Number',
+            ),
+        ));
+        $this->add(array(
+            'name' => 'email_id',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Email ID',
+            ),
+        ));
+        $this->add(array(
             'name' => 'facility_address',
             'type' => 'Text',
             'options' => array(
                 'label' => $this->facilityLabel.' Address',
+            ),
+        ));
+        $this->add(array(
+            'name' => 'latitude',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Latitude',
+            ),
+        ));
+        $this->add(array(
+            'name' => 'longitude',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Longitude',
             ),
         ));
         $this->add(array(

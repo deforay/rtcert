@@ -120,10 +120,12 @@ return array(
             'pdf-setting' => 'allow',
             'index' => 'allow',
             'add' => 'allow',
+            'approval' => 'deny',
             'edit' => 'allow',
             'pdf' => 'allow',
             'xls' => 'allow',
             'header-text' => 'allow',
+            'recommend' => 'deny',
         ),
         'Certification\\Controller\\CertificationMail' => array(
             'index' => 'allow',
@@ -135,6 +137,7 @@ return array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
+            'pending' => 'deny',
         ),
         'Application\\Controller\\Config' => array(
             'index' => 'allow',

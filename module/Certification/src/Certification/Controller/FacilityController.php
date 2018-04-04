@@ -2,11 +2,11 @@
 
 namespace Certification\Controller;
 
+use Zend\Session\Container;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Facility;
 use Certification\Form\FacilityForm;
-use Zend\Session\Container;
 
 class FacilityController extends AbstractActionController {
 
@@ -25,7 +25,7 @@ class FacilityController extends AbstractActionController {
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $form = new FacilityForm($dbAdapter);
         $form->get('submit')->setValue('Submit');
-
+        $commonSerive = $this->getServiceLocator()->get('CommonService');
         $request = $this->getRequest();
         if ($request->isPost()) {
             $facility = new Facility();
@@ -35,7 +35,9 @@ class FacilityController extends AbstractActionController {
                 $facility->exchangeArray($form->getData());
                 $this->getFacilityTable()->saveFacility($facility);
                 $container = new Container('alert');
-                $container->alertMsg = 'Facility added successfully';
+                $labelVal = $commonSerive->getGlobalValue('facilities');
+                $facilityLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'Facility';
+                $container->alertMsg = $facilityLabel.' added successfully';
                 return $this->redirect()->toRoute('facility');
             }
         }
@@ -67,7 +69,7 @@ class FacilityController extends AbstractActionController {
         $form = new FacilityForm($dbAdapter);
         $form->bind($facility);
         $form->get('submit')->setAttribute('value', 'Update');
-
+        $commonSerive = $this->getServiceLocator()->get('CommonService');
         $request = $this->getRequest();
         if ($request->isPost()) {
             //$facility = new Facility();
@@ -77,7 +79,9 @@ class FacilityController extends AbstractActionController {
                 //$facility->exchangeArray($form->getData());
                 $this->getFacilityTable()->saveFacility($facility);
                 $container = new Container('alert');
-                $container->alertMsg = 'Facility updated successfully';
+                $labelVal = $commonSerive->getGlobalValue('facilities');
+                $facilityLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'Facility';
+                $container->alertMsg = $facilityLabel.' updated successfully';
                 return $this->redirect()->toRoute('facility');
             }
         }
@@ -88,7 +92,7 @@ class FacilityController extends AbstractActionController {
         );
     }
     
-     public function deleteAction() {
+    public function deleteAction() {
         $id = (int) $this->params()->fromRoute('id', 0);
 
         if (!$id) {
@@ -102,7 +106,10 @@ class FacilityController extends AbstractActionController {
                 return $this->redirect()->toRoute('facility');
             } else {
                 $container = new Container('alert');
-                $container->alertMsg = 'Unable to delete this facility because it is used for one or more provider(s).';
+                $commonSerive = $this->getServiceLocator()->get('CommonService');
+                $labelVal = $commonSerive->getGlobalValue('facilities');
+                $facilityLabel = (isset($labelVal) && trim($labelVal)!= '')?strtolower($labelVal):'facility';
+                $container->alertMsg = 'Unable to delete this '.$facilityLabel.' because it is used for one or more provider(s).';
                 return $this->redirect()->toRoute('facility');
             }
         }

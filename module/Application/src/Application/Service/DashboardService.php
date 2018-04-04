@@ -33,6 +33,7 @@ class DashboardService {
         $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
         return $certificationDb->getCertificationBarChartResults($params);
     }
+    
     public function getCertificationMapResults($params){
         $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
         return $certificationDb->getCertificationMapResults($params);

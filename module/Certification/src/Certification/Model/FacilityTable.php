@@ -35,8 +35,13 @@
      public function saveFacility(Facility $facility){
          $data = array(
              'facility_name' =>strtoupper( $facility->facility_name),
+             'contact_person_name'  => $facility->contact_person_name,
+             'phone_no'  => $facility->phone_no,
+             'email_id'  => $facility->email_id,
              'facility_address'  => $facility->facility_address,
-             'district'  => $facility->district,
+             'latitude'  => $facility->latitude,
+             'longitude'  => $facility->longitude,
+             'district'  => $facility->district
          );
 
          $id = (int) $facility->id;

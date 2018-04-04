@@ -48,6 +48,7 @@ class DashboardController extends AbstractActionController
             return $viewModel;
         }
     }
+    
     public function getCertificationMapDetailsAction(){
         $request = $this->getRequest();
         if ($request->isPost()) {

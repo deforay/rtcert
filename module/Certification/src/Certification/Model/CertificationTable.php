@@ -67,7 +67,7 @@ class CertificationTable {
                      ->join(array('e'=>'examination'),'e.id=c.examination',array())
                      ->join(array('p'=>'provider'),'p.id=e.provider',array())
                      ->join(array('l_d'=>'location_details'),'l_d.location_id=p.region',array('location_name'))
-                     ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_certificate_issued > DATE_SUB(NOW(), INTERVAL 12 MONTH) AND date_end_validity > NOW()')
+                     ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                      ->group('p.region');
         $queryStr = $sql->getSqlStringForSqlObject($query);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
@@ -76,7 +76,7 @@ class CertificationTable {
     public function getCertificationBarChartResults($params){
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
-        $start = strtotime(date("Y", strtotime("-1 year")).'-'.date('m', strtotime('+1 month', strtotime('-1 year'))));
+        $start = strtotime(date("Y", strtotime("-2 year")).'-'.date('m', strtotime('+1 month', strtotime('-2 year'))));
         $end = strtotime(date('Y').'-'.date('m'));
         $j = 0;
         $certificationResult = array();
@@ -1130,11 +1130,10 @@ class CertificationTable {
         $query = $sql->select()->from(array('c'=>'certification'))->columns(array('examination','date_certificate_issued','final_decision'))
                         ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
                         ->join(array('p'=>'provider'),'p.id=e.id',array('region'))
-                        ->join(array('l'=>'location_details'),'l.location_id=p.region',array('location_name','longitude','latitude','locCount' => new \Zend\Db\Sql\Expression("COUNT(l.location_id)")))
-                        ->where(array('final_decision'=>'Certified'))
-                        ->group('l.location_name');
+                        ->join(array('c_f'=>'certification_facilities'),'c_f.id=p.facility_id',array('facility_name','longitude','latitude','locCount' => new \Zend\Db\Sql\Expression("COUNT(c_f.id)")))
+                        ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
+                        ->group('c_f.facility_name');
         $queryStr = $sql->getSqlStringForSqlObject($query);
-        $res = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $res;
+      return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 }

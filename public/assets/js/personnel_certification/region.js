@@ -11,7 +11,7 @@ if (a == null || a == ""){
     }
 if (b == null || b == ""){
         elmt2.style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
-        alert("Please enter the ''" + elmt2.id + "''");
+        alert("Please enter the ''" + regionLabel + "''");
         return false;
     }
     

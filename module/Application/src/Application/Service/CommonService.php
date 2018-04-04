@@ -360,13 +360,18 @@ class CommonService {
         return $data;
     }
     
-    public function getAllConfig($params){
+    public function getAllConfig($parameters){
         $configDb = $this->sm->get('GlobalTable');
-        return $configDb->fetchAllConfig($params);      
+        return $configDb->fetchAllConfig($parameters);      
     }
     public function getGlobalConfigDetails(){
         $globalDb = $this->sm->get('GlobalTable');
         return $globalDb->getGlobalConfig();        
+    }
+    
+    public function getGlobalValue($globalName){
+        $globalDb = $this->sm->get('GlobalTable');
+        return $globalDb->getGlobalValue($globalName);        
     }
     
     public function updateConfig($params) {
@@ -527,7 +532,10 @@ class CommonService {
         $adapter->beginTransaction();
         try {
             $locationDetailsDb = $this->sm->get('LocationDetailsTable');
+            $globalDb = $this->sm->get('GlobalTable');
             $response = $locationDetailsDb->saveRegion($region);
+            $labelVal = $globalDb->getGlobalValue('region');
+            $regionLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'Region';
             if ($response > 0) {
                 $adapter->commit();
                 //<-- Event log
@@ -539,7 +547,7 @@ class CommonService {
                     $resourceName = 'Region';
                     $eventLogDb = $this->sm->get('EventLogTable');
                     $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = 'Region added successfully';
+                    $container->alertMsg = $regionLabel.' added successfully';
                 }else{
                     $subject = $response;
                     $eventType = 'region-update';
@@ -547,7 +555,7 @@ class CommonService {
                     $resourceName = 'Region';
                     $eventLogDb = $this->sm->get('EventLogTable');
                     $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = 'Region updated successfully'; 
+                    $container->alertMsg = $regionLabel.' updated successfully'; 
                 }
             }else{
                $container->alertMsg = 'Oops..';
@@ -564,7 +572,10 @@ class CommonService {
         $adapter->beginTransaction();
         try {
             $locationDetailsDb = $this->sm->get('LocationDetailsTable');
+            $globalDb = $this->sm->get('GlobalTable');
             $response = $locationDetailsDb->saveDistrict($district);
+            $labelVal = $globalDb->getGlobalValue('districts');
+            $districtLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'District';
             if ($response > 0) {
                 $adapter->commit();
                 //<-- Event log
@@ -576,7 +587,7 @@ class CommonService {
                     $resourceName = 'District';
                     $eventLogDb = $this->sm->get('EventLogTable');
                     $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = 'District added successfully';
+                    $container->alertMsg = $districtLabel.' added successfully';
                 }else{
                     $subject = $response;
                     $eventType = 'district-update';
@@ -584,7 +595,7 @@ class CommonService {
                     $resourceName = 'District';
                     $eventLogDb = $this->sm->get('EventLogTable');
                     $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = 'District updated successfully'; 
+                    $container->alertMsg = $districtLabel.' updated successfully'; 
                 }
             }else{
                $container->alertMsg = 'Oops..';

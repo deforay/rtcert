@@ -228,15 +228,14 @@ class UsersTable extends AbstractTableGateway {
         }
     }
     
-    public function fetchAllUsers($parameters,$acl)
-    {
+    public function fetchAllUsers($parameters,$acl){
         
         /* Array of database columns which should be read and sent back to DataTables. Use a space where
         * you want to insert a non-database field (for example a counter or static image)
         */
 	
-        $aColumns = array('first_name','last_name','email','status');
-        $orderColumns = array('first_name','email','status');
+        $aColumns = array('first_name','last_name','email','role_name','access_level','u.status');
+        $orderColumns = array('first_name','email','role_name','access_level','u.status');
 
         /*
         * Paging
@@ -309,8 +308,9 @@ class UsersTable extends AbstractTableGateway {
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from('users');
-        
+        $sQuery = $sql->select()->from(array('u'=>'users'))
+                      ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array())
+                      ->join(array('r' => 'roles'), "r.role_id=urm.role_id", array('access_level','role_name'));
         
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
@@ -337,7 +337,9 @@ class UsersTable extends AbstractTableGateway {
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        $tQuery =  $sql->select()->from('users');
+        $tQuery =  $sql->select()->from(array('u'=>'users'))
+                       ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array())
+                       ->join(array('r' => 'roles'), "r.role_id=urm.role_id", array('access_level','role_name'));
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -357,15 +359,51 @@ class UsersTable extends AbstractTableGateway {
         }
         
         foreach ($rResult as $aRow) {
-         $row = array();
-         
-         $row[] = ucwords($aRow['first_name']." ".$aRow['last_name']);
-         $row[] = $aRow['email'];
-         $row[] = ucwords($aRow['status']);
-         if($update){
-         $edit = '<a href="/users/edit/'.base64_encode($aRow['id']).'" title="Edit"><i class="fa fa-pencil"></i> Edit</a>';
-         $row[] =$edit;
-         }
+          $accessLevel = '';
+          if($aRow['access_level'] == 1){
+            $accessLevel = 'Global';
+          }else if($aRow['access_level'] == 2){
+            $accessLevel = 'Country';
+            $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
+                                    ->join(array('c' => 'country'), "c.country_id=u_c_map.country_id", array('countryMaps'=>new Expression("GROUP_CONCAT(country_name)")))
+                                    ->where(array('u_c_map.user_id'=>$aRow['id']));
+            $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+            $userCountryResult = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+            if(isset($userCountryResult) && trim($userCountryResult->countryMaps)!= ''){
+               $accessLevel.= ' ('.$userCountryResult->countryMaps.')';
+            }
+          }else if($aRow['access_level'] == 3){
+            $accessLevel = 'Province/State';
+            $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
+                                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_p_map.location_id", array('provinceMaps'=>new Expression("GROUP_CONCAT(location_name)")))
+                                     ->where(array('u_p_map.user_id'=>$aRow['id']));
+            $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+            $userProvinceResult = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+            if(isset($userProvinceResult) && trim($userProvinceResult->provinceMaps)!= ''){
+               $accessLevel.= ' ('.$userProvinceResult->provinceMaps.')';
+            }
+          }else if($aRow['access_level'] == 4){
+            $accessLevel = 'District/City';
+            $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
+                                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_d_map.location_id", array('districtMaps'=>new Expression("GROUP_CONCAT(location_name)")))
+                                     ->where(array('u_d_map.user_id'=>$aRow['id']));
+            $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+            $userDistrictResult = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+            if(isset($userDistrictResult) && trim($userDistrictResult->districtMaps)!= ''){
+               $accessLevel.= ' ('.$userDistrictResult->districtMaps.')';
+            }
+          }
+          
+          $row = array();
+          $row[] = ucwords($aRow['first_name']." ".$aRow['last_name']);
+          $row[] = $aRow['email'];
+          $row[] = ucwords($aRow['role_name']);
+          $row[] = $accessLevel;
+          $row[] = ucwords($aRow['status']);
+          if($update){
+            $edit = '<a href="/users/edit/'.base64_encode($aRow['id']).'" title="Edit"><i class="fa fa-pencil"></i> Edit</a>';
+            $row[] =$edit;
+          }
          $output['aaData'][] = $row;
         }
         return $output;

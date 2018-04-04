@@ -9,6 +9,8 @@
      public $location_id;
      public $parent_location;
      public $location_name;
+     public $latitude;
+     public $longitude;
      protected $inputFilter;
 
      public function exchangeArray($data)
@@ -16,6 +18,8 @@
          $this->location_id     = (!empty($data['location_id'])) ? $data['location_id'] : null;
          $this->parent_location  = (!empty($data['parent_location'])) ? $data['parent_location'] : null;
          $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
+         $this->latitude = (!empty($data['latitude'])) ? $data['latitude'] : null;
+         $this->longitude = (!empty($data['longitude'])) ? $data['longitude'] : null;
      }
       public function getArrayCopy()
      {
