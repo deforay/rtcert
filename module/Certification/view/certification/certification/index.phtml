@@ -180,7 +180,8 @@ function recommendedForCertificateInit(){
                 {"sClass":"center"},
                 {"sClass":"center"}
         ],
-        "aaSorting": [[ <?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval'))?3:2; ?>, "asc" ]],
+        //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval'))?3:2; ?>, "asc" ]],
+        "aaSorting": [],
         "fnDrawCallback": function( oSettings ) {
             $('input:checkbox').each(function () {
                 if($.inArray(this.value, approvalRow)!= -1){
@@ -233,7 +234,7 @@ function toBeSentInit(){
                  {"sClass":"center"},
                 <?php } ?>
         ],
-        "aaSorting": [[ 2, "asc" ]],
+        "aaSorting": [],
         "bProcessing": true,
         "bServerSide": true,
         "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'to-be-sent')); ?>",
@@ -273,7 +274,7 @@ function certifiedInit(){
                  {"sClass":"center"},
                 <?php } ?>
         ],
-        "aaSorting": [[ 2, "asc" ]],
+        "aaSorting": [],
         "bProcessing": true,
         "bServerSide": true,
         "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'certified')); ?>",
@@ -307,7 +308,7 @@ function pendingInit(){
                   {"sClass":"center"},
                 <?php } ?>
         ],
-        "aaSorting": [[ 1, "asc" ]],
+        "aaSorting": [],
         "bProcessing": true,
         "bServerSide": true,
         "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'pending')); ?>",

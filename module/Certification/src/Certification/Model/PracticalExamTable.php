@@ -2,6 +2,7 @@
 
 namespace Certification\Model;
 
+use Zend\Session\Container;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Adapter\Adapter;
@@ -11,7 +12,6 @@ use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
-use Zend\Session\Container;
 
 class PracticalExamTable extends AbstractTableGateway {
 
@@ -52,6 +52,8 @@ class PracticalExamTable extends AbstractTableGateway {
     }
 
     public function savePracticalExam(PracticalExam $practicalExam) {
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
         $date = $practicalExam->date;
         $date_explode = explode("-", $date);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
@@ -68,9 +70,15 @@ class PracticalExamTable extends AbstractTableGateway {
 //        print_r($data);
         $practice_exam_id = (int) $practicalExam->practice_exam_id;
         if ($practice_exam_id == 0) {
+            $data['added_on'] = $common->getDateTime();
+            $data['added_by'] = $sessionLogin->userId;
+            $data['updated_on'] = $common->getDateTime();
+            $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getPracticalExam($practice_exam_id)) {
+                $data['updated_on'] = $common->getDateTime();
+                $data['updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
             } else {
                 throw new \Exception('Practical Exam id does not exist');

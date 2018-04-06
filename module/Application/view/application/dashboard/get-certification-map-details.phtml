@@ -1,7 +1,21 @@
 <?php
 $available = 0;
-if(isset($result) && count($result) > 0){
-    foreach($result as $loc){
+if(isset($result['facilityResult']) && count($result['facilityResult']) > 0){
+    foreach($result['facilityResult'] as $loc){
+        if($loc['latitude'] != null && trim($loc['latitude']) != '' && $loc['longitude'] != null && trim($loc['longitude']) != ''){
+            $available+=1;
+        }
+    }
+}
+if(isset($result['provinceResult']) && count($result['provinceResult']) > 0){
+    foreach($result['provinceResult'] as $loc){
+        if($loc['latitude'] != null && trim($loc['latitude']) != '' && $loc['longitude'] != null && trim($loc['longitude']) != ''){
+            $available+=1;
+        }
+    }
+}
+if(isset($result['districtResult']) && count($result['districtResult']) > 0){
+    foreach($result['districtResult'] as $loc){
         if($loc['latitude'] != null && trim($loc['latitude']) != '' && $loc['longitude'] != null && trim($loc['longitude']) != ''){
             $available+=1;
         }
@@ -28,18 +42,40 @@ if($available > 0) { ?>
             var markers = [
                 //labs
                 <?php
-                if(isset($result) && count($result) > 0){
-                    foreach($result as $locInfo){
+                if(isset($result['facilityResult']) && count($result['facilityResult']) > 0){
+                    foreach($result['facilityResult'] as $locInfo){
                         if($locInfo['latitude'] != null && trim($locInfo['latitude']) != '' && $locInfo['longitude'] != null && trim($locInfo['longitude']) != ''){
                 ?>
                 {
                  lat: "<?php echo $locInfo['latitude']; ?>",
                  lon: "<?php echo $locInfo['longitude']; ?>",
                  title: "<?php echo ucwords($locInfo['facility_name']);?>",
-                 icon : "<?php echo $this->basePath('assets/img/location.png') ?>",
+                 icon : "<?php echo $this->basePath('assets/img/map-points/red.png') ?>",
                  label : "<h5><?php echo ucwords($locInfo['facility_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['locCount']; ?></span>"
                 },
-                <?php } } } ?>
+                <?php } } } if(isset($result['provinceResult']) && count($result['provinceResult']) > 0){
+                    foreach($result['provinceResult'] as $locInfo){
+                        if($locInfo['latitude'] != null && trim($locInfo['latitude']) != '' && $locInfo['longitude'] != null && trim($locInfo['longitude']) != ''){
+                ?>
+                {
+                 lat: "<?php echo $locInfo['latitude']; ?>",
+                 lon: "<?php echo $locInfo['longitude']; ?>",
+                 title: "<?php echo ucwords($locInfo['location_name']);?>",
+                 icon : "<?php echo $this->basePath('assets/img/map-points/green.png') ?>",
+                 label : "<h5><?php echo ucwords($locInfo['location_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['regCount']; ?></span>"
+                },
+                <?php } } } if(isset($result['districtResult']) && count($result['districtResult']) > 0){
+                    foreach($result['districtResult'] as $locInfo){
+                        if($locInfo['latitude'] != null && trim($locInfo['latitude']) != '' && $locInfo['longitude'] != null && trim($locInfo['longitude']) != ''){
+                ?>
+                {
+                 lat: "<?php echo $locInfo['latitude']; ?>",
+                 lon: "<?php echo $locInfo['longitude']; ?>",
+                 title: "<?php echo ucwords($locInfo['location_name']);?>",
+                 icon : "<?php echo $this->basePath('assets/img/map-points/yellow.png') ?>",
+                 label : "<h5><?php echo ucwords($locInfo['location_name']);?></h5><span>No. of Certificate : <?php echo $locInfo['districtCount']; ?></span>"
+                },
+                <?php } } }?>
             ];
             
             // Loop through our array of markers & place each one on the map

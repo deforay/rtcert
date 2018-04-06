@@ -324,12 +324,11 @@ $configResult = $this->GlobalConfigHelper();
                                 <div class="row">
                                     <div class="col-xs-4">
                                         <div class="icon-big icon-success text-center">
-                                            <i class="fa fa-check-square"></i>
+                                          <img src="<?php echo $this->basePath('assets/img/certificate.png') ?>"/>
                                         </div>
                                     </div>
                                     <div class="col-xs-8">
                                         <div class="numbers">
-                                            
                                             <?php echo $quickStats['certified'] ?>
                                             <p>Certified</p>
                                         </div>
@@ -338,7 +337,7 @@ $configResult = $this->GlobalConfigHelper();
                                 <div class="footer">
                                     <hr />
                                     <div class="stats">
-                                        <i class="ti-calendar"></i> <?php echo date('M Y') ?>  
+                                        <i class="ti-calendar"></i> Last 24 months  
                                     </div>
                                 </div>
                             </div>
@@ -351,21 +350,20 @@ $configResult = $this->GlobalConfigHelper();
                               <div class="row">
                                   <div class="col-xs-4">
                                       <div class="icon-big icon-info text-center">
-                                          <i class="fa fa-refresh"></i>
+                                        <img src="<?php echo $this->basePath('assets/img/certificate.png') ?>"/>
                                       </div>
                                   </div>
                                   <div class="col-xs-8">
                                       <div class="numbers">
-                                          
-                                        <?php echo $quickStats['recertified'] ?>
-                                          <p>Recertified</p>
+                                        <?php echo $quickStats['upForCertification'] ?>
+                                          <p>Up for Receritifcation</p>
                                       </div>
                                   </div>
                               </div>
                               <div class="footer">
                                   <hr />
                                   <div class="stats">
-                                  <i class="ti-calendar"></i> <?php echo date('M Y') ?>  
+                                  <i class="ti-calendar"></i> Overall  
                                   </div>
                               </div>
                           </div>
@@ -384,8 +382,8 @@ $configResult = $this->GlobalConfigHelper();
                               <div class="col-xs-8">
                                   <div class="numbers">
                                       
-                                  <?php echo $quickStats['toBeSent'] ?>
-                                      <p>To be sent</p>
+                                  <?php echo $quickStats['expired'] ?>
+                                      <p>Expired</p>
                                   </div>
                               </div>
                           </div>
@@ -498,8 +496,7 @@ $configResult = $this->GlobalConfigHelper();
           </div>
 	    </div>
 	  </div>				          
-    </div>				
-
+    </div>
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>  

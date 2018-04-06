@@ -27,36 +27,34 @@ class CertificationTable {
     public function getQuickStats(){
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
+        $adapter = $this->adapter;
+        $globalDb = new GlobalTable($adapter);
+        $monthFlexLimit = $globalDb->getGlobalValue('month-flex-limit');
+        $monthFlexLimit =  (trim($monthFlexLimit)!= '')?(int)$monthFlexLimit:6;
         $query = $sql->select()->from(array('c'=>'certification'))
                      ->columns(
                             array(  "total" => new Expression('COUNT(*)'),
-                                    "sent" => new Expression("SUM(CASE 
-                                                                    WHEN ((c.certificate_sent = 'yes')) THEN 1
-                                                                    ELSE 0
-                                                                    END)"),
-                                    "toBeSent" => new Expression("SUM(CASE 
-                                                                        WHEN ((c.certificate_sent != 'yes' AND c.final_decision='Certified')) THEN 1
+                                    "certified" => new Expression("SUM(CASE 
+                                                                        WHEN (c.date_certificate_issued >= DATE_SUB(NOW(),INTERVAL 24 MONTH) AND c.date_end_validity >= CURDATE() AND c.final_decision = 'Certified') THEN 1
                                                                         ELSE 0
                                                                         END)"),
-                                    "certified" => new Expression("SUM(CASE 
-                                                                        WHEN ((c.certification_type = 'initial'  AND c.date_certificate_issued >= DATE_FORMAT(NOW(),'%Y-%m-01') 
-                                                                        AND c.date_certificate_issued <  DATE_FORMAT(NOW(),'%Y-%m-01') + INTERVAL 1 MONTH)) THEN 1
+                                    "upForCertification" => new Expression("SUM(CASE 
+                                                                        WHEN (c.date_end_validity < CURDATE() AND CURDATE() <= DATE_ADD(c.date_end_validity, INTERVAL $monthFlexLimit MONTH) AND c.final_decision = 'Certified') THEN 1
                                                                         ELSE 0
-                                                                        END)"),                                                                        
-                                    "recertified" => new Expression("SUM(CASE 
-                                                                        WHEN ((c.certification_type !=  'initial' AND c.date_certificate_issued >= DATE_FORMAT(NOW(),'%Y-%m-01') 
-                                                                        AND c.date_certificate_issued <  DATE_FORMAT(NOW(),'%Y-%m-01') + INTERVAL 1 MONTH)) THEN 1
+                                                                        END)"),
+                                    "expired" => new Expression("SUM(CASE 
+                                                                        WHEN (CURDATE() > DATE_ADD(c.date_end_validity, INTERVAL $monthFlexLimit MONTH) AND c.final_decision = 'Certified') THEN 1
                                                                         ELSE 0
-                                                                        END)"),                       
+                                                                        END)"),
                                     "pending" => new Expression("SUM(CASE 
-                                                                        WHEN ((c.final_decision = 'Pending')) THEN 1
+                                                                        WHEN ((c.final_decision = 'Pending' OR c.final_decision = 'Failed')) THEN 1
                                                                         ELSE 0
-                                                                        END)"),                                                                        
+                                                                        END)")
                             )
                 );  
-                $queryStr = $sql->getSqlStringForSqlObject($query);
-                $res = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-                return $res[0];
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $res = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        return $res[0];
     }
 
     public function getCertificationPieChartResults($params){
@@ -162,6 +160,8 @@ class CertificationTable {
     }
     
     public function saveCertification(Certification $certification) {
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
         $dbAdapter = $this->adapter;
         $globalDb = new GlobalTable($dbAdapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
@@ -204,9 +204,15 @@ class CertificationTable {
         if ($id == 0) {
             $data['approval_status'] = 'pending';
             $data['date_end_validity'] = $date_end;
+            $data['added_on'] = $common->getDateTime();
+            $data['added_by'] = $sessionLogin->userId;
+            $data['last_updated_on'] = $common->getDateTime();
+            $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getCertification($id)) {
+                $data['last_updated_on'] = $common->getDateTime();
+                $data['last_updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('id' => $id));
             } else {
                 throw new \Exception('certification id does not exist');
@@ -583,6 +589,8 @@ class CertificationTable {
  
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
+        }else{
+            $sQuery->order('c.last_updated_on DESC');
         }
  
         if (isset($sLimit) && isset($sOffset)) {
@@ -642,13 +650,14 @@ class CertificationTable {
     }
 
     public function updateCertficateApproval($params){
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
         $result = false;
         if(isset($params['approvalRow']) && count($params['approvalRow']) > 0){
             $result = true;
             $db = $this->tableGateway->getAdapter();
             for($i=0;$i<count($params['approvalRow']);$i++){
-                $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' WHERE id=" . $params['approvalRow'][$i];
-
+                $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' AND last_updated_on ='".$common->getDateTime()."' AND last_updated_by = '".$sessionLogin->userId."' WHERE id = " . $params['approvalRow'][$i];
             $db->getDriver()->getConnection()->execute($sql);
             }
         }
@@ -748,6 +757,8 @@ class CertificationTable {
  
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
+        }else{
+            $sQuery->order('c.last_updated_on DESC');
         }
  
         if (isset($sLimit) && isset($sOffset)) {
@@ -909,6 +920,8 @@ class CertificationTable {
  
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
+        }else{
+            $sQuery->order('c.last_updated_on DESC');
         }
  
         if (isset($sLimit) && isset($sOffset)) {
@@ -1068,6 +1081,8 @@ class CertificationTable {
  
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
+        }else{
+            $sQuery->order('c.last_updated_on DESC');
         }
  
         if (isset($sLimit) && isset($sOffset)) {
@@ -1127,13 +1142,32 @@ class CertificationTable {
     public function getCertificationMapResults($params){
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
-        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('examination','date_certificate_issued','final_decision'))
-                        ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                        ->join(array('p'=>'provider'),'p.id=e.id',array('region'))
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array())
+                        ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                        ->join(array('p'=>'provider'),'p.id=e.id',array())
                         ->join(array('c_f'=>'certification_facilities'),'c_f.id=p.facility_id',array('facility_name','longitude','latitude','locCount' => new \Zend\Db\Sql\Expression("COUNT(c_f.id)")))
                         ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                         ->group('c_f.facility_name');
         $queryStr = $sql->getSqlStringForSqlObject($query);
-      return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        $facilityResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array())
+                        ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                        ->join(array('p'=>'provider'),'p.id=e.id',array())
+                        ->join(array('l_d_r'=>'location_details'),'l_d_r.location_id=p.region',array('location_name','longitude','latitude','regCount' => new \Zend\Db\Sql\Expression("COUNT(l_d_r.location_id)")))
+                        ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
+                        ->group('l_d_r.location_name');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $provinceResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array())
+                        ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                        ->join(array('p'=>'provider'),'p.id=e.id',array())
+                        ->join(array('l_d_d'=>'location_details'),'l_d_d.location_id=p.district',array('location_name','longitude','latitude','districtCount' => new \Zend\Db\Sql\Expression("COUNT(l_d_d.location_id)")))
+                        ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
+                        ->group('l_d_d.location_name');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $districtResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+      return array('facilityResult'=>$facilityResult,'provinceResult'=>$provinceResult,'districtResult'=>$districtResult);
     }
 }

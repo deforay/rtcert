@@ -134,7 +134,8 @@ function recommendInit(){
                 {"sClass":"center"},
                 {"sClass":"center"}
         ],
-        "aaSorting": [[ <?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend'))?2:1; ?>, "asc" ]],
+        //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend'))?2:1; ?>, "asc" ]],
+        "aaSorting": [],
         "fnDrawCallback": function( oSettings ) {
             $('input:checkbox').each(function () {
                 if($.inArray(this.value, recommendationRow)!= -1){
@@ -178,7 +179,7 @@ function recommendedInit(){
                 {"sClass":"center"},
                 {"sClass":""}
         ],
-        "aaSorting": [[ 1, "asc" ]],
+        "aaSorting": [],
         "bProcessing": true,
         "bServerSide": true,
         "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'recommended')); ?>",
@@ -212,7 +213,7 @@ function approvedInit(){
                 {"sClass":"center"},
                 {"sClass":""}
         ],
-        "aaSorting": [[ 1, "asc" ]],
+        "aaSorting": [],
         "bProcessing": true,
         "bServerSide": true,
         "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'approved')); ?>",

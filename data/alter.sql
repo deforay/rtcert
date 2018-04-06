@@ -650,9 +650,18 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 -- saravanan 23-feb-2018
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Examination', 'pending', 'Pending tests');
 
--- Pal 22 Feb 2018
+-- Pal 04 APR 2018
 ALTER TABLE `certification_facilities` ADD `latitude` VARCHAR(255) NULL DEFAULT NULL AFTER `district`, ADD `longitude` VARCHAR(255) NULL DEFAULT NULL AFTER `latitude`;
 
 ALTER TABLE `certification_facilities` ADD `contact_person_name` VARCHAR(255) NULL DEFAULT NULL AFTER `facility_name`, ADD `phone_no` VARCHAR(15) NULL DEFAULT NULL AFTER `contact_person_name`, ADD `email_id` VARCHAR(45) NULL DEFAULT NULL AFTER `phone_no`;
 
 UPDATE `global_config` SET `display_name` = 'Certification No. Prefix' WHERE `global_config`.`config_id` = 10;
+
+-- Pal 05 APR 2018
+ALTER TABLE `written_exam` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `display`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `updated_by` INT(11) NULL DEFAULT NULL AFTER `updated_on`;
+
+ALTER TABLE `practical_exam` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `display`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `updated_by` INT(11) NULL DEFAULT NULL AFTER `updated_on`;
+
+ALTER TABLE `certification` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `date_end_validity`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `last_updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `last_updated_by` INT(11) NULL DEFAULT NULL AFTER `last_updated_on`;
+
+DELETE FROM `global_config` WHERE `global_config`.`config_id` = 2

@@ -2,6 +2,7 @@
 
 namespace Certification\Model;
 
+use Zend\Session\Container;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\ResultSet\ResultSet;
@@ -12,7 +13,6 @@ use Zend\Paginator\Paginator;
 use Zend\Db\Adapter\AdapterInterface;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
-use Zend\Session\Container;
 
 class WrittenExamTable extends AbstractTableGateway {
 
@@ -54,11 +54,11 @@ class WrittenExamTable extends AbstractTableGateway {
     }
 
     public function saveWrittenExam(WrittenExam $written_exam) {
-
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
         $date = $written_exam->date;
         $date_explode = explode("-", $date);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
-
 
         $data = array(
             'exam_type' => $written_exam->exam_type,
@@ -80,9 +80,15 @@ class WrittenExamTable extends AbstractTableGateway {
 
         $id_written_exam = (int) $written_exam->id_written_exam;
         if ($id_written_exam == 0) {
+            $data['added_on'] = $common->getDateTime();
+            $data['added_by'] = $sessionLogin->userId;
+            $data['updated_on'] = $common->getDateTime();
+            $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getWrittenExam($id_written_exam)) {
+                $data['updated_on'] = $common->getDateTime();
+                $data['updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
             } else {
                 throw new \Exception('Written Exam id does not exist');
