@@ -615,6 +615,88 @@ class CommonService {
         $locationDetailsDb = $this->sm->get('LocationDetailsTable');
         return $locationDetailsDb->delete(array('location_id'=>$id));
     }
+    
+    public function sendCertificateMail($params) {
+        try {
+            $config = new \Zend\Config\Reader\Ini();
+            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+
+            // Setup SMTP transport using LOGIN authentication
+            $transport = new SmtpTransport();
+            $options = new SmtpOptions(array(
+                'host' => $configResult["email"]["host"],
+                'port' => $configResult["email"]["config"]["port"],
+                'connection_class' => $configResult["email"]["config"]["auth"],
+                'connection_config' => array(
+                    'username' => $configResult["email"]["config"]["username"],
+                    'password' => $configResult["email"]["config"]["password"],
+                    'ssl' => $configResult["email"]["config"]["ssl"]
+                ),
+            ));
+            $transport->setOptions($options);
+            $alertMail = new Mail\Message();
+            
+            $fromEmail = 'rtqiicertification@gmail.com';
+            $fromFullName = 'RTQII PERSONNEL CERTIFICATION PROGRAM';
+            $subject = $params['subject'];
+            $alertMail->addFrom($fromEmail, $fromFullName);
+            $alertMail->addReplyTo($fromEmail, $fromFullName);
+            
+            $toArray = explode(",",$params['to_email']);
+            for($e=0; $e<count($toArray); $e++) {
+               $alertMail->addTo($toArray[$e]);
+            }
+            
+            if (isset($params['cc']) && trim($params['cc']) != "") {
+                $alertMail->addCc($result['cc']);
+            }
+
+            if (isset($params['bcc']) && trim($params['bcc']) != "") {
+                $alertMail->addBcc($params['bcc']);
+            }
+
+            $alertMail->setSubject($subject);
+            
+            $html = new MimePart($params['message']);
+            $html->type = "text/html";
+
+            $body = new MimeMessage();
+            $body->setParts(array($html));
+            
+            if (isset($params['attachedfile']) && trim($params['attachedfile'])!= '') {
+                $fileArray = explode('##',$params['attachedfile']);
+                $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
+                if(is_dir($dirPath)) {
+                    $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
+                    while (($filename = readdir($dh)) !== false) {
+                        if ($filename != "." && $filename != "..") {
+                            $fileContent = fopen($dirPath. DIRECTORY_SEPARATOR. $fileArray[1], 'r');
+                            $attachment = new MimePart($fileContent);
+                            $attachment->filename    = $filename;
+                            $attachment->type        = Mime::TYPE_OCTETSTREAM;
+                            $attachment->encoding    = Mime::ENCODING_BASE64;
+                            $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
+                            $body->addPart($attachment);
+                        }
+                    }
+                    closedir($dh);
+                    //$this->removeDirectory($dirPath);
+                }
+            }
+            
+            $alertMail->setBody($body);
+            
+            if($transport->send($alertMail)){
+               return true;
+            }else{
+              return false;
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            error_log($e->getTraceAsString());
+            error_log('whoops! Something went wrong in send-certificate-reminder-mail.');
+        }
+    }
 }
 
 ?>

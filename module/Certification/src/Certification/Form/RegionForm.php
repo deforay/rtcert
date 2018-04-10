@@ -5,7 +5,7 @@ namespace Certification\Form;
  use Zend\Session\Container;
  use Zend\Db\Adapter\AdapterInterface;
  use Zend\Form\Form;
-use Application\Model\GlobalTable;
+ use Application\Model\GlobalTable;
 
  class RegionForm extends Form
  {

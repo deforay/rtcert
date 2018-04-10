@@ -1,13 +1,36 @@
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<?php
+$providerRegID = (isset($professional_reg_no) && trim($professional_reg_no)!= '')?'('.$professional_reg_no.')':'';
+$last_name = '';
+$middle_name = '';
+$first_name = '';
+if(isset($provider_name)&& trim($provider_name)!= ''){
+   $nameArray = explode(" ",$provider_name);
+   $last_name = $nameArray[0];
+   $middle_name = $nameArray[2];
+   $first_name = $nameArray[1];
+}
+?>
+<link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
-<script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
+<style>
+    #select2-provider-container{
+        padding:0 !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow{
+        display:none;
+    }
+    label[for=add_to]{
+        font-weight:bold;
+    }
+    input[type="checkbox"] {
+        margin-left:10px;
+    }
+</style>
 <div class="am-content">
     <div class="page-head">
 
@@ -32,32 +55,51 @@
                         <div class="panel panel-default">
                             <div class="panel-body" >
                                 <div id="form">
-                                <form action="<?php $this->url('certification-mail', array('action' => 'index')); ?>" name="form" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">  
+                                <form action="<?php $this->url('certification-mail', array('action' => 'index')); ?>" name="form" id="certificationMailForm" method="post" enctype="multipart/form-data">  
                                     <?php
                                     $form->prepare();
-                                    if (!empty($due_date)) {
+                                    
+                                    if (empty($key2) && !empty($due_date)) {
                                         $form->get('type')->setAttributes([
+                                            'class' => 'form-control isRequired',
                                             'id' => 'Choice',
                                             'onclick' => "emptyInput(this)",
                                             'options' => [2 => 'Send Reminder']]);
-                                    } elseif (empty($due_date) && !empty($key)) {
+                                    } elseif (!empty($due_date) && !empty($key2)) {
                                         $form->get('type')->setAttributes([
+                                            'class' => 'form-control isRequired',
                                             'id' => 'Choice',
                                             'onclick' => "emptyInput(this)",
                                             'options' => [1 => 'Send Certificate']]);
                                     } else {
                                         $form->get('type')->setAttributes([
+                                            'class' => 'form-control isRequired',
                                             'id' => 'Choice',
-                                            'onclick' => "emptyInput(this)",
                                             'options' => [
-                                                '' => 'Make a choice',1 => 'Send Certificate',
+                                                '' => 'Make a choice',
+                                                1 => 'Send Certificate',
                                                 2 => 'Send Reminder'],
-                                            'onclick' => "setChoice()"
+                                            'onchange' => "setChoice()"
                                         ]);
                                     }
 
-
-
+                                    if (!empty($due_date) || !empty($key2)) {
+                                        $form->get('provider')->setAttributes([
+                                                'class' => 'form-control  isRequired',
+                                                'id' => 'provider',
+                                                'options' => [$provider_id.'##'.$email.'##'.$test_site_in_charge_email.'##'.$facility_in_charge_email.'##'.$last_name.'##'.$first_name.'##'.$middle_name.'##'.$professional_reg_no.'##'.$certification_id.'##'.$date_certificate_issued.'##'.$due_date => $provider_name.$providerRegID.' - '.$certification_id]
+                                            ]);
+                                    }else{
+                                        $form->get('provider')->setAttributes([
+                                                'class' => 'isRequired',
+                                                'id' => 'provider'
+                                            ]);
+                                    }
+                                    $form->get('add_to')->setAttributes([
+                                            'class' => '',
+                                            'id' => 'add_to'
+                                        ]);
+                                
                                     $form->get('to_email')->setAttributes([
                                         'class' => 'form-control',
                                         'autocomplete' => 'off',
@@ -91,6 +133,7 @@
                                         'onFocus' => "blur(this)"
                                     ]);
                                     $form->get('submit')->setAttributes([
+                                        
                                     ]);
 
 
@@ -99,12 +142,29 @@
 
                                     <div style="margin-left: 30px">
                                         <?php echo $this->formHidden($form->get('mail_id')->setAttribute('class', 'form-control')) ?>
-                                        <?= $this->formLabel($form->get('type')); ?>
-                                        <?= $this->formElement($form->get('type')); ?>
-                                        <?= $this->formElementErrors($form->get('type')); ?>
-
-                                        <div id="Recipient" class="row" style="margin-top: 30px;"></div>
+                                        <div class="row">
+                                            <div class="form-group col-lg-6">
+                                                <?= $this->formLabel($form->get('type')); ?>
+                                                <?= $this->formElement($form->get('type')); ?>
+                                                <?= $this->formElementErrors($form->get('type')); ?>
+                                            </div>
+                                        </div>
+                                        <div id="Recipient" class="row"></div>
                                         <div id="Recipient_name" class="row"></div>
+                                        <div class="row">
+                                            <div class="form-group col-lg-6">
+                                                <?= $this->formLabel($form->get('provider')); ?>
+                                                <?= $this->formElement($form->get('provider')); ?>
+                                                <?= $this->formElementErrors($form->get('provider')); ?>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="display:none;">
+                                            <div class="form-group col-lg-6">
+                                                <?= $this->formLabel($form->get('add_to')); ?>
+                                                <?= $this->formElement($form->get('add_to')); ?>
+                                                <?= $this->formElementErrors($form->get('add_to')); ?>
+                                            </div>
+                                        </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('to_email')); ?><span class="mandatory">*</span>
@@ -112,7 +172,6 @@
                                                 <?= $this->formElementErrors($form->get('to_email')); ?>
                                             </div>
                                         </div>
-
 
                                         <div class="row">
                                             <div class="form-group col-lg-6" > 
@@ -142,19 +201,22 @@
                                                 <?= $this->formElementErrors($form->get('message')); ?>
                                             </div>
                                         </div>
-                                        <div style="margin-bottom: 20px; " id="div-file">
-                                            <input type="hidden" name="MAX_FILE_SIZE"  />
-                                            <INPUT TYPE="file" NAME="attachedfile" MAXLENGTH=50 id="file" onclick="emptyInput(this)"></div>
+                                       <!-- <div style="margin-bottom: 20px; " id="div-file">
+                                            <INPUT TYPE="file" NAME="attachedfile" MAXLENGTH=50 id="file" onclick="emptyInput(this)"></div>-->
                                         <div class="row">
-                                            <div style="margin-left: 18px;"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                                <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('certification-mail', array('action' => 'index')); ?>" >CANCEL</a> </div></div>
+                                            <input type="hidden" id="attachedfile" name="attachedfile"/>
+                                            <div style="margin-left: 18px;">
+                                                <a class="btn  btn-space btn-primary" name="submit" role="button" onclick = "return validateForm();">SEND EMAIL</a>
+                                                <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('certification-mail', array('action' => 'index')); ?>" >CANCEL</a>
+                                            </div>
+                                        </div>
                                     </div>
                                     <?php
                                     echo $this->form()->closeTag();
                                     ?>
                                 </form></div>
                                 <div style="margin-top: 50px">
-                                    <table id="example" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
+                                    <table id="certificationMail" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                                         <thead>
                                             <tr>
                                                 <th>Recipient</th>
@@ -192,38 +254,82 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
             <br>
-            <br>
+        <br>
+</div>
 
-        </div>
-
-
-
-        <script src="<?php echo $this->basePath('assets/js/maplace.min.js'); ?>" type="text/javascript"></script>
-        <script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
-        <script type="text/javascript" language="javascript">
-                                                        var provider = '<?php echo $provider; ?>';
-                                                        var due_date = '<?php echo $due_date; ?>';
-                                                        var to = '<?php echo $email; ?>';
-                                                        var cc = '<?php echo $facility_in_charge_email; ?>';
-        </script>
-        <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/mail.js'); ?>"></script>
-        <script type="text/javascript" language="javascript">
-                                                        $(document).ready(function () {
-
-                                                            $('#example').dataTable({
-                                                                "aProcessing": true,
-                                                                "aServerSide": true,
-                                                            })
-                                                        });
-        </script>
-
-
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript" language="javascript">
+    var provider = '<?php echo (isset($provider_name))?$provider_name:''; ?>';
+    var due_date = '<?php echo (isset($due_date))?$due_date:''; ?>';
+    var to = '<?php echo (isset($email))?$email:''; ?>';
+    var cc = '<?php echo (isset($facility_in_charge_email))?$facility_in_charge_email:''; ?>';
+    var headerTxt = '<?php echo (isset($header_text))?$header_text:''; ?>';
+</script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/mail.js'); ?>"></script>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        <?php if (empty($due_date) && empty($key2)) { ?>
+            $('#provider').select2({
+                placeholder: "Select Tester",
+                width:'100%',
+                allowClear: true
+            });
+        <?php } else { ?>
+            $('#provider').val($("#provider option:eq(1)").val());
+        <?php } ?>
+        
+        $('#certificationMail').dataTable({
+            "aProcessing": true,
+            "aServerSide": true,
+        })
+    });
+    
+    $("#provider").change(function(){
+        setToEmails();
+    });
+    
+    $("input[name='add_to[]']").change( function () {
+        setToEmails();
+    });
+    
+    function setToEmails(){
+        var toEmails = '';
+        var tester = ($("#provider").val() == null)?'':$("#provider").val();
+        if($.trim(tester)!= ''){
+            var emailArray = tester.split('##');
+            toEmails+= emailArray[1];
+            //$("input[name='add_to[]']:checked").each( function () {
+            //    if($(this).val() == 2 && $.trim(emailArray[2])!= ''){
+            //        toEmails+= ','+emailArray[2];
+            //    }
+            //    if($(this).val() == 3 && $.trim(emailArray[3])!= ''){
+            //       toEmails+= ','+emailArray[3];  
+            //    }
+            //});
+        }
+        $('#to').val(toEmails);
+    }
+    
+    function generatePDF(){
+        var tester = $("#provider").val();
+        var testerArray = tester.split('##');
+        $.post("<?php echo $this->url('generate-certificate-pdf'); ?>", { last :testerArray[4], first :testerArray[5], middle :testerArray[6], professional_reg_no :testerArray[7], certification_id :testerArray[8], date_issued :testerArray[9], date_end_validity :testerArray[10], header_text:headerTxt},
+        function(data){
+            if(data === "" || data === null || data === undefined){
+                alert('Error-Oops, Unable to generate certificate pdf');
+                return false;
+            }else{
+                $("#attachedfile").val(data);
+                document.getElementById('certificationMailForm').submit();
+            }
+        });
+        
+    }
+</script>

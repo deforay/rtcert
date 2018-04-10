@@ -39,5 +39,10 @@ class DashboardService {
         return $certificationDb->getCertificationMapResults($params);
     }
     
+    public function getTesters($parameters){
+        $certificationDb = $this->sm->get('Certification\Model\ProviderTable');
+        return $certificationDb->fetchTesters($parameters);
+    }
+    
 
 }

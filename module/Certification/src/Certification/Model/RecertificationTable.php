@@ -2,10 +2,10 @@
 
 namespace Certification\Model;
 
+use Zend\Session\Container;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
-use Zend\Session\Container;
 
 class RecertificationTable {
 
@@ -19,7 +19,7 @@ class RecertificationTable {
         $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('recertification_id', 'due_date', 'reminder_type', 'reminder_sent_to', 'name_of_recipient', 'date_reminder_sent', 'provider_id'))
-                ->join('provider', 'provider.id=recertification.provider_id', array('certification_id', 'last_name', 'first_name', 'middle_name'), 'left');
+                ->join('provider', 'provider.id=recertification.provider_id', array('id','certification_id', 'last_name', 'first_name', 'middle_name'), 'left');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -42,7 +42,6 @@ class RecertificationTable {
     }
 
     public function saveRecertification(Recertification $recertification) {
-
         $due_date = $recertification->due_date;
         $date_explode = explode("-", $due_date);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
@@ -81,7 +80,7 @@ class RecertificationTable {
         $db = $this->tableGateway->getAdapter();
         $sqlSelect = "select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, "
                 . "date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,"
-                . " certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where "
+                . " certification_reg_no, professional_reg_no,email,date_certificate_issued,date_end_validity,facility_in_charge_email from certification, examination, provider where "
                 . "examination.id = certification.examination and provider.id = examination.provider and final_decision='certified' and certificate_sent = 'yes' and reminder_sent='no' and"
                 . " datediff(now(),date_end_validity) >=-60 order by certification.id asc";
                 if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){

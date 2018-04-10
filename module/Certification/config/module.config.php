@@ -183,7 +183,16 @@ return array(
                     ),
                 ),
             ),
-            
+            'generate-certificate-pdf' => array(
+                'type' => 'literal',
+                'options' => array(
+                    'route' => '/generate-certificate-pdf',
+                    'defaults' => array(
+                        'controller' => 'Certification\Controller\CertificationMail',
+                        'action' => 'generate-certificate-pdf',
+                    ),
+                ),
+            )
         ),
     ),
     'controllers' => array(

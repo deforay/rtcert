@@ -62,4 +62,19 @@ class DashboardController extends AbstractActionController
         }
     }
     
+    public function testersAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getTesters($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }else{
+            $frmSrc = $this->params()->fromRoute('id');
+            return new ViewModel(array(
+                'frmSrc' => $frmSrc
+            ));
+        }
+    }
+    
 }

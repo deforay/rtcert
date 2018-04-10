@@ -7,9 +7,9 @@ function validateForm() {
         return false;
     }
 
-    if (document.getElementById('Choice').value == 1 && document.getElementById('file').value == '') {
-        document.getElementById('file').style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
-        alert('You must load the certificate in PDF format');
+    if (document.getElementById('to').value == '') {
+        document.getElementById('to').style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
+        alert('You must enter "To email"');
         return false;
     }
 
@@ -18,8 +18,12 @@ function validateForm() {
         alert('Please enter the "Reminder Sent To"');
         return false;
     }
-
-
+    
+    if(type == 1){
+       generatePDF();
+    }else{
+      document.getElementById('certificationMailForm').submit();
+    }
 }
 
 
@@ -29,7 +33,7 @@ function setChoice() {
     var subject = document.getElementById("Subject");
     var myAnchor = document.getElementById("Recipient");
     var myAnchor2 = document.getElementById("Recipient_name");
-    var div_file = document.getElementById('div-file');
+    //var div_file = document.getElementById('div-file');
     if (choice == 1) {
 
         message.innerHTML = 'Congratulations ' + provider + '! You have successfully fulfilled the requirements of the national HIV tester certification program and are deemed competent to perform HIV  Rapid Testing.  This certificate of competency is delivered to you for a two year period from the date of issuance.\n\
@@ -54,7 +58,7 @@ To print this certificate ensure that the paper size selected by the printer is 
         message.innerHTML = '';
         subject.innerHTML = '';
         myAnchor2.innerHTML = "<div class='form-group col-lg-6'><label>Name Of Recipient</label><input name='name_recipient' id='name_recipient' class='form-control' type='text'/></div>";
-        div_file.innerHTML = '';
+        //div_file.innerHTML = '';
     } 
 //    else if (choice == "") {
 //        document.getElementById('form').innerHTML='';
@@ -90,12 +94,6 @@ function setMsg() {
 
 }
 
-
-
 function emptyInput(input) {
-
     input.style.boxShadow = 'none';
 }
-
-
-

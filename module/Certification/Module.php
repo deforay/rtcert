@@ -13,8 +13,9 @@ class Module implements ConfigProviderInterface {
         return array(
             'factories' => array(
                 'Certification\Model\ProviderTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $tableGateway = $sm->get('ProviderTableGateway');
-                    $table = new \Certification\Model\ProviderTable($tableGateway);
+                    $table = new \Certification\Model\ProviderTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'ProviderTableGateway' => function ($sm) {
@@ -95,7 +96,7 @@ class Module implements ConfigProviderInterface {
                 'Certification\Model\ExaminationTable' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $tableGateway = $sm->get('ExaminationTableGateway');
-                    $table = new \Certification\Model\ExaminationTable($tableGateway,$dbAdapter);
+                    $table = new \Certification\Model\ExaminationTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'ExaminationTableGateway' => function ($sm) {
@@ -105,8 +106,9 @@ class Module implements ConfigProviderInterface {
                     return new TableGateway('examination', $dbAdapter, null, $resultSetPrototype);
                 },
                 'Certification\Model\CertificationMailTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $tableGateway = $sm->get('CertificationMailTableGateway');
-                    $table = new \Certification\Model\CertificationMailTable($tableGateway);
+                    $table = new \Certification\Model\CertificationMailTable($tableGateway,$dbAdapter);
                     return $table;
                 },
                 'CertificationMailTableGateway' => function ($sm) {

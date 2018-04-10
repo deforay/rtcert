@@ -3,13 +3,17 @@
 namespace Certification\Model;
 
 use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\Sql\Sql;
+use Zend\Db\TableGateway\AbstractTableGateway;
 
 class CertificationMailTable {
 
     protected $tableGateway;
 
-    public function __construct(TableGateway $tableGateway) {
+    public function __construct(TableGateway $tableGateway, Adapter $adapter) {
         $this->tableGateway = $tableGateway;
+        $this->adapter = $adapter;
     }
 
     public function getCertificationMail($mail_id) {
@@ -77,5 +81,17 @@ class CertificationMailTable {
         $sql = "INSERT INTO recertification(due_date, provider_id, reminder_type, reminder_sent_to, name_of_recipient, date_reminder_sent) VALUES ('".$due_date."',".$provider_id.",'".$reminder_type."','".$reminder_sent_to."','".$name_reminder."','".$date_reminder_sent."')";
         $db->getDriver()->getConnection()->execute($sql);
     }
-
+    
+    public function SelectTexteHeader() {
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = 'SELECT id, header_texte FROM pdf_header_texte';
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        foreach ($result as $res) {
+            $header_text = $res['header_texte'];
+        }
+//        die($header_texte);
+        return $header_text;
     }
+
+}

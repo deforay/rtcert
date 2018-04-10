@@ -742,10 +742,10 @@ class CertificationTable {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from(array('c'=>'certification'))
-                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
+                                ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_end_validity', 'date_certificate_sent', 'certification_type'))
+                                ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email','test_site_in_charge_email'),'left')
+                                ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -779,10 +779,10 @@ class CertificationTable {
 
         /* Total data set length */
         $tQuery =  $sql->select()->from(array('c'=>'certification'))
-                               ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                               ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email'),'left')
-                               ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
+                                 ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_end_validity', 'date_certificate_sent', 'certification_type'))
+                                 ->join(array('e'=>'examination'),'e.id=c.examination',array('provider'))
+                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email','test_site_in_charge_email'),'left')
+                                 ->where('c.approval_status IN("approved","Approved") AND c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -817,7 +817,7 @@ class CertificationTable {
                 }
             }
             if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
-                $row[] = "<a href='/certification-mail/index?".urlencode(base64_encode('email'))."=".base64_encode($aRow['email'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('provider'))."=".base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name'])."&".urlencode(base64_encode('facility_in_charge_email'))."=".base64_encode($aRow['facility_in_charge_email'])."&".urlencode(base64_encode('key2'))."=".base64_encode('key')."'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
+                $row[] = "<a href='/certification-mail/index?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('provider_id'))."=".base64_encode($aRow['provider'])."&".urlencode(base64_encode('email'))."=".base64_encode($aRow['email'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('provider_name'))."=".base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name'])."&".urlencode(base64_encode('facility_in_charge_email'))."=".base64_encode($aRow['facility_in_charge_email'])."&".urlencode(base64_encode('test_site_in_charge_email'))."=".base64_encode($aRow['test_site_in_charge_email'])."&".urlencode(base64_encode('date_certificate_issued'))."=".base64_encode($aRow['date_certificate_issued'])."&".urlencode(base64_encode('date_end_validity'))."=".base64_encode($aRow['date_end_validity'])."&".urlencode(base64_encode('key2'))."=".base64_encode('key')."'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
             }
             if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
               $row[] = "<div style='width:120px;height:40px;overflow:auto;'><a href='javascript:void(0);' onclick='markAsSent(\"".urlencode(base64_encode('certification_id'))."\",\"". base64_encode($aRow['id'])."\",\"".urlencode(base64_encode('key'))."\",\"". base64_encode('key')."\");'><span class='glyphicon glyphicon-send'></span>&nbsp;Mark as sent</a></div>";

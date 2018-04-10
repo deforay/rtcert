@@ -1,11 +1,15 @@
 <?php
 namespace Certification\Form;
+
+ use Zend\Db\Adapter\AdapterInterface;
  use Zend\Form\Form;
 
  class CertificationMailForm extends Form
  {
-     public function __construct($name = null)
-     {
+     protected $adapter;
+     
+     public function __construct(AdapterInterface $dbAdapter){
+        $this->adapter = $dbAdapter;
          // we want to ignore the name passed
          parent::__construct('certification-mail');
 
@@ -13,7 +17,8 @@ namespace Certification\Form;
              'name' => 'mail_id',
              'type' => 'Hidden',
          ));
-          $this->add(array(
+         
+         $this->add(array(
              'name' => 'type',
              'type' => 'select',
              'options' => array(
@@ -21,10 +26,30 @@ namespace Certification\Form;
 //                'empty_option' => 'Please Choose an Option',
                 'value_options' => array(
                     '1'=>'Send Certificate',
-                    '2'=>'Send Reminder')
+                    '2'=>'Send Reminder'
+                )
              ),
          ));
-         
+         $this->add(array(
+             'name' => 'provider',
+             'type' => 'select',
+             'options' => array(
+                'label' => 'Tester',
+                'empty_option' => 'Select Tester',
+                'value_options' => $this->getAllCertifiedUser()
+             ),
+         ));
+         $this->add(array(
+                'type' => 'Zend\Form\Element\MultiCheckbox',
+                'name' => 'add_to',
+                'options' => array(
+                    'label' => 'Add "To" emails',
+                    'value_options' => array(
+                        '2' => ' Add District Coordinator Email',
+                        '3' => ' Add Facility Email'
+                    ),
+                )
+         ));
          $this->add(array(
              'name' => 'to_email',
              'type' => 'Zend\Form\Element\Email',
@@ -65,11 +90,24 @@ namespace Certification\Form;
         
         $this->add(array(
              'name' => 'submit',
-             'type' => 'Submit',
+             'type' => 'button',
              'attributes' => array(
                  'value' => 'Go',
                  'id' => 'submitbutton',
              ),
          ));
+     }
+     
+     public function getAllCertifiedUser() {
+        $dbAdapter = $this->adapter;
+        $sql = 'SELECT p.id,p.first_name,p.last_name,p.middle_name,p.professional_reg_no,p.certification_id,p.email,p.test_site_in_charge_email,p.facility_in_charge_email,c.date_certificate_issued,c.date_end_validity FROM provider as p INNER JOIN examination as e ON e.provider=p.id INNER JOIN certification as c ON c.examination=e.id WHERE c.date_end_validity >= CURDATE() AND c.final_decision = "Certified" ORDER by p.last_name asc';
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        $selectData = [];
+        foreach ($result as $res) {
+            $providerRegID = (trim($res['professional_reg_no'])!= '')?'('.$res['professional_reg_no'].')':'';
+            $selectData[$res['id'].'##'.$res['email'].'##'.$res['test_site_in_charge_email'].'##'.$res['facility_in_charge_email'].'##'.$res['last_name'].'##'.$res['first_name'].'##'.$res['middle_name'].'##'.$res['professional_reg_no'].'##'.$res['certification_id'].'##'.$res['date_certificate_issued'].'##'.$res['date_end_validity']] = ucwords($res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name']).$providerRegID.' - '.$res['certification_id'];
+        }
+       return $selectData;
      }
  }

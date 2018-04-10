@@ -9,6 +9,7 @@ use Zend\InputFilter\InputFilterInterface;
 class CertificationMail {
 
     public $mail_id;
+    public $provider;
     public $to_email;
     public $cc;
     public $bcc;
@@ -17,6 +18,7 @@ class CertificationMail {
 
     public function exchangeArray($data) {
         $this->mail_id = (!empty($data['mail_id'])) ? $data['mail_id'] : null;
+        $this->provider = (!empty($data['provider'])) ? $data['provider'] : null;
         $this->to_email = (!empty($data['to_email'])) ? $data['to_email'] : null;
         $this->cc = (!empty($data['cc'])) ? $data['cc'] : null;
         $this->bcc = (!empty($data['bcc'])) ? $data['bcc'] : null;
@@ -31,7 +33,7 @@ class CertificationMail {
     public function getInputFilter() {
         if (!$this->inputFilter) {
             $inputFilter = new InputFilter();
-
+            
             $inputFilter->add(array(
                 'name' => 'mail_id',
                 'required' => FALSE,
@@ -55,7 +57,14 @@ class CertificationMail {
                     ),
                 ),
             ));
-
+            $inputFilter->add(array(
+                'name' => 'provider',
+                'required' => TRUE
+            ));
+            $inputFilter->add(array(
+                'name' => 'add_to',
+                'required' => FALSE
+            ));
             $inputFilter->add(array(
                 'name' => 'to_email',
                 'required' => FALSE,
