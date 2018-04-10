@@ -100,13 +100,13 @@ namespace Certification\Form;
      
      public function getAllCertifiedUser() {
         $dbAdapter = $this->adapter;
-        $sql = 'SELECT p.id,p.first_name,p.last_name,p.middle_name,p.professional_reg_no,p.certification_id,p.email,p.test_site_in_charge_email,p.facility_in_charge_email,c.date_certificate_issued,c.date_end_validity FROM provider as p INNER JOIN examination as e ON e.provider=p.id INNER JOIN certification as c ON c.examination=e.id WHERE c.date_end_validity >= CURDATE() AND c.final_decision = "Certified" ORDER by p.last_name asc';
+        $sql = 'SELECT p.id,p.first_name,p.last_name,p.middle_name,p.professional_reg_no,p.certification_id,p.email,p.test_site_in_charge_email,p.facility_in_charge_email,c.id as certid, c.date_certificate_issued,c.date_end_validity FROM provider as p INNER JOIN examination as e ON e.provider=p.id INNER JOIN certification as c ON c.examination=e.id WHERE c.date_end_validity >= CURDATE() AND c.final_decision = "Certified" ORDER by p.last_name asc';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
         $selectData = [];
         foreach ($result as $res) {
             $providerRegID = (trim($res['professional_reg_no'])!= '')?'('.$res['professional_reg_no'].')':'';
-            $selectData[$res['id'].'##'.$res['email'].'##'.$res['test_site_in_charge_email'].'##'.$res['facility_in_charge_email'].'##'.$res['last_name'].'##'.$res['first_name'].'##'.$res['middle_name'].'##'.$res['professional_reg_no'].'##'.$res['certification_id'].'##'.$res['date_certificate_issued'].'##'.$res['date_end_validity']] = ucwords($res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name']).$providerRegID.' - '.$res['certification_id'];
+            $selectData[$res['id'].'##'.$res['email'].'##'.$res['test_site_in_charge_email'].'##'.$res['facility_in_charge_email'].'##'.$res['last_name'].'##'.$res['first_name'].'##'.$res['middle_name'].'##'.$res['professional_reg_no'].'##'.$res['certification_id'].'##'.$res['date_certificate_issued'].'##'.$res['date_end_validity'].'##'.$res['certid']] = ucwords($res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name']).$providerRegID.' - '.$res['certification_id'];
         }
        return $selectData;
      }

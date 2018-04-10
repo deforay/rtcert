@@ -93,23 +93,23 @@ class CertificationMailController extends AbstractActionController {
                 $parmas['subject'] = $this->getRequest()->getpost('subject', null);
                 $parmas['message'] = $this->getRequest()->getpost('message', null);
                 $parmas['attachedfile'] = $this->getRequest()->getpost('attachedfile', null);
-                $mailSuccess = $commonService->sendCertificateMail($parmas)
-                if($mailSuccess){
+                $hasSent = $commonService->sendCertificateMail($parmas);
+                if($hasSent){
                     $testerArray = explode("##",$this->getRequest()->getpost('provider', null));
                     $provider_id = $testerArray[0];
-                    $certification_id = $testerArray[8];
+                    $certid = $testerArray[11];
                     $due_date = $testerArray[10];
                     
-                    if ($parmas['type'] == 1 && !empty($certification_id)) {
-                        $this->getCertificationMailTable()->dateCertificateSent($certification_id);
+                    if ($parmas['type'] == 1 && !empty($certid)) {
+                        $this->getCertificationMailTable()->dateCertificateSent($certid);
                     } elseif ($parmas['type'] == 2) {
                         $reminder_type = 'Email';
                         $reminder_sent_to = $this->getRequest()->getpost('type_recipient', null);
                         $name_reminder = $this->getRequest()->getpost('name_recipient', null);
                         $date_reminder_sent = date('Y-m-d');
-                        if (!empty($certification_id)) {
+                        if (!empty($certid)) {
                             $this->getCertificationMailTable()->insertRecertification($due_date, $provider_id, $reminder_type, $reminder_sent_to, $name_reminder, $date_reminder_sent);
-                            $this->getCertificationMailTable()->reminderSent($certification_id);
+                            $this->getCertificationMailTable()->reminderSent($certid);
                         }
                     }
                     $this->getCertificationMailTable()->saveCertificationMail($save_mail);

@@ -318,7 +318,7 @@ $configResult = $this->GlobalConfigHelper();
         </div> -->
         <div class="main-content">
 	  <div class="row" style="margin-bottom:10px;clear:both;">
-                  <div class="col-lg-3 col-sm-6">
+                  <div class="col-lg-3 col-sm-6" style="cursor:pointer;" onclick="showTesters('certified');">
                         <div class="card">
                             <div class="content">
                                 <div class="row">
@@ -344,13 +344,13 @@ $configResult = $this->GlobalConfigHelper();
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-sm-6">
+                    <div class="col-lg-3 col-sm-6" style="cursor:pointer;" onclick="showTesters('up-for-recertificate');">
                           <div class="card">
                           <div class="content">
                               <div class="row">
                                   <div class="col-xs-4">
                                       <div class="icon-big icon-info text-center">
-                                        <img src="<?php echo $this->basePath('assets/img/certificate.png') ?>"/>
+                                        <img src="<?php echo $this->basePath('assets/img/recertificate.png') ?>"/>
                                       </div>
                                   </div>
                                   <div class="col-xs-8">
@@ -370,13 +370,13 @@ $configResult = $this->GlobalConfigHelper();
                       </div>
                     </div>
 
-                      <div class="col-lg-3 col-sm-6">
+                    <div class="col-lg-3 col-sm-6">
                       <div class="card">
                       <div class="content">
                           <div class="row">
                               <div class="col-xs-4">
-                                  <div class="icon-big icon-warning text-center">
-                                      <i class="fa fa-send"></i>
+                                  <div class="icon-big icon-danger text-center">
+                                      <i class="fa fa-exclamation"></i>
                                   </div>
                               </div>
                               <div class="col-xs-8">
@@ -530,5 +530,9 @@ $configResult = $this->GlobalConfigHelper();
     function(data) {
        $("#mapContainer").html(data);
     });
+  }
+  
+  function showTesters(frmSrc){
+    window.location.href = '/dashboard/testers/'+frmSrc;
   }
 </script>

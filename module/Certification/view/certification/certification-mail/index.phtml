@@ -87,7 +87,7 @@ if(isset($provider_name)&& trim($provider_name)!= ''){
                                         $form->get('provider')->setAttributes([
                                                 'class' => 'form-control  isRequired',
                                                 'id' => 'provider',
-                                                'options' => [$provider_id.'##'.$email.'##'.$test_site_in_charge_email.'##'.$facility_in_charge_email.'##'.$last_name.'##'.$first_name.'##'.$middle_name.'##'.$professional_reg_no.'##'.$certification_id.'##'.$date_certificate_issued.'##'.$due_date => $provider_name.$providerRegID.' - '.$certification_id]
+                                                'options' => [$provider_id.'##'.$email.'##'.$test_site_in_charge_email.'##'.$facility_in_charge_email.'##'.$last_name.'##'.$first_name.'##'.$middle_name.'##'.$professional_reg_no.'##'.$certification_id.'##'.$date_certificate_issued.'##'.$due_date.'##'.$id => $provider_name.$providerRegID.' - '.$certification_id]
                                             ]);
                                     }else{
                                         $form->get('provider')->setAttributes([
