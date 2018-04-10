@@ -24,12 +24,12 @@ $acl = $this->layout()->acl;
 
     <div class="main-content">
         <ul class="nav nav-tabs" id="certificationTab" role="tablist">
-            <li class="nav-item active">
+            <li class="nav-item <?php echo (trim($src) == 'top')?'':'active'; ?>">
               <input type="hidden" id="selectdeselect"/>  
-              <a class="nav-link active" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="true" onclick="recommendedForCertificateInit();">Recommended for Certification</a>
+              <a class="nav-link <?php echo (trim($src) == 'top')?'':'active'; ?>" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="<?php echo (trim($src) == 'top')?'false':'true'; ?>" onclick="recommendedForCertificateInit();">Recommended for Certification</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" id="to-be-sent-tab" data-toggle="tab" href="#to-be-sent" role="tab" aria-controls="to-be-sent" aria-selected="true" onclick="toBeSentInit();">Certificates to be sent</a>
+            <li class="nav-item <?php echo (trim($src) == 'top')?'active':''; ?>">
+              <a class="nav-link <?php echo (trim($src) == 'top')?'active':''; ?>" id="to-be-sent-tab" data-toggle="tab" href="#to-be-sent" role="tab" aria-controls="to-be-sent" aria-selected="<?php echo (trim($src) == 'top')?'true':'false'; ?>" onclick="toBeSentInit();">Certificates to be sent</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" id="certified-tab" data-toggle="tab" href="#certified" role="tab" aria-controls="certified" aria-selected="false" onclick="certifiedInit();">Certified Testers</a>
@@ -39,7 +39,7 @@ $acl = $this->layout()->acl;
             </li>
         </ul>
         <div class="tab-content" id="certificationContent">
-          <div class="tab-pane active" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
+          <div class="tab-pane <?php echo (trim($src) == 'top')?'':'active'; ?>" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
             <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
                     <tr>
@@ -61,7 +61,7 @@ $acl = $this->layout()->acl;
                 </tbody>
             </table>
           </div>
-          <div class="tab-pane" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
+          <div class="tab-pane <?php echo (trim($src) == 'top')?'active':''; ?>" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
             <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
                     <tr>
@@ -89,7 +89,7 @@ $acl = $this->layout()->acl;
                 </tbody>
             </table>
           </div>
-          <div class="tab-pane fade" id="certified" role="tabpanel" aria-labelledby="certified-tab">
+          <div class="tab-pane" id="certified" role="tabpanel" aria-labelledby="certified-tab">
             <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr>
@@ -114,7 +114,7 @@ $acl = $this->layout()->acl;
                 </tbody>
             </table>
           </div>
-          <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+          <div class="tab-pane" id="pending" role="tabpanel" aria-labelledby="pending-tab">
             <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr>

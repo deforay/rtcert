@@ -4,6 +4,18 @@ $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $config = $this->GlobalConfigHelper();
+$notificationCount = $this->GetNotificationCount();
+$totalCount = 0;
+$certificate = 0;
+$reminder = 0;
+if(isset($notificationCount['nb']) && (int)$notificationCount['nb'] > 0){
+  $certificate = (int)$notificationCount['nb'];
+  $totalCount+= $certificate;
+}
+if(isset($notificationCount['nb2']) && (int)$notificationCount['nb2'] > 0){
+  $reminder = (int)$notificationCount['nb2'];
+  $totalCount+= $reminder;
+}
 $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucwords($config['region']):'Regions';
 $districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?ucwords($config['districts']):'Districts';
 $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?ucwords($config['facilities']):'Facilities';
@@ -178,6 +190,12 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
         color: red;
       }
       a.mobLogin:hover{background-color:#194F74}
+      .badge-notify{
+        background:red;
+        position:relative;
+        top: -20px;
+        left: -20px;
+      }
     </style>
     
     <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/style.css?v=0.3'); ?>" type="text/css"/>
@@ -220,109 +238,83 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
           
           <div id="am-navbar-collapse" class="collapse navbar-collapse">
             <?php if(isset($sessionLogin->userId)){ ?>
-                            <ul class="nav navbar-nav am-top-menu">
-                            <?php if($geoGraphicalMenu!='' || $configmenu!='' || $adminMenu!=''){ ?>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                <?php if($geoGraphicalMenu!='' || $configmenu!=''){ ?>
-                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
-                                        <ul class="dropdown-menu">
-                                          <?php echo $configmenu; ?>
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
-                                        <ul class="dropdown-menu">
-                                            <?php echo $geoGraphicalMenu; ?>
-                                        </ul>
-                                    </li>
-                                <li class="divider"></li>
-                                <?php }  ?>
-                                <?php echo $adminMenu; ?>                            
-                                </ul>
-                            </li>
-                              <?php } if($testerMenu!='' || $testerExamMenu!='' || $testerReminderMenu!=''){ ?>
-                                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
-                                      <ul role="menu" class="dropdown-menu">
-                                      <?php if($testerMenu!=''){
-                                         echo $testerMenu; ?>
-                                        <li class="divider"></li>
-                                      <?php } if($testerExamMenu!=''){
-                                       echo $testerExamMenu; ?>
-                                        <li class="divider"></li>
-                                      <?php } ?>
-                                        <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
-                                        <?php echo $testerReminderMenu; ?>
-                                      </ul>
-                                </li>
-                              <?php } ?>
-                                    
-                            <?php if($role!= 'DEO' && $certificateMenu!=''){ ?>
-                                  <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Manage Certifications<span class="caret"></span></a>
-                                  <ul role="menu" class="dropdown-menu">
-                                    <?php echo $certificateMenu; ?>
-                                  </ul>
-                                  </li>
-                                <?php } if($trainingMenu!=''){ ?>
-                                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
-                                  <ul role="menu" class="dropdown-menu">
-                                  <?php echo $trainingMenu; ?>
-                                  </ul>
-                                </li>
-                                <?php } if($reportMenu!=''){ ?>
-                                  <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
-                                        <ul role="menu" class="dropdown-menu">
-                                          <?php echo $reportMenu; ?>
-                                        </ul>
-                                  </li>
-                                  <?php } ?>
-                                        <li class="dropdown">
-                                          
-                                        </li>
-                                </ul> 
-                            <?php } ?>
-                                <!--the flashing buttons-->
-                        <?php
-                        if (!empty($nb) && $nb > 0) {
-                            if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
-                                ?>
-                                <ul class="nav navbar-nav am-nav-right">
-                                    <li><a href="<?php echo $this->url('certification', array('action' => 'index')); ?>" style="font-size:1.8em; color: red;"><button class="btn btn-danger" style="height: 25px;"><div id="DivClignotante" style="visibility:visible; font-size: 15px; font-weight: bold; margin-top: -5px;"><?php echo $this->nb; ?>&nbsp;Certificate(s)</div></button></a></li>
-                                </ul>
-                                <?php
-                            }
-                        }
-                        ?>
-
-                        <?php
-                        if (!empty($nb2) && $nb2 > 0) {
-                            if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
-                                ?>
-                                <ul class="nav navbar-nav am-nav-right">
-                                    <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>" style="font-size:1.8em; color: red;"><button class="btn btn-danger" style="height: 25px;"><div id="DivClignotante2" style="visibility:visible; font-size: 15px; font-weight: bold;margin-top: -5px;"><?php echo $this->nb2; ?>&nbsp;Reminder(s)</div></button></a></li>
-                                </ul>
-                                <?php
-                            }
-                        }
-                        ?>
-
+          <ul class="nav navbar-nav am-top-menu">
+          <?php if($geoGraphicalMenu!='' || $configmenu!='' || $adminMenu!=''){ ?>
+          <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+              <?php if($geoGraphicalMenu!='' || $configmenu!=''){ ?>
+                  <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
+                      <ul class="dropdown-menu">
+                        <?php echo $configmenu; ?>
+                      </ul>
+                  </li>
+                  <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
+                      <ul class="dropdown-menu">
+                          <?php echo $geoGraphicalMenu; ?>
+                      </ul>
+                  </li>
+              <li class="divider"></li>
+              <?php }  ?>
+              <?php echo $adminMenu; ?>                            
+              </ul>
+          </li>
+            <?php } if($testerMenu!='' || $testerExamMenu!='' || $testerReminderMenu!=''){ ?>
+              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
+                    <ul role="menu" class="dropdown-menu">
+                    <?php if($testerMenu!=''){
+                       echo $testerMenu; ?>
+                      <li class="divider"></li>
+                    <?php } if($testerExamMenu!=''){
+                     echo $testerExamMenu; ?>
+                      <li class="divider"></li>
+                    <?php } ?>
+                      <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
+                      <?php echo $testerReminderMenu; ?>
+                    </ul>
+              </li>
+            <?php } ?>
+                  
+          <?php if($role!= 'DEO' && $certificateMenu!=''){ ?>
+                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Manage Certifications<span class="caret"></span></a>
+                <ul role="menu" class="dropdown-menu">
+                  <?php echo $certificateMenu; ?>
+                </ul>
+                </li>
+              <?php } if($trainingMenu!=''){ ?>
+              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
+                <ul role="menu" class="dropdown-menu">
+                <?php echo $trainingMenu; ?>
+                </ul>
+              </li>
+              <?php } if($reportMenu!=''){ ?>
+                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
+                      <ul role="menu" class="dropdown-menu">
+                        <?php echo $reportMenu; ?>
+                      </ul>
+                </li>
+                <?php } ?>
+              </ul> 
+          <?php } ?>
           <?php if(!isset($sessionLogin->userId)){ ?>
                 <ul class="nav navbar-nav navbar-right am-user-nav">
                   <li class=""><a href="/login" class="btn btn-warning">Login</a></li>
                 </ul>
           <?php } ?>   
 
-
-
-<ul class="nav navbar-nav navbar-right am-user-nav">
+          <ul class="nav navbar-nav navbar-right am-user-nav">
             <?php if(isset($sessionLogin->userId)){ ?>
               <li class="dropdown">
                 <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><img src="/assets/img/nobody.jpg">
-                <span class="angle-down s7-angle-down"></span></a>
+                <?php if($totalCount > 0) { ?><span class="badge badge-notify"><?php echo $totalCount; ?></span><?php } ?><span class="angle-down s7-angle-down"></span></a>
                 <ul role="menu" class="dropdown-menu">
                   <?php
                   if(isset($sessionLogin->userId)){
-                  ?>
+                    if($certificate > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index"))){ ?>
+                  <li><a href="<?php echo $this->url('certification', array('action' => 'index'), array('query' => array('src' => 'top'))); ?>"><span class="badge"><?php echo $certificate; ?></span> Certificate(s)</a></li>
+                  <?php } if($reminder > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?>
+                  <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>"><span class="badge"><?php echo $reminder; ?></span> Reminder(s)</a></li>
+                  <?php } ?>
                   <li><a href="<?php echo $this->url('login', array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a></li>
                   <?php }else{
                   ?>
@@ -336,7 +328,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
           </div>
         </div>
       </nav>
-      
       
       <?php echo $this->content; ?>
       

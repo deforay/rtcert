@@ -238,6 +238,7 @@ class Module
            'invokables' => array(
               'humanDateFormat' => 'Application\View\Helper\HumanDateFormat',
               'GlobalConfigHelper' => 'Application\View\Helper\GlobalConfigHelper',
+	      'GetNotificationCount' => 'Application\View\Helper\GetNotificationCount'
            ),
         );
     }
