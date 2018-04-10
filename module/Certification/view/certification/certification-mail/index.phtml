@@ -323,7 +323,7 @@ if(isset($provider_name)&& trim($provider_name)!= ''){
     function generatePDF(){
         var tester = $("#provider").val();
         var testerArray = tester.split('##');
-        $.post("<?php echo $this->url('generate-certificate-pdf'); ?>", { last :testerArray[4], first :testerArray[5], middle :testerArray[6], professional_reg_no :testerArray[7], certification_id :testerArray[8], date_issued :testerArray[9], date_end_validity :testerArray[10], header_text:headerTxt},
+        $.post("<?php echo $this->url('generate-certificate-pdf'); ?>", { provider :testerArray[1], last :testerArray[4], first :testerArray[5], middle :testerArray[6], professional_reg_no :testerArray[7], certification_id :testerArray[8], date_issued :testerArray[9], date_end_validity :testerArray[10], header_text:headerTxt},
         function(data){
             if(data === "" || data === null || data === undefined){
                 alert('Error-Oops, Unable to generate certificate pdf');

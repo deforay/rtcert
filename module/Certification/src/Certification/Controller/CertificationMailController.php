@@ -93,16 +93,16 @@ class CertificationMailController extends AbstractActionController {
                 $parmas['subject'] = $this->getRequest()->getpost('subject', null);
                 $parmas['message'] = $this->getRequest()->getpost('message', null);
                 $parmas['attachedfile'] = $this->getRequest()->getpost('attachedfile', null);
-                
-                if($commonService->sendCertificateMail($parmas)){
+                $mailSuccess = $commonService->sendCertificateMail($parmas)
+                if($mailSuccess){
                     $testerArray = explode("##",$this->getRequest()->getpost('provider', null));
                     $provider_id = $testerArray[0];
                     $certification_id = $testerArray[8];
                     $due_date = $testerArray[10];
                     
-                    if ($type == 1 && !empty($certification_id)) {
+                    if ($parmas['type'] == 1 && !empty($certification_id)) {
                         $this->getCertificationMailTable()->dateCertificateSent($certification_id);
-                    } elseif ($type == 2) {
+                    } elseif ($parmas['type'] == 2) {
                         $reminder_type = 'Email';
                         $reminder_sent_to = $this->getRequest()->getpost('type_recipient', null);
                         $name_reminder = $this->getRequest()->getpost('name_recipient', null);
