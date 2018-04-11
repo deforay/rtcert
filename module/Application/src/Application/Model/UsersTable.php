@@ -210,13 +210,15 @@ class UsersTable extends AbstractTableGateway {
                 $userProvinceMap->delete(array('user_id'=>$userId));
                 $userCountryMap->delete(array('user_id'=>$userId));
                 //Add User-District, User-Province, User-Country
-                if(isset($params['district']) && !empty($params['district'])){
-                    for($i=0;$i < count($params['district']);$i++){
-                       $userDistrictMap->insert(array('user_id'=>$userId,'location_id'=>$params['district'][$i]));
+                if(isset($params['districtReferecne']) && trim($params['districtReferecne'])!= ''){
+                    $districtArray = explode(',',$params['districtReferecne']);
+                    for($i=0;$i < count($districtArray);$i++){
+                       $userDistrictMap->insert(array('user_id'=>$userId,'location_id'=>$districtArray[$i]));
                     }
-                }else if(isset($params['province']) && !empty($params['province'])){
-                    for($i=0;$i < count($params['province']);$i++){
-                       $userProvinceMap->insert(array('user_id'=>$userId,'location_id'=>$params['province'][$i]));
+                }else if(isset($params['provinceReferecne']) && !empty($params['provinceReferecne'])){
+                    $provinceArray = explode(',',$params['provinceReferecne']);
+                    for($i=0;$i < count($provinceArray);$i++){
+                       $userProvinceMap->insert(array('user_id'=>$userId,'location_id'=>$provinceArray[$i]));
                     }
                 }else if(isset($params['country']) && !empty($params['country'])){
                     for($i=0;$i < count($params['country']);$i++){

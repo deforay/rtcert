@@ -72,7 +72,7 @@ $tokenArray = array();
 		    <div class="row">
 			<div class="form-group col-lg-6 accessLevel country  " onchange="getCountryLocations();" style="display:none;">
 			    <label>Country <span class="mandatory">*</span></label>
-			    <select class="form-control" name="country[]" id="country" multiple title="Please select country">
+			    <select class="" name="country[]" id="country" multiple title="Please select country">
 				    <?php
 				    foreach($countryResult as $country){
 				    ?>
@@ -84,7 +84,7 @@ $tokenArray = array();
 			</div>
 			<div class="form-group col-lg-6 accessLevel province district" onchange="getProvinceDistricts();" style="display:none;">
 			   <label>Province/State <span class="mandatory">*</span></label>
-			    <select class="form-control" name="province[]" id="province" multiple title="Please select province">
+			    <select class="" name="province[]" id="province" multiple title="Please select province">
 				    <?php
 				    foreach($provinceResult as $province){
 				    ?>
@@ -98,7 +98,7 @@ $tokenArray = array();
 		    <div class="row">
 			<div class="form-group col-lg-6 accessLevel district" style="display:none;">
 			    <label>District/County <span class="mandatory">*</span></label>
-			    <select class="form-control" name="district[]" id="district" multiple title="Please select district">
+			    <select class="" name="district[]" id="district" multiple title="Please select district">
 				    <?php
 				    foreach($districtResult as $district){
 				    ?>

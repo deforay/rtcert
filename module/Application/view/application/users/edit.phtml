@@ -44,7 +44,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 			<div class="form-group col-lg-6">
 			  <label>First Name <span class="mandatory">*</span> </label>
 			  <input type="text" placeholder="First Name" class="form-control isRequired" name="firstName" id="firstName" title="Please enter the first name" value="<?php echo $result->first_name; ?>">
-			    <input type="hidden" class="form-control isRequired" id="userId" name="userId" value="<?php echo base64_encode($result->id); ?>"/>
+			  <input type="hidden" id="userId" name="userId" value="<?php echo base64_encode($result->id); ?>"/>
 			</div>
 			<div class="form-group col-lg-6">
 			  <label>Last Name </label>
@@ -90,7 +90,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 			 </div>
 			<div class="form-group col-lg-6 accessLevel country" onchange="getCountryLocations('change');">
 			     <label>Country <span class="mandatory">*</span></label>
-			     <select class="form-control" name="country[]" id="country" multiple title="Please select country">
+			     <select class="" name="country[]" id="country" multiple title="Please select country">
 				     <?php
 				     foreach($countryResult as $country){
 				     ?>
@@ -103,7 +103,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 		   
 			<div class="form-group col-lg-6 accessLevel province district" onchange="getProvinceDistricts('change');">
 			   <label>Province/State <span class="mandatory">*</span></label>
-			    <select class="form-control" name="province[]" id="province" multiple title="Please select province">
+			    <select class="" name="province[]" id="province" multiple title="Please select province">
 				    <?php
 				    foreach($provinceResult as $province){
 				    ?>
@@ -115,7 +115,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 			</div>
 			<div class="form-group col-lg-6 accessLevel district">
 			    <label>District/County <span class="mandatory">*</span></label>
-			    <select class="form-control" name="district[]" id="district" multiple title="Please select district">
+			    <select class="" name="district[]" id="district" multiple title="Please select district" onchange="getSelectedDistricts();">
 				    <?php
 				    foreach($districtResult as $district){
 				    ?>
@@ -126,7 +126,9 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 			    </select>
 			</div>
 		    </div>
-                    <div class="spacer  col-lg-12">
+                    <div class="spacer col-lg-12">
+		      <input type="hidden" id="provinceReferecne" name="provinceReferecne" value="<?php echo (count($userDistricts) > 0)?implode(',',$selectedProvinces):implode(',',$userProvinces); ?>"/>
+		      <input type="hidden" id="districtReferecne" name="districtReferecne" value="<?php echo implode(',',$userDistricts); ?>"/>	
                       <button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit</button>
                      <a href="<?php echo $this->url('users', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a> 
                     </div>
@@ -173,12 +175,12 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 				     alert('Please select country');
 				     return false;
 			     }
-			}else if($('#province').val() == null || $('#province').val() == ''){
+			}else if($('#provinceReferecne').val() == null || $('#provinceReferecne').val() == ''){
 			     if(accessLevel == 3 || accessLevel == 4){
 				     alert('Please select province');
 				     return false;
 			     }
-			}else if($('#district').val() == null || $('#district').val() == ''){
+			}else if($('#districtReferecne').val() == null || $('#districtReferecne').val() == ''){
 			     if(accessLevel == 4){
 				     alert('Please select district');
 				     return false;
@@ -217,18 +219,18 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 		}else if(roleAccessLevel == 3){
 		      $('.accessLevel').hide();
 			  $('.province').show();
-			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); }
+			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); $('#provinceReferecne').val('');}
 			  $("#country").val(1);
 		getCountryLocations();
 		}else if(roleAccessLevel == 4){
 		      $('.accessLevel').hide();
 			  $('.district').show();
-			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change();  $('#district').val('').change();}
+			  if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); $('#provinceReferecne').val(''); $('#district').val('').change(); $('#districtReferecne').val('');}
 			  $("#country").val(1);
 		getCountryLocations();
 		}else{
 		      $('.accessLevel').hide();
-		      if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change();  $('#district').val('').change();}
+		      if(frmSrc == 'change') { $('#country').val('').change(); $('#province').val('').change(); $('#provinceReferecne').val(''); $('#district').val('').change(); $('#districtReferecne').val('');}
 		}
 	}
 	
@@ -239,7 +241,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 			$.post("<?php echo $this->url('common', array('action' => 'get-country-locations')); ?>", {country: country},
 			function(data) {
 			    var dataArray = data.split("##");
-			    if(frmSrc == 'change'){ $('#province').val('').change(); $('#district').val('').change(); }
+			    if(frmSrc == 'change'){ $('#province').val('').change(); $('#provinceReferecne').val(''); $('#district').val('').change(); $('#districtReferecne').val('');}
 			    $('#province').html(dataArray[0]);
 			    $('#district').html(dataArray[1]);
 			});
@@ -248,10 +250,24 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
 	
 	function getProvinceDistricts(frmSrc){
 		var province = ($('#province').val() == null || $('#province').val() == '')?[]:$('#province').val();
+		if(province.length > 0){
+		   $('#provinceReferecne').val(province.join(','));
+		}else{
+		   $('#provinceReferecne').val('');
+		}
 		$.post("<?php echo $this->url('common', array('action' => 'get-province-districts')); ?>", {province: province},
 		function(data) {
-		    if(frmSrc == 'change'){ $('#district').val('').change(); } 
+		    if(frmSrc == 'change'){ $('#district').val('').change(); $('#districtReferecne').val('');} 
 		    $('#district').html(data);
 		});
+	}
+	
+	function getSelectedDistricts(){
+	        var district = ($('#district').val() == null || $('#district').val() == '')?[]:$('#district').val();
+		if(district.length > 0){
+		   $('#districtReferecne').val(district.join(','));
+		}else{
+		   $('#districtReferecne').val('');
+		}	
 	}
 </script>
