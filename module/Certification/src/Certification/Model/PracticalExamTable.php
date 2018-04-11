@@ -30,11 +30,11 @@ class PracticalExamTable extends AbstractTableGateway {
         $sqlSelect->columns(array('practice_exam_id', 'exam_type', 'exam_admin', 'provider_id', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'date'));
         $sqlSelect->join('provider', ' provider.id = practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name'), 'left')
                 ->where(array('display' => 'yes'));
-                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-                    $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
-                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-                    $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
-                }
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $sqlSelect->order('practice_exam_id desc');
 
         $resultSet = $this->tableGateway->selectWith($sqlSelect);

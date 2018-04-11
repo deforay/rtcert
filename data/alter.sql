@@ -665,3 +665,10 @@ ALTER TABLE `practical_exam` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `di
 ALTER TABLE `certification` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `date_end_validity`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `last_updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `last_updated_by` INT(11) NULL DEFAULT NULL AFTER `last_updated_on`;
 
 DELETE FROM `global_config` WHERE `global_config`.`config_id` = 2
+
+-- Pal 10 APR 2018
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\Dashboard', 'testers', 'Manage Certificate Mail');
+
+UPDATE `privileges` SET `display_name` = 'Manage Tester Mail' WHERE `privileges`.`resource_id` = 'Application\\Controller\\Dashboard' AND `privileges`.`privilege_name` = 'testers';
+
+UPDATE `privileges` SET `display_name` = 'Tester List' WHERE `privileges`.`resource_id` = 'Application\\Controller\\Dashboard' AND `privileges`.`privilege_name` = 'testers'; 

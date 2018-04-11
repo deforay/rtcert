@@ -170,6 +170,11 @@ class ExaminationTable {
         $select1->combine($select2);
 	$tQuery = $sql->select()->from(array('result' => $select1));
         $tQuery = $tQuery->group('id');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('region IN('.implode(',',$sessionLogin->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -328,11 +333,11 @@ class ExaminationTable {
                                 ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
                                 ->where('c.approval_status IN("pending","Pending")');
-                                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-                                    $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-                                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-                                    $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-                                }
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
@@ -590,7 +595,7 @@ class ExaminationTable {
                                 ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
                                 ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-				if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+	if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
             $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
@@ -631,7 +636,7 @@ class ExaminationTable {
                                 ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
                                 ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-				if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+	if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
             $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');

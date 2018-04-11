@@ -7,6 +7,12 @@ function validateForm() {
         return false;
     }
 
+    if (document.getElementById('provider').value == '') {
+        document.getElementById('provider').style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
+        alert('You must select "Tester"');
+        return false;
+    }
+    
     if (document.getElementById('to').value == '') {
         document.getElementById('to').style.boxShadow = "2px 2px 10px rgba(200, 0, 0, 0.85)";
         alert('You must enter "To email"');

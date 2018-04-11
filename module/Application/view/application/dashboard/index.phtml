@@ -1,5 +1,13 @@
 <?php
+use Zend\Session\Container;
+$sessionLogin = new Container('credo');
+$role = $sessionLogin->roleCode;
+$acl = $this->layout()->acl;
 $configResult = $this->GlobalConfigHelper();
+$isClickable = false;
+if ($acl->isAllowed($role, 'Application\Controller\Dashboard', 'testers')) {
+  $isClickable = true;
+}
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
@@ -10,7 +18,6 @@ $configResult = $this->GlobalConfigHelper();
   .auditPointName{
 	color:#fff;
 	margin:0;
-	
 	min-width: 200px;
 	vertical-align:top;
   }
@@ -318,8 +325,8 @@ $configResult = $this->GlobalConfigHelper();
         </div> -->
         <div class="main-content">
 	  <div class="row" style="margin-bottom:10px;clear:both;">
-                  <div class="col-lg-3 col-sm-6" style="cursor:pointer;" onclick="showTesters('certified');">
-                        <div class="card">
+                  <div class="col-lg-3 col-sm-6">
+                        <div class="card" <?php if($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('certified');"<?php } ?>>
                             <div class="content">
                                 <div class="row">
                                     <div class="col-xs-4">
@@ -344,8 +351,8 @@ $configResult = $this->GlobalConfigHelper();
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-sm-6" style="cursor:pointer;" onclick="showTesters('up-for-recertificate');">
-                          <div class="card">
+                    <div class="col-lg-3 col-sm-6">
+                          <div class="card" <?php if($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('up-for-recertificate');"<?php } ?>>
                           <div class="content">
                               <div class="row">
                                   <div class="col-xs-4">

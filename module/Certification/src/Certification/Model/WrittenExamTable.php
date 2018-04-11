@@ -32,11 +32,11 @@ class WrittenExamTable extends AbstractTableGateway {
             'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'));
         $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name'), 'left')
                 ->where(array('display' => 'yes'));
-                if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-                    $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
-                }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-                    $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
-                }
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $sqlSelect->order('id_written_exam desc');
 
         $resultSet = $this->tableGateway->selectWith($sqlSelect);

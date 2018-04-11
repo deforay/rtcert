@@ -25,6 +25,7 @@ class CertificationTable {
     }
 
     public function getQuickStats(){
+        $sessionLogin = new Container('credo');
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $adapter = $this->adapter;
@@ -51,13 +52,21 @@ class CertificationTable {
                                                                         ELSE 0
                                                                         END)")
                             )
-                );  
+                        )  
+                    ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                    ->join(array('p'=>'provider'),'p.id=e.provider',array());
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $query = $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $query = $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $res = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $res[0];
     }
 
     public function getCertificationPieChartResults($params){
+        $sessionLogin = new Container('credo');
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c'=>'certification'))
@@ -67,11 +76,17 @@ class CertificationTable {
                      ->join(array('l_d'=>'location_details'),'l_d.location_id=p.region',array('location_name'))
                      ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                      ->group('p.region');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $query = $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $query = $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $queryStr = $sql->getSqlStringForSqlObject($query);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
     
     public function getCertificationBarChartResults($params){
+        $sessionLogin = new Container('credo');
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $start = strtotime(date("Y", strtotime("-2 year")).'-'.date('m', strtotime('+1 month', strtotime('-2 year'))));
@@ -93,7 +108,14 @@ class CertificationTable {
                                                                                     END)")
                                     )
                                 )
-                         ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND Month(date_certificate_issued)="'.$month.'" AND Year(date_certificate_issued)="'.$year.'" AND date_end_validity > NOW()');
+                        ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                        ->join(array('p'=>'provider'),'p.id=e.provider',array())
+                        ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND Month(date_certificate_issued)="'.$month.'" AND Year(date_certificate_issued)="'.$year.'" AND date_end_validity > NOW()');
+            if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+                $query = $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+            }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+                $query = $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+            }
             $queryStr = $sql->getSqlStringForSqlObject($query);
             $result = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             $certificationResult['certification']['Certifications'][$j] = (isset($result[0]["certifications"]))?$result[0]["certifications"]:0;
@@ -356,20 +378,26 @@ class CertificationTable {
     //}
 
     public function getNotificationCount(){
+        $sessionLogin = new Container('credo');
+        $where = '';
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $where =' and provider.district IN('.implode(',',$sessionLogin->district).')';
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $where = ' and provider.region IN('.implode(',',$sessionLogin->region).')';
+        }
         $db = $this->tableGateway->getAdapter();
-        $sqlSelect = 'select COUNT(*)  as nb from  (select certification.id, examination, final_decision, certification_issuer, date_certificate_issued, date_certificate_sent, certification_type, date_end_validity,examination.provider, last_name, first_name, middle_name, certification_id, certification_reg_no, professional_reg_no, email, facility_in_charge_email from certification,examination,provider where examination.id = certification.examination and provider.id = examination.provider and approval_status IN("approved","Approved") AND final_decision IN("certified","Certified") and certificate_sent ="no") as tab';
+        $sqlSelect = 'select COUNT(*)  as nb from  (select certification.id, examination, final_decision, certification_issuer, date_certificate_issued, date_certificate_sent, certification_type, date_end_validity,examination.provider, last_name, first_name, middle_name, certification_id, certification_reg_no, professional_reg_no, email, facility_in_charge_email from certification,examination,provider where examination.id = certification.examination and provider.id = examination.provider and approval_status IN("approved","Approved") AND final_decision IN("certified","Certified") and certificate_sent ="no"'.$where.') as tab';
+        //echo $sqlSelect;die;
         $statement = $db->query($sqlSelect);
         $result = $statement->execute();
         foreach ($result as $res) {
             $nb = $res['nb'];
         }
         
-        $db = $this->tableGateway->getAdapter();
         $sqlSelect = 'select COUNT(*) as nb2 from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, 
                 date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,
-                certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and final_decision="certified" and certificate_sent = "yes" and reminder_sent="no" and datediff(now(),date_end_validity) >=-60 order by certification.id asc) as tab';
+                certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and final_decision="certified" and certificate_sent = "yes" and reminder_sent="no" and datediff(now(),date_end_validity) >=-60'.$where.' order by certification.id asc) as tab';
         $statement = $db->query($sqlSelect);
-    
         $result = $statement->execute();
         foreach ($result as $res) {
             $nb2 = $res['nb2'];
@@ -1163,6 +1191,7 @@ class CertificationTable {
     }
     
     public function getCertificationMapResults($params){
+        $sessionLogin = new Container('credo');
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c'=>'certification'))->columns(array())
@@ -1171,6 +1200,11 @@ class CertificationTable {
                         ->join(array('c_f'=>'certification_facilities'),'c_f.id=p.facility_id',array('facility_name','longitude','latitude','locCount' => new \Zend\Db\Sql\Expression("COUNT(c_f.id)")))
                         ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                         ->group('c_f.facility_name');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $facilityResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         
@@ -1180,6 +1214,11 @@ class CertificationTable {
                         ->join(array('l_d_r'=>'location_details'),'l_d_r.location_id=p.region',array('location_name','longitude','latitude','regCount' => new \Zend\Db\Sql\Expression("COUNT(l_d_r.location_id)")))
                         ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                         ->group('l_d_r.location_name');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $provinceResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         
@@ -1189,6 +1228,11 @@ class CertificationTable {
                         ->join(array('l_d_d'=>'location_details'),'l_d_d.location_id=p.district',array('location_name','longitude','latitude','districtCount' => new \Zend\Db\Sql\Expression("COUNT(l_d_d.location_id)")))
                         ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                         ->group('l_d_d.location_name');
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $query->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $districtResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
       return array('facilityResult'=>$facilityResult,'provinceResult'=>$provinceResult,'districtResult'=>$districtResult);

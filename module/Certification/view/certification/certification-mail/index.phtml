@@ -153,7 +153,7 @@ if(isset($provider_name)&& trim($provider_name)!= ''){
                                         <div id="Recipient_name" class="row"></div>
                                         <div class="row">
                                             <div class="form-group col-lg-6">
-                                                <?= $this->formLabel($form->get('provider')); ?>
+                                                <?= $this->formLabel($form->get('provider')); ?><span class="mandatory">*</span>
                                                 <?= $this->formElement($form->get('provider')); ?>
                                                 <?= $this->formElementErrors($form->get('provider')); ?>
                                             </div>

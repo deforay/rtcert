@@ -20,7 +20,7 @@ namespace Certification\Form;
          
          $this->add(array(
              'name' => 'type',
-             'type' => 'select',
+             'type'=> 'Zend\Form\Element\Select',
              'options' => array(
                 'label' => 'Type Of Email',
 //                'empty_option' => 'Please Choose an Option',
@@ -31,12 +31,14 @@ namespace Certification\Form;
              ),
          ));
          $this->add(array(
+             'type'=> 'Zend\Form\Element\Select',
              'name' => 'provider',
-             'type' => 'select',
+             'required' => true,
              'options' => array(
                 'label' => 'Tester',
                 'empty_option' => 'Select Tester',
-                'value_options' => $this->getAllCertifiedUser()
+                'value_options' => $this->getAllCertifiedUser(),
+                'disable_inarray_validator' => true
              ),
          ));
          $this->add(array(

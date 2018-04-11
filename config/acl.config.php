@@ -149,6 +149,7 @@ return array(
         'Application\\Controller\\Dashboard' => array(
             'index' => 'allow',
             'audi-details' => 'allow',
+            'testers' => 'allow',
         ),
         'Application\\Controller\\Email' => array(
             'index' => 'allow',
