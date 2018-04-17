@@ -864,7 +864,7 @@ class CertificationTable {
                 if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
                    $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
                 }else{
-                   $row[] = "<div><span class='glyphicon glyphicon-download-alt'>PDF</span></div>";
+                   $row[] = "<div></div>";
                 }
             }
             if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
@@ -1030,7 +1030,7 @@ class CertificationTable {
                 if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
                    $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
                 }else{
-                   $row[] = "<div><span class='glyphicon glyphicon-download-alt'>PDF</span></div>";
+                   $row[] = "<div></div>";
                 }
             }
          $output['aaData'][] = $row;

@@ -68,6 +68,8 @@ $acl = $this->layout()->acl;
                         <?php } ?>
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) { ?>
                             <th>Delete</th><?php } ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                            <th>PDF</th><?php } ?>
                     </tr>
 
 
@@ -128,7 +130,16 @@ $acl = $this->layout()->acl;
                                     </div>
                                 </td>
                             <?php } ?>
-
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                                <td>
+                                <?php if(isset($provider->final_decision) && $provider->final_decision!= null && trim($provider->final_decision)!= ''){
+                                    if (strcasecmp($provider->final_decision, 'Certified') == 0) { ?>
+                                    <div style="overflow:auto;">
+                                       <a href="<?php echo $this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('id') => base64_encode($provider->certid), base64_encode('last') => base64_encode($provider->last_name), base64_encode('first') => base64_encode($provider->first_name), base64_encode('middle') => base64_encode($provider->middle_name), base64_encode('professional_reg_no') => base64_encode($provider->professional_reg_no), base64_encode('certification_id') => base64_encode($provider->certification_id), base64_encode('date_issued') => base64_encode($provider->date_certificate_issued)))); ?>" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>
+                                    </div>
+                                <?php } } ?>
+                                </td>
+                            <?php } ?>
                         </tr>
                     <?php } ?>
                 </tbody>

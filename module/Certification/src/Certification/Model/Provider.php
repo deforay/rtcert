@@ -32,6 +32,8 @@ class Provider {
     public $facility_id;
     public $date_certificate_issued;
     public $date_end_validity;
+    public $final_decision;
+    public $certid;
     
     protected $inputFilter;
 
@@ -66,8 +68,8 @@ class Provider {
         
         $this->date_certificate_issued = (!empty($data['date_certificate_issued'])) ? $data['date_certificate_issued'] : null;
         $this->date_end_validity = (!empty($data['date_end_validity'])) ? $data['date_end_validity'] : null;
-        
-        
+        $this->final_decision = (!empty($data['final_decision'])) ? $data['final_decision'] : null;
+        $this->certid = (!empty($data['certid'])) ? $data['certid'] : null;
     }
 
     public function getArrayCopy() {
