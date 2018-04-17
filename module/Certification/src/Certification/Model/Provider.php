@@ -30,6 +30,9 @@ class Provider {
     public $facility_in_charge_phone;
     public $facility_in_charge_email;
     public $facility_id;
+    public $date_certificate_issued;
+    public $date_end_validity;
+    
     protected $inputFilter;
 
     public function exchangeArray($data) {
@@ -60,6 +63,9 @@ class Provider {
     
         $this->region_name = (!empty($data['region_name'])) ? $data['region_name'] : null;
         $this->district_name = (!empty($data['district_name'])) ? $data['district_name'] : null;
+        
+        $this->date_certificate_issued = (!empty($data['date_certificate_issued'])) ? $data['date_certificate_issued'] : null;
+        $this->date_end_validity = (!empty($data['date_end_validity'])) ? $data['date_end_validity'] : null;
         
         
     }

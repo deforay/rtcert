@@ -681,3 +681,6 @@ INSERT INTO `roles` (`role_id`, `category_id`, `role_code`, `role_name`, `access
 (3, 1, 'NCDM', 'National Certification Data Manager', 2, '', 'active'),
 (4, 1, 'DDM', 'District Data Manager', 4, '', 'active'),
 (5, 1, 'DC', 'District Coordinator', 4, '', 'active');
+
+
+ALTER TABLE `provider` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `certification_key`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `last_updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `last_updated_by` INT(11) NULL DEFAULT NULL AFTER `last_updated_on`;

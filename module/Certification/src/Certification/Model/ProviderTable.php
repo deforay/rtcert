@@ -10,6 +10,7 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Sql\Select;
 use \Application\Model\GlobalTable;
+use \Application\Service\CommonService;
 
 class ProviderTable extends AbstractTableGateway {
 
@@ -28,8 +29,10 @@ class ProviderTable extends AbstractTableGateway {
         $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id'));
         $sqlSelect->join('certification_facilities', ' certification_facilities.id = provider.facility_id ', array('facility_name', 'facility_address'))
                   ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
-                  ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'));
-        $sqlSelect->order('certification_reg_no desc');
+                  ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
+                  ->join(array('e'=>'examination'), 'e.provider = provider.id ', array(), 'left')
+                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('date_certificate_issued','date_end_validity'),'left');
+        $sqlSelect->order('provider.added_on desc');
         if(isset($logincontainer->district) && count($logincontainer->district) > 0){
             $sqlSelect->where('provider.district IN('.implode(',',$logincontainer->district).')');
         }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
@@ -52,6 +55,8 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function saveProvider(\Certification\Model\Provider $provider) {
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
         $last_name = strtoupper($provider->last_name);
         $first_name = strtoupper($provider->first_name);
         $middle_name = strtoupper($provider->middle_name);
@@ -71,10 +76,8 @@ class ProviderTable extends AbstractTableGateway {
         $array2 = explode("-", $max);
 
         if (date('Y') > $array2[0]) {
-
             $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
         } else {
-
             $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
         }
 
@@ -99,7 +102,7 @@ class ProviderTable extends AbstractTableGateway {
             'facility_in_charge_name' => $facility_in_charge_name,
             'facility_in_charge_phone' => $provider->facility_in_charge_phone,
             'facility_in_charge_email' => $provider->facility_in_charge_email,
-            'facility_id' => $provider->facility_id,
+            'facility_id' => $provider->facility_id
         );
         $data2 = array(
 //            'certification_reg_no' => $certification_reg_no,
@@ -121,7 +124,7 @@ class ProviderTable extends AbstractTableGateway {
             'facility_in_charge_name' => $facility_in_charge_name,
             'facility_in_charge_phone' => $provider->facility_in_charge_phone,
             'facility_in_charge_email' => $provider->facility_in_charge_email,
-            'facility_id' => $provider->facility_id,
+            'facility_id' => $provider->facility_id
         );
 
 //        print_r($data);
@@ -129,11 +132,16 @@ class ProviderTable extends AbstractTableGateway {
         $certification_id = $provider->certification_id;
 
         if ($id == 0 && !$certification_id) {
-
+            $data['added_on'] = $common->getDateTime();
+            $data['added_by'] = $sessionLogin->userId;
+            $data['last_updated_on'] = $common->getDateTime();
+            $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getProvider($id)) {
-                $data['certification_id'] = $provider->certification_id;
+                $data2['certification_id'] = $provider->certification_id;
+                $data2['last_updated_on'] = $common->getDateTime();
+                $data2['last_updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data2, array('id' => $id));
             } else {
                 throw new \Exception('Provider id does not exist');

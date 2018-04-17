@@ -67,9 +67,9 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExa
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "index")) {
   $testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'index')).">Recommendations</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "pending")) {
-  $testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
-}
+//if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "pending")) {
+  //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
+//}
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
 }
@@ -269,7 +269,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                      echo $testerExamMenu; ?>
                       <li class="divider"></li>
                     <?php } ?>
-                      <li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>
+                      <!--<li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>-->
                       <?php echo $testerReminderMenu; ?>
                     </ul>
               </li>
