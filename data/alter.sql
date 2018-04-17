@@ -671,4 +671,13 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 
 UPDATE `privileges` SET `display_name` = 'Manage Tester Mail' WHERE `privileges`.`resource_id` = 'Application\\Controller\\Dashboard' AND `privileges`.`privilege_name` = 'testers';
 
-UPDATE `privileges` SET `display_name` = 'Tester List' WHERE `privileges`.`resource_id` = 'Application\\Controller\\Dashboard' AND `privileges`.`privilege_name` = 'testers'; 
+UPDATE `privileges` SET `display_name` = 'Tester List' WHERE `privileges`.`resource_id` = 'Application\\Controller\\Dashboard' AND `privileges`.`privilege_name` = 'testers';
+
+
+-- Pal 17 APR 2018
+INSERT INTO `roles` (`role_id`, `category_id`, `role_code`, `role_name`, `access_level`, `description`, `status`) VALUES
+(1, 1, 'AD', 'Admin', 1, NULL, 'active'),
+(2, 1, 'NCC', 'National Certification Coordinator', 2, '', 'active'),
+(3, 1, 'NCDM', 'National Certification Data Manager', 2, '', 'active'),
+(4, 1, 'DDM', 'District Data Manager', 4, '', 'active'),
+(5, 1, 'DC', 'District Coordinator', 4, '', 'active');
