@@ -377,6 +377,7 @@ class ExaminationTable {
     
     public function fetchAllApproved($parameters){
         $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
         $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
         $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
         /*
@@ -506,7 +507,7 @@ class ExaminationTable {
            "iTotalDisplayRecords" => $iFilteredTotal,
            "aaData" => array()
         );
-        
+        $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
          $row = array();
             $row[] = $aRow['professional_reg_no'];
@@ -518,6 +519,13 @@ class ExaminationTable {
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
             $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
             $row[] = $aRow['certification_type'];
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+                if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
+                   $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
+                }else{
+                   $row[] = "";
+                }
+            }
            $output['aaData'][] = $row;
         }
         return $output;

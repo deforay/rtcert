@@ -94,6 +94,9 @@ $acl = $this->layout()->acl;
                         <th  style="width:10%;">Date Certificate Issued</th>
                         <th  style="width:10%;">Date Certificate Sent</th>
                         <th  style="width:10%;">Type of Certification</th>
+                    <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                        <th  style="width:10%;">PDF</th>
+                    <?php } ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -257,7 +260,10 @@ function approvedInit(){
                 {"sClass":""},
                 {"sClass":"center"},
                 {"sClass":"center"},
-                {"sClass":""}
+                {"sClass":""},
+            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                {"sClass":"center"}
+            <?php } ?>
         ],
         "aaSorting": [],
         "bProcessing": true,
