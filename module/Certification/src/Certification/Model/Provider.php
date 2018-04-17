@@ -34,6 +34,7 @@ class Provider {
     public $date_end_validity;
     public $final_decision;
     public $certid;
+    public $examid;
     
     protected $inputFilter;
 
@@ -70,6 +71,7 @@ class Provider {
         $this->date_end_validity = (!empty($data['date_end_validity'])) ? $data['date_end_validity'] : null;
         $this->final_decision = (!empty($data['final_decision'])) ? $data['final_decision'] : null;
         $this->certid = (!empty($data['certid'])) ? $data['certid'] : null;
+        $this->examid = (!empty($data['examid'])) ? $data['examid'] : null;
     }
 
     public function getArrayCopy() {

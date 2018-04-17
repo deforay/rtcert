@@ -356,6 +356,7 @@ $acl = $this->layout()->acl;
                                             <th>Certification Registration No</th>
                                             <th > Professional Registration No (if available)</th>
                                             <th style="width:10%;">Certification ID</th>
+                                            <th style="width:10%;">Certification Time</th>
                                             <th style="width:10%;">Tester</th>
                                             <th style="width:10%;">Region</th>
                                             <th style="width:10%;">District</th>
@@ -379,12 +380,26 @@ $acl = $this->layout()->acl;
 
                                     </thead>
                                     <tbody>
-
-                                        <?php foreach ($this->providers as $provider) : ?>
+                                        <?php
+                                        foreach ($this->providers as $provider) {
+                                            $certificationTime = '';
+                                            $startDate = '';
+                                            $endDate = '';
+                                            if(isset($provider->date_certificate_issued) && $provider->date_certificate_issued!= null && trim($provider->date_certificate_issued)!= '' && $provider->date_certificate_issued!= '0000-00-00' && $provider->date_certificate_issued!= '1970-01-01'){
+                                                $startDate = date('M Y',strtotime($provider->date_certificate_issued));
+                                            }
+                                            if(isset($provider->date_end_validity) && $provider->date_end_validity!= null && trim($provider->date_end_validity)!= '' && $provider->date_end_validity!= '0000-00-00' && $provider->date_end_validity!= '1970-01-01'){
+                                                $endDate = date('M Y',strtotime($provider->date_end_validity));
+                                            }
+                                            if(trim($startDate)!= '' && trim($endDate)!= ''){
+                                               $certificationTime = $startDate.' - '.$endDate;
+                                            }
+                                            ?>
                                             <tr>
                                                 <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_reg_no); ?></div></td>
                                                 <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->professional_reg_no); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_id); ?></div></td>
+                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $certificationTime; ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->region_name); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->district_name); ?></div></td>
@@ -402,18 +417,12 @@ $acl = $this->layout()->acl;
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_name); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_phone); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_email); ?></div></td>
-
                                             </tr>
-                                            <?php
-                                        endforeach;
-                                        ?>
+                                            <?php } ?>
                                     </tbody>
                                 </table>
                             </div>
-
-
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -451,6 +460,7 @@ $acl = $this->layout()->acl;
         $('#provider').dataTable({
             "aProcessing": true,
             "aServerSide": true,
+            "aaSorting": []
         });
         $("#Country").val(1);
         showRegion(1);
