@@ -114,20 +114,26 @@ class ExaminationTable {
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $select1->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $select2 = $sql->select()->from(array('e'=>'examination'))
                                ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $select1->combine($select2);
 	$sQuery = $sql->select()->from(array('result' => $select1));
         $sQuery = $sQuery->group('id');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sQuery->where('district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sQuery->where('region IN('.implode(',',$sessionLogin->region).')');
-        }
+        
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -161,20 +167,25 @@ class ExaminationTable {
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $select1->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $select2 = $sql->select()->from(array('e'=>'examination'))
                                ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
                                ->where(array('add_to_certification' => 'no'));
+        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
+            $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
+        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
+            $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        }
         $select1->combine($select2);
 	$tQuery = $sql->select()->from(array('result' => $select1));
         $tQuery = $tQuery->group('id');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $tQuery->where('district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $tQuery->where('region IN('.implode(',',$sessionLogin->region).')');
-        }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);

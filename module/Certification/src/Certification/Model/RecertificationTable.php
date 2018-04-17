@@ -82,12 +82,13 @@ class RecertificationTable {
                 . "date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,"
                 . " certification_reg_no, professional_reg_no,email,date_certificate_issued,date_end_validity,facility_in_charge_email from certification, examination, provider where "
                 . "examination.id = certification.examination and provider.id = examination.provider and final_decision='certified' and certificate_sent = 'yes' and reminder_sent='no' and"
-                . " datediff(now(),date_end_validity) >=-60 order by certification.id asc";
+                . " datediff(now(),date_end_validity) >=-60";
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
+            $sqlSelect = $sqlSelect.' and provider.district IN('.implode(',',$sessionLogin->district).')';
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sqlSelect->where('provider.region IN('.implode(',',$sessionLogin->region).')');
+            $sqlSelect = $sqlSelect.' and provider.region IN('.implode(',',$sessionLogin->region).')';
         }
+        $sqlSelect = $sqlSelect. ' order by certification.id asc';
         $statement = $db->query($sqlSelect);
         $resultSet = $statement->execute();
 
