@@ -31,8 +31,10 @@ class ProviderTable extends AbstractTableGateway {
                   ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
                   ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
                   ->join(array('e'=>'examination'), 'e.provider = provider.id ', array('examid'=>'id'), 'left')
-                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
-        $sqlSelect->order('provider.added_on desc');
+                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left')
+                  ->group('e.provider');
+        $sqlSelect->order('provider.added_on desc')
+                  ->order('c.date_certificate_issued desc');
         if(isset($logincontainer->district) && count($logincontainer->district) > 0){
             $sqlSelect->where('provider.district IN('.implode(',',$logincontainer->district).')');
         }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
@@ -479,4 +481,22 @@ class ProviderTable extends AbstractTableGateway {
         return $output;
     }
 
+    public function getTesterTestHistoryDetails($tester){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        //fetching written exam list
+        $writtenExamQuery = $sql->select()->from(array('w_ex'=>'written_exam'))
+                                ->columns(array('id_written_exam', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
+            'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+                                ->where(array('w_ex.provider_id'=>$tester));
+        $writtenExamQueryStr = $sql->getSqlStringForSqlObject($writtenExamQuery);
+        $writtenExamResult = $dbAdapter->query($writtenExamQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        //fetching practical exam list
+        $practicalExamQuery = $sql->select()->from(array('p_ex'=>'practical_exam'))
+                                  ->columns(array('practice_exam_id', 'exam_type', 'exam_admin', 'provider_id', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'date'))
+                                  ->where(array('p_ex.provider_id'=>$tester));
+        $practicalExamQueryStr = $sql->getSqlStringForSqlObject($practicalExamQuery);
+        $practicalExamResult = $dbAdapter->query($practicalExamQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        return array('writtenExamResult'=>$writtenExamResult,'practicalExamResult'=>$practicalExamResult);
+    }
 }

@@ -95,7 +95,7 @@ $acl = $this->layout()->acl;
                             <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->professional_reg_no); ?></div></td>
                             <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_id); ?></div></td>
                             <td><div style="width:120px;overflow:auto;"><?php echo $certificationTime; ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></div></td>
+                            <td><div style="width:180px;overflow:auto;"><a href="javascript:void(0);" style="cursor:pointer;text-decoration:underline;" onclick="getTestHistory('<?php echo base64_encode($provider->id); ?>');"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></a></div></td>
                             <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->region_name); ?></div></td>
                             <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->district_name); ?></div></td>
                             <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->type_vih_test); ?></div></td>

@@ -392,6 +392,22 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
             e.preventDefault();
         }
     });
+    
+    function showModal(url, w, h) {
+      showdefModal('dDiv', w, h);
+      document.getElementById('dFrame').style.height = h + 'px';
+      document.getElementById('dFrame').style.width = w + 'px';
+      document.getElementById('dFrame').src = url;
+    }
+
+    function closeModal() {
+      document.getElementById('dFrame').src = "";
+      hidedefModal('dDiv');
+    }
+    
+    function getTestHistory(ID){
+      showModal('<?php echo $this->url('provider',array('action'=>'test-history')); ?>?tester='+ID, 800, 540);
+    }
 /* http://www.bootply.com/nZaxpxfiXz */
     </script>
   </body>

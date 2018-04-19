@@ -310,5 +310,15 @@ class ProviderController extends AbstractActionController {
         }
         return array('form' => $form);
     }
+    
+    public function testHistoryAction() {
+        $tester = base64_decode($this->params()->fromQuery('tester', null));
+        $result = $this->getProviderTable()->getTesterTestHistoryDetails($tester);
+        $viewModel = new ViewModel(array(
+            'result'=>$result
+        ));
+        $viewModel->setTerminal(true);
+       return $viewModel;
+    }
 
 }
