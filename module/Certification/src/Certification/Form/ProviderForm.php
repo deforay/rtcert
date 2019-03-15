@@ -136,6 +136,7 @@ class ProviderForm extends Form {
                     'STI clinic' => 'STI clinic',
                     'TB clinic' => 'TB clinic',
                     'VCT/HTC' => 'VCT/HTC',
+                    'VCT/PMTCT' => 'VCT/PMTCT'
                 )
             ),
         ));

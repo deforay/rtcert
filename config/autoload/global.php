@@ -18,6 +18,7 @@ return array(
         'driver_options' => array(
             PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
         ),
+        'platform_options' => array('quote_identifiers' => false),
     ),
     'module_layouts' => array(
         'Application' => 'layout/layout',

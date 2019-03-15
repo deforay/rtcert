@@ -31,8 +31,8 @@ class ProviderTable extends AbstractTableGateway {
                   ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
                   ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
                   ->join(array('e'=>'examination'), 'e.provider = provider.id ', array('examid'=>'id'), 'left')
-                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left')
-                  ->group('e.provider');
+                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+                  //->group('e.provider');
         $sqlSelect->order('provider.added_on desc')
                   ->order('c.date_certificate_issued desc');
         if(isset($logincontainer->district) && count($logincontainer->district) > 0){

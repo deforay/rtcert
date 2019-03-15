@@ -317,8 +317,8 @@ class ProviderController extends AbstractActionController {
         $viewModel = new ViewModel(array(
             'result'=>$result
         ));
-        $viewModel->setTerminal(true);
-       return $viewModel;
+        $this->layout('layout/modal');
+        return $viewModel;
     }
 
 }
