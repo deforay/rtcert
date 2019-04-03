@@ -389,8 +389,8 @@ return array(
         ),
         'Application\\Controller\\Facility' => array(
             'index' => 'allow',
-            'add' => 'deny',
-            'edit' => 'deny',
+            'add' => 'allow',
+            'edit' => 'allow',
             'export-facility' => 'deny',
             'map-province' => 'deny',
             'get-province-list' => 'deny',
@@ -398,7 +398,7 @@ return array(
         ),
         'Certification\\Controller\\Provider' => array(
             'index' => 'allow',
-            'add' => 'deny',
+            'add' => 'allow',
             'delete' => 'deny',
             'district' => 'deny',
             'edit' => 'deny',
@@ -432,10 +432,10 @@ return array(
         ),
         'Certification\\Controller\\PracticalExam' => array(
             'index' => 'allow',
-            'add' => 'deny',
-            'attempt' => 'deny',
-            'delete' => 'deny',
-            'edit' => 'deny',
+            'add' => 'allow',
+            'attempt' => 'allow',
+            'delete' => 'allow',
+            'edit' => 'allow',
         ),
         'Certification\\Controller\\Recertification' => array(
             'index' => 'allow',
@@ -458,10 +458,10 @@ return array(
         ),
         'Certification\\Controller\\WrittenExam' => array(
             'index' => 'allow',
-            'add' => 'deny',
-            'attempt' => 'deny',
-            'delete' => 'deny',
-            'edit' => 'deny',
+            'add' => 'allow',
+            'attempt' => 'allow',
+            'delete' => 'allow',
+            'edit' => 'allow',
         ),
     ),
 );

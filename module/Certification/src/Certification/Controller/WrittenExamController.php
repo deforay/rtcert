@@ -79,7 +79,7 @@ class WrittenExamController extends AbstractActionController {
                         return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
                     }
                 } else {
-                    $container->alertMsg = 'Impossible to add !!!! Because this tester has already taken a written exam, he is waiting to add the practical exam.';
+                    $container->alertMsg = 'Unable to process this request. This tester has already taken a written exam.';
                     return array('form' => $form);
                 }
             }

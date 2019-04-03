@@ -25,6 +25,7 @@ class ExaminationTable {
     }
 
     public function fetchAll($parameters) {
+        //die('dona');
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $acl = $this->sm->get('AppAcl');
@@ -113,7 +114,8 @@ class ExaminationTable {
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','date'=>'updated_on'),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'));
+                               ->where(array('add_to_certification' => 'no'))
+                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -124,14 +126,15 @@ class ExaminationTable {
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'));
+                               ->where(array('add_to_certification' => 'no'))
+                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
             $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
         }
         $select1->combine($select2);
-	$sQuery = $sql->select()->from(array('result' => $select1));
+	    $sQuery = $sql->select()->from(array('result' => $select1));
         $sQuery = $sQuery->group('id');
         
         if (isset($sWhere) && $sWhere != "") {
@@ -166,7 +169,8 @@ class ExaminationTable {
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','date'=>'updated_on'),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'));
+                               ->where(array('add_to_certification' => 'no'))
+                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -177,14 +181,15 @@ class ExaminationTable {
                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
                                ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'));
+                               ->where(array('add_to_certification' => 'no'))
+                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
             $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
         }
         $select1->combine($select2);
-	$tQuery = $sql->select()->from(array('result' => $select1));
+	    $tQuery = $sql->select()->from(array('result' => $select1));
         $tQuery = $tQuery->group('id');
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
@@ -197,6 +202,9 @@ class ExaminationTable {
         );
         
         foreach ($rResult as $aRow) {
+            if (empty($aRow['final_score']) || empty($aRow['practical_total_score'])) {
+                //continue;
+            }
           $practical_score = $aRow['practical_total_score'];
           $written_score = $aRow['final_score'];
           $sample_testing = $aRow['Sample_testing_score'];
@@ -210,7 +218,7 @@ class ExaminationTable {
           }  
          $row = array();
          if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) {
-            if (empty($aRow['final_score']) || empty($aRow['final_score'])) {
+            if (empty($aRow['final_score']) || empty($aRow['practical_total_score'])) {
                $row[] = '';
             }else{
                $row[] = '<input class="recommendationRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForRecommendation(this);" value="'.$aRow['id'].'#'.$aRow['final_score'].'#'.$aRow['practical_total_score'].'#'.$aRow['direct_observation_score'].'#'.$aRow['Sample_testing_score'].'#'.$aRow['provider'].'#'.$final_decision.'"/>';
