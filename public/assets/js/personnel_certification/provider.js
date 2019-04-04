@@ -33,7 +33,7 @@ function validateForm() {
     var elmt5 = document.getElementById("Facility in charge Email");
     var elmt7 = document.getElementById("Region");
     var elmt8 = document.getElementById("District");
-    var elmt18 = document.getElementById("Type of VIH Test Modality/Point");
+    var elmt18 = document.getElementById("Type of HIV Test Modality/Point");
     var elmt9 = document.getElementById("Tester Phone Number");
     var elmt10 = document.getElementById("Prefered Contact Method");
     var elmt11 = document.getElementById("Current Job Title");
