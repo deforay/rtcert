@@ -11,6 +11,7 @@ class PracticalExam implements InputFilterAwareInterface {
     public $practice_exam_id;
     public $exam_type;
     public $exam_admin;
+    public $location_name;
     public $provider_id;
     public $Sample_testing_score;
     public $direct_observation_score;
@@ -23,6 +24,7 @@ class PracticalExam implements InputFilterAwareInterface {
         $this->practice_exam_id = (!empty($data['practice_exam_id'])) ? $data['practice_exam_id'] : null;
         $this->exam_type = (!empty($data['exam_type'])) ? $data['exam_type'] : null;
         $this->exam_admin = (!empty($data['exam_admin'])) ? $data['exam_admin'] : null;
+        $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
         $this->provider_id = (!empty($data['provider_id'])) ? $data['provider_id'] : null;
         $this->Sample_testing_score = (!empty($data['Sample_testing_score'])) ? $data['Sample_testing_score'] : null;
         $this->direct_observation_score = (!empty($data['direct_observation_score'])) ? $data['direct_observation_score'] : null;

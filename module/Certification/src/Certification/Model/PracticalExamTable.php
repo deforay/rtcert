@@ -28,7 +28,8 @@ class PracticalExamTable extends AbstractTableGateway {
         $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('practice_exam_id', 'exam_type', 'exam_admin', 'provider_id', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'date'));
-        $sqlSelect->join('provider', ' provider.id = practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name'), 'left')
+        $sqlSelect->join('provider', ' provider.id = practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name','district'), 'left')
+                  ->join('location_details', ' provider.district = location_details.location_id ', array('location_name'), 'left')
                 ->where(array('display' => 'yes'));
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
