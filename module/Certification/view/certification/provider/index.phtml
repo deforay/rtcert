@@ -21,7 +21,10 @@ $acl = $this->layout()->acl;
     a.toggle-vis{
         margin: 4px 4px;
     }
-
+    #shBtnManageColumns{
+        font-size: 17px;
+        font-weight: 600;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -42,8 +45,12 @@ $acl = $this->layout()->acl;
 
     <div class="main-content">
     
+    
+
     <div class="well container">
-        <h4>Manage Columns</h4>
+    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+        <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumns">Show/hide</a></h3> 
+    </div>
         <div id="manageColumns">
 
         </div>
@@ -205,6 +212,10 @@ $acl = $this->layout()->acl;
             // Toggle the visibility
             column.visible( ! column.visible() );
             $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumns").hide();
+        $("#shBtnManageColumns").click(function(){
+            $("#manageColumns").toggle('fast','linear');
         });
                       
     });
