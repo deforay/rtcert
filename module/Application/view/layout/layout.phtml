@@ -3,6 +3,7 @@ use Zend\Session\Container;
 $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
+$loginUserRoleName = $sessionLogin->roleName;
 $config = $this->GlobalConfigHelper();
 $notificationCount = $this->GetNotificationCount();
 $totalCount = 0;
@@ -305,7 +306,8 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
           <ul class="nav navbar-nav navbar-right am-user-nav">
             <?php if(isset($sessionLogin->userId)){ ?>
               <li class="dropdown">
-                <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><img src="/assets/img/nobody.jpg">
+              
+                <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><?php echo $loginUserRoleName; ?> &nbsp;<img src="/assets/img/nobody.jpg">
                 <?php if($totalCount > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index") && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?><span class="badge badge-notify"><?php echo $totalCount; ?></span><?php } ?><span class="angle-down s7-angle-down"></span></a>
                 <ul role="menu" class="dropdown-menu">
                   <?php

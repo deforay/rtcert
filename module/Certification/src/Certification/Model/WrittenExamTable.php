@@ -218,13 +218,13 @@ class WrittenExamTable extends AbstractTableGateway {
 
     public function getProviderName($practical) {
         $db = $this->tableGateway->getAdapter();
-        $sql1 = 'select id, last_name, first_name, middle_name from provider , practical_exam where provider.id=practical_exam.provider_id and practice_exam_id=' . $practical;
+        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider , practical_exam where provider.id=practical_exam.provider_id and practice_exam_id=' . $practical;
         $statement = $db->query($sql1);
         $result = $statement->execute();
         $selectData = array();
 
         foreach ($result as $res) {
-            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'].' ('.$res['phone'].') - '.$res['email'];
             $selectData['id'] = $res['id'];
         }
         return $selectData;

@@ -143,14 +143,23 @@ class WrittenExamForm extends Form {
 
     public function getListProvider() {
         $dbAdapter = $this->adapter;
-        $sql = 'SELECT id,certification_id,last_name,first_name,middle_name FROM provider order by last_name asc ';
+        $sql = 'SELECT id,certification_id,last_name,first_name,middle_name,email,phone FROM provider order by last_name asc ';
+
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
 
         $selectData = array();
 
         foreach ($result as $res) {
-            $selectData[$res['id']] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            //$selectData[$res['id']] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            $name = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            if(trim($res['phone']) !=""){
+                $name.=  ' ('.$res['phone'].')';
+            }
+            if(trim($res['email'])!=""){
+                $name.=  ' -'.$res['email'];
+            }
+            $selectData[$res['id']] = $name;
         }
         return $selectData;
     }
