@@ -50,12 +50,14 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Roles", "index
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index")) {
   $adminMenu.="<li><a href=".$this->url('users',array('action' => 'index')).">Users</a></li>";
 }
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganization", "index")) {
+  $adminMenu.="<li><a href=".$this->url('training-organization',array('action' => 'index')).">Training Organizations</a></li>";
+}
+
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
   $trainingMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganization", "index")) {
-  $trainingMenu.="<li><a href=".$this->url('training-organization',array('action' => 'index')).">Training Organizations</a></li>";
-}
+
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "index")) {
   $testerMenu.="<li><a href=".$this->url('provider',array('action' => 'index')).">Manage Testers</a></li>";
 }
