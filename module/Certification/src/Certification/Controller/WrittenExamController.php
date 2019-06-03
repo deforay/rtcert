@@ -88,7 +88,7 @@ class WrittenExamController extends AbstractActionController {
         if (isset($provider['id'])) {
             $nombre = $this->getWrittenExamTable()->attemptNumber($provider['id']);
         }
-        //\Zend\Debug\Debug::dump($provider);die;
+        //\Zend\Debug\Debug::dump($this->getWrittenExamTable()->fetchAll());die;
         return new ViewModel(array('form' => $form,
             'practical' => $practical,
             'nombre' => $nombre,

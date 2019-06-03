@@ -30,8 +30,10 @@ class WrittenExamTable extends AbstractTableGateway {
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('id_written_exam', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
             'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'));
-        $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name'), 'left')
+        $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name','district'), 'left')
                 ->where(array('display' => 'yes'));
+        $sqlSelect->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
+                
         if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
             $sqlSelect->where('provider.district IN('.implode(',',$sessionLogin->district).')');
         }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
@@ -224,7 +226,7 @@ class WrittenExamTable extends AbstractTableGateway {
         $selectData = array();
 
         foreach ($result as $res) {
-            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'].' ('.$res['phone'].') - '.$res['email'];
+            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
             $selectData['id'] = $res['id'];
         }
         return $selectData;

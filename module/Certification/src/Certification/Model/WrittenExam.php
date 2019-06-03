@@ -12,6 +12,7 @@ class WrittenExam implements InputFilterAwareInterface {
     public $exam_type;
     public $provider_id;
     public $exam_admin;
+    public $location_name;
     public $date;
     public $qa_point;
     public $rt_point;
@@ -31,6 +32,7 @@ class WrittenExam implements InputFilterAwareInterface {
         $this->exam_type = (!empty($data['exam_type'])) ? $data['exam_type'] : null;
         $this->provider_id = (!empty($data['provider_id'])) ? $data['provider_id'] : null;
         $this->exam_admin = (!empty($data['exam_admin'])) ? $data['exam_admin'] : null;
+        $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
         $this->date = (!empty($data['date'])) ? $data['date'] : null;
         $this->qa_point = (!empty($data['qa_point'])) ? $data['qa_point'] : 0;
         $this->rt_point = (!empty($data['rt_point'])) ? $data['rt_point'] : 0;

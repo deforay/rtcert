@@ -38,7 +38,6 @@ class WrittenExamForm extends Form {
                 'value_options' => $this->getListProvider(),
             ),
         ));
-
         $this->add(array(
             'name' => 'exam_admin',
             'type' => 'text',
