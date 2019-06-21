@@ -145,6 +145,8 @@ class CertificationController extends AbstractActionController {
 
     public function pdfAction() {
         $header_text = $this->getCertificationTable()->SelectTexteHeader();
+        $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
+        $globalConfigDetails = $this->getCertificationTable()->fetchCertificationConfig();
         $id = base64_decode($this->params()->fromQuery(base64_encode('id')));
         $last = base64_decode($this->params()->fromQuery(base64_encode('last')));
         $first = base64_decode($this->params()->fromQuery(base64_encode('first')));
@@ -161,7 +163,9 @@ class CertificationController extends AbstractActionController {
             'certification_id' => $certification_id,
             'date_issued' => $date_issued,
             'date_end_validity'=>$date_end_validity,
-            'header_text' => $header_text
+            'header_text' => $header_text,
+            'header_text_font_size' => $header_text_font_size,
+            'config_info' =>$globalConfigDetails
         );
     }
 
@@ -384,7 +388,7 @@ class CertificationController extends AbstractActionController {
 
             //The path you wish to upload the image to
             $imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
-
+            // echo $imagePath;die;
             if (is_uploaded_file($imagetemp_left)) {
                 $array_type = explode('/', $imagetype_left);
                 list($width, $height, $type, $attr) = getimagesize($imagetemp_left);
@@ -392,10 +396,9 @@ class CertificationController extends AbstractActionController {
                 if (strcasecmp($array_type[1], 'png') != 0) {
                     $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
                 } elseif ($width > 425 || $height > 352) {
-                    $msg_logo_left = 'the size of your image LOGO LEFT should not exceed: 425x352.';
+                    $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
                 } elseif (move_uploaded_file($imagetemp_left, $imagePath . 'logo_cert1.png')) {
-                    $msg_logo_left = 'image LOGO LEFT loaded successfully';
-//                    
+                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';                    
                 } else {
                     $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
                 }
@@ -418,20 +421,36 @@ class CertificationController extends AbstractActionController {
             }
 
             $header_text = $request->getPost('header_text', null);
-            if (trim($header_text) != '') {
+            $header_text_size = $request->getPost('header_text_font_size', null);
+            //echo $header_text_size;die;
+
+            if (trim($header_text) != '' || trim($header_text_size)!= '') {
                 $header_text = addslashes(trim($header_text));
                 $stringWithoutBR = str_replace("\r\n", "<br />", $header_text);
-                $this->getCertificationTable()->insertTextHeader($stringWithoutBR);
-                $msg_header_text = "Header text save successfully.";
+                $this->getCertificationTable()->insertTextHeader($stringWithoutBR,$header_text_size);
+                $msg_header_text = "PDF Settings Saved Successfully.";
             }
+
+            $headerText = $this->headerTextAction();
+            $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
             return array('msg_logo_left' => $msg_logo_left,
                 'msg_logo_right' => $msg_logo_right,
-                'msg_header_text' => $msg_header_text
+                'msg_header_text' => $msg_header_text,
+                'header_text' => $headerText['header_text'],
+                'header_text_font_size' => $header_text_font_size
+            );
+        }else{
+            $headerText = $this->headerTextAction();
+            $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
+            //echo $header_text_font_size;die;
+            return array(
+                'header_text' => $headerText['header_text'],
+                'header_text_font_size' => $header_text_font_size
             );
         }
     }
 
-    function headerTextAction() {
+    public function headerTextAction() {
         $header_text = $this->getCertificationTable()->SelectTexteHeader();
         return array('header_text' => $header_text);
     }

@@ -17,9 +17,9 @@
                         </div>
                     </div>-->
                     <div class="form-group">
-                      <label for="" class="col-sm-2 control-label">Logo</label>
+                      <label class="col-sm-2 control-label">Logo</label>
                         <div class="col-lg-4">
-                            <div class="fileinput fileinput-new" data-provides="fileinput">
+                        <div class="fileinput fileinput-new" data-provides="fileinput">
                                 <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
                                   <?php
                                   if(isset($config['logo']) && trim($config['logo'])!= '' && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $config['logo'])){
@@ -41,6 +41,7 @@
                                   <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
                                 </div>
                             </div>
+                            
                             <div class="box-body">
                               Please make sure logo image size of: <code>170x175</code>
                             </div>
@@ -64,7 +65,49 @@
                             <input name="longitude" id="longitude" class="form-control " placeholder="Longitude" title="Please enter longitude" value="<?php echo $config['longitude']; ?>" />
                         </div>
                     </div>
-
+                    <div class="form-group">
+                      <label for="registrar-name" class="col-sm-2 control-label">Registrar Name</label>
+                        <div class="col-lg-4">
+                            <input name="registrar-name" id="registrar-name" class="form-control " placeholder="Registrar name" title="Please enter Registrar name" value="<?php echo $config['registrar-name']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="registrar-title" class="col-sm-2 control-label">Registrar Title</label>
+                        <div class="col-lg-4">
+                            <input name="registrar-title" id="registrar-title" class="form-control " placeholder="Registrar title" title="Please enter Registrar title" value="<?php echo $config['registrar-title']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label">Registrar Digital Signature</label>
+                        <div class="col-lg-4">
+                        <div class="fileinput fileinput-signature fileinput-new" data-provides="fileinput">
+                                <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
+                                  <?php
+                                  if(isset($config['registrar-digital-signature']) && trim($config['registrar-digital-signature'])!= '' && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $config['registrar-digital-signature'])){
+                                  ?>
+                                   <img src="/uploads/digital_signature/<?php echo $config['registrar-digital-signature']; ?>" alt="Digital Signature Image"/>
+                                  <?php } else { ?>
+                                   <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image"/>
+                                  <?php } ?>
+                                </div>
+                                <div>
+                                  <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span>
+                                  <input type="file" id="digitalSignature" name="digitalSignature" title="Please select digital signature" onchange="getNewSignatureImage('<?php echo $config['registrar-digital-signature']; ?>');">
+                                  </span>
+                                  <?php
+                                  if(isset($config['registrar-digital-signature']) && trim($config['registrar-digital-signature'])!= '' && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $config['registrar-digital-signature'])){
+                                  ?>
+                                    <a id="clearSignatureImage" href="javascript:void(0);" class="btn btn-default" data-dismiss="fileupload" onclick="clearSignatureImage('<?php echo $config['registrar-digital-signature']; ?>')">Clear</a>
+                                  <?php } ?>
+                                  <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                </div>
+                            </div>
+                            
+                            <div class="box-body">
+                              Please make sure logo image size of: <code>160x85</code>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                       <label for="month-valid" class="col-sm-2 control-label">Months certification is valid<span class="mandatory">*</span></label>
                         <div class="col-lg-4">
@@ -107,9 +150,16 @@
                             <input name="facilities" id="facilities" class="form-control isRequired" placeholder="Facilities" title="Please enter facilities" value="<?php echo $config['facilities']; ?>" />
                         </div>
                     </div>
+                    <div class="form-group">
+                      <label for="facilities" class="col-sm-2 control-label">Translate Registrate and Title As <span class="mandatory">*</span></label>
+                        <div class="col-lg-4">
+                            <input name="translate-register-title" id="translate-register-title" class="form-control isRequired" placeholder="Translate Registrate and Title As" title="Translate Registrate and Title As" value="<?php echo $config['translate-register-title']; ?>" />
+                        </div>
+                    </div>
                     <hr>
                     <div class="spacer col-lg-5" align="center">
                      <input type="hidden" name="removedLogoImage" id="removedLogoImage"/>  
+                     <input type="hidden" name="removedSignatureImage" id="removedSignatureImage"/>  
                      <button type="button" onclick="validateNow();" class="btn btn-space btn-primary">Update</button>
                      <a href="<?php echo $this->url('config', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a> 
                     </div>
@@ -141,5 +191,16 @@
      function getNewImage(img){
         $('#clearImage').hide();
         $("#removedLogoImage").val(img);
+     }
+
+     function clearSignatureImage(img){
+        $('.fileinput-signature').fileinput('clear');
+        $('#clearSignatureImage').hide();
+        $("#removedSignatureImage").val(img);
+     }
+     
+     function getNewSignatureImage(img){
+        $('#clearSignatureImage').hide();
+        $("#removedSignatureImage").val(img);
      }
 </script>

@@ -171,6 +171,11 @@ class GlobalTable extends AbstractTableGateway {
             unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
             $this->update(array('global_value'=>''),array('global_name'=>'logo'));
         }
+
+        if(isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $_POST['removedSignatureImage'])){
+            unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
+            $this->update(array('global_value'=>''),array('global_name'=>'logo'));
+        }
         
         if(isset($_FILES['logo']['name']) && $_FILES['logo']['name']!= ""){
             if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
@@ -183,9 +188,21 @@ class GlobalTable extends AbstractTableGateway {
                 $this->update(array('global_value'=>$imageName),array('global_name'=>'logo'));
             }
         }
+
+        if(isset($_FILES['digitalSignature']['name']) && $_FILES['digitalSignature']['name']!= ""){
+            if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature")) {
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature");
+            }
+            $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $_FILES['digitalSignature']['name'], PATHINFO_EXTENSION));
+            $string = $common->generateRandomString(6).".";
+            $imageName = "ds_".$string.$extension;
+            if (move_uploaded_file($_FILES["digitalSignature"]["tmp_name"], UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $imageName)) {
+                $this->update(array('global_value'=>$imageName),array('global_name'=>'registrar-digital-signature'));
+            }
+        }
         
         foreach ($params as $fieldName => $fieldValue) {
-            if($fieldName!= 'removedLogoImage'){
+            if($fieldName!= 'removedLogoImage' && $fieldName!= 'removedSignatureImage'){
                $result = $this->update(array('global_value' => $fieldValue), array('global_name' => $fieldName));
             }
         }

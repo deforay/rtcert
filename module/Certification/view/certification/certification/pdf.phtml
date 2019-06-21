@@ -54,7 +54,9 @@ $pdf->Image($img_file, 0, 0, 295, 209, '', '', '', false, 300, '', false, false,
 // set the starting point for the page content
 $pdf->setPageMark();
 
-$header_text = '<div style="text-align:center;"><span>' . $this->header_text . '</span></div>';
+$signatureText = ((isset($config_info['translate-register-title'])) && trim($config_info['translate-register-title'])!="")?$config_info['translate-register-title']:'Signature of Registrar';
+
+$header_text = '<div style="text-align:center;font-size:'.$this->header_text_font_size.'px"><span>' . $this->header_text . '</span></div>';
 
 $certificate_title = '<div style="width=10px; height=10px; text-align:center;"><span style="font-size:200%; line-height: 0.0">Certificate of Competency</span><br>
  <span style="line-height: 0.0">is issued to</span></div>';
@@ -69,12 +71,15 @@ Professional Registration Number : <span style=" color:#4B77BE;">'.$professional
 <br>
 Certification Number : <span style=" color:#4B77BE; ">'.$certification_id.'</span>
 <br>
-<span style="font-size:90%; font-style: normal;">Validity : <span> '.date("d-M-Y", strtotime($date_issued)).' to '.date("d-M-Y", strtotime($date_end_validity)) .'</span>
+<span style="font-size:90%; font-style: normal;">Validity : <span> '.date("d-M-Y", strtotime($date_end_validity ." -{$config_info['month-valid']} month")).' to '.date("d-M-Y", strtotime($date_end_validity)) .'</span>
 <br><br><br><br><br>
 <table style="width:900px;">
 <tr>
-<td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registrar Name and Title </td>
-<td style="text-align:right;">Signature of Registrar</td>
+<td style="text-align:left;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$config_info['registrar-name'].'</b> - '.$config_info['registrar-title'].'
+<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registrar Name and Title
+</td>
+<td style="text-align:right;">'.ucwords($signatureText).'</td>
 </tr>
 </table>
 
@@ -86,7 +91,7 @@ $pdf->writeHTMLCell(0, 0, 05, 45, $certificate_title, 0, 0, 0, true, 'J', true);
 $pdf->writeHTMLCell(0, 0, 05, 68, $tester, 0, 0, 0, true, 'J', true);
 $pdf->writeHTMLCell(0, 0, 10, 88, $text_content, 0, 0, 0, true, 'J', true);
 
-$img_file = $img_file2 = "";
+$img_file = $img_file2 = $signature = "";
 if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert1.png')){
     $img_file = dirname(__CLASS__) . 'public/assets/img/logo_cert1.png';
 }
@@ -96,11 +101,15 @@ if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert2.png')){
     $img_file2 = dirname(__CLASS__) . 'public/assets/img/logo_cert2.png';
 }
 
-
-
+if(file_exists(dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'])){
+    $signature = dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'];
+}
+//echo $signature;die;
 $pdf->Image($img_file, 20, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
 
 $pdf->Image($img_file2, 225, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
+
+$pdf->Image($signature, 215, 132, 50, 37, '', '', '', false, 300, '', false, false, 0);
 
 ///---------------------------------------------------------
 //Close and output PDF document

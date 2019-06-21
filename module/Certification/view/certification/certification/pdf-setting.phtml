@@ -59,10 +59,12 @@ $acl = $this->layout()->acl;
 
                                     <div class="col-lg-6">
                                         <label for="" class=" control-label">Supervising Organization (Name or related text)</label>
-                                        <textarea rows="5" cols="60" id="header_text" name="header_text" maxlength="163"></textarea>
+                                        <textarea rows="5" cols="60" id="header_text" name="header_text" maxlength="163"><?php echo $header_text;?></textarea>
+                                        <label for="" class=" control-label">Font Size (in px)</label>
+                                        <input type="text" id="header_text_font_size" name="header_text_font_size" value="<?php echo $header_text_font_size;?>"/>
                                         <div class="box-body"> <code>Warning !</code> the number of characters is limited to <code>163.</code>  </div>
 
-                                        <p class="btn btn-success" style="margin-top: 10px;" id="edit_header_text"  name ="edit_header_text" onclick="Edit();">Edit header text</p> 
+                                        
                                         <span class="pull-right" id="characters" style="margin-top: 10px;" ></span> 
                                     </div>
 
@@ -85,7 +87,7 @@ $acl = $this->layout()->acl;
                                     </div>
                                     <div class="col-sm-offset-5">
                                         <button type="submit" class="btn  btn-space btn-primary">VALIDATE</button>
-                                        <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('certification', array('action' => 'pdf-setting')); ?>" >CANCEL</a> 
+                                        <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('dashboard'); ?>" >CANCEL</a> 
                                     </div>
                                 </div>
                             </form>

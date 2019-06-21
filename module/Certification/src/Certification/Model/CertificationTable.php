@@ -221,7 +221,7 @@ class CertificationTable {
             'date_certificate_sent' => $certification->date_certificate_sent,
             'certification_type' => $certification->certification_type
         );
-//        die(print_r($data));
+        //die(print_r($data));
         $id = (int) $certification->id;
         if ($id == 0) {
             $data['approval_status'] = 'pending';
@@ -505,27 +505,56 @@ class CertificationTable {
         return $header_text;
     }
 
-    public function insertTextHeader($text) {
-        $db = $this->tableGateway->getAdapter();
-
-        $sql = 'SELECT count(*) as nombre FROM pdf_header_texte';
-        $statement = $db->query($sql);
+    public function SelectHeaderTextFontSize() {
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = 'SELECT header_font_size FROM pdf_header_texte';
+        $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
         foreach ($result as $res) {
-            $nombre = $res['nombre'];
+            $headerTextFontSize = $res['header_font_size'];
         }
+//        die($header_texte);
+        return $headerTextFontSize;
+    }
 
+    public function insertTextHeader($text,$header_text_size = "") {
+        $db = $this->tableGateway->getAdapter();
+
+        $sql = 'SELECT count(*) as nombre,id FROM pdf_header_texte';
+        $statement = $db->query($sql);
+        $result = $statement->execute();
+        //var_dump($result);die;
+        $id = 0;
+        foreach ($result as $res) {
+            $nombre = $res['nombre'];
+            $id = $res['id'];
+        }
+        
         if ($nombre == 0) {
-
-            $sql2 = 'insert into pdf_header_texte (header_texte) values ("' . $text . '")';
+            if(trim($text)!="" && trim($header_text_size)!=""){
+                $sql2 = 'insert into pdf_header_texte (header_texte,header_font_size) values ("' . $text . '","'.$header_text_size.'")';
+            }elseif(trim($text)!="" && trim($header_text_size)==""){
+                $sql2 = 'insert into pdf_header_texte (header_texte) values ("' . $text . '")';
+            }elseif(trim($text)=="" && trim($header_text_size)!=""){
+                $sql2 = 'insert into pdf_header_texte (header_font_size) values ("'.$header_text_size.'")';
+            }
+            
             $statement2 = $db->query($sql2);
             $result2 = $statement2->execute();
         } else {
-            $sql3 = 'TRUNCATE pdf_header_texte';
-            $statement3 = $db->query($sql3);
-            $result3 = $statement3->execute();
+            // $sql3 = 'TRUNCATE pdf_header_texte';
+            // $statement3 = $db->query($sql3);
+            // $result3 = $statement3->execute();
 
-            $sql2 = 'insert into pdf_header_texte (header_texte) values ("' . $text . '")';
+            //$sql2 = 'insert into pdf_header_texte (header_texte,header_font_size) values ("' . $text . '","'.$header_text_size.'")';
+            if(trim($text)!="" && trim($header_text_size)!=""){
+                $sql2 = 'UPDATE `pdf_header_texte` SET `header_texte`="'.$text.'",`header_font_size`="'.$header_text_size.'" WHERE `id` = '.$id;
+            }elseif(trim($text)!="" && trim($header_text_size)==""){
+                $sql2 = 'UPDATE `pdf_header_texte` SET `header_texte`="'.$text.'" WHERE `id` = '.$id;
+            }elseif(trim($text)=="" && trim($header_text_size)!=""){
+                $sql2 = 'UPDATE `pdf_header_texte` SET `header_font_size`="'.$header_text_size.'" WHERE `id` = '.$id;
+            }
+            //echo $sql2;die;
             $statement2 = $db->query($sql2);
             $result2 = $statement2->execute();
         }
@@ -1239,5 +1268,28 @@ class CertificationTable {
         $queryStr = $sql->getSqlStringForSqlObject($query);
         $districtResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
       return array('facilityResult'=>$facilityResult,'provinceResult'=>$provinceResult,'districtResult'=>$districtResult);
+    }
+
+    public function fetchCertificationConfig(){
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $adapter = $this->adapter;
+        $globalDb = new GlobalTable($adapter);
+        $monthValid = $globalDb->getGlobalValue('month-valid');
+        $registrarName = $globalDb->getGlobalValue('registrar-name');
+        $registrarTitle = $globalDb->getGlobalValue('registrar-title');
+        $digitalSignature = $globalDb->getGlobalValue('registrar-digital-signature');
+        $translateRegistrate = $globalDb->getGlobalValue('translate-register-title');
+        
+        $configDetails = array(
+            'month-valid' =>$monthValid,
+            'registrar-name' =>$registrarName,
+            'registrar-title' =>$registrarTitle,
+            'registrar-digital-signature' =>$digitalSignature,
+            'translate-register-title' =>$translateRegistrate,
+
+        );
+
+        return $configDetails;
     }
 }

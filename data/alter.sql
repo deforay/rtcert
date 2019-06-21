@@ -684,3 +684,20 @@ INSERT INTO `roles` (`role_id`, `category_id`, `role_code`, `role_name`, `access
 
 
 ALTER TABLE `provider` ADD `added_on` DATETIME NULL DEFAULT NULL AFTER `certification_key`, ADD `added_by` INT(11) NULL DEFAULT NULL AFTER `added_on`, ADD `last_updated_on` DATETIME NULL DEFAULT NULL AFTER `added_by`, ADD `last_updated_by` INT(11) NULL DEFAULT NULL AFTER `last_updated_on`;
+
+--Selvam 19-Jun-2019
+ALTER TABLE `pdf_header_texte`  ADD `header_font_size` VARCHAR(255) NULL  AFTER `header_texte`;
+
+--Selvam 20-Jun-2019
+
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+VALUES (NULL, 'Registrar Name', 'registrar-name', NULL);
+
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+VALUES (NULL, 'Registrar Title', 'registrar-title', NULL);
+
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+VALUES (NULL, 'Registrar Digital Signature', 'registrar-digital-signature', NULL);
+
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+VALUES (NULL, 'Translate Register Title', 'translate-register-title', NULL);
