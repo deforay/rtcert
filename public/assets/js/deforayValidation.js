@@ -202,7 +202,7 @@ function isRequiredCheckBox(name){
 
 // checks if the number is between the start and end range
 function numericBetween(num,start,end){
-    if((num == null || num.length == 0 ) return false;
+    if(num == null || num.length == 0 ) return false;
     if(Number(num) >= start && Number(end)<= end){
         return true;
     }

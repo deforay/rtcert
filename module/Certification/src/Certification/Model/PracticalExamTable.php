@@ -8,6 +8,8 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Expression;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 use \Application\Model\GlobalTable;
@@ -331,6 +333,37 @@ class PracticalExamTable extends AbstractTableGateway {
         }
 //        die($nombre);
         return $nombre;
+    }
+
+    public function fetchPracticalExamAverageBarResults(){
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        
+        $query = $sql->select()->from(array('pe'=>'practical_exam'))
+                     ->columns(array(
+                         "Sample_testing_score_avg" => new Expression('AVG(Sample_testing_score	)'),
+                         "direct_observation_score_avg" => new Expression('AVG(direct_observation_score)'),
+                         "practical_total_score_avg" => new Expression('AVG(practical_total_score)')
+                         ));
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        
+        $examResults = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        
+        $examResultsScores = '';
+        if(count($examResults[0]) > 0){
+            foreach(array_values($examResults[0]) as $key => $result){
+                
+                if($key < (count($examResults[0]) -1)){
+                    $examResultsScores .= $result.',';   
+                }else{
+                    $examResultsScores .= $result;  
+                }
+            }
+                      
+        }else{
+            $examResultsScores = '0,0,0';
+        }
+        return $examResultsScores;
     }
 
 }

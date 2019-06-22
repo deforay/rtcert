@@ -44,5 +44,13 @@ class DashboardService {
         return $certificationDb->fetchTesters($parameters);
     }
     
-
+    public function getWrittenExamAverageRadarResults($params){
+        $writtenExamDb = $this->sm->get('Certification\Model\WrittenExamTable');
+        return $writtenExamDb->fetchWrittenExamAverageRadarResults($params);
+    }
+    
+    public function getPracticalExamAverageBarResults($params){
+        $writtenExamDb = $this->sm->get('Certification\Model\PracticalExamTable');
+        return $writtenExamDb->fetchPracticalExamAverageBarResults($params);
+    }
 }

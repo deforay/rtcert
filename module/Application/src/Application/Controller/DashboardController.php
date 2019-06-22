@@ -76,5 +76,33 @@ class DashboardController extends AbstractActionController
             ));
         }
     }
+
+    public function getWrittenExamAverageAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getWrittenExamAverageRadarResults($params);
+            //\Zend\Debug\Debug::dump($result);die;
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result))
+                        ->setTerminal(true);
+            return $viewModel;
+        }
+    }
+
+    public function getPracticalExamAverageAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getPracticalExamAverageBarResults($params);
+            //\Zend\Debug\Debug::dump($result);die;
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result))
+                        ->setTerminal(true);
+            return $viewModel;
+        }
+    }
     
 }

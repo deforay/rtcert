@@ -8,6 +8,8 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Expression;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 use Zend\Db\Adapter\AdapterInterface;
@@ -338,6 +340,43 @@ public function examToValidate($provider){
         }
 //        die($nombre);
         return $nombre;
+    }
+
+    public function fetchWrittenExamAverageRadarResults(){
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        
+        $query = $sql->select()->from(array('we'=>'written_exam'))
+                     ->columns(array(
+                         "qa_point_avg" => new Expression('AVG(qa_point)'),
+                         "rt_point_avg" => new Expression('AVG(rt_point)'),
+                         "safety_point_avg" => new Expression('AVG(safety_point)'),
+                         "specimen_point_avg" => new Expression('AVG(specimen_point)'),
+                         "testing_algo_point_avg" => new Expression('AVG(testing_algo_point)'),
+                         "report_keeping_point_avg" => new Expression('AVG(report_keeping_point)'),
+                         "EQA_PT_points_avg" => new Expression('AVG(EQA_PT_points)'),
+                         "ethics_point_avg" => new Expression('AVG(ethics_point)'),
+                         "inventory_point_avg" => new Expression('AVG(inventory_point)'))
+                        );
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        
+        $examResults = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        
+        $examResultsScores = '';
+        if(count($examResults[0]) > 0){
+            foreach(array_values($examResults[0]) as $key => $result){
+                
+                if($key < (count($examResults[0]) -1)){
+                    $examResultsScores .= $result.',';   
+                }else{
+                    $examResultsScores .= $result;  
+                }
+            }
+                      
+        }else{
+            $examResultsScores = '0,0,0,0,0,0,0,0,0';
+        }
+        return $examResultsScores;
     }
 
 }
