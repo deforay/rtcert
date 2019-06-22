@@ -120,65 +120,74 @@ if($nombre!= null){
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('qa_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_3',
+                        'title' => 'must be a valid number between 0 and 3',
                         'placeholder' => 'must be a valid number between 0 and 3',
                         'id' => 'QA',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('rt_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_3',
                         'id' => 'RT',
+                        'title' => 'must be a valid number between 0 and 3',
                         'placeholder' => 'must be a valid number between 0 and 3',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('safety_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_3',
                         'id' => 'Safety',
+                        'title' => 'must be a valid number between 0 and 3',
                         'placeholder' => 'must be a valid number between 0 and 3',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
 
                     $form->get('specimen_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_2',
                         'id' => 'Specimen',
+                        'title' => 'must be a valid number between 0 and 2',
                         'placeholder' => 'must be a valid number between 0 and 2',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('testing_algo_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_3',
                         'id' => 'Testing Algo',
+                        'title' => 'must be a valid number between 0 and 3',
                         'placeholder' => 'must be a valid number between 0 and 3',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('report_keeping_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_3',
                         'id' => 'Report Keeping',
+                        'title' => 'must be a valid number between 0 and 3',
                         'placeholder' => 'must be a valid number between 0 and 3',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('EQA_PT_points')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_4',
                         'id' => 'EQA_PT',
+                        'title' => 'must be a valid number between 0 and 4',
                         'placeholder' => 'must be a valid number between 0 and 4',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('ethics_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_2',
                         'id' => 'Ethics',
+                        'title' => 'must be a valid number between 0 and 2',
                         'placeholder' => 'must be a valid number between 0 and 2',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'
                     ]);
                     $form->get('inventory_point')->setAttributes([
-                        'class' => 'form-control',
+                        'class' => 'form-control isRequired isNumericBetween_0_2',
                         'id' => 'Inventory',
+                        'title' => 'must be a valid number between 0 and 2',
                         'placeholder' => 'must be a valid number between 0 and 2',
                         'autocomplete' => 'off',
                         'onclick' => 'emptyInput(this)'

@@ -199,6 +199,18 @@ function isRequiredCheckBox(name){
     }
     return flag;
 }
+
+// checks if the number is between the start and end range
+function numericBetween(num,start,end){
+    if((num == null || num.length == 0 ) return false;
+    if(Number(num) >= start && Number(end)<= end){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 function findPos(obj) {
 
 var curleft = curtop = 0;
@@ -352,6 +364,17 @@ function deforayValidatorInternal(formInputs, useTitleToShowMessage){
 				}
 				else{
 					errorMsg = "Please make sure password and confirm password are same";
+				}
+			}
+			else if(parts[cCount].startsWith("isNumericBetween")){
+				innerParts = parts[cCount].split("_");
+				valid = exactLength(formInputs[i].value,innerParts[1],innerParts[2]);
+				if(elementTitle != null && elementTitle != "")
+				{
+					errorMsg = elementTitle;
+				}
+				else{
+					errorMsg = "This field should have numbers between the range "+innerParts[1]+" and "+innerParts[2]+".";
 				}
 			}
 			else{
