@@ -558,25 +558,6 @@ $configResult = $this->GlobalConfigHelper();
 				</div>
 			</div>
 		</div>
-
-		<div class="col-md-6">
-			<div class="card">
-				<div class="header">
-					<h4 class="title">Volumes of practical and written test</h4>
-					<p class="category">Current Week</p>
-				</div>
-				<div class="content">
-					<div id="barChartVolumesOfPracticalWrittenContainer"></div>
-					<div class="footer">
-						<hr>
-						<div class="stats">
-							<i class="ti-info"></i> Showing only approved certificates
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
 	</div>
 </div>
 <!-- </div> -->
@@ -595,7 +576,6 @@ $configResult = $this->GlobalConfigHelper();
 		loadCertificationPieChart();
 		loadCertificationBarChart();
 		loadCertificationMap();
-		loadPracticalWrittenMap();
 	});
 
 	function loadCertificationPieChart() {
@@ -616,13 +596,6 @@ $configResult = $this->GlobalConfigHelper();
 		$.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-map-details')); ?>", {},
 			function(data) {
 				$("#mapContainer").html(data);
-			});
-	}
-
-	function loadPracticalWrittenMap() {
-		$.post("<?php echo $this->url('dashboard', array('action' => 'get-volumes-practical-written-details')); ?>", {},
-			function(data) {
-				$("#barChartVolumesOfPracticalWrittenContainer").html(data);
 			});
 	}
 
