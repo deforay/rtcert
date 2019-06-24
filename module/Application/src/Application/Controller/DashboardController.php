@@ -35,6 +35,35 @@ class DashboardController extends AbstractActionController
             return $viewModel;
         }
     }
+    public function getCertifiedProvinceChartDetailsAction(){
+        
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getCertifiedProvinceChartResults($params);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result))
+                        ->setTerminal(true);
+                        // \Zend\Debug\Debug::dump($result);die;
+            return $viewModel;
+        }
+    }
+    public function getCertifiedDistrictChartDetailsAction(){
+    
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getCertifiedDistrictChartResults($params);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result))
+                        ->setTerminal(true);
+                         // \Zend\Debug\Debug::dump($result);die;
+            return $viewModel;
+        }
+        
+    }
     
     public function getCertificationBarChartDetailsAction(){
         $request = $this->getRequest();

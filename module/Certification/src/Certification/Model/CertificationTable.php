@@ -72,7 +72,7 @@ class CertificationTable {
         $query = $sql->select()->from(array('c'=>'certification'))
                      ->columns(array("total_certification" => new Expression('COUNT(*)')))
                      ->join(array('e'=>'examination'),'e.id=c.examination',array())
-                     ->join(array('p'=>'provider'),'p.id=e.provider',array())
+                     ->join(array('p'=>'provider'),'p.id=e.provider',array('region'))
                      ->join(array('l_d'=>'location_details'),'l_d.location_id=p.region',array('location_name'))
                      ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
                      ->group('p.region');
@@ -82,6 +82,40 @@ class CertificationTable {
             $query = $query->where('p.region IN('.implode(',',$sessionLogin->region).')');
         }
         $queryStr = $sql->getSqlStringForSqlObject($query);
+        return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+    }
+    
+    public function getCertifiedProvinceChartResults($params){
+       
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $query = $sql->select()->from(array('c'=>'certification'))
+                     ->columns(array("total_certification" => new Expression('COUNT(*)')))
+                     ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                     ->join(array('p'=>'provider'),'p.id=e.provider',array('region'))
+                     ->join(array('l_d'=>'location_details'),'l_d.location_id=p.region',array('location_name'))
+                     ->where('(c.final_decision = "Certified" OR c.final_decision = "certified")')
+                     ->group('p.region');
+       
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+    //    echo $queryStr; die;
+        return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+
+       
+    }
+    
+    public function getCertifiedistrictChartResults($params){
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $query = $sql->select()->from(array('c'=>'certification'))
+                     ->columns(array("total_certification" => new Expression('COUNT(*)')))
+                     ->join(array('e'=>'examination'),'e.id=c.examination',array())
+                     ->join(array('p'=>'provider'),'p.id=e.provider',array('district'))
+                     ->join(array('l_d'=>'location_details'),'l_d.location_id=p.district',array('location_name'))
+                     ->where('(c.final_decision = "Certified" OR c.final_decision = "certified")')
+                     ->group('p.district');
+                     $queryStr = $sql->getSqlStringForSqlObject($query);
+                    //   echo $queryStr; die;
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
     

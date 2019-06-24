@@ -28,6 +28,16 @@ class DashboardService {
         $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
         return $certificationDb->getCertificationPieChartResults($params);
     }
+
+    public function getCertifiedProvinceChartResults($params){
+        $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
+        return $certificationDb->getCertifiedProvinceChartResults($params);
+    }
+
+    public function getCertifiedDistrictChartResults($params){
+        $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
+        return $certificationDb->getCertifieDistrictChartResults($params);
+    }
     
     public function getCertificationBarChartResults($params){
         $certificationDb = $this->sm->get('Certification\Model\CertificationTable');
