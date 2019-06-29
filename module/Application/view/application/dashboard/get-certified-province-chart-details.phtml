@@ -1,6 +1,7 @@
-<div id="chartProvince" class="ct-chart"></div>
+
+<div id="certifiedProvince" class="ct-chart"></div>
 <script>
-    Highcharts.chart('chartProvince', {
+    Highcharts.chart('certifiedProvince', {
     chart: {
         plotBackgroundColor: null,
         plotBorderWidth: null,
@@ -21,7 +22,7 @@
         }
     },
     tooltip: {
-        pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.number})</b>'
+        pointFormat: '{series.name}: <b>({point.number})</b>'
     },
     plotOptions: {
         pie: {
@@ -35,12 +36,12 @@
         }
     },
     series: [{
-        name: 'Certificates',
+        name:'Total Certified Testers',
         colorByPoint: true,
         data: [
         <?php  if(isset($result) && count($result) > 0) {
             foreach($result as $region){
-              
+                
             ?>
         {
             name: '<?php echo ucfirst($region['location_name']); ?>',
