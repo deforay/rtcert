@@ -53,4 +53,9 @@ class DashboardService {
         $writtenExamDb = $this->sm->get('Certification\Model\PracticalExamTable');
         return $writtenExamDb->fetchPracticalExamAverageBarResults($params);
     }
+    
+    public function getPracticalWrittenCountResults($params){
+        $writtenExamDb = $this->sm->get('Certification\Model\PracticalExamTable');
+        return $writtenExamDb->fecthPracticalWrittenCountResults($params);
+    }
 }

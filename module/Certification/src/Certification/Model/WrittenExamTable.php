@@ -378,5 +378,4 @@ public function examToValidate($provider){
         }
         return $examResultsScores;
     }
-
 }

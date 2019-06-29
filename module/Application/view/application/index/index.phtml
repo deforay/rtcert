@@ -1,547 +1,632 @@
 <?php
 use Zend\Session\Container;
+
 $sessionLogin = new Container('credo');
 $isClickable = false;
-if(isset($sessionLogin->roleCode) && trim($sessionLogin->roleCode)!= ''){
-  $role = $sessionLogin->roleCode;
-  $acl = $this->layout()->acl;
-  if ($acl->isAllowed($role, 'Application\Controller\Dashboard', 'testers')) {
-    $isClickable = true;
-  }
+if (isset($sessionLogin->roleCode) && trim($sessionLogin->roleCode) != '') {
+	$role = $sessionLogin->roleCode;
+	$acl = $this->layout()->acl;
+	if ($acl->isAllowed($role, 'Application\Controller\Dashboard', 'testers')) {
+		$isClickable = true;
+	}
 }
 $configResult = $this->GlobalConfigHelper();
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/themify-icons.css'); ?>" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css" />
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css" />
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/themify-icons.css'); ?>" type="text/css" />
+<link href="<?php echo $this->basePath('assets/plugins/daterangepicker/daterangepicker.css'); ?>" rel="stylesheet" />
 <style>
-  .auditPointName{
-	color:#fff;
-	margin:0;
-	min-width: 200px;
-	vertical-align:top;
-  }
-  
-  .auditPointName:hover{
-	white-space: normal !important;
-	overflow: visible;
-	text-overflow: '';
-  }
-  
-  .event a {
-    background-color: #8eaffe !important;
-    background-image :none !important;
-    color: #ffffff !important;
-	border-radius:50%;
-}
+	.auditPointName {
+		color: #fff;
+		margin: 0;
+		min-width: 200px;
+		vertical-align: top;
+	}
+
+	.auditPointName:hover {
+		white-space: normal !important;
+		overflow: visible;
+		text-overflow: '';
+	}
+
+	.event a {
+		background-color: #8eaffe !important;
+		background-image: none !important;
+		color: #ffffff !important;
+		border-radius: 50%;
+	}
 
 
-.highcharts-tooltip span {
-    width:250px;
-    overflow:auto;
-    white-space:normal !important;
-}
+	.highcharts-tooltip span {
+		width: 250px;
+		overflow: auto;
+		white-space: normal !important;
+	}
 
-.ms-parent {
-  width:100% !important;
-}
+	.ms-parent {
+		width: 100% !important;
+	}
 
-.title h3{
-  display:inline;
-  font-weight:400;
-}
+	.title h3 {
+		display: inline;
+		font-weight: 400;
+	}
 
-/*multiselect*/
-/*.ui-state-hover, .ui-widget-content .ui-state-hover{color: #1c94c4;border: 1px solid #cccccc;background:none;}
+	/*multiselect*/
+	/*.ui-state-hover, .ui-widget-content .ui-state-hover{color: #1c94c4;border: 1px solid #cccccc;background:none;}
 .ui-state-active{color: #1c94c4;border: 1px solid #cccccc;background:none;}
 .ui-multiselect-header{display: none;}
 */
-.widget-calendar .cal-container .cal-calendar .ui-datepicker table.ui-datepicker-calendar tr td a.ui-state-highlight{
-  background: none !important;
-  color: #888;
-  border:none;
-}
-.limitBar{color: #555;background-color: #fff;background-image: none;border: 1px solid #ccc;border-radius: 4px;padding: 1px;vertical-align: middle;}
-  
-.highcharts-legend{display: block !important;}
- 
- 
-.center{
-  text-align:center;
-} 
+	.widget-calendar .cal-container .cal-calendar .ui-datepicker table.ui-datepicker-calendar tr td a.ui-state-highlight {
+		background: none !important;
+		color: #888;
+		border: none;
+	}
+
+	.limitBar {
+		color: #555;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		padding: 1px;
+		vertical-align: middle;
+	}
+
+	.highcharts-legend {
+		display: block !important;
+	}
 
 
-.card {
-  border-radius: 6px;
-  box-shadow: 0 2px 2px rgba(204, 197, 185, 0.5);
-  background-color: #FFFFFF;
-  color: #252422;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
-}
-.card .image {
-  width: 100%;
-  overflow: hidden;
-  height: 260px;
-  border-radius: 6px 6px 0 0;
-  position: relative;
-  -webkit-transform-style: preserve-3d;
-  -moz-transform-style: preserve-3d;
-  transform-style: preserve-3d;
-}
-.card .image img {
-  width: 100%;
-}
-.card .content {
-  padding: 15px 15px 10px 15px;
-}
-.card .header {
-  padding: 20px 20px 0;
-}
-.card .description {
-  font-size: 16px;
-  color: #66615b;
-}
-.card h6 {
-  font-size: 12px;
-  margin: 0;
-}
-.card .category,
-.card label {
-  font-size: 14px;
-  font-weight: 400;
-  color: #9A9A9A;
-  margin-bottom: 0px;
-}
-.card .category i,
-.card label i {
-  font-size: 16px;
-}
-.card label {
-  font-size: 15px;
-  margin-bottom: 5px;
-}
-.card .title {
-  margin: 0;
-  color: #252422;
-  font-weight: 300;
-}
-.card .avatar {
-  width: 50px;
-  height: 50px;
-  overflow: hidden;
-  border-radius: 50%;
-  margin-right: 5px;
-}
-.card .footer {
-  padding: 0;
-  line-height: 30px;
-}
-.card .footer .legend {
-  padding: 5px 0;
-}
-.card .footer hr {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-.card .stats {
-  color: #a9a9a9;
-  font-weight: 300;
-}
-.card .stats i {
-  margin-right: 2px;
-  min-width: 15px;
-  display: inline-block;
-}
-.card .footer div {
-  display: inline-block;
-}
-.card .author {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.card .author i {
-  font-size: 14px;
-}
-.card.card-separator:after {
-  height: 100%;
-  right: -15px;
-  top: 0;
-  width: 1px;
-  background-color: #DDDDDD;
-  content: "";
-  position: absolute;
-}
-.card .ct-chart {
-  margin: 30px 0 30px;
-  height: 400px;
-}
-.card .table tbody td:first-child,
-.card .table thead th:first-child {
-  padding-left: 15px;
-}
-.card .table tbody td:last-child,
-.card .table thead th:last-child {
-  padding-right: 15px;
-}
-.card .alert {
-  border-radius: 4px;
-  position: relative;
-}
-.card .alert.alert-with-icon {
-  padding-left: 65px;
-}
-.card .icon-big {
-  font-size: 3em;
-  min-height: 64px;
-}
-.card .numbers {
-  font-size: 2em;
-  text-align: right;
-}
-.card .numbers p {
-  margin: 0;
-}
-.card ul.team-members li {
-  padding: 10px 0px;
-}
-.card ul.team-members li:not(:last-child) {
-  border-bottom: 1px solid #F1EAE0;
-}
-
-.card-user .image {
-  border-radius: 8px 8px 0 0;
-  height: 150px;
-  position: relative;
-  overflow: hidden;
-}
-.card-user .image img {
-  width: 100%;
-}
-.card-user .image-plain {
-  height: 0;
-  margin-top: 110px;
-}
-.card-user .author {
-  text-align: center;
-  text-transform: none;
-  margin-top: -65px;
-}
-.card-user .author .title {
-  color: #403D39;
-}
-.card-user .author .title small {
-  color: #ccc5b9;
-}
-.card-user .avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  position: relative;
-  margin-bottom: 15px;
-}
-.card-user .avatar.border-white {
-  border: 5px solid #FFFFFF;
-}
-.card-user .avatar.border-gray {
-  border: 5px solid #ccc5b9;
-}
-.card-user .title {
-  font-weight: 600;
-  line-height: 24px;
-}
-.card-user .description {
-  margin-top: 10px;
-}
-.card-user .content {
-  min-height: 200px;
-}
-.card-user.card-plain .avatar {
-  height: 190px;
-  width: 190px;
-}
-
-.card-map .map {
-  height: 500px;
-  padding-top: 20px;
-}
-.card-map .map > div {
-  height: 100%;
-}
-
-.card-user .footer,
-.card-price .footer {
-  padding: 5px 15px 10px;
-}
-.card-user hr,
-.card-price hr {
-  margin: 5px 15px;
-}
-
-.card-plain {
-  background-color: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
-.card-plain .image {
-  border-radius: 4px;
-}
+	.center {
+		text-align: center;
+	}
 
 
+	.card {
+		border-radius: 6px;
+		box-shadow: 0 2px 2px rgba(204, 197, 185, 0.5);
+		background-color: #FFFFFF;
+		color: #252422;
+		margin-bottom: 20px;
+		position: relative;
+		z-index: 1;
+	}
 
-.card p {
-  font-size: 16px;
-  line-height: 1.4em;
-}
+	.card .image {
+		width: 100%;
+		overflow: hidden;
+		height: 260px;
+		border-radius: 6px 6px 0 0;
+		position: relative;
+		-webkit-transform-style: preserve-3d;
+		-moz-transform-style: preserve-3d;
+		transform-style: preserve-3d;
+	}
 
-.icon-primary {
-  color: #7A9E9F;
-}
+	.card .image img {
+		width: 100%;
+	}
 
-.icon-info {
-  color: #68B3C8;
-}
+	.card .content {
+		padding: 15px 15px 10px 15px;
+	}
 
-.icon-success {
-  color: #7AC29A;
-}
+	.card .header {
+		padding: 20px 20px 0;
+	}
 
-.icon-warning {
-  color: #F3BB45;
-}
+	.card .description {
+		font-size: 16px;
+		color: #66615b;
+	}
 
-.icon-danger {
-  color: #EB5E28;
-}
+	.card h6 {
+		font-size: 12px;
+		margin: 0;
+	}
 
+	.card .category,
+	.card label {
+		font-size: 14px;
+		font-weight: 400;
+		color: #9A9A9A;
+		margin-bottom: 0px;
+	}
+
+	.card .category i,
+	.card label i {
+		font-size: 16px;
+	}
+
+	.card label {
+		font-size: 15px;
+		margin-bottom: 5px;
+	}
+
+	.card .title {
+		margin: 0;
+		color: #252422;
+		font-weight: 300;
+	}
+
+	.card .avatar {
+		width: 50px;
+		height: 50px;
+		overflow: hidden;
+		border-radius: 50%;
+		margin-right: 5px;
+	}
+
+	.card .footer {
+		padding: 0;
+		line-height: 30px;
+	}
+
+	.card .footer .legend {
+		padding: 5px 0;
+	}
+
+	.card .footer hr {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	.card .stats {
+		color: #a9a9a9;
+		font-weight: 300;
+	}
+
+	.card .stats i {
+		margin-right: 2px;
+		min-width: 15px;
+		display: inline-block;
+	}
+
+	.card .footer div {
+		display: inline-block;
+	}
+
+	.card .author {
+		font-size: 12px;
+		font-weight: 600;
+		text-transform: uppercase;
+	}
+
+	.card .author i {
+		font-size: 14px;
+	}
+
+	.card.card-separator:after {
+		height: 100%;
+		right: -15px;
+		top: 0;
+		width: 1px;
+		background-color: #DDDDDD;
+		content: "";
+		position: absolute;
+	}
+
+	.card .ct-chart {
+		margin: 30px 0 30px;
+		height: 400px;
+	}
+
+	.card .table tbody td:first-child,
+	.card .table thead th:first-child {
+		padding-left: 15px;
+	}
+
+	.card .table tbody td:last-child,
+	.card .table thead th:last-child {
+		padding-right: 15px;
+	}
+
+	.card .alert {
+		border-radius: 4px;
+		position: relative;
+	}
+
+	.card .alert.alert-with-icon {
+		padding-left: 65px;
+	}
+
+	.card .icon-big {
+		font-size: 3em;
+		min-height: 64px;
+	}
+
+	.card .numbers {
+		font-size: 2em;
+		text-align: right;
+	}
+
+	.card .numbers p {
+		margin: 0;
+	}
+
+	.card ul.team-members li {
+		padding: 10px 0px;
+	}
+
+	.card ul.team-members li:not(:last-child) {
+		border-bottom: 1px solid #F1EAE0;
+	}
+
+	.card-user .image {
+		border-radius: 8px 8px 0 0;
+		height: 150px;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.card-user .image img {
+		width: 100%;
+	}
+
+	.card-user .image-plain {
+		height: 0;
+		margin-top: 110px;
+	}
+
+	.card-user .author {
+		text-align: center;
+		text-transform: none;
+		margin-top: -65px;
+	}
+
+	.card-user .author .title {
+		color: #403D39;
+	}
+
+	.card-user .author .title small {
+		color: #ccc5b9;
+	}
+
+	.card-user .avatar {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		position: relative;
+		margin-bottom: 15px;
+	}
+
+	.card-user .avatar.border-white {
+		border: 5px solid #FFFFFF;
+	}
+
+	.card-user .avatar.border-gray {
+		border: 5px solid #ccc5b9;
+	}
+
+	.card-user .title {
+		font-weight: 600;
+		line-height: 24px;
+	}
+
+	.card-user .description {
+		margin-top: 10px;
+	}
+
+	.card-user .content {
+		min-height: 200px;
+	}
+
+	.card-user.card-plain .avatar {
+		height: 190px;
+		width: 190px;
+	}
+
+	.card-map .map {
+		height: 500px;
+		padding-top: 20px;
+	}
+
+	.card-map .map>div {
+		height: 100%;
+	}
+
+	.card-user .footer,
+	.card-price .footer {
+		padding: 5px 15px 10px;
+	}
+
+	.card-user hr,
+	.card-price hr {
+		margin: 5px 15px;
+	}
+
+	.card-plain {
+		background-color: transparent;
+		box-shadow: none;
+		border-radius: 0;
+	}
+
+	.card-plain .image {
+		border-radius: 4px;
+	}
+
+
+
+	.card p {
+		font-size: 16px;
+		line-height: 1.4em;
+	}
+
+	.icon-primary {
+		color: #7A9E9F;
+	}
+
+	.icon-info {
+		color: #68B3C8;
+	}
+
+	.icon-success {
+		color: #7AC29A;
+	}
+
+	.icon-warning {
+		color: #F3BB45;
+	}
+
+	.icon-danger {
+		color: #EB5E28;
+	}
 </style>
-      <!-- <div class="am-content">
+<!-- <div class="am-content">
 	<div class="page-head">
           <span style=""><h2 style="font-weight:bold;">
 	    <a id="showFilterBtn" class="btn btn-primary btn-sm pull-right" style="margin-right:5px;letter-spacing:0.5px;" onclick="alert('Work in progress');return false;"><span>Show Advanced Options</span></a></h2>
 	  </span>
-        </div> -->
-        <div class="main-content">
-	  <div class="row" style="margin-bottom:10px;clear:both;">
-                  <div class="col-lg-3 col-sm-6">
-                        <div class="card" <?php if($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('certified');"<?php } ?>>
-                            <div class="content">
-                                <div class="row">
-                                    <div class="col-xs-4">
-                                        <div class="icon-big icon-success text-center">
-                                          <img src="<?php echo $this->basePath('assets/img/certificate.png') ?>"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-8">
-                                        <div class="numbers">
-                                            <?php echo $quickStats['certified'] ?>
-                                            <p>Certified</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="footer">
-                                    <hr />
-                                    <div class="stats">
-                                        <i class="ti-calendar"></i> Last 24 months  
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+	</div> -->
+<div class="main-content">
+	<div class="row" style="margin-bottom:10px;clear:both;">
+		<div class="col-lg-3 col-sm-6">
+			<div class="card" <?php if ($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('certified');" <?php } ?>>
+				<div class="content">
+					<div class="row">
+						<div class="col-xs-4">
+							<div class="icon-big icon-success text-center">
+								<img src="<?php echo $this->basePath('assets/img/certificate.png') ?>" />
+							</div>
+						</div>
+						<div class="col-xs-8">
+							<div class="numbers">
+								<?php echo $quickStats['certified'] ?>
+								<p>Certified</p>
+							</div>
+						</div>
+					</div>
+					<div class="footer">
+						<hr />
+						<div class="stats">
+							<i class="ti-calendar"></i> Last 24 months
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-                    <div class="col-lg-3 col-sm-6">
-                          <div class="card" <?php if($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('up-for-recertificate');"<?php } ?>>
-                          <div class="content">
-                              <div class="row">
-                                  <div class="col-xs-4">
-                                      <div class="icon-big icon-info text-center">
-                                        <img src="<?php echo $this->basePath('assets/img/recertificate.png') ?>"/>
-                                      </div>
-                                  </div>
-                                  <div class="col-xs-8">
-                                      <div class="numbers">
-                                        <?php echo $quickStats['upForCertification'] ?>
-                                          <p>Up for Recertification</p>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div class="footer">
-                                  <hr />
-                                  <div class="stats">
-                                  <i class="ti-calendar"></i> Overall  
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                    </div>
+		<div class="col-lg-3 col-sm-6">
+			<div class="card" <?php if ($isClickable) { ?>style="cursor:pointer;" onclick="showTesters('up-for-recertificate');" <?php } ?>>
+				<div class="content">
+					<div class="row">
+						<div class="col-xs-4">
+							<div class="icon-big icon-info text-center">
+								<img src="<?php echo $this->basePath('assets/img/recertificate.png') ?>" />
+							</div>
+						</div>
+						<div class="col-xs-8">
+							<div class="numbers">
+								<?php echo $quickStats['upForCertification'] ?>
+								<p>Up for Recertification</p>
+							</div>
+						</div>
+					</div>
+					<div class="footer">
+						<hr />
+						<div class="stats">
+							<i class="ti-calendar"></i> Overall
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-                    <div class="col-lg-3 col-sm-6">
-                      <div class="card">
-                      <div class="content">
-                          <div class="row">
-                              <div class="col-xs-4">
-                                  <div class="icon-big icon-danger text-center">
-                                      <i class="fa fa-exclamation"></i>
-                                  </div>
-                              </div>
-                              <div class="col-xs-8">
-                                  <div class="numbers">
-                                      
-                                  <?php echo $quickStats['expired'] ?>
-                                      <p>Expired</p>
-                                  </div>
-                              </div>
-                          </div>
-                          <div class="footer">
-                              <hr />
-                              <div class="stats">
-                                  <i class="ti-calendar"></i> Overall
-                              </div>
-                          </div>
-                      </div>
-                      </div>
-                    </div>
+		<div class="col-lg-3 col-sm-6">
+			<div class="card">
+				<div class="content">
+					<div class="row">
+						<div class="col-xs-4">
+							<div class="icon-big icon-danger text-center">
+								<i class="fa fa-exclamation"></i>
+							</div>
+						</div>
+						<div class="col-xs-8">
+							<div class="numbers">
 
-                    <div class="col-lg-3 col-sm-6">
-                        <div class="card">
-                            <div class="content">
-                                <div class="row">
-                                    <div class="col-xs-4">
-                                        <div class="icon-big icon-danger text-center">
-                                            <i class="fa fa-close"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-8">
-                                        <div class="numbers">
-                                            <?php echo $quickStats['pending'] ?>
-                                            <p>Pending/Failed</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="footer">
-                                    <hr />
-                                    <div class="stats">
-                                        <i class="ti-calendar"></i> Overall
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                                                            
-	      </div>
-        <div class="row">
-        <div class="col-md-6">
-                        <div class="card ">
-                            <div class="header">
-                                <h4 class="title">Overview</h4>
-                                <!--<p class="category">Last 12 months</p>-->
-                            </div>
-                            <div class="content" style="height:500px;">
-			        <div id="testContainer"></div>
-                                <div class="footer">
-                                    <hr>
-                                    <div class="stats">
-                                        <!--<i class="ti-info"></i> Coming Soon-->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card ">
-                            <div class="header">
-                                <h4 class="title"><?php echo ucwords($configResult['country-name']); ?></h4>
-                                <!--<p class="category">Last 12 months</p>-->
-                            </div>
-                            <div class="content" style="height:500px;">
-			        <div id="mapContainer"></div>
-                                <div class="footer">
-                                    <hr>
-                                    <div class="stats">
-                                        <i class="ti-info"></i> Showing only approved certificates
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="header">
-                                <h4 class="title">Overall Performance</h4>
-                                <!--<p class="category"></p>-->
-                            </div>
-                            <div class="content">
-                                <div id="pieChartContainer"></div>
-                                <div class="footer">
-                                    <hr>
-                                    <div class="stats">
-                                        <i class="ti-info"></i> Showing only approved certificates
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card ">
-                            <div class="header">
-                                <h4 class="title">Certification Stats</h4>
-                                <p class="category">Last 2 years</p>
-                            </div>
-                            <div class="content">
-			      <div id="barChartContainer"></div>
-                              <div class="footer">
-                                  <hr>
-                                  <div class="stats">
-                                      <i class="ti-info"></i> Showing only approved certificates
-                                  </div>
-                              </div>
-                            </div>
-                        </div>
-                    </div>
-                   
-          </div>
-	    </div>
-	  </div>				          
-    </div>
+								<?php echo $quickStats['expired'] ?>
+								<p>Expired</p>
+							</div>
+						</div>
+					</div>
+					<div class="footer">
+						<hr />
+						<div class="stats">
+							<i class="ti-calendar"></i> Overall
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-sm-6">
+			<div class="card">
+				<div class="content">
+					<div class="row">
+						<div class="col-xs-4">
+							<div class="icon-big icon-danger text-center">
+								<i class="fa fa-close"></i>
+							</div>
+						</div>
+						<div class="col-xs-8">
+							<div class="numbers">
+								<?php echo $quickStats['pending'] ?>
+								<p>Pending/Failed</p>
+							</div>
+						</div>
+					</div>
+					<div class="footer">
+						<hr />
+						<div class="stats">
+							<i class="ti-calendar"></i> Overall
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card ">
+				<div class="header">
+					<h4 class="title">Overview</h4>
+					<!--<p class="category">Last 12 months</p>-->
+				</div>
+				<div class="content" style="height:500px;">
+					<div id="testContainer"></div>
+					<div class="footer">
+						<hr>
+						<div class="stats">
+							<!--<i class="ti-info"></i> Coming Soon-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="card ">
+				<div class="header">
+					<h4 class="title"><?php echo ucwords($configResult['country-name']); ?></h4>
+					<!--<p class="category">Last 12 months</p>-->
+				</div>
+				<div class="content" style="height:500px;">
+					<div id="mapContainer"></div>
+					<div class="footer">
+						<hr>
+						<div class="stats">
+							<i class="ti-info"></i> Showing only approved certificates
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="card">
+				<div class="header">
+					<h4 class="title">Overall Performance</h4>
+					<!--<p class="category"></p>-->
+				</div>
+				<div class="content">
+					<div id="pieChartContainer"></div>
+					<div class="footer">
+						<hr>
+						<div class="stats">
+							<i class="ti-info"></i> Showing only approved certificates
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="card ">
+				<div class="header">
+					<h4 class="title">Certification Stats</h4>
+					<p class="category">Last 2 years</p>
+				</div>
+				<div class="content">
+					<div id="barChartContainer"></div>
+					<div class="footer">
+						<hr>
+						<div class="stats">
+							<i class="ti-info"></i> Showing only approved certificates
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="card">
+				<div class="header">
+					<h4 class="title">Volumes of practical and written test</h4>
+					<p class="category">Current Week</p>
+				</div>
+				<div class="content">
+					<div id="barChartVolumesOfPracticalWrittenContainer"></div>
+					<div class="footer">
+						<hr>
+						<div class="stats">
+							<i class="ti-info"></i> Showing only approved certificates
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+<!-- </div> -->
+
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
-<script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>  
-
+<script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/plugins/daterangepicker/moment.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/plugins/daterangepicker/daterangepicker.js'); ?>"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFpbfAKFJZ8Ps7yAGIDZtD4EeBlsb_ANA"></script>
 <script>
-  $(document).ready(function(){
-    loadCertificationPieChart();
-    loadCertificationBarChart();
-    loadCertificationMap();
-  });
+	$(document).ready(function() {
+		loadCertificationPieChart();
+		loadCertificationBarChart();
+		loadCertificationMap();
+		loadPracticalWrittenMap();
+	});
 
-  function loadCertificationPieChart(){
-    $.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-pie-chart-details')); ?>",{ },
-    function(data) {
-       $("#pieChartContainer").html(data);
-    });
-  }
-  
-  function loadCertificationBarChart(){
-    $.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-bar-chart-details')); ?>",{ },
-    function(data) {
-       $("#barChartContainer").html(data);
-    });
-  }
-  function loadCertificationMap(){
-    $.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-map-details')); ?>",{ },
-    function(data) {
-       $("#mapContainer").html(data);
-    });
-  }
-  
-  function showTesters(frmSrc){
-    window.location.href = '/dashboard/testers/'+frmSrc;
-  }
+	function loadCertificationPieChart() {
+		$.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-pie-chart-details')); ?>", {},
+			function(data) {
+				$("#pieChartContainer").html(data);
+			});
+	}
+
+	function loadCertificationBarChart() {
+		$.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-bar-chart-details')); ?>", {},
+			function(data) {
+				$("#barChartContainer").html(data);
+			});
+	}
+
+	function loadCertificationMap() {
+		$.post("<?php echo $this->url('dashboard', array('action' => 'get-certification-map-details')); ?>", {},
+			function(data) {
+				$("#mapContainer").html(data);
+			});
+	}
+
+	function loadPracticalWrittenMap() {
+		$.post("<?php echo $this->url('dashboard', array('action' => 'get-volumes-practical-written-details')); ?>", {},
+			function(data) {
+				$("#barChartVolumesOfPracticalWrittenContainer").html(data);
+			});
+	}
+
+	function showTesters(frmSrc) {
+		window.location.href = '/dashboard/testers/' + frmSrc;
+	}
 </script>

@@ -1,0 +1,114 @@
+<?php
+// \Zend\Debug\Debug::dump($result);die;
+if (count($result['written']) > 0) {
+    $n = count($result['written']);
+    if ($n > 4) {
+        $max = '4';
+    } else {
+        $max = $n - 1;
+    }
+    ?>
+    <script>
+        Highcharts.chart('barChartVolumesOfPracticalWrittenContainer', {
+            credits: {
+                enabled: false
+            },
+            exporting: {
+                filename: 'Volumes of practical and written details',
+                buttons: {
+
+                    contextButton: {
+                        menuItems: [
+                            'printChart',
+                            'separator',
+                            'downloadPNG',
+                            'downloadJPEG',
+                            'downloadPDF',
+                            'downloadSVG',
+                            'separator',
+                            'downloadCSV',
+                            'downloadXLS',
+                            'viewData'
+                        ]
+                    }
+                }
+            },
+            chart: {
+                type: 'column',
+                height: '450px',
+            },
+            title: {
+                text: ""
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                categories: [
+                    <?php foreach ($result['written'] as $key => $res) { ?> '<?php echo $key; ?>'
+                    <?php } ?>
+                ],
+                crosshair: true,
+                min: 0,
+                max: '<?php echo $max; ?>',
+                scrollbar: {
+                    enabled: true
+                },
+            },
+            yAxis: {
+                title: {
+                    text: 'Volumes'
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td>{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+
+
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                },
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function() {
+                            return this.y;
+                        }
+                    }
+                }
+            },
+            series: [{
+                    name: 'Practical',
+                    data: [
+                        <?php if (isset($result['practical']) && count($result['practical']) > 0) {
+                            foreach ($result['practical'] as $key => $val) { ?>
+                                <?php echo isset($val) ? $val : 0; ?>,
+                            <?php }
+                    } ?>
+                    ]
+                },
+                {
+                    name: 'Written',
+                    data: [
+                        <?php if (isset($result['written']) && count($result['written']) > 0) {
+                            foreach ($result['written'] as $key => $val) { ?>
+                                <?php echo isset($val) ? $val : 0; ?>,
+                            <?php }
+                    } ?>
+                    ]
+                }
+            ]
+
+
+        });
+    </script>
+<?php } else {
+    echo "<br><br><br><br><br><br><br><h2 style='text-align:center;color:#aaa'>No data available</h2>";
+} ?>

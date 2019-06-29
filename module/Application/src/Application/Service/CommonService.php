@@ -26,6 +26,19 @@ class CommonService {
         return $this->sm;
     }
 
+    public function getCurrentWeekStartAndEndDate() {
+        $cDate = date('Y-m-d');
+		$date = new \DateTime($cDate);
+        $week = $date->format("W");
+        $year = date('Y');
+		$dto = new \DateTime();
+		$dto->setISODate($year, $week);
+		$ret['weekStart'] = $dto->format('Y-m-d');
+		$dto->modify('+6 days');
+		$ret['weekEnd'] = $dto->format('Y-m-d');
+		return $ret;
+	}
+
     public static function generateRandomString($length = 8, $seeds = 'alphanum') {
         // Possible seeds
         $seedings['alpha'] = 'abcdefghijklmnopqrstuvwqyz';

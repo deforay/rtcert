@@ -105,4 +105,16 @@ class DashboardController extends AbstractActionController
         }
     }
     
+    public function getVolumesPracticalWrittenDetailsAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $dashService = $this->getServiceLocator()->get('DashboardService');
+            $result = $dashService->getPracticalWrittenCountResults($params);
+            // \Zend\Debug\Debug::dump($result);die;
+            $viewModel = new ViewModel();
+            return $viewModel->setVariables(array('result' => $result))->setTerminal(true);
+        }
+    }
+    
 }
