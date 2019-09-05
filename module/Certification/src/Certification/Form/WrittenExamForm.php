@@ -142,7 +142,23 @@ class WrittenExamForm extends Form {
 
     public function getListProvider() {
         $dbAdapter = $this->adapter;
-        $sql = 'SELECT id,certification_id,last_name,first_name,middle_name,professional_reg_no,email,phone FROM provider order by last_name asc ';
+        //$sql = 'SELECT id,certification_id,last_name,first_name,middle_name,professional_reg_no,email,phone FROM provider order by last_name asc ';
+        $sql ='SELECT 
+                id,
+                certification_id,
+                last_name,
+                first_name,
+                middle_name,
+                professional_reg_no,
+                email,
+                phone,
+                district,
+                region,
+                l_d_r.location_name as region_name,
+                l_d_d.location_name as district_name
+                FROM provider,location_details as l_d_r, location_details as l_d_d
+                WHERE provider.region= l_d_r.location_id and provider.district=l_d_d.location_id
+                order by last_name asc';
 
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -161,6 +177,14 @@ class WrittenExamForm extends Form {
             
             if(trim($res['email'])!=""){
                 $name.=  ' - '.$res['email'];
+            }
+
+            if(trim($res['region_name'])!=""){
+                $name.=  ' - '.$res['region_name'];
+            }
+
+            if(trim($res['district_name'])!=""){
+                $name.=  ' - '.$res['district_name'];
             }
             $selectData[$res['id']] = $name;
         }
