@@ -42,8 +42,11 @@ $acl = $this->layout()->acl;
                                         <label for="" class=" control-label">Logo Left</label>
                                         <div class="fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
-                                                <img src="" alt="Logo image"/>
+                                            <?php if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert1.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert1.png')) { ?>
                                                 <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image"/>
+                                            <?php }else{ ?>
+                                                <img src="/uploads/logo/logo_cert1.png"/>
+                                            <?php } ?>
                                             </div>
                                             <div>
                                                 <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span>
@@ -71,8 +74,11 @@ $acl = $this->layout()->acl;
                                         <label for="" class="control-label">Logo Right</label>
                                         <div class="fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
-                                                <img src="" alt="Logo image"/>
+                                            <?php if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert2.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert2.png')) { ?>
                                                 <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image"/>
+                                            <?php }else{ ?>
+                                                <img src="/uploads/logo/logo_cert2.png"/>
+                                            <?php } ?>
                                             </div>
                                             <div>
                                                 <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span>

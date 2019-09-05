@@ -368,6 +368,7 @@ class CertificationController extends AbstractActionController {
         //$this->layout()->setVariable('nb2', $nb2);
 
         if ($request->isPost()) {
+            //\Zend\Debug\Debug::dump($_FILES);die;
             $image_left = $request->getPost('logo_left', null);
             //Stores the filename as it was on the client computer.
             $imagename_left = $_FILES['logo_left']['name'];
@@ -389,7 +390,13 @@ class CertificationController extends AbstractActionController {
             $msg_header_text = '';
 
             //The path you wish to upload the image to
-            $imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
+            //$imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
+            
+            if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
+            }
+
+            $imagePath = UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo";
             // echo $imagePath;die;
             if (is_uploaded_file($imagetemp_left)) {
                 $array_type = explode('/', $imagetype_left);
@@ -399,7 +406,7 @@ class CertificationController extends AbstractActionController {
                     $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_left, $imagePath . 'logo_cert1.png')) {
+                } elseif (move_uploaded_file($imagetemp_left, $imagePath .DIRECTORY_SEPARATOR. 'logo_cert1.png')) {
                     $msg_logo_left = 'Image LOGO LEFT loaded successfully';                    
                 } else {
                     $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
@@ -414,7 +421,7 @@ class CertificationController extends AbstractActionController {
                     $msg_logo_right = 'You must load an image in PNG format for LOGO RIGHT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_right = 'the size of your image LOGO RIGHT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_right, $imagePath . 'logo_cert2.png')) {
+                } elseif (move_uploaded_file($imagetemp_right, $imagePath.DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
                     $msg_logo_right = 'image LOGO RIGHT loaded successfully';
 //                    
                 } else {
