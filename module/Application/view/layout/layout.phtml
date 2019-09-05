@@ -83,7 +83,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certificatio
   $certificateMenu.="<li><a href=".$this->url('certification-mail',array('action' => 'index'))."> E-mail</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "xls")) {
-  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'xls'))."> Provider Reports</a></li>";
+  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'xls'))."> Tester Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "xls")) {
   $reportMenu.="<li><a href=".$this->url('training',array('action' => 'xls'))."> Training Reports</a></li>";

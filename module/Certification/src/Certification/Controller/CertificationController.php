@@ -358,6 +358,8 @@ class CertificationController extends AbstractActionController {
     }
 
     function pdfSettingAction() {
+
+        
         $request = $this->getRequest();
 
         //$nb = $this->getCertificationTable()->countCertificate();
@@ -440,7 +442,9 @@ class CertificationController extends AbstractActionController {
                 'header_text_font_size' => $header_text_font_size
             );
         }else{
+            
             $headerText = $this->headerTextAction();
+            //die($headerText);
             $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
             //echo $header_text_font_size;die;
             return array(

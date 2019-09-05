@@ -749,10 +749,11 @@ class CertificationTable {
            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
             $row[] = '<input class="approvalRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForApproval(this);" value="'.$aRow['id'].'"/>';
            }
+           $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
@@ -914,10 +915,11 @@ class CertificationTable {
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
@@ -1077,10 +1079,11 @@ class CertificationTable {
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
@@ -1239,10 +1242,11 @@ class CertificationTable {
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_type'];
             if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {

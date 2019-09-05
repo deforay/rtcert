@@ -46,10 +46,10 @@ $acl = $this->layout()->acl;
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
                           <th>#</th>
                         <?php } ?>
+                        <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;">Professional Registration No <br> (if available) </th>
                         <th  style="width:10%;">Certification Registration no </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
                         <th  style="width:10%;">Final Decision</th>
                         <th  style="width:10%;">Certificate Issuer</th>
                         <th  style="width:10%;">Date Certificate Issued</th>
@@ -65,10 +65,11 @@ $acl = $this->layout()->acl;
             <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
                     <tr>
+                        <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;">Professional Registration No <br> (if available) </th>
                         <th  style="width:10%;">Certification Registration no </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
+                        
                         <th  style="width:10%;">Final Decision</th>
                         <th  style="width:10%;">Certificate Issuer</th>
                         <th  style="width:10%;">Date Certificate Issued</th>
@@ -93,10 +94,11 @@ $acl = $this->layout()->acl;
             <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr>
+                        <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;">Professional Registration No(if available </th>
                         <th  style="width:10%;">Certification Registration no </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
+                        
                         <th  style="width:10%;">Final Decision</th>
                         <th  style="width:10%;">Certificate Issuer</th>
                         <th  style="width:10%;">Date Certificate Issued</th>
@@ -118,10 +120,11 @@ $acl = $this->layout()->acl;
             <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
                     <tr>
+                    <th  style="width:10%;">Tester</th>
                         <th  style="width:20% !important;">Professional Registration No.<br>(if available) </th>
                         <th  style="width:20%;">Certification Registration no. </th>
                         <th  style="width:20%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
+                        
                         <th  style="width:10%;">Final Decision</th>
                         <!--<th  style="width:10%;">Certificate Issuer</th>-->
                         <!--<th  style="width:10%;">Date Certificate Issued</th>-->
