@@ -224,10 +224,12 @@ class ExaminationTable {
                $row[] = '<input class="recommendationRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForRecommendation(this);" value="'.$aRow['id'].'#'.$aRow['final_score'].'#'.$aRow['practical_total_score'].'#'.$aRow['direct_observation_score'].'#'.$aRow['Sample_testing_score'].'#'.$aRow['provider'].'#'.$final_decision.'"/>';
             }
          }
+         
+         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
          $row[] = $aRow['professional_reg_no'];
          $row[] = $aRow['certification_reg_no'];
          $row[] = $aRow['certification_id'];
-         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+         
          $row[] = (isset($aRow['final_score']))?$aRow['final_score'].' %':'';
          $row[] = (isset($aRow['practical_total_score']))?$aRow['practical_total_score'].' %':'';
          $output['aaData'][] = $row;
@@ -369,10 +371,11 @@ class ExaminationTable {
         
         foreach ($rResult as $aRow) {
          $row = array();
+         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
@@ -518,10 +521,11 @@ class ExaminationTable {
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
          $row = array();
+         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';

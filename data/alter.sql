@@ -690,6 +690,8 @@ ALTER TABLE `pdf_header_texte`  ADD `header_font_size` VARCHAR(255) NULL  AFTER 
 
 --Selvam 20-Jun-2019
 
+ALTER TABLE `global_config` ADD UNIQUE(`global_name`);
+
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
 VALUES (NULL, 'Registrar Name', 'registrar-name', NULL);
 

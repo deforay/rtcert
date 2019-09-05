@@ -50,10 +50,12 @@ $acl = $this->layout()->acl;
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
                           <th  style="width:4%;"># </th>
                         <?php } ?>
+                        <th  style="width:10%;">Tester </th>
                         <th  style="width:10%;">Professional Registration No.<br>(if available) </th>
+                        
                         <th  style="width:10%;">Certification Registration no. </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider </th>
+                        
                         <th  style="width:10%;">Written Exam<br>Score </th>
                         <th  style="width:10%;">Practical Exam<br>Score </th>
                     </tr>
@@ -66,10 +68,11 @@ $acl = $this->layout()->acl;
             <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                 <thead>
                     <tr>
+                    <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
                         <th  style="width:10%;"> Certification Registration no. </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
+                        
                         <th  style="width:10%;"> Final Decision</th>
                         <th  style="width:10%;">Certificate Recommended By</th>
                         <th  style="width:10%;">Date Certificate Issued</th>
@@ -78,6 +81,10 @@ $acl = $this->layout()->acl;
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
           </div>
@@ -85,10 +92,11 @@ $acl = $this->layout()->acl;
             <table id="approvedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                 <thead>
                     <tr>
+                        <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
                         <th  style="width:10%;"> Certification Registration no. </th>
                         <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
+                        
                         <th  style="width:10%;"> Final Decision</th>
                         <th  style="width:10%;">Certificate Recommended By</th>
                         <th  style="width:10%;">Date Certificate Issued</th>
@@ -107,7 +115,7 @@ $acl = $this->layout()->acl;
             <table id="pendingTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                 <thead>
                     <tr>
-                        <th  style="width:10%;">Provider </th>
+                        <th  style="width:10%;">Tester </th>
                         <th  style="width:10%;">Region</th>
                         <th  style="width:10%;">District</th>
                         <th  style="width:10%;">Phone</th>
@@ -126,7 +134,7 @@ $acl = $this->layout()->acl;
             <table id="failedTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                 <thead>
                     <tr>
-                        <th  style="width:10%;">Provider </th>
+                        <th  style="width:10%;">Tester </th>
                         <th  style="width:10%;">Region</th>
                         <th  style="width:10%;">District</th>
                         <th  style="width:10%;">Phone</th>
