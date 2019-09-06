@@ -123,7 +123,7 @@ class ProviderForm extends Form {
             'name' => 'type_vih_test',
             'type' => 'Zend\Form\Element\Select',
             'options' => array(
-                'label' => 'Type HIV Test Modality/Point',
+                'label' => 'Type of HIV Test Modality/Point',
                 'empty_option' => 'Please Choose a Type',
                 'value_options' => array(
                     'ART clinic' => 'ART clinic',
