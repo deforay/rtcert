@@ -715,8 +715,83 @@ VALUES ('Application\\Controller\\TestConfig', 'index', 'Access'), ('Application
 ('Application\\Controller\\TestQuestion', 'index', 'Access'),('Application\\Controller\\TestQuestion', 'add', 'Add'), ('Application\\Controller\\TestQuestion', 'edit', 'Edit');
 
 CREATE TABLE `test_config` (
-  `config_id` int(11) NOT NULL,
-  `display_name` varchar(255) NOT NULL,
-  `test_config_name` varchar(255) NOT NULL,
-  `test_config_value` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ `config_id` int(11) NOT NULL AUTO_INCREMENT,
+ `display_name` varchar(255) NOT NULL,
+ `test_config_name` varchar(255) NOT NULL,
+ `test_config_value` varchar(255) NOT NULL,
+ PRIMARY KEY (`config_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `test_sections` (
+ `section_id` int(11) NOT NULL AUTO_INCREMENT,
+ `section_name` varchar(255) DEFAULT NULL,
+ `status` varchar(255) DEFAULT NULL,
+ PRIMARY KEY (`section_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `test_questions` (
+ `question_id` int(11) NOT NULL AUTO_INCREMENT,
+ `question` mediumtext,
+ `section` int(11) DEFAULT NULL,
+ `status` varchar(255) DEFAULT NULL,
+ `correct_option` varchar(255) DEFAULT NULL,
+ `correct_option_text` text,
+ PRIMARY KEY (`question_id`),
+ KEY `section` (`section`),
+ CONSTRAINT `test_questions_ibfk_1` FOREIGN KEY (`section`) REFERENCES `test_sections` (`section_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `test_options` (
+ `option_id` int(11) NOT NULL AUTO_INCREMENT,
+ `question` int(11) DEFAULT NULL,
+ `option` mediumtext,
+ `status` varchar(255) DEFAULT NULL,
+ PRIMARY KEY (`option_id`),
+ KEY `question` (`question`)
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `tests` (
+ `test_id` int(11) NOT NULL AUTO_INCREMENT,
+ `pretest_start_datetime` datetime NOT NULL,
+ `pretest_end_datetime` datetime DEFAULT NULL,
+ `pre_test_score` varchar(255) DEFAULT NULL,
+ `pre_test_status` varchar(255) DEFAULT 'not started',
+ `posttest_start_datetime` datetime DEFAULT NULL,
+ `posttest_end_datetime` datetime DEFAULT NULL,
+ `post_test_score` varchar(22) DEFAULT NULL,
+ `post_test_status` varchar(255) NOT NULL DEFAULT 'not started',
+ `user_id` int(11) NOT NULL,
+ `certificate_no` varchar(255) DEFAULT NULL,
+ `user_test_status` varchar(255) DEFAULT NULL,
+ PRIMARY KEY (`test_id`),
+ KEY `user_foreign_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `pretest_questions` (
+ `pre_test_id` int(11) NOT NULL AUTO_INCREMENT,
+ `test_id` int(11) NOT NULL,
+ `question_id` int(11) NOT NULL,
+ `question_text` varchar(255) DEFAULT NULL,
+ `response_id` varchar(255) DEFAULT NULL,
+ `response_text` text,
+ `score` varchar(255) DEFAULT NULL,
+ `pre_test_status` int(11) NOT NULL DEFAULT '0',
+ PRIMARY KEY (`pre_test_id`),
+ KEY `pre_question_foreign_id` (`question_id`),
+ KEY `pre_response_foreign_id` (`response_id`),
+ KEY `pre_test_id` (`test_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `posttest_questions` (
+ `post_test_id` int(11) NOT NULL AUTO_INCREMENT,
+ `test_id` int(11) NOT NULL,
+ `question_id` int(11) NOT NULL,
+ `question_text` varchar(255) DEFAULT NULL,
+ `response_id` varchar(255) DEFAULT NULL,
+ `response_text` text,
+ `score` varchar(255) DEFAULT NULL,
+ `post_test_status` int(11) DEFAULT NULL,
+ PRIMARY KEY (`post_test_id`),
+ KEY `post_test_id` (`test_id`),
+ KEY `post_question_foreign_id` (`question_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
