@@ -44,6 +44,7 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "inde
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")) {
   $configMenu.="<li><a href=".$this->url('certification',array('action' => 'pdf-setting')).">Certificate PDF Settings</a></li>";
 }
+
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Roles", "index")) {
   $adminMenu.="<li><a href=".$this->url('roles',array('action' => 'index')).">Roles</a></li>";
 }
@@ -75,6 +76,15 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination"
 //}
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestConfig", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('test-config',array('action' => 'index')).">Online Test Config</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('test-section',array('action' => 'index')).">Online Question Categories</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Tests</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
   $certificateMenu.="<li><a href=".$this->url('certification',array('action' => 'index')).">Certifications</a></li>";

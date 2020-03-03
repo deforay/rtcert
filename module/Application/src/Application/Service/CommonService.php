@@ -661,7 +661,7 @@ class CommonService {
             }
             
             if (isset($params['cc']) && trim($params['cc']) != "") {
-                $alertMail->addCc($result['cc']);
+                $alertMail->addCc($params['cc']);
             }
 
             if (isset($params['bcc']) && trim($params['bcc']) != "") {
@@ -709,6 +709,44 @@ class CommonService {
             error_log($e->getTraceAsString());
             error_log('whoops! Something went wrong in send-certificate-reminder-mail.');
         }
+    }
+
+    public function getTestConfig($parameters){
+        $configDb = $this->sm->get('TestConfigTable');
+        return $configDb->fetchTestConfig($parameters);      
+    }
+
+    public function updateTestConfig($params) {
+        $container = new Container('alert');
+        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter->beginTransaction();
+        try {
+            $testConfigDb = $this->sm->get('TestConfigTable');
+            $updateRes = $testConfigDb->updateTestConfigDetails($params);
+            if($updateRes){
+                $subject = '';
+                $eventType = 'test-config-update';
+                $action = 'updated test config details';
+                $resourceName = 'test-config';
+                $eventLogDb = $this->sm->get('EventLogTable');
+                $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                $adapter->commit();
+                $container->alertMsg ="Test Config Updated Successfully.";
+            }
+        }catch (Exception $exc) {
+            error_log($exc->getMessage());
+            error_log($exc->getTraceAsString());
+        }
+    }
+
+    public function getTestConfigDetails(){
+        $testConfigDb = $this->sm->get('TestConfigTable');
+        return $testConfigDb->fetchTestConfigDetails();        
+    }
+
+    public function getTestValue($globalName){
+        $testConfigDb = $this->sm->get('TestConfigTable');
+        return $testConfigDb->fetchTestValue($globalName);        
     }
 }
 

@@ -1,0 +1,60 @@
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/jasny-bootstrap.min.css'); ?>" />
+<div class="am-content">
+    <div class="page-head">
+        <h2>Edit Test Config</h2>
+    </div>
+    <div class="main-content">
+        <div class="widget widget-fullwidth widget-small" style="padding:5px;">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form role="form" class="form-horizontal" name="editConfig" id="editConfig" method="post" action="<?php echo $this->url('test-config', array('action' => 'edit')); ?>" enctype="multipart/form-data" autocomplete="off">
+                                <?php foreach($config as $fieldrow){ 
+                                    $display = '';
+                                    if($fieldrow['test_config_name'] != 'allow-retest'){
+                                        $display = '<div class="form-group">
+                                                        <label for="'.$fieldrow['test_config_name'].'" class="col-sm-2 control-label">'.$fieldrow['display_name'].'<span class="mandatory">*</span></label>
+                                                        <div class="col-lg-4">
+                                                            <input name="'.$fieldrow['test_config_name'].'" id="'.$fieldrow['test_config_name'].'" class="form-control isRequired" placeholder="Enter the '.$fieldrow['display_name'].'" title="Please enter '.$fieldrow['display_name'].'" value="'.$fieldrow['test_config_value'].'" />
+                                                        </div>
+                                                    </div>';
+                                    }else{
+                                        $selectYes = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "yes")?"selected='selected'":"";
+                                        $selectNo = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "no")?"selected='selected'":"";
+                                        $display = '<div class="form-group">
+                                                        <label for="'.$fieldrow['test_config_name'].'" class="col-sm-2 control-label">'.$fieldrow['display_name'].'<span class="mandatory">*</span></label>
+                                                        <div class="col-lg-4">
+                                                            <select name="'.$fieldrow['test_config_name'].'" id="'.$fieldrow['test_config_name'].'" class="form-control isRequired" placeholder="Select the '.$fieldrow['display_name'].'" title="Select enter '.$fieldrow['display_name'].'">
+                                                                <option value="">--Select--</option>
+                                                                <option value="yes" '.$selectYes.'>Yes</option>
+                                                                <option value="no" '.$selectNo.'>No</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>';
+                                    }
+                                    echo $display;
+                                }?>
+                                <hr>
+                                <div class="spacer col-lg-5" align="center">
+                                    <button type="button" onclick="validateNow();" class="btn btn-space btn-primary">Update</button>
+                                    <a href="<?php echo $this->url('test-config', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function validateNow() {
+        flag = deforayValidator.init({
+            formId: 'editConfig'
+        });
+        if (flag) {
+            document.getElementById('editConfig').submit();
+        }
+    }
+</script>

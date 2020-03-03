@@ -137,6 +137,36 @@ return array(
                     ),
                 ),
             ),
+            'test-config' => array(
+                'type' => 'segment',
+                'options' => array(
+                    'route' => '/test-config[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\TestConfig',
+                        'action' => 'index',
+                    ),
+                ),
+            ),
+            'test-section' => array(
+                'type'    => 'segment',
+                'options' => array(
+                    'route'    => '/test-section[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\TestSection',
+                        'action' => 'index',
+                    ),
+                ),
+            ),
+            'test-question' => array(
+                'type'    => 'segment',
+                'options' => array(
+                    'route'    => '/test-question[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\TestQuestion',
+                        'action' => 'index',
+                    ),
+                ),
+            ),
         ),
     ),
     'service_manager' => array(
@@ -160,16 +190,19 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => "Application\Controller\IndexController",
-            'Application\Controller\Login' => "Application\Controller\LoginController",
-            'Application\Controller\Facility' => "Application\Controller\FacilityController",
-            'Application\Controller\Roles' => "Application\Controller\RolesController",
-            'Application\Controller\Common' => "Application\Controller\CommonController",
-            'Application\Controller\Users' => "Application\Controller\UsersController",
-            'Application\Controller\Config' => "Application\Controller\ConfigController",
-            'Application\Controller\Email' => "Application\Controller\EmailController",
-            'Application\Controller\Cron' => "Application\Controller\CronController",
-            'Application\Controller\Dashboard' => "Application\Controller\DashboardController",
+            'Application\Controller\Index'          => "Application\Controller\IndexController",
+            'Application\Controller\Login'          => "Application\Controller\LoginController",
+            'Application\Controller\Facility'       => "Application\Controller\FacilityController",
+            'Application\Controller\Roles'          => "Application\Controller\RolesController",
+            'Application\Controller\Common'         => "Application\Controller\CommonController",
+            'Application\Controller\Users'          => "Application\Controller\UsersController",
+            'Application\Controller\Config'         => "Application\Controller\ConfigController",
+            'Application\Controller\Email'          => "Application\Controller\EmailController",
+            'Application\Controller\Cron'           => "Application\Controller\CronController",
+            'Application\Controller\Dashboard'      => "Application\Controller\DashboardController",
+            'Application\Controller\TestConfig'     => "Application\Controller\TestConfigController",
+            'Application\Controller\TestSection'    => 'Application\Controller\TestSectionController',
+            'Application\Controller\TestQuestion'   => 'Application\Controller\TestQuestionController',
         ),
     ),
     'view_manager' => array(

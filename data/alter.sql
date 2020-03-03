@@ -703,3 +703,20 @@ VALUES (NULL, 'Registrar Digital Signature', 'registrar-digital-signature', NULL
 
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
 VALUES (NULL, 'Translate Register Title', 'translate-register-title', NULL);
+
+-- Thanaseelan 03 Feb, 2020
+INSERT INTO `resources` (`resource_id`, `display_name`) 
+VALUES ('Application\\Controller\\TestConfig', 'Online Test Config'), 
+('Application\\Controller\\TestSection', 'Online Question Categories'), 
+('Application\\Controller\\TestQuestion', 'Online Tests');
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) 
+VALUES ('Application\\Controller\\TestConfig', 'index', 'Access'), ('Application\\Controller\\TestConfig', 'edit', 'Edit'),
+('Application\\Controller\\TestSection', 'index', 'Access'), ('Application\\Controller\\TestSection', 'add', 'Add'),('Application\\Controller\\TestSection', 'edit', 'Edit'), 
+('Application\\Controller\\TestQuestion', 'index', 'Access'),('Application\\Controller\\TestQuestion', 'add', 'Add'), ('Application\\Controller\\TestQuestion', 'edit', 'Edit');
+
+CREATE TABLE `test_config` (
+  `config_id` int(11) NOT NULL,
+  `display_name` varchar(255) NOT NULL,
+  `test_config_name` varchar(255) NOT NULL,
+  `test_config_value` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
