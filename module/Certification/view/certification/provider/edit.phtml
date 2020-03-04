@@ -120,6 +120,20 @@ $sessionLogin = new Container('credo');
                                     'id' => 'Time worked as tester',
                                     'onclick' => 'emptyInput(this)']);
 
+                                $form->get('username')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Username for login',
+                                    'autocomplete' => 'off',
+                                    'id' => 'Username',
+                                    'onclick' => 'emptyInput(this)']);
+                                
+                                $form->get('password')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Password for login',
+                                    'autocomplete' => 'off',
+                                    'id' => 'Password',
+                                    'onclick' => 'emptyInput(this)']);
+
                                 $form->get('test_site_in_charge_name')->setAttributes([
                                     'class' => 'form-control',
                                     'placeholder' => 'Name',
@@ -268,6 +282,18 @@ $sessionLogin = new Container('credo');
                                                 </select>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div class="form-group col-lg-4">
+                                        <?= $this->formLabel($form->get('username')); ?><span class="mandatory">*</span>
+                                        <?= $this->formElement($form->get('username')); ?>
+                                        <?= $this->formElementErrors($form->get('username')); ?>
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-4">
+                                        <?= $this->formLabel($form->get('password')); ?><span class="mandatory">*</span>
+                                        <?= $this->formElement($form->get('password')); ?>
+                                        <?= $this->formElementErrors($form->get('password')); ?>
                                     </div>
                                 </fieldset>
 

@@ -26,7 +26,7 @@ class ProviderTable extends AbstractTableGateway {
     public function fetchAll() {
         $logincontainer = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
-        $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id'));
+        $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id'));
         $sqlSelect->join('certification_facilities', ' certification_facilities.id = provider.facility_id ', array('facility_name', 'facility_address'))
                   ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
                   ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
@@ -98,6 +98,8 @@ class ProviderTable extends AbstractTableGateway {
             'prefered_contact_method' => $provider->prefered_contact_method,
             'current_jod' => $provider->current_jod,
             'time_worked' => $provider->time_worked,
+            'username' => $provider->username,
+            'password' => $provider->password,
             'test_site_in_charge_name' => $test_site_in_charge_name,
             'test_site_in_charge_phone' => $provider->test_site_in_charge_phone,
             'test_site_in_charge_email' => $provider->test_site_in_charge_email,
@@ -120,6 +122,8 @@ class ProviderTable extends AbstractTableGateway {
             'prefered_contact_method' => $provider->prefered_contact_method,
             'current_jod' => $provider->current_jod,
             'time_worked' => $provider->time_worked,
+            'username' => $provider->username,
+            'password' => $provider->password,
             'test_site_in_charge_name' => $test_site_in_charge_name,
             'test_site_in_charge_phone' => $provider->test_site_in_charge_phone,
             'test_site_in_charge_email' => $provider->test_site_in_charge_email,
@@ -253,7 +257,7 @@ class ProviderTable extends AbstractTableGateway {
         $roleCode = $logincontainer->roleCode;
 
         $db = $this->tableGateway->getAdapter();
-        $sql = 'select provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name, l_d_r.location_name as region_name, l_d_d.location_name as district_name, c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name FROM provider, certification_facilities, country as c, location_details as l_d_r, location_details as l_d_d WHERE provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
+        $sql = 'select provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name, l_d_r.location_name as region_name, l_d_d.location_name as district_name, c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.username,provider.password,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name FROM provider, certification_facilities, country as c, location_details as l_d_r, location_details as l_d_d WHERE provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
         
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;

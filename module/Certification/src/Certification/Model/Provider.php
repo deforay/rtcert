@@ -23,6 +23,8 @@ class Provider {
     public $prefered_contact_method;
     public $current_jod;
     public $time_worked;
+    public $username;
+    public $password;
     public $test_site_in_charge_name;
     public $test_site_in_charge_phone;
     public $test_site_in_charge_email;
@@ -54,6 +56,8 @@ class Provider {
         $this->prefered_contact_method = (!empty($data['prefered_contact_method'])) ? $data['prefered_contact_method'] : null;
         $this->current_jod = (!empty($data['current_jod'])) ? $data['current_jod'] : null;
         $this->time_worked = (!empty($data['time_worked'])) ? $data['time_worked'] : null;
+        $this->username = (!empty($data['username'])) ? $data['username'] : null;
+        $this->password = (!empty($data['password'])) ? $data['password'] : null;
         $this->test_site_in_charge_name = (!empty($data['test_site_in_charge_name'])) ? $data['test_site_in_charge_name'] : null;
         $this->test_site_in_charge_phone = (!empty($data['test_site_in_charge_phone'])) ? $data['test_site_in_charge_phone'] : null;
         $this->test_site_in_charge_email = (!empty($data['test_site_in_charge_email'])) ? $data['test_site_in_charge_email'] : null;
@@ -294,6 +298,39 @@ class Provider {
 
             $inputFilter->add(array(
                 'name' => 'time_worked',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array(
+                        'name' => 'StringLength',
+                        'options' => array(
+                            'encoding' => 'UTF-8',
+                        ),
+                    ),
+                ),
+            ));
+            $inputFilter->add(array(
+                'name' => 'username',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                ),
+                'validators' => array(
+                    array(
+                        'name' => 'StringLength',
+                        'options' => array(
+                            'encoding' => 'UTF-8',
+                        ),
+                    ),
+                ),
+            ));
+
+            $inputFilter->add(array(
+                'name' => 'password',
                 'required' => true,
                 'filters' => array(
                     array('name' => 'StripTags'),

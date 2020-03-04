@@ -795,3 +795,6 @@ CREATE TABLE `posttest_questions` (
  KEY `post_test_id` (`test_id`),
  KEY `post_question_foreign_id` (`question_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
+
+-- 04 Feb, 2020
+ALTER TABLE `provider` ADD `username` VARCHAR(255) NOT NULL AFTER `time_worked`, ADD `password` VARCHAR(255) NOT NULL AFTER `username`;

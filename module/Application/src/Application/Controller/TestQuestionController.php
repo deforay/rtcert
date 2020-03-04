@@ -22,7 +22,7 @@ class TestQuestionController extends AbstractActionController{
         if($this->getRequest()->isPost()){
             $params=$this->getRequest()->getPost();
             $questionService->addQuestionData($params);
-            return $this->_redirect()->toRoute('test-question');
+            return $this->_redirect()->toRoute('home');
         }
         else {
             $testSectionService = $this->getServiceLocator()->get('TestSectionService');
@@ -38,7 +38,7 @@ class TestQuestionController extends AbstractActionController{
         if($this->getRequest()->isPost()){
             $param=$this->getRequest()->getPost();
             $questionService->updateQuestionDetails($param);
-            return $this->redirect()->toRoute('test-question');
+            return $this->redirect()->toRoute('home');
         }
         else{
             $questionId=base64_decode($this->params()->fromRoute('id'));

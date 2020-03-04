@@ -32,7 +32,7 @@ class TestSectionService {
                 $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
                 $adapter->commit();
                 $alertContainer = new Container('alert');
-                $alertContainer->alertMsg = 'Test section added successfully';
+                $alertContainer->alertMsg = 'Online question category added successfully';
             }
        }
        catch (Exception $exc) {
@@ -73,7 +73,7 @@ class TestSectionService {
                 $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
                 $adapter->commit();
                 $alertContainer = new Container('alert');
-                $alertContainer->alertMsg = 'Test section updated successfully';
+                $alertContainer->alertMsg = 'Online question category updated successfully';
             }
        }
        catch (Exception $exc) {

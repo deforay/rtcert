@@ -141,6 +141,20 @@ $acl = $this->layout()->acl;
                                     'autocomplete' => 'off',
                                     'id' => 'Time worked as tester',
                                     'onclick' => 'emptyInput(this)']);
+                                
+                                $form->get('username')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Username for login',
+                                    'autocomplete' => 'off',
+                                    'id' => 'Username',
+                                    'onclick' => 'emptyInput(this)']);
+                                
+                                $form->get('password')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Password for login',
+                                    'autocomplete' => 'off',
+                                    'id' => 'Password',
+                                    'onclick' => 'emptyInput(this)']);
 
                                 $form->get('test_site_in_charge_name')->setAttributes([
                                     'class' => 'form-control',
@@ -290,6 +304,18 @@ $acl = $this->layout()->acl;
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="form-group col-lg-4">
+                                        <?= $this->formLabel($form->get('username')); ?><span class="mandatory">*</span>
+                                        <?= $this->formElement($form->get('username')); ?>
+                                        <?= $this->formElementErrors($form->get('username')); ?>
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-4">
+                                        <?= $this->formLabel($form->get('password')); ?><span class="mandatory">*</span>
+                                        <?= $this->formElement($form->get('password')); ?>
+                                        <?= $this->formElementErrors($form->get('password')); ?>
+                                    </div>
                                 </fieldset>
 
                                 <fieldset>
@@ -409,6 +435,8 @@ $acl = $this->layout()->acl;
                                                 <td><div style="width:80px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->prefered_contact_method); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->current_jod); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->time_worked); ?></div></td>
+                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->username); ?></div></td>
+                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->password); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_name); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_address); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_name); ?></div></td>

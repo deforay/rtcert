@@ -28,7 +28,7 @@ class QuestionTable extends AbstractTableGateway {
   }
 
   public function addQuestion($param) {
-    //\Zend\Debug\Debug::dump($param);die;
+    // \Zend\Debug\Debug::dump($param);die;
     $optionDb = new \Application\Model\TestOptionsTable($this->adapter);
     if(isset($param['questionSection']) && trim($param['questionSection']) != ""){
       $data = array(
@@ -254,7 +254,7 @@ class QuestionTable extends AbstractTableGateway {
       $row[] = ucwords($aRow['correct_option_text']);
       $row[] = ucwords($aRow['status']);
       if ($acl->isAllowed($role, 'Application\Controller\TestQuestion', 'edit')) {
-        $row[] = '<a href="/question/edit/' . base64_encode($aRow['question_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil">Edit</i></a>';
+        $row[] = '<a href="/test-question/edit/' . base64_encode($aRow['question_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil">Edit</i></a>';
       }else{
           $row[] = "";
       }
@@ -266,18 +266,18 @@ class QuestionTable extends AbstractTableGateway {
   public function fetchQuestionsListById($questionId) {
     $dbAdapter = $this->adapter;
     $sql = new Sql($dbAdapter);
-    $sQuery = $sql->select()->from(array($this->table))
-    ->join(array('s' => 'sections'), 'q.section = s.section_id', array('section_name'))
+    $sQuery = $sql->select()->from(array('q'=>$this->table))
+    ->join(array('s' => 'test_sections'), 'q.section = s.section_id', array('section_name'))
     ->where(array('q.question_id' => $questionId));
-    $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+	$sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
     return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
   }
 
   public function fetchOptionListById($questionId) {
     $dbAdapter = $this->adapter;
     $sql = new Sql($dbAdapter);
-    $sQuery = $sql->select()->from(array('o' => 'options'),array('question','option','status'))
-    ->join(array($this->table), 'o.question = q.question_id', array('question_id'))
+    $sQuery = $sql->select()->from(array('o' => 'test_options'),array('question','option','status'))
+    ->join(array('q'=>$this->table), 'o.question = q.question_id', array('question_id'))
     ->where(array('q.question_id' => $questionId));
     $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
     // echo $sQueryStr;die;
@@ -374,7 +374,7 @@ class QuestionTable extends AbstractTableGateway {
   {
     $dbAdapter = $this->adapter;
     $sql = new Sql($dbAdapter);
-    $oQuery = $sql->select()->from(array('o'=>'options'))
+    $oQuery = $sql->select()->from(array('o'=>'test_options'))
                     ->join(array('pq'=>$tableName),'pq.question_id=o.question',array($primary,'test_id','question_id','response_id'))
                     ->where(array('o.status'=>'active'))
                     ->where(array('pq.test_id'=>$testId));
@@ -469,7 +469,7 @@ class QuestionTable extends AbstractTableGateway {
     }
     $dbAdapter = $this->adapter;
     $sql = new Sql($dbAdapter);
-    $sQuery = $sql->select()->from(array($this->table))->columns(array('question_id','question','correct_option'))
+    $sQuery = $sql->select()->from(array('q'=>$this->table))->columns(array('question_id','question','correct_option'))
                               ->join(array('pre' => 'pretest_questions'), 'q.question_id = pre.question_id', array('preQCount' => new Expression('COUNT(pre_test_id)'),"preRCount" => new Expression("SUM(CASE WHEN (pre.score  = 1) THEN 1 ELSE 0 END)")),'left')
                               ->join(array('t' => 'tests'), 'pre.test_id = t.test_id', array('pretest_start_datetime','posttest_start_datetime'))
                               ->group("q.question_id");
@@ -512,7 +512,7 @@ class QuestionTable extends AbstractTableGateway {
 
     /* Total data set length */
     $iTotal = $this->select()->count();
-    $iQuery = $sql->select()->from(array($this->table))->columns(array('question_id','question','correct_option'))
+    $iQuery = $sql->select()->from(array('q'=>$this->table))->columns(array('question_id','question','correct_option'))
                               ->join(array('pre' => 'pretest_questions'), 'q.question_id = pre.question_id', array('preQCount' => new Expression('COUNT(pre_test_id)'),"preRCount" => new Expression("SUM(CASE WHEN (pre.score  = 1) THEN 1 ELSE 0 END)")),'left')
                               ->join(array('t' => 'tests'), 'pre.test_id = t.test_id', array('pretest_start_datetime','posttest_start_datetime'))
                               ->group("q.question_id");
@@ -547,7 +547,7 @@ class QuestionTable extends AbstractTableGateway {
         $row[] = ucwords($aRow['question']);
         $row[] = $aRow['preQCount'];
         $row[] = $aRow['preRCount'];
-        $sQuery2 = $sql->select()->from(array($this->table))->columns(array('question_id','question','correct_option'))
+        $sQuery2 = $sql->select()->from(array('q'=>$this->table))->columns(array('question_id','question','correct_option'))
                               ->join(array('post' => 'posttest_questions'), 'q.question_id = post.question_id', array('postQCount' => new Expression('COUNT(post_test_id)'),"postRCount" => new Expression("SUM(CASE WHEN (post.score  = 1) THEN 1 ELSE 0 END)")),'left')
                               ->join(array('t' => 'tests'), 'post.test_id = t.test_id', array('posttest_start_datetime','pretest_start_datetime'))
                               ->group("q.question_id");

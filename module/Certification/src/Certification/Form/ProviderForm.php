@@ -202,6 +202,22 @@ class ProviderForm extends Form {
         ));
 
         $this->add(array(
+            'name' => 'username',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Username',
+            ),
+        ));
+
+        $this->add(array(
+            'name' => 'password',
+            'type' => 'password',
+            'options' => array(
+                'label' => 'Password',
+            ),
+        ));
+
+        $this->add(array(
             'name' => 'test_site_in_charge_name',
             'type' => 'Text',
             'options' => array(

@@ -1,70 +1,31 @@
-<?php
-    // \Zend\Debug\Debug::dump($sectionResult);die;
-?>
-<style type="text/css">
-.layCek{
-    display:inline-block;
-    width:17px;
-    height:17px;
-    margin:-1px 3px 0 0;
-    vertical-align:middle;
-    cursor:pointer;
-}
-</style>
-<!-- Content Header (Page header) -->
-<section class="content-header">
-    <h1>Add Questions<!--<small>Preview</small>--></h1>
-    <!-- <ol class="breadcrumb">
-        <li><a href="<?php echo $this->url('home'); ?>"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="<?php echo $this->url('question', array('action' => 'index')); ?>"> Question Details</a></li>
-        <li class="active">Add Question</li>
-    </ol> -->
-</section>
-<!-- Main content -->
-<section class="content">
-
-    <!-- left column -->
-    <div class="">
-        <!-- general form elements -->
-        <div class="box box-primary">
-            <div class="box-header">
-                <div class="pull-right" style="font-size:15px;"><span class="mandatory">*</span> indicates required field &nbsp;</div>
-            </div><!-- /.box-header -->
-            <!-- form start -->
-            <form role="form" class="form-horizontal" name="questionForm" id="questionForm"  method="post" action="<?php echo $this->url('question', array('action' => 'add')); ?>" autocomplete="off">
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="question" class="col-sm-3 control-label">Question<span class="mandatory">*</span></label>
-                                <div class="col-sm-12" style="width:69%;">
-                                    <input type="text" class="form-control isRequired" id="questionSection" name="questionSection" placeholder="Enter question" title="Please enter the question" onblur="checkNameValidation('questions', 'question', this, null, 'Entered question already exist. Please enter an another question.')"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
+<div class="am-content">
+	<div class="page-head">
+		<h2>Add Online Tests</h2>
+	</div>
+	<div class="main-content">
+		<div class="widget widget-fullwidth widget-small" style="padding:5px;">
+            <form role="form" name="addFacilityInfo" id="addFacilityInfo" method="post" action="<?php echo $this->url('test-question', array('action' => 'add')); ?>" autocomplete="off" >
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group col-lg-6">
+                                <label for="questionSection" class="col-sm-3 control-label">Question<span class="mandatory">*</span></label>
+                                <input type="text" class="form-control isRequired" id="questionSection" name="questionSection" placeholder="Enter question" title="Please enter the question" onblur="checkNameValidation('test_questions', 'question', this, null, 'Entered question already exist. Please enter an another question.')"/>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
+                                
+                                <div class="form-group col-lg-6">
                                 <label for="section" class="col-sm-3 control-label">Section<span class="mandatory">*</span></label>
-                                <div class="col-sm-8" style="width:69%;">
-                                <select class="form-control isRequired" name="section" id="section" title="Please select section">
-                                    <option value="">--Select--</option>
-                                    <?php foreach($sectionResult as $section) { ?>
-                                        <option value="<?php echo base64_encode($section['section_id']); ?>"><?php echo $section['section_name']; ?></option>
-                                    <?php } ?>
-                                </select>
+                                    <select class="form-control isRequired" name="section" id="section" title="Please select section">
+                                        <option value="">--Select--</option>
+                                        <?php foreach($sectionResult as $section) { ?>
+                                            <option value="<?php echo base64_encode($section['section_id']); ?>"><?php echo $section['section_name']; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <!-- <label for="coorect-option" class="col-sm-3 control-label">Correct Option<span class="mandatory">*</span></label> -->
-                                <!-- <div class="col-sm-8" style="width:69%;"> -->
-                                <!-- </div> -->
-                                <label for="status" class="col-lg-3 control-label">Status<span class="mandatory">*</span></label>
-                                <div class="col-lg-8" style="width:69%;">
+                                <div class="form-group col-lg-6">
+                                    <label for="section" class="col-sm-3 control-label">Status<span class="mandatory">*</span></label>
                                     <select class="form-control isRequired" name="status" id="status" title="Please select option status">
                                         <option value="">--Select--</option>
                                         <option value="active">Active</option>
@@ -73,91 +34,68 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="status" class="col-lg-3 control-label">Status<span class="mandatory">*</span></label>
-                                <div class="col-lg-8" style="width:69%;">
-                                    <select class="form-control isRequired" name="status" id="status" title="Please select option status">
-                                        <option value="">--Select--</option>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div> -->
                     </div>
-                </div><!-- /.box-body -->
+                </div>
                 <section class="content-header" style="margin-left: 20px;">
                     <h4><strong>Add Options</strong></h4>
                 </section>
-                <div class="table-responsive" style=" padding: 15px; ">
-                    <table id="questionTable" class="table table-bordered table-condensed table">
-                        <thead>
-                            <tr>
-                                <th>Options<span class="mandatory">*</span></th>
-                                <th>Status<span class="mandatory">*</span></th>
-                                <th style="width: 110px !important;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <input class="col-md-1" onclick="optionChecked(1);" type="checkbox" data-id="1" name="optionSelect1" id="optionSelect1" title="Choose correct options in this list">
-                                    <input type="hidden" name="selectedCheckBox[]" id="selectedCheckBox1" value="no"/>
-                                    <input class="col-md-11" style=" height: 35px; " type="text" class="form-control isRequired" id="option1" name="option[]" placeholder="Enter the Option" title="Please enter the option value" onblur="optionValidate(this,'1');">
-                                </td>
+                <div class="row form-group">
+                    <div class="table-responsive" style=" padding: 15px; ">
+                        <table id="questionTable" class="table table-bordered table-condensed table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80%;">Options<span class="mandatory">*</span></th>
+                                    <th style="width: 100%;">Status<span class="mandatory">*</span></th>
+                                    <th style="padding: 15px !important;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input class="col-md-1" onclick="optionChecked(1);" type="checkbox" data-id="1" name="optionSelect1" id="optionSelect1" title="Choose correct options in this list">
+                                        <input type="hidden" name="selectedCheckBox[]" id="selectedCheckBox1" value="no"/>
+                                        <input class="col-md-11" style=" height: 35px; " type="text" class="form-control isRequired" id="option1" name="option[]" placeholder="Enter the Option" title="Please enter the option value" onblur="optionValidate(this,'1');">
+                                    </td>
 
-                                <td>
-                                    <select class="form-control isRequired" id="optionStatus1" name="optionStatus[]" title="Please select the Option Status">
-                                        <option value=""> -- Select -- </option>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </td>
+                                    <td>
+                                        <select class="form-control isRequired" id="optionStatus1" name="optionStatus[]" title="Please select the Option Status">
+                                            <option value=""> -- Select -- </option>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </td>
 
-                                <td style="text-align: center">
-                                    <a href="javascript:void(0);" class="btn btn-info btn-xs" onclick= "insRow()";><i class="fa fa-plus"> </i></a>&nbsp;<a class="btn btn-round btn-danger btn-xs" onclick= "removeRow(this.parentNode.parentNode);"><i class="fa fa-minus"> </i></a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="box-footer">
-                    <input type="button" class="btn btn-primary" value="Add" onclick="validateNow();return false;">
-                    <a href="<?php echo $this->url('question', array('action' => 'index')); ?>" class="btn btn-default">Cancel</a>
+                                    <td style="text-align: center">
+                                        <a href="javascript:void(0);" class="btn btn-info btn-xs" onclick= "insRow()";><i class="fa fa-plus"> </i></a>&nbsp;<a class="btn btn-round btn-danger btn-xs" onclick= "removeRow(this.parentNode.parentNode);"><i class="fa fa-minus"> </i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="spacer col-lg-12">
+                        <button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit</button>
+                        <a href="<?php echo $this->url('test-section', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a> 
+                    </div>
                 </div>
             </form>
-
-        </div><!-- /.box -->
-    </div><!--/.col (left) -->
-</section><!-- /.content -->
-
+		</div>
+	</div>
+</div>
+<script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
 <script type="text/javascript">
     duplicateName = true;
     var rowCount = 1;
     var optionsList = [];
     function validateNow() {
-
-        flag = deforayValidator.init({
-            formId: 'questionForm'
-        });
-        if (flag) {
-            if( duplicateName ){
-                
-                    $.blockUI();
-                    document.getElementById('questionForm').submit();
-                
-            }else{
-
-                alert("Select atleast one correct option in the options list");
+		flag = deforayValidator.init({
+            formId: 'addFacilityInfo'
+		});
+		if (flag) {
+            if (duplicateName) {
+                document.getElementById('addFacilityInfo').submit();
             }
-        }
+		}
     }
-
-    $(document).ready(function() {
-
-    });
-
     /* new ins and remove row */
     function insRow() {
         ++rowCount;

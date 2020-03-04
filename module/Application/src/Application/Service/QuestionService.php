@@ -28,9 +28,15 @@ class QuestionService {
            $response = $QuestionDb->addQuestion($params);
 
            if($response > 0){
+                $subject = '';
+                $eventType = 'test-question-add';
+                $action = 'added test question details';
+                $resourceName = 'test-question';
+                $eventLogDb = $this->sm->get('EventLogTable');
+                $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
                 $adapter->commit();
                 $alertContainer = new Container('alert');
-                $alertContainer->alertMsg = 'Question added successfully';
+                $alertContainer->alertMsg = 'Online tests added successfully';
            }
        }
        catch (Exception $exc) {
@@ -64,9 +70,15 @@ class QuestionService {
             $QuestionId = $QuestionDb->updateQuestion($params);
 
             if($QuestionId > 0){
-              $adapter->commit();
-              $alertContainer = new Container('alert');
-              $alertContainer->alertMsg = 'Question updated successfully';
+                $subject = '';
+                $eventType = 'test-question-update';
+                $action = 'updated test question details';
+                $resourceName = 'test-question';
+                $eventLogDb = $this->sm->get('EventLogTable');
+                $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                $adapter->commit();
+                $alertContainer = new Container('alert');
+                $alertContainer->alertMsg = 'Online tests updated successfully';
             }
 
        }

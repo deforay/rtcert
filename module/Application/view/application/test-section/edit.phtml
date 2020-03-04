@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
 <div class="am-content">
 	<div class="page-head">
-		<h2>Add Test Section</h2>
+		<h2>Edit Online Question Categories</h2>
 	</div>
 	<div class="main-content">
 		<div class="widget widget-fullwidth widget-small" style="padding:5px;">
@@ -12,7 +12,7 @@
 							<form role="form" name="testSection" id="testSection" method="post" action="<?php echo $this->url('test-section', array('action' => 'edit')); ?>" autocomplete="off">
 								<div class="form-group col-lg-6">
 									<label for="sectionName" class="col-sm-3 control-label">Section Name<span class="mandatory">*</span></label>
-									<input type="text" value="<?php echo $testSectionResult['section_name'];?>" placeholder="Enter section name" class="form-control isRequired" name="sectionName" id="sectionName" title="Please enter the section name">
+									<input type="text" value="<?php echo $testSectionResult['section_name'];?>" placeholder="Enter section name" class="form-control isRequired" name="sectionName" id="sectionName" title="Please enter the section name" onblur="checkNameValidation('test_sections', 'section_name', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>, 'Entered category already exist. Please enter an another category.')">
 								</div>
 
 								<div class="form-group col-lg-6">
@@ -50,4 +50,20 @@
 			}
 		}
 	}
+	function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
 </script>
