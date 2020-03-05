@@ -1,4 +1,5 @@
 <?php
+$path = explode('/',trim($_SERVER['REQUEST_URI']));
 use Zend\Session\Container;
 $container = new Container('alert');
 $sessionLogin = new Container('credo');
@@ -116,6 +117,9 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
     <title><?php echo $sessionLogin->countryName; ?> - Tester Certification </title>
     
     <style type="text/css">
+    .pd-5{
+      padding : 0px 5px;
+    }
 .dropdown-submenu{ position: relative; }
 
 .dropdown-submenu>.dropdown-menu{
@@ -309,11 +313,14 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                 <?php } ?>
               </ul> 
           <?php } ?>
+          <ul class="nav navbar-nav navbar-right am-user-nav">
+          <?php if($path[1] != "test"){
+            echo '<li class="pd-5"><a href="/test/intro" class="btn btn-warning">Attend Test</a></li>';
+          } ?>
           <?php if(!isset($sessionLogin->userId)){ ?>
-                <ul class="nav navbar-nav navbar-right am-user-nav">
-                  <li class=""><a href="/login" class="btn btn-warning">Login</a></li>
-                </ul>
+            <li class="pd-5"><a href="/login" class="btn btn-warning">Login</a></li>
           <?php } ?>   
+          </ul>
 
           <ul class="nav navbar-nav navbar-right am-user-nav">
             <?php if(isset($sessionLogin->userId)){ ?>

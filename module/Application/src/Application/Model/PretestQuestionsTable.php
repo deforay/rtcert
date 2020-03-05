@@ -16,17 +16,15 @@ class PretestQuestionsTable extends AbstractTableGateway {
         $this->adapter = $adapter;
     }
     
-    public function addPreTestData($params){
-//        \Zend\Debug\Debug::dump($params);die;
-        $common = new CommonService();
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+    public function savePreTestData($params){
+       $logincontainer = new Container('credo');
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $questionDb = new \Application\Model\QuestionTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         if(isset($params['questionId']) && trim($params['questionId']) != ""){
             //first check allready start datetime
-            $testResult = $testDb->getTestDataByUserId($bsUserLogincontainer->bsUserId);
+            $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
             if(($testResult['testStatus']['pretest_start_datetime']=='0000-00-00 00:00:00') || ($testResult['testStatus']['pretest_start_datetime']=='NULL')){
                 $data = array(
                     'pretest_start_datetime' => date("Y-m-d H:i:s", time()),
@@ -56,7 +54,7 @@ class PretestQuestionsTable extends AbstractTableGateway {
 
             $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('pre_test_id'))
                         ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('pre_test_score'))
-                        ->where(array('t.user_id' => $bsUserLogincontainer->bsUserId))
+                        ->where(array('t.user_id' => $logincontainer->userId))
                         ->where('pt.response_id IS NULL');
             $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
             $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -90,17 +88,18 @@ class PretestQuestionsTable extends AbstractTableGateway {
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+        $logincontainer = new Container('credo');
 
         //get last test id
-        $testResult = $testDb->getTestDataByUserId($bsUserLogincontainer->bsUserId);
+        $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
         $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('totalCount' => new \Zend\Db\Sql\Expression('COUNT(pre_test_id)')))
                                 ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('pre_test_score'))
-                                ->where(array('t.user_id' => $bsUserLogincontainer->bsUserId,'t.test_id'=>$testResult['testStatus']['test_id']))
+                                ->where(array('t.user_id' => $logincontainer->userId,'t.test_id'=>$testResult['testStatus']['test_id']))
                                 ->order('pt.test_id DESC');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        // die($sQueryStr);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-        $maxQuestion = $testConfigDb->fetchTestConfig();
+        $maxQuestion = $testConfigDb->fetchTestConfigDetails();
         $sResult['maxQuestion'] = $maxQuestion[1]['test_config_value'];
         return $sResult;
     }

@@ -30,9 +30,13 @@ class LoginController extends AbstractActionController
 
     public function logoutAction() {
         $sessionLogin = new Container('credo');
+        $redirect = '/login';
+        if($sessionLogin->roleCode == 'provider'){
+            $redirect = '/provider/login';
+        }
         $sessionLogin->getManager()->getStorage()->clear();
-        return $this->redirect()->toRoute("login");
-    }    
+        return $this->redirect()->toUrl($redirect);
+    }
 
 
 }

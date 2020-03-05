@@ -18,7 +18,7 @@ class PostTestQuestionsTable extends AbstractTableGateway {
     
     public function addPostTestData($params){
         $common = new CommonService();
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+        $logincontainer = new Container('credo');
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $questionDb = new \Application\Model\QuestionTable($this->adapter);
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
@@ -26,7 +26,7 @@ class PostTestQuestionsTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         if(isset($params['questionId']) && trim($params['questionId']) != ""){
             //first check allready start datetime
-            $testResult = $testDb->getTestDataByUserId($bsUserLogincontainer->bsUserId);
+            $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
             if(($testResult['testStatus']['posttest_start_datetime']=='0000-00-00 00:00:00') || ($testResult['testStatus']['posttest_start_datetime']==NULL)){
                 $data = array(
                     'posttest_start_datetime' => date("Y-m-d H:i:s", time()),
@@ -56,7 +56,7 @@ class PostTestQuestionsTable extends AbstractTableGateway {
 
             $sQuery = $sql->select()->from(array('ptq' => 'posttest_questions'))->columns(array('post_test_id'))
                                     ->join(array('t' => 'tests'), 't.test_id = ptq.test_id', array('pre_test_score'))
-                                    ->where(array('t.user_id' => $bsUserLogincontainer->bsUserId))
+                                    ->where(array('t.user_id' => $logincontainer->userId))
                                     ->where('ptq.response_id IS NULL');
             $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
             $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -95,21 +95,21 @@ class PostTestQuestionsTable extends AbstractTableGateway {
     }
 
     public function fetchPostResultDetails(){
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+        $logincontainer = new Container('credo');
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $preTestDb = new \Application\Model\PretestQuestionsTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $testResult = $testDb->getTestDataByUserId($bsUserLogincontainer->bsUserId);
+        $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
         $sQuery = $sql->select()->from(array('ptq' => 'posttest_questions'))->columns(array('totalCount' => new \Zend\Db\Sql\Expression('COUNT(post_test_id)')))
                                 ->join(array('t' => 'tests'), 't.test_id = ptq.test_id', array('post_test_score','test_id'))
                                 ->join(array('b' => 'biosafety_user'), 'b.bs_user_id = t.user_id', array('unique_id','full_name','email_id'))
-                                ->where(array('t.user_id' => $bsUserLogincontainer->bsUserId,'t.test_id'=>$testResult['testStatus']['test_id']))
+                                ->where(array('t.user_id' => $logincontainer->userId,'t.test_id'=>$testResult['testStatus']['test_id']))
                                 ->order('ptq.test_id DESC');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-        $maxQuestion = $testConfigDb->fetchTestConfig();
+        $maxQuestion = $testConfigDb->fetchTestConfigDetails();
         $sResult['preResult'] = $preTestDb->fetchPreResultDetails();
         $sResult['preTestQuestion'] = $this->getQuestionList($testResult['testStatus']['test_id'],'pretest_questions');
         $sResult['postTestQuestion'] = $this->getQuestionList($testResult['testStatus']['test_id'],'posttest_questions');
@@ -129,12 +129,12 @@ class PostTestQuestionsTable extends AbstractTableGateway {
     }
 
     public function fetchPostTestCompleteDetails(){
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+        $logincontainer = new Container('credo');
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('response_id'))
                                 ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('pre_test_status','post_test_status'))
-                                ->where(array('t.user_id' => $bsUserLogincontainer->bsUserId))
+                                ->where(array('t.user_id' => $logincontainer->userId))
                                 ->order('t.test_id DESC')
                                 ->limit('1');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);

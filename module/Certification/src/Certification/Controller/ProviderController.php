@@ -21,6 +21,10 @@ class ProviderController extends AbstractActionController {
     }
 
     public function indexAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         return new ViewModel(array(
             'providers' => $this->getProviderTable()->fetchAll(),
@@ -28,6 +32,10 @@ class ProviderController extends AbstractActionController {
     }
 
     public function addAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $form = new ProviderForm($dbAdapter);
@@ -59,15 +67,17 @@ class ProviderController extends AbstractActionController {
     }
 
     public function editAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
 
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
 
         if (!$id) {
-            return $this->redirect()->toRoute('provider', array(
-                        'action' => 'add'
-            ));
+            return $this->redirect()->toRoute('provider', array('action' => 'add'));
         }
 
         try {
@@ -137,6 +147,10 @@ class ProviderController extends AbstractActionController {
     }
     
     public function districtAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $q = (int) $_GET['q'];
         $id = (isset($_GET['id']))?(int) $_GET['id']:'';
         $result = $this->getProviderTable()->getDistrict($q);
@@ -147,6 +161,10 @@ class ProviderController extends AbstractActionController {
     }
 
     public function facilityAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $q = (int) $_GET['q'];
         $id = (isset($_GET['id']))?(int) $_GET['id']:'';
         $result = $this->getProviderTable()->getFacility($q);
@@ -177,6 +195,10 @@ class ProviderController extends AbstractActionController {
     }
     
     public function deleteAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $id = (int) $this->params()->fromRoute('id', 0);
 
         if (!$id) {
@@ -312,6 +334,10 @@ class ProviderController extends AbstractActionController {
     }
     
     public function testHistoryAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toUrl("/provider/login");
+        }
         $tester = base64_decode($this->params()->fromQuery('tester', null));
         $result = $this->getProviderTable()->getTesterTestHistoryDetails($tester);
         $viewModel = new ViewModel(array(
@@ -321,4 +347,27 @@ class ProviderController extends AbstractActionController {
         return $viewModel;
     }
 
+    public function loginAction()
+    {
+        $logincontainer = new Container('credo');
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $route = $this->getProviderTable()->loginProviderDetails($params);
+            return $this->redirect()->toUrl($route);
+        }
+        // if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        //     return $this->redirect()->toUrl("/provider/login");
+        // } else {
+            $vm = new ViewModel();
+            $vm->setTerminal(true);
+            return $vm;
+        // }
+    }
+
+    public function logoutAction() {
+        $sessionLogin = new Container('credo');
+        $sessionLogin->getManager()->getStorage()->clear();
+        return $this->redirect()->toUrl("/provider/login");
+    }
 }

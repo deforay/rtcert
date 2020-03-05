@@ -798,3 +798,7 @@ CREATE TABLE `posttest_questions` (
 
 -- 04 Feb, 2020
 ALTER TABLE `provider` ADD `username` VARCHAR(255) NOT NULL AFTER `time_worked`, ADD `password` VARCHAR(255) NOT NULL AFTER `username`;
+-- 05 Feb, 2020
+INSERT INTO `resources` (`resource_id`, `display_name`) VALUES ('Application\\Controller\\Test', 'Online Tests'), ('', NULL);
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\Test', 'index', 'Access'), ('Application\\Controller\\Test', 'result', 'Test Result'), ('Application\\Controller\\Test', 'intro', 'Test Intro Page');
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Provider', 'login', 'Login'), ('Certification\\Controller\\Provider', 'logout', 'Logout');

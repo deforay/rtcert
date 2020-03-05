@@ -76,19 +76,20 @@ class Module
         $config = $commonService->getGlobalConfigDetails();
         $session->countryName = $config['country-name'];
 
-
-
-
         if (
             $e->getRouteMatch()->getParam('controller') != 'Application\Controller\Login'
             && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\Index'
+            && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\Provider'
         ) {
-
             if (!isset($session->userId) || $session->userId == "") {
                 if ($e->getRequest()->isXmlHttpRequest()) {
                     return;
                 }
-                $url = $e->getRouter()->assemble(array(), array('name' => 'login'));
+                if($e->getRouteMatch()->getParam('controller') != 'Certification\Controller\Provider'){
+                    $url = $e->getRouter()->assemble(array(), array('name' => 'provider'));
+                }else{
+                    $url = $e->getRouter()->assemble(array(), array('name' => 'login'));
+                }
                 $response = $e->getResponse();
                 $response->getHeaders()->addHeaderLine('Location', $url);
                 $response->setStatusCode(302);

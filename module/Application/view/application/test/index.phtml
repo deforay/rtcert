@@ -1,0 +1,391 @@
+﻿<?php
+// \Zend\Debug\Debug::dump($questionResult['question']);die;
+$maxQPerTest = count($questionResult['question']);
+?>
+<style type="text/css">
+    .pretest {
+        margin: 50px 0px;
+        width: 100%;
+        padding: 10px 0px;
+        font-size: 20px;
+        text-align: center;
+        border-bottom: solid #E34735;
+        border-bottom-width: 1px;
+    }
+
+    .pretest>li {
+        list-style: none;
+        display: inline-block;
+    }
+
+    /* Style the tab */
+    .tab {
+        overflow: hidden;
+    }
+
+    /* Style the buttons inside the tab */
+    /* .tab button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    color: #E34735;
+} */
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+    }
+
+    /*Radio Css */
+    .radiodiv {
+        clear: both;
+        /* margin: 0 50px; */
+    }
+
+    /* hide input */
+    input.radio:empty {
+        margin-left: -999px;
+    }
+
+    /* style label */
+    input.radio:empty~label {
+        position: relative;
+        float: left;
+        /* text-indent: 2.25em; */
+        /* margin-top: 2em; */
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    input.radio:empty~label:before {
+        position: absolute;
+        font-weight: normal !important;
+        display: block;
+        /* top: 0; */
+        bottom: 0;
+        /* left: 0; */
+        content: '';
+        width: 1.5em;
+        background: #FF9C91;
+        /* border-radius: 10px 10px 10px 10px; */
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        /* height: 20px; */
+    }
+
+    /* toggle hover */
+    input.radio:hover:not(:checked)~label:before {
+        content: '\2714';
+        text-indent: 0.3em;
+        color: white;
+    }
+
+    input.radio:hover:not(:checked)~label {
+        color: black;
+    }
+
+    /* toggle on */
+    input.radio:checked~label:before {
+        content: '\2714';
+        text-indent: 0.3em;
+        color: white;
+        background-color: #3e64ff;
+    }
+
+    input.radio:checked~label {
+        color: #000;
+        /* font-weight: bold; */
+    }
+
+    /* radio focus */
+
+    #questions\ row {
+        margin: 0px 0px 130px 0px;
+    }
+
+    .about {
+
+        padding: 40px 0 !important;
+    }
+
+    .page-section {
+        overflow: hidden;
+        background: #ffffff !important;
+    }
+
+
+    .services-tab .tab-area.left-img .nav-tabs>li>a {
+        width: 100%;
+        margin: 0;
+        padding: 10px !important;
+        margin-top: 50px;
+    }
+
+    .services-tab .tab-area .nav>li>a {
+        background-color: #005eaa !important;
+        color: #fff !important;
+    }
+
+    .heading-short {
+        color: #222;
+        font-size: 16px;
+        margin: 0 0 0px;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .short {
+        margin: 0px !important;
+    }
+
+    .services-tab .tab-area.left-img .nav-tabs>li {
+        width: 100%;
+        margin: 0;
+        border-right: 2px solid #fff;
+    }
+
+    .alert-info {
+        color: #ffffff;
+        background-color: #012e60;
+        border-color: #012e60;
+    }
+
+    .alert-warning {
+        color: #000000;
+        background-color: #ececec;
+        border-color: #012e60;
+    }
+
+    .panel-primary>.panel-heading {
+        color: #fff;
+        background-color: #012e5e;
+        border-color: #337ab7;
+    }
+
+    .panel-primary {
+        border-color: #012e5f;
+    }
+
+    .question-color {
+        color: #17223b !important;
+    }
+
+    .page-section.short {
+        overflow: hidden;
+        padding: 36px 0;
+    }
+
+    .panel {
+        margin-bottom: 70px;
+    }
+</style>
+<div class="container">
+    <section class="page-section short">
+        <div class="container">
+            <div class="col-xs-12 heading-short">
+                <h1 class="">Basic Safety for Clinicians e-Learning Course test</h1>
+            </div>
+        </div>
+    </section>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-sm-12 col-xs-12" style="margin-bottom:0px;">
+                    <div class="pull-left col-md-2 col-xs-4"><button class="prev btn btn-info" id="1" onclick="prev(this)"><i class="fa fa-arrow-left"> Prev</button></i></div>
+                    <div class="text-center col-md-8 col-xs-4" style="padding-top: 10px;font-size:18px;"><span class="questionCountLabel">1</span>/<?php echo $maxQPerTest; ?> Question Selected</div>
+                    <div class="pull-right col-md-2 col-xs-4"><button class="next btn btn-info pull-right" id="2" onclick="next(this)">Next <i class="fa fa-arrow-right"></i></button></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <p>
+                <form id="preTestForm" action="#" method="post" method="post" action="<?php echo $this->url('test', array('action' => 'index')); ?>" autocomplete="off">
+                    <input type="hidden" name="totalOptions" value="<?php echo $maxQPerTest; ?>" />
+                    <?php
+                    for ($i = 0; $i < $maxQPerTest; $i++) {
+                        $radioCount = explode(',', $questionResult['question'][$i]['correct_option']); ?>
+                        <div id="q<?php echo $i + 1; ?>" class="tabcontent">
+                            <input type="hidden" id="getIdCount" value="<?php echo $i + 1; ?>">
+                            <div class="alert text-left" style="margin-bottom:0px;">
+                                <h4 class="question-color"><span style="font-weight:bold;font-size: 20px;"><?php echo $i + 1; ?>. &nbsp;</span><?php echo ucfirst($questionResult['question'][$i]['question']); ?></h4>
+                            </div>
+                            <div class="text-left">
+                                <?php
+                                $count = 1;
+                                foreach ($questionResult['option'] as $option) {
+                                    if ($questionResult['question'][$i]['question_id'] == $option['question']) {
+                                        $optionComeFromTable = explode(",", $option['response_id'])
+                                ?>
+                                        <div class="radiodiv alert">
+                                            <?php if (count($radioCount) > 1) { ?>
+                                                <input style="display:none" type="checkbox" name="option<?php echo $i + 1; ?>[]" data-text="<?php echo $option['option']; ?>" data-pre-test-id=<?php echo base64_encode($option['pre_test_id']); ?> data-question="<?php echo base64_encode($option['question']); ?>" value="<?php echo $option['option_id']; ?>" id="option<?php echo $count; ?>" class="radio" <?php echo (in_array($option['option_id'], $optionComeFromTable)) ? "checked='checked'" : ''; ?> />
+                                            <?php } else { ?>
+                                                <input style="display:none" type="radio" name="option<?php echo $i + 1; ?>[]" data-text="<?php echo $option['option']; ?>" data-pre-test-id=<?php echo base64_encode($option['pre_test_id']); ?> data-question="<?php echo base64_encode($option['question']); ?>" value="<?php echo $option['option_id']; ?>" id="option<?php echo $count; ?>" class="radio" <?php echo (in_array($option['option_id'], $optionComeFromTable)) ? "checked='checked'" : ''; ?> />
+                                            <?php } ?>
+                                            <label style=" text-align: justify; " for="option<?php echo $count; ?>"><span style="width: 100%; display: inline-block; margin-left: 35px;"><?php echo $option['option']; ?></span></label>
+                                        </div>
+                                <?php
+                                    }
+                                    $count++;
+                                } ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </form>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- END TITLE BAR
+============================================= -->
+<script>
+    var currentId = 0;
+    var maxQuestion = <?php echo $maxQPerTest; ?>;
+
+    function next(obj) {
+        if (validate(obj)) {
+            postQuestions(obj);
+        } else {
+            if (!alert("You can proceed once you respond to this question.")){}
+        }
+    }
+
+    function prev(obj) {
+        if (obj.id == 1) {
+            $('.questionCountLabel').text(obj.id);
+            $('.prev').css("display", "none");
+            $(".next").attr('id', obj.id + 1);
+            currentId = obj.id;
+            currentId++;
+            var idName = "q" + currentId;
+            $(".next").attr('id', currentId);
+            $("#" + idName).css("display", "none");
+
+            currentId--;
+            var idName2 = "q" + currentId;
+            $(".prev").attr('id', --currentId);
+            $("#" + idName2).css("display", "block");
+        } else {
+            $('.questionCountLabel').text(obj.id);
+            $('.next').css("display", "block");
+
+            currentId = obj.id;
+            if (currentId > 0) {
+                currentId++;
+                var idName = "q" + currentId;
+                $(".next").attr('id', currentId);
+                $("#" + idName).css("display", "none");
+
+                currentId--;
+                var idName2 = "q" + currentId;
+                $(".prev").attr('id', --currentId);
+                $("#" + idName2).css("display", "block");
+            }
+        }
+    }
+    $(document).ready(function() {
+        currentId = 1;
+        <?php
+        $hideDiv = 1;
+        foreach ($questionResult['question'] as $question) {
+            if (isset($question['response_id']) && $question['response_id'] != '') { ?>
+                $('.questionCountLabel').text(currentId);
+                var idName2 = "q" + currentId;
+                $(".prev").attr('id', currentId);
+                $("#" + idName2).css("display", "none");
+            <?php } else {
+                if ($hideDiv == 1) { ?>
+                    $('.questionCountLabel').text(currentId);
+                    var idName = "q" + currentId;
+                    $(".next").attr('id', ++currentId);
+                    $("#" + idName).css("display", "block");
+                <?php $hideDiv++; } 
+            } ?>
+            currentId++;
+        <?php } ?>
+    });
+
+    function validate(obj) {
+        var optionId = obj.id;
+        console.log(optionId);
+        if (--optionId > 0) {
+            console.log(optionId);
+            var optioncheck = "option" + optionId + "[]";
+            console.log($('input[name="' + optioncheck + '"]:checked').length);
+            if ($('input[name="' + optioncheck + '"]:checked').length <= 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function postQuestions(obj) {
+        var i = 0;
+        --obj.id;
+        var optionName = "option" + obj.id;
+        var allElements = document.getElementsByName(optionName + "[]");
+        var optionId = [];
+        var questionId = '';
+        var pretestId = '';
+        var optionText = [];
+        for (var i = 0, n = allElements.length; i < n; ++i) {
+            var el = allElements[i];
+            if ($("#" + el.id).prop('checked') == true) {
+                optionId.push(el['value']);
+                optionText.push($("#" + el.id).attr('data-text'));
+                questionId = $("#" + el.id).attr('data-question');
+                pretestId = $("#" + el.id).attr('data-pre-test-id');
+            }
+        }
+        $.post("<?php echo $this->url('test', array('action' => 'question')); ?>", {
+                optionId: optionId,
+                questionId: questionId,
+                optionText: optionText,
+                pretestId: pretestId
+            },
+            function(data) {
+                console.log(data);
+                if (data > 0) {
+                    if (obj.id == maxQuestion) {
+                        window.location.replace("<?php echo $this->url('test', array('action' => 'result')); ?>");
+                    } else {
+                        ++obj.id;
+                        $('.questionCountLabel').text(obj.id);
+                        $('.prev').css("display", "block");
+
+                        currentId = obj.id;
+                        if (currentId > 0) {
+                            var idName = "q" + currentId;
+                            $(".next").attr('id', ++currentId);
+                            $("#" + idName).css("display", "block");
+
+                            currentId--;
+                            --currentId;
+                            var idName2 = "q" + currentId;
+                            $(".prev").attr('id', currentId);
+                            $("#" + idName2).css("display", "none");
+                        }
+                    }
+
+                } else {
+                    ++obj.id;
+                    if (!alert("No internet connection kindly check your connection")) {
+                    }
+                }
+            });
+    }
+</script>

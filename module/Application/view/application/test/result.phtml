@@ -1,6 +1,5 @@
 <?php
 use Zend\Session\Container;
-$bsUserLogincontainer = new Container('bsUserLoginContainer');
 $maxQuestion = $preResult['totalCount'];    
 $score = ($preResult['pre_test_score'] / $maxQuestion);
 $total = round($score * 100);
@@ -19,9 +18,6 @@ if($total>=$configResult['0']['test_config_value']){
 p{
     text-align:left;
 }
-.banner-2{
-    	background-image: url(<?php echo $this->basePath('images/background-strip-1.jpg');?>);
-	}
 </style>
 
 <div class="banner-2 yellow" style="width:1920px;height:157px;">
@@ -33,20 +29,20 @@ p{
 <section class="page-section white short">
     <div class="container">
         <div class="row">
-        <!-- <div class="heading-holder skills">
-                    <h1>Pre-Test Result</h1>
+       <!--  <div class="heading-holder skills">
+                    <h1>Test Result</h1>
                     </div> -->
             <div class="col-sm-4 col-xs-12">
             <table class="table table-borderless">
                 <thead>
                     <tr>
-                        <th scope="col">Pre-Test Score</th>
+                        <th scope="col" style="width: 100%;">Test Score</th>
                         <th scope="col">Score</th>                    
                     </tr>
                 </thead>
                 <tbody>
                     <tr>                    
-                    <td><canvas id="scorePie" width="100" height="100" style="max-width:100px;"></canvas></td>
+                    <td><canvas id="scorePie" width="100" height="100" style="max-width:100%;"></canvas></td>
                     <td scope="row"><span style="font-size:4em;"><?php echo $total; ?></span>/100</td>
                     </tr>
                     
@@ -56,13 +52,13 @@ p{
             </div>
             <div class="col-sm-8 col-xs-12">
             <div class="">
-                    <!-- <h1>Pre-Test Result</h1> -->
+                    <h1>Test Result</h1>
                     <p>
                     This is your score before taking up the "Safety Familiarization for Clinicians" course. It is just an indication of your current knowledge on Safety Familiarization. You will be requested to take up a Post Test after completing the course.
                     </p>
                     <p>
                     Looking forward to enhance your Safety Familiarization. <br> <br>
-                    <a href="/biosafety/elearning" class="more">Please click here to continue to the elearning course</a>
+                    <a href="/" class="more">Please click here to continue to the elearning course</a>
                     </p>
                     
                 </p>

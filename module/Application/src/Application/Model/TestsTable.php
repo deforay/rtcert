@@ -206,7 +206,6 @@ class TestsTable extends AbstractTableGateway {
     public function fetchCertificateFieldDetails($testId)
     {
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         //if the user completed his pre test
@@ -219,9 +218,8 @@ class TestsTable extends AbstractTableGateway {
         // echo $sQueryStr;die;
         $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 
-        $testConfigResult = $testConfigDb->fetchTestConfig();
+        $testConfigResult = $testConfigDb->fetchTestConfigDetails();
         if($certificateField['certificate_no']=='' || $certificateField['certificate_no']==NULL){
-            $bsUserLogincontainer->showCertificateLink = 'yes';
             $strparam = strlen($certificateField['test_id']);
             $zeros = substr("000", $strparam);
             $certificateNo = ' C'.date('ym') . $zeros . $certificateField['test_id'];
@@ -231,11 +229,11 @@ class TestsTable extends AbstractTableGateway {
         return array('field'=>$certificateField,'testConfig'=>$testConfigResult);
     }
     public function fetchTestsDetailsbyId(){
-        $bsUserLogincontainer = new Container('bsUserLoginContainer');
+        $logincontainer = new Container('credo');
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from('tests')->columns(array('test_id','pretest_end_datetime','pre_test_score','posttest_end_datetime','post_test_score','certificate_no','user_test_status'))
-                                ->where(array('user_id' => $bsUserLogincontainer->bsUserId));
+                                ->where(array('user_id' => $logincontainer->userId));
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
         $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $certificateField;

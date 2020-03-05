@@ -66,6 +66,12 @@ class ProviderTable extends AbstractTableGateway {
         $district = ucfirst($provider->district);
         $test_site_in_charge_name = strtoupper($provider->test_site_in_charge_name);
         $facility_in_charge_name = strtoupper($provider->facility_in_charge_name);
+        $password = '';
+        if(isset($provider->password) && $provider->password != ''){
+            $config = new \Zend\Config\Reader\Ini();
+            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+            $password = sha1($provider->password . $configResult["password"]["salt"]);
+        }
 
         $db = $this->tableGateway->getAdapter();
         $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
@@ -99,7 +105,7 @@ class ProviderTable extends AbstractTableGateway {
             'current_jod' => $provider->current_jod,
             'time_worked' => $provider->time_worked,
             'username' => $provider->username,
-            'password' => $provider->password,
+            'password' => $password,
             'test_site_in_charge_name' => $test_site_in_charge_name,
             'test_site_in_charge_phone' => $provider->test_site_in_charge_phone,
             'test_site_in_charge_email' => $provider->test_site_in_charge_email,
@@ -123,7 +129,7 @@ class ProviderTable extends AbstractTableGateway {
             'current_jod' => $provider->current_jod,
             'time_worked' => $provider->time_worked,
             'username' => $provider->username,
-            'password' => $provider->password,
+            'password' => $password,
             'test_site_in_charge_name' => $test_site_in_charge_name,
             'test_site_in_charge_phone' => $provider->test_site_in_charge_phone,
             'test_site_in_charge_email' => $provider->test_site_in_charge_email,
@@ -502,5 +508,37 @@ class ProviderTable extends AbstractTableGateway {
         $practicalExamQueryStr = $sql->getSqlStringForSqlObject($practicalExamQuery);
         $practicalExamResult = $dbAdapter->query($practicalExamQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return array('writtenExamResult'=>$writtenExamResult,'practicalExamResult'=>$practicalExamResult);
+    }
+
+    public function loginProviderDetails($params){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $logincontainer = new Container('credo');
+        if($params['username'] == '' || $params['password'] == ''){
+            $container = new Container('alert');
+            $container->alertMsg = 'Please enter username and password to login';
+            return '/provider/login';
+        }
+        $config = new \Zend\Config\Reader\Ini();
+        $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+        $password = sha1($params['password'] . $configResult["password"]["salt"]);
+        $loginQuery = $sql->select()->from('provider')->where(array('username' => $params['username'], 'password' => $password));
+        $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
+        $response = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+        if($response){
+            $logincontainer->roleName = 'RT Providers';
+            $logincontainer->userId = $response['id'];
+            $logincontainer->login = $response['username'];
+            $logincontainer->roleId = 6;
+            $logincontainer->roleCode = 'provider';
+            /* $logincontainer->district = 0;
+            $logincontainer->region = 0;
+            $logincontainer->country = 0; */
+            return '/test/intro';
+        }else{
+            $container = new Container('alert');
+            $container->alertMsg = 'Username or password incorrect. Please try again';
+            return '/provider/login';
+        }
     }
 }

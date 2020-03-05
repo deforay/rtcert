@@ -167,6 +167,16 @@ return array(
                     ),
                 ),
             ),
+            'test' => array(
+                'type'    => 'segment',
+                'options' => array(
+                    'route'    => '/test[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\Test',
+                        'action' => 'index',
+                    ),
+                ),
+            ),
         ),
     ),
     'service_manager' => array(
@@ -203,6 +213,7 @@ return array(
             'Application\Controller\TestConfig'     => "Application\Controller\TestConfigController",
             'Application\Controller\TestSection'    => 'Application\Controller\TestSectionController',
             'Application\Controller\TestQuestion'   => 'Application\Controller\TestQuestionController',
+            'Application\Controller\Test'           => 'Application\Controller\TestController',
         ),
     ),
     'view_manager' => array(

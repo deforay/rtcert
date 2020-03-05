@@ -29,7 +29,7 @@ class TestService{
     /* Add data to pre test  table */
     public function addPreTestData($params){
         $db = $this->sm->get('PretestQuestionsTable');
-        $result = $db->addPreTestData($params);
+        $result = $db->savePreTestData($params);
         if($result > 0){
             return true;
         }else{
@@ -75,7 +75,7 @@ class TestService{
         $tempMailDb = $this->sm->get('TempMailTable');
         $mailTemplateDb = $this->sm->get('MailTemplateTable');
         $postResult = $db->fetchPostResultDetails();
-        $configResult = $testConfigDb->fetchTestConfig();
+        $configResult = $testConfigDb->fetchTestConfigDetails();
         // To send passed certificate to slmta biosafety users
         $maxQuestion = count($postResult['preTestQuestion']);    
         $score = ($postResult['post_test_score'] / $maxQuestion);
