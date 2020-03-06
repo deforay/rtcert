@@ -18,6 +18,14 @@ $acl = $this->layout()->acl;
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
 <style type="">
+        .frezz th:last-child,
+        .frezz td:last-child {
+            position: sticky !important;
+            right: -1%;
+            z-index: 1;
+            background-color: white;
+            padding: 18px !important;
+        }
     a.toggle-vis{
         margin: 4px 4px;
     }
@@ -25,13 +33,21 @@ $acl = $this->layout()->acl;
         font-size: 17px;
         font-weight: 600;
     }
+    .text-danger{
+        color:red !important;
+    }
+    .text-success{
+        color:#086200 !important;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
 
         <div class="row">
             <div class="col-sm-8">
-                <h2>List of  Testers</h2>
+                <h2>List of Testers</h2>
+                <!-- <span class="text-danger"></span>
+                <span class="text-success"></span> -->
             </div>
             <div class="col-sm-4">
                 <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'add')) { ?>
@@ -57,7 +73,7 @@ $acl = $this->layout()->acl;
     </div>
         <div class="widget widget-fullwidth widget-small" style="padding:5px;" >
             <table id="provider" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget">
-                <thead>
+                <thead class="frezz">
                     <tr class="allproviders">
                         <th>Certification Registration No.</th>
                         <th>Professional Registration No.<br>(if available)</th>
@@ -88,11 +104,13 @@ $acl = $this->layout()->acl;
                             <th>Delete</th><?php } ?>
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
                             <th>PDF</th><?php } ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { ?>
+                            <th>Send Test Link</th><?php } ?>
                     </tr>
 
 
                 </thead>
-                <tbody>
+                <tbody class="frezz">
 
                     <?php foreach ($this->providers as $provider) {
                         $certificationTime = '';
@@ -161,6 +179,13 @@ $acl = $this->layout()->acl;
                                 <?php } } ?>
                                 </td>
                             <?php } ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { ?>
+                                <td>
+                                    <div style="overflow:auto;width: 110px;">
+                                       <a href="javascript:void(0);" onclick="sendTestLink('<?php echo base64_encode($provider->id);?>','<?php echo $this->escapeHtml($provider->email);?>');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link</a>
+                                    </div>
+                                </td>
+                            <?php } ?>
                         </tr>
                     <?php } ?>
                 </tbody>
@@ -226,5 +251,16 @@ $acl = $this->layout()->acl;
         var children = btnObj.childNodes;
         var iconTag = children[1].firstChild;
         $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+    function sendTestLink(id,email){
+        $.post("<?php echo $this->url('provider',array('action'=>'send-test-link')); ?>", {providerId:id,providerKey:email},
+        function(data){
+            if(data > 0){
+                alert('Link send to the '+email);
+            }else{
+                alert('Link not send kindly check provider have the email id.');
+            }
+        });
     }
 </script>

@@ -25,12 +25,13 @@ class TempMailTable extends AbstractTableGateway {
         $this->adapter = $adapter;
     }
     
-    public function insertTempMailDetails($toEmailAddress,$cc,$subject,$message,$fromName,$fromEmailAddress){
+    public function insertTempMailDetails($toEmailAddress,$subject,$message,$fromEmailAddress,$fromName,$cc,$bcc){
         $data = array(
             'from_full_name' => $fromName,
             'from_mail' => $fromEmailAddress,
             'to_email' => $toEmailAddress,
             'cc' => $cc,
+            'bcc' => $bcc,
             'subject' => $subject,
             'message' => $message
         );

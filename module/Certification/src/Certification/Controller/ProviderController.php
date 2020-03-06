@@ -23,7 +23,7 @@ class ProviderController extends AbstractActionController {
     public function indexAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         return new ViewModel(array(
@@ -34,7 +34,7 @@ class ProviderController extends AbstractActionController {
     public function addAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
@@ -69,7 +69,7 @@ class ProviderController extends AbstractActionController {
     public function editAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
@@ -149,7 +149,7 @@ class ProviderController extends AbstractActionController {
     public function districtAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
         $id = (isset($_GET['id']))?(int) $_GET['id']:'';
@@ -163,7 +163,7 @@ class ProviderController extends AbstractActionController {
     public function facilityAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
         $id = (isset($_GET['id']))?(int) $_GET['id']:'';
@@ -197,7 +197,7 @@ class ProviderController extends AbstractActionController {
     public function deleteAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $id = (int) $this->params()->fromRoute('id', 0);
 
@@ -336,7 +336,7 @@ class ProviderController extends AbstractActionController {
     public function testHistoryAction() {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toUrl("/provider/login");
+            return $this->redirect()->toRoute("login");
         }
         $tester = base64_decode($this->params()->fromQuery('tester', null));
         $result = $this->getProviderTable()->getTesterTestHistoryDetails($tester);
@@ -349,25 +349,69 @@ class ProviderController extends AbstractActionController {
 
     public function loginAction()
     {
-        $logincontainer = new Container('credo');
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
             $route = $this->getProviderTable()->loginProviderDetails($params);
             return $this->redirect()->toUrl($route);
         }
-        // if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-        //     return $this->redirect()->toUrl("/provider/login");
-        // } else {
-            $vm = new ViewModel();
-            $vm->setTerminal(true);
-            return $vm;
-        // }
+        $tester = base64_decode($this->params()->fromQuery('u', null));
+        $params = $this->getProviderTable()->getProviderByToken($tester);
+        if(!$params){
+            $container = new Container('alert');
+            $container->alertMsg = "Your link expired. Kindly request a link to RT Certification admin";
+            return $this->redirect()->toUrl('/provider/login');
+        }
+        $route = $this->getProviderTable()->loginProviderDetails($params,'token');
+        return $this->redirect()->toUrl($route);
     }
 
     public function logoutAction() {
         $sessionLogin = new Container('credo');
         $sessionLogin->getManager()->getStorage()->clear();
-        return $this->redirect()->toUrl("/provider/login");
+        return $this->redirect()->toUrl("/");
+    }
+
+    public function sendTestLinkAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $provider = $this->getProviderTable()->saveLinkSend($params);
+            if($provider){
+                /* Mail services start */
+                $config = new \Zend\Config\Reader\Ini();
+                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                $to = $provider->email;
+                $subject = trim("RT Certification test request mail");
+                
+                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
+                $mainReplace = array(
+                    $provider->first_name.' '.$provider->last_name,
+                    "<a href='".$configResult['domain']."/provider/login?u=".base64_encode($provider->link_token)."'>click here</a>"
+                    ,"".$configResult['domain']."/provider/login?u=".base64_encode($provider->link_token)."");
+                $mailContent = trim("HI<b> ##USER## ,<br><br></b><span>We are inviting to attend online Safety Familiarization for Clinicians Test.
+                <br><br></span>To attend the test <b>##URL##</b> or copy and paste the URL <b>##URLWITHOUTLINK##</b> in the
+                browser<span>.<br></span><br><br>Regards,<br><b>CDC ILB</b> RT Certificvation Team<b><br></b>");
+                $message = str_replace($mainSearch, $mainReplace, $mailContent);
+                $message = str_replace("&nbsp;", "", strval($message));
+                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $footer = "<br><br>This is an auto-generated email, please don't reply to this email address.<b><br></b><br>";
+                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+                
+                $fromMail = "thanaseelan@deforay.com";
+                $fromName = "Thanaseelan";
+                $cc = "";
+                $bcc = "";
+                /* Mail services end */
+                $commonService = $this->getServiceLocator()->get('CommonService');
+                $viewModel = new ViewModel(array('result' => $commonService->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc)));
+                $viewModel->setTerminal(true);
+                return $viewModel;
+            }else{
+                $viewModel = new ViewModel(array('result' => 0));
+                $viewModel->setTerminal(true);
+                return $viewModel;
+            }
+        }
     }
 }

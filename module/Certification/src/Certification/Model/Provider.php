@@ -37,6 +37,10 @@ class Provider {
     public $final_decision;
     public $certid;
     public $examid;
+    public $link_send_count;
+    public $link_send_on;
+    public $link_send_by;
+    public $link_token;
     
     protected $inputFilter;
 
@@ -76,6 +80,10 @@ class Provider {
         $this->final_decision = (!empty($data['final_decision'])) ? $data['final_decision'] : null;
         $this->certid = (!empty($data['certid'])) ? $data['certid'] : null;
         $this->examid = (!empty($data['examid'])) ? $data['examid'] : null;
+        $this->link_send_count = (!empty($data['link_send_count'])) ? $data['link_send_count'] : null;
+        $this->link_send_on = (!empty($data['link_send_on'])) ? $data['link_send_on'] : null;
+        $this->link_send_by = (!empty($data['link_send_by'])) ? $data['link_send_by'] : null;
+        $this->link_token = (!empty($data['link_token'])) ? $data['link_token'] : null;
     }
 
     public function getArrayCopy() {

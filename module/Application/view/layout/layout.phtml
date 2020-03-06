@@ -224,8 +224,9 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
         <div class="container-fluid">
           <div class="navbar-header">
             <div class="page-title"><span>RT Tester Certification</span></div>
-            <?php if(isset($sessionLogin->userId)){ ?>
-                  <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" href="<?php echo $this->url('login', array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a>
+            <?php if(isset($sessionLogin->userId)){ 
+                  $control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode =='provider')?'login':'provider'; ?>
+                  <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a>
                   <?php } else { ?>
                   <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" style="color: #fff;" class="mobLogin" href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a>
                   <?php }
@@ -313,14 +314,11 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                 <?php } ?>
               </ul> 
           <?php } ?>
-          <ul class="nav navbar-nav navbar-right am-user-nav">
-          <?php if($path[1] != "test"){
-            echo '<li class="pd-5"><a href="/test/intro" class="btn btn-warning">Attend Test</a></li>';
-          } ?>
           <?php if(!isset($sessionLogin->userId)){ ?>
+          <ul class="nav navbar-nav navbar-right am-user-nav">
             <li class="pd-5"><a href="/login" class="btn btn-warning">Login</a></li>
-          <?php } ?>   
           </ul>
+          <?php } ?>   
 
           <ul class="nav navbar-nav navbar-right am-user-nav">
             <?php if(isset($sessionLogin->userId)){ ?>
@@ -336,7 +334,8 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                   <?php } if($reminder > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?>
                   <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>"><span class="badge"><?php echo $reminder; ?></span> Reminder(s)</a></li>
                   <?php } ?>
-                  <li><a href="<?php echo $this->url('login', array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a></li>
+                  <?php $control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode =='provider')?'login':'provider';?>
+                  <li><a href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a></li>
                   <?php }else{
                   ?>
                   <li><a href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a></li>

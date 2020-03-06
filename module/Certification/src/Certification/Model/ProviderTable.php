@@ -510,7 +510,7 @@ class ProviderTable extends AbstractTableGateway {
         return array('writtenExamResult'=>$writtenExamResult,'practicalExamResult'=>$practicalExamResult);
     }
 
-    public function loginProviderDetails($params){
+    public function loginProviderDetails($params,$type=""){
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $logincontainer = new Container('credo');
@@ -537,8 +537,43 @@ class ProviderTable extends AbstractTableGateway {
             return '/test/intro';
         }else{
             $container = new Container('alert');
-            $container->alertMsg = 'Username or password incorrect. Please try again';
-            return '/provider/login';
+            if($type == 'token'){
+                $container->alertMsg = "You don't have a login credetnail kindly check RT Certification admin";
+            }else{
+                $container->alertMsg = 'Username or password incorrect. Please try again';
+            }
+            return '/provider/logout';
         }
+    }
+
+    public function saveLinkSend($params){
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
+        $prodiver = $this->getProvider(base64_decode($params['providerId']));
+        $update = 0;
+        $token = $common->generateRandomString(8);
+        if ($prodiver) {
+            $data['link_token']     = $token;
+            $data['link_send_count']= (((isset($prodiver->link_send_count) && $prodiver->link_send_count != '')?$prodiver->link_send_count:0) +1);
+            $data['link_send_on']   = $common->getDateTime();
+            $data['link_send_by']   = $sessionLogin->userId;
+            $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
+            if($update > 0){
+                return $prodiver;
+            }else{
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    
+    public function getProviderByToken($tester){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $loginQuery = $sql->select()->from('provider')->where(array('link_token' => $tester));
+        $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
+        // die($loginStr);
+        return $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
     }
 }
