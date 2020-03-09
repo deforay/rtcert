@@ -355,15 +355,20 @@ class ProviderController extends AbstractActionController {
             $route = $this->getProviderTable()->loginProviderDetails($params);
             return $this->redirect()->toUrl($route);
         }
-        $tester = base64_decode($this->params()->fromQuery('u', null));
+        $tester = $this->params()->fromQuery('u', null);
         $params = $this->getProviderTable()->getProviderByToken($tester);
         if(!$params){
             $container = new Container('alert');
             $container->alertMsg = "Your link expired. Kindly request a link to RT Certification admin";
-            return $this->redirect()->toUrl('/provider/login');
+        }else{
+            $logincontainer = new Container('credo');
+            $logincontainer->roleName = 'RT Providers';
+            $logincontainer->userId = $params['id'];
+            $logincontainer->login = $params['username'];
+            $logincontainer->roleId = 6;
+            $logincontainer->roleCode = 'provider';
+            return $this->redirect()->toUrl('/test/intro');
         }
-        $route = $this->getProviderTable()->loginProviderDetails($params,'token');
-        return $this->redirect()->toUrl($route);
     }
 
     public function logoutAction() {
@@ -377,6 +382,7 @@ class ProviderController extends AbstractActionController {
         if ($request->isPost()) {
             $params = $request->getPost();
             $provider = $this->getProviderTable()->saveLinkSend($params);
+            // \Zend\Debug\Debug::dump($provider);die;
             if($provider){
                 /* Mail services start */
                 $config = new \Zend\Config\Reader\Ini();
@@ -385,11 +391,13 @@ class ProviderController extends AbstractActionController {
                 $subject = trim("RT Certification test request mail");
                 
                 $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
+                $linkEncode = $provider->link_token . $configResult["password"]["salt"];
+                $key = hash('sha256', $linkEncode);
                 $mainReplace = array(
                     $provider->first_name.' '.$provider->last_name,
-                    "<a href='".$configResult['domain']."/provider/login?u=".base64_encode($provider->link_token)."'>click here</a>"
-                    ,"".$configResult['domain']."/provider/login?u=".base64_encode($provider->link_token)."");
-                $mailContent = trim("HI<b> ##USER## ,<br><br></b><span>We are inviting to attend online Safety Familiarization for Clinicians Test.
+                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>"
+                    ,"".$configResult['domain']."/provider/login?u=".$key."");
+                $mailContent = trim("HI<b> ##USER## ,<br><br></b><span>You are invited to attend online Safety Familiarization for Clinicians Test.
                 <br><br></span>To attend the test <b>##URL##</b> or copy and paste the URL <b>##URLWITHOUTLINK##</b> in the
                 browser<span>.<br></span><br><br>Regards,<br><b>CDC ILB</b> RT Certificvation Team<b><br></b>");
                 $message = str_replace($mainSearch, $mainReplace, $mailContent);

@@ -10,7 +10,9 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Sql\Select;
 use \Application\Model\GlobalTable;
+use \Application\Model\TestConfigTable;
 use \Application\Service\CommonService;
+use Zend\Db\Sql\Ddl\Column\Datetime;
 
 class ProviderTable extends AbstractTableGateway {
 
@@ -26,7 +28,7 @@ class ProviderTable extends AbstractTableGateway {
     public function fetchAll() {
         $logincontainer = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
-        $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id'));
+        $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'));
         $sqlSelect->join('certification_facilities', ' certification_facilities.id = provider.facility_id ', array('facility_name', 'facility_address'))
                   ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
                   ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
@@ -517,11 +519,15 @@ class ProviderTable extends AbstractTableGateway {
         if($params['username'] == '' || $params['password'] == ''){
             $container = new Container('alert');
             $container->alertMsg = 'Please enter username and password to login';
-            return '/provider/login';
+            return '/provider/logout';
         }
         $config = new \Zend\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-        $password = sha1($params['password'] . $configResult["password"]["salt"]);
+        if($type == 'token'){
+            $password = $params['password'];
+        }else{
+            $password = sha1($params['password'] . $configResult["password"]["salt"]);
+        }
         $loginQuery = $sql->select()->from('provider')->where(array('username' => $params['username'], 'password' => $password));
         $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
         $response = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -559,7 +565,7 @@ class ProviderTable extends AbstractTableGateway {
             $data['link_send_by']   = $sessionLogin->userId;
             $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
             if($update > 0){
-                return $prodiver;
+                return $this->getProvider(base64_decode($params['providerId']));
             }else{
                 return false;
             }
@@ -571,9 +577,26 @@ class ProviderTable extends AbstractTableGateway {
     public function getProviderByToken($tester){
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $loginQuery = $sql->select()->from('provider')->where(array('link_token' => $tester));
+        $config = new \Zend\Config\Reader\Ini();
+        $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+        $loginQuery = $sql->select()->from('provider')->where('link_token != "" AND link_token IS NOT NULL');
         $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
         // die($loginStr);
-        return $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+        $result = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        /* Cehck the tester token */
+        foreach($result as $row){
+            $linkEncode = $row['link_token'] . $configResult["password"]["salt"];
+            if($tester == hash('sha256', $linkEncode)){
+                $checkedRow = $row;
+            }
+        }
+        $testConfigDb = new TestConfigTable($dbAdapter);
+        $linkExpire = $testConfigDb->fetchTestValue('link-expire');
+        /* To cehck the config hour */
+        $hour = abs(strtotime(date('Y-m-d H:i:s')) - strtotime($checkedRow['link_send_on']))/(60*60);
+        if($linkExpire < round($hour)){
+            return false;
+        }
+        return $checkedRow;
     }
 }

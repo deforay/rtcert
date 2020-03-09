@@ -113,6 +113,7 @@ $acl = $this->layout()->acl;
                 <tbody class="frezz">
 
                     <?php foreach ($this->providers as $provider) {
+                        // \Zend\Debug\Debug::dump($provider);die;
                         $certificationTime = '';
                         $startDate = '';
                         $endDate = '';
@@ -181,8 +182,8 @@ $acl = $this->layout()->acl;
                             <?php } ?>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { ?>
                                 <td>
-                                    <div style="overflow:auto;width: 110px;">
-                                       <a href="javascript:void(0);" onclick="sendTestLink('<?php echo base64_encode($provider->id);?>','<?php echo $this->escapeHtml($provider->email);?>');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link</a>
+                                    <div style="overflow:auto;width: 120px;">
+                                       <a href="javascript:void(0);" onclick="sendTestLink('<?php echo base64_encode($provider->id);?>','<?php echo $this->escapeHtml($provider->email);?>');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link(<?php echo (isset($provider->link_send_count) && $provider->link_send_count > 0)?$provider->link_send_count:0;?>)</a>
                                     </div>
                                 </td>
                             <?php } ?>
@@ -254,13 +255,15 @@ $acl = $this->layout()->acl;
     }
 
     function sendTestLink(id,email){
-        $.post("<?php echo $this->url('provider',array('action'=>'send-test-link')); ?>", {providerId:id,providerKey:email},
-        function(data){
-            if(data > 0){
-                alert('Link send to the '+email);
-            }else{
-                alert('Link not send kindly check provider have the email id.');
-            }
-        });
+        if(confirm("Are you sure! Want to send the test link to this provider?")){
+            $.post("<?php echo $this->url('provider',array('action'=>'send-test-link')); ?>", {providerId:id,providerKey:email},
+            function(data){
+                if(data > 0){
+                    alert('Link send to the '+email);
+                }else{
+                    alert('Link not send kindly check provider have the email id.');
+                }
+            });
+        }
     }
 </script>
