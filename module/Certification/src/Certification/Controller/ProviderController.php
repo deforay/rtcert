@@ -7,6 +7,7 @@ use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Provider;
 use Certification\Form\ProviderForm;
+use Zend\Json\Json;
 
 class ProviderController extends AbstractActionController {
 
@@ -420,6 +421,78 @@ class ProviderController extends AbstractActionController {
                 $viewModel->setTerminal(true);
                 return $viewModel;
             }
+        }
+    }
+
+    public function testFrequencyAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()){
+            $parameters = $request->getPost();
+            // \Zend\Debug\Debug::dump($parameters);die;
+            $questionService = $this->getServiceLocator()->get('QuestionService');
+            $result = $questionService->getUserTestList($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+
+    public function frequencyQuestionAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()){
+            $parameters = $request->getPost();
+            $questionService = $this->getServiceLocator()->get('QuestionService');
+            $result = $questionService->getFrequencyQuestionList($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+
+    public function exportTestDetailsAction()
+    {
+        $request = $this->getRequest();
+        if($request->isPost())
+        {
+            $parameters = $request->getPost();
+            $testService = $this->getServiceLocator()->get('TestService');
+            $result=$testService->exportTestDetails($parameters);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+    }
+
+    public function exportQuestionDetailsAction()
+    {
+        $request = $this->getRequest();
+        if($request->isPost())
+        {
+            $parameters = $request->getPost();
+            $questionService = $this->getServiceLocator()->get('QuestionService');
+            $result=$questionService->exportQuestionDetails($parameters);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+    }
+
+    public function certificatePdfAction() {
+        if($this->params()->fromRoute('id') != ''){
+            $testId=base64_decode($this->params()->fromRoute('id'));
+            $testService = $this->getServiceLocator()->get('TestService');
+            $result = $testService->getCertificateFieldDetails($testId);
+            return array(
+                'result'=>$result
+            );
+        }else if ($this->getRequest()->isGet()) {
+            $testId = base64_decode($this->getRequest()->getQuery('testId'));
+            // \Zend\Debug\Debug::dump($testId);die;
+            $testService = $this->getServiceLocator()->get('TestService');
+            $result = $testService->getCertificateFieldDetails($testId);
+            return array(
+                'result'=>$result
+            );
         }
     }
 }

@@ -130,7 +130,7 @@ class QuestionService {
                         $row[] = ucfirst($aRow['question']);
                         $row[] = $aRow['preQCount'];
                         $row[] = $aRow['preRCount'];
-                        $sQuery2 = $sql->select()->from(array('q' => 'questions'))->columns(array('question_id','question','correct_option'))
+                        /* $sQuery2 = $sql->select()->from(array('q' => 'questions'))->columns(array('question_id','question','correct_option'))
                               ->join(array('post' => 'posttest_questions'), 'q.question_id = post.question_id', array('postQCount' => new Expression('COUNT(post_test_id)'),"postRCount" => new Expression("SUM(CASE WHEN (post.score  = 1) THEN 1 ELSE 0 END)")),'left')
                               ->join(array('t' => 'tests'), 'post.test_id = t.test_id', array('posttest_start_datetime','pretest_start_datetime'))
                               ->group("q.question_id");
@@ -153,13 +153,12 @@ class QuestionService {
                         $sQueryStr2 = $sql->getSqlStringForSqlObject($sQuery2);
                         $result = $dbAdapter->query($sQueryStr2, $dbAdapter::QUERY_MODE_EXECUTE)->current();
                         if($result['postQCount'] != ""){
-
                             $row[] = $result['postQCount'];
                             $row[] = $result['postRCount'];
-                          }else{
+                        }else{
                             $row[] = '0';
                             $row[] = '0';
-                          }
+                        } */
                         $output[] = $row;
                     }
                 }
@@ -189,22 +188,22 @@ class QuestionService {
                             ),
                         )
                     );
-                if(isset($parameters['searchByEmployee']) && $parameters['searchByEmployee']!=''){
-                    $cdate =  $parameters['searchByEmployee'];
-                }
+                // if(isset($parameters['searchByEmployee']) && $parameters['searchByEmployee']!=''){
+                //     $cdate =  $parameters['searchByEmployee'];
+                // }
                 // $sheet->setCellValue('A2', html_entity_decode('Biosafety Test Details', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 
                 $sheet->setCellValue('A1', html_entity_decode('Questions', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('B1', html_entity_decode('No.of times shown to participants pre test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('C1', html_entity_decode('No. of times people got it right in pre test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('D1', html_entity_decode('No.of times shown to participants post test	', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('E1', html_entity_decode('No. of times people got it right in post test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('B1', html_entity_decode('No.of times shown to people test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('C1', html_entity_decode('No. of times people got it right in test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                // $sheet->setCellValue('D1', html_entity_decode('No.of times shown to participants post test	', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                // $sheet->setCellValue('E1', html_entity_decode('No. of times people got it right in post test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
 
                 $sheet->getStyle('A1')->applyFromArray($styleArray);
                 $sheet->getStyle('B1')->applyFromArray($styleArray);
                 $sheet->getStyle('C1')->applyFromArray($styleArray);
-                $sheet->getStyle('D1')->applyFromArray($styleArray);
-                $sheet->getStyle('E1')->applyFromArray($styleArray);
+                // $sheet->getStyle('D1')->applyFromArray($styleArray);
+                // $sheet->getStyle('E1')->applyFromArray($styleArray);
 
                 foreach ($output as $rowNo => $rowData) {
                     $colNo = 0;
@@ -246,8 +245,14 @@ class QuestionService {
         }
         catch (Exception $exc) {
             return "";
-            error_log("GENERATE-TOUR-PLAN-REPORT-EXCEL--" . $exc->getMessage());
+            error_log("EXPORT-QUESTION-FREQUENCY-REPORT-EXCEL--" . $exc->getMessage());
             error_log($exc->getTraceAsString());
         }
+    }
+
+    public function getUserTestList($params){
+        $db = $this->sm->get('TestsTable');
+        $acl = $this->sm->get('AppAcl');
+       return $db->fetchUserTestList($params,$acl);
     }
 }

@@ -1,0 +1,165 @@
+<?php
+use Zend\Session\Container;
+$sessionLogin = new Container('credo');
+$role = $sessionLogin->roleCode;
+$acl = $this->layout()->acl;
+$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+?>
+<!-- DATA TABLES -->
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
+<script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
+<div class="am-content">
+    <!-- Content Header (Page header) -->
+    <div class="page-head">
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Providers Question Frequency</h2>
+            </div>
+        </div>
+    </div>
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
+                <label for="preTestDateRange" class="col-sm-1 control-label" style="padding-top: 5px;">Test Date:</label>
+                <div class="col-sm-3">
+                        <input type="text" class="form-control " id="preTestDateRange" name="preTestDateRange" placeholder="Select test date" title="Please enter month"/>
+                </div>
+        
+                <!-- <label for="postTestDateRange" class="col-sm-1 control-label" style="padding-top: 5px;">Post-Test Date:</label>
+                <div class="col-sm-3">
+                        <input type="text" class="form-control " id="postTestDateRange" name="postTestDateRange" placeholder="Select Post test date" title="Please enter month"/>
+                </div> -->
+                <div class="col-sm-4">
+                    <a  href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
+                    <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
+                    <a href="javascript:void(0)" onclick="downloadFrequncyQuestionData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
+                </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="widget-fullwidth widget-small" style="padding:5px;width:100%;">
+            <table id="questionDataTable" class="table table-bordered table-striped table-hover table-fw-widget">
+                <thead>
+                    <tr>
+                        <th style="width:40%;">Questions</th>
+                        <th style="width:30%;">No.of times shown to people test</th>
+                        <th style="width:100%;">No. of times people got it right in test</th>
+                        <!-- <th style="width:80%;">No.of times shown to participants post test</th> -->
+                        <!-- <th style="width:80%;">No. of times people got it right in post test</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" class="dataTables_empty">Loading data from server</td>
+                    </tr>
+                </tbody>
+                
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
+<!-- <script type="text/javascript" src="< ?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script> -->
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('assets/js/daterangepicker.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript">
+    /* Table initialisation */
+    oTable = null;
+    $(document).ready(function() {
+        oTable = $('#questionDataTable').dataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "aoColumns": [
+                <?php echo $editAction; ?>
+            ],
+            "sAjaxSource": "<?php echo $this->url('provider',array('action' => 'frequency-question')); ?>",
+            "fnServerData": function ( sSource, aoData, fnCallback ) {
+                aoData.push({ "name": "preTestDateRange", "value": $("#preTestDateRange").val() });
+                // aoData.push({ "name": "postTestDateRange", "value": $("#postTestDateRange").val() });
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        } );
+
+        var date=new Date();
+        var year=date.getFullYear();
+        var month=date.getMonth();
+        $('#monthDate').datepicker({
+            format: "M-yyyy",
+            minViewMode: 1,
+            autoclose: true,
+        });
+
+        $('#preTestDateRange').daterangepicker(
+            {
+                ranges   : {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
+                    'Last 7 Days': [moment().subtract('days', 6), moment()],
+                    'Last 30 Days': [moment().subtract('days', 29), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+                },
+                startDate: moment().subtract(29, 'days'),
+                endDate  : moment()
+            },
+            function (start, end) {
+                $('#preTestDateRange').val(start.format('DD-MMM-YYYY') + ' to ' + end.format('DD-MMM-YYYY'))
+            }
+        )
+
+        /* $('#postTestDateRange').daterangepicker(
+            {
+                ranges   : {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
+                    'Last 7 Days': [moment().subtract('days', 6), moment()],
+                    'Last 30 Days': [moment().subtract('days', 29), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+                },
+                startDate: moment().subtract(29, 'days'),
+                endDate  : moment()
+            },
+            function (start, end) {
+                $('#postTestDateRange').val(start.format('DD-MMM-YYYY') + ' to ' + end.format('DD-MMM-YYYY'))
+            }
+        ) */
+
+    } );
+       
+    function downloadFrequncyQuestionData()
+    {
+        $.post("<?php echo $this->url('provider',array('action'=>'export-question-details')); ?>",
+            function(data){
+            if(data == "" || data == null  || data == undefined || $.trim(data) == 'not-found'){
+                alert('Unable to generate download');
+            }else{
+                window.open('/temporary/question-frequency/'+data, '_blank');
+            }
+        });
+
+    }
+    function reDraw(){
+        oTable.fnDraw();
+    }
+
+    $("#resetValues").click(function(){ 
+        $("#preTestDateRange").val(''); 
+        // $("#postTestDateRange").val(''); 
+        oTable.fnDraw();
+    });
+</script>

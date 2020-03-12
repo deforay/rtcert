@@ -802,13 +802,15 @@ CREATE TABLE `posttest_questions` (
  KEY `post_question_foreign_id` (`question_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 
--- 04 Feb, 2020
+-- 04 Mar, 2020
 ALTER TABLE `provider` ADD `username` VARCHAR(255) NOT NULL AFTER `time_worked`, ADD `password` VARCHAR(255) NOT NULL AFTER `username`;
--- 05 Feb, 2020
+-- 05 Mar, 2020
 INSERT INTO `resources` (`resource_id`, `display_name`) VALUES ('Application\\Controller\\Test', 'Online Tests'), ('', NULL);
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\Test', 'index', 'Access'), ('Application\\Controller\\Test', 'result', 'Test Result'), ('Application\\Controller\\Test', 'intro', 'Test Intro Page');
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Provider', 'login', 'Login'), ('Certification\\Controller\\Provider', 'logout', 'Logout');
--- 06 Feb, 2020
+-- 06 Mar, 2020
 INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES (NULL, 'Link Expire Hour', 'link-expire', '48');
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Provider', 'send-test-link', 'Send Test Link');
 ALTER TABLE `provider` ADD `link_send_count` INT(11) NOT NULL AFTER `last_updated_by`, ADD `link_send_on` DATETIME NOT NULL AFTER `link_send_count`, ADD `link_send_by` INT(11) NOT NULL AFTER `link_send_on`, ADD `link_token` INT(11) NOT NULL AFTER `link_send_by`;
+-- Thana 12 Mar 2020
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Provider', 'frequency-question', 'Frequency Question'), ('Certification\\Controller\\Provider', 'test-frequency', 'Test Frequency'), ('Certification\\Controller\\Provider', 'certificate-pdf', 'Certificate Pdf');

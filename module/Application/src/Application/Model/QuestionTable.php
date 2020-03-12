@@ -485,13 +485,13 @@ class QuestionTable extends AbstractTableGateway
 			$preEndDate = date('Y-m-d', strtotime($preDate[1]));
 			$sQuery = $sQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
 		}
-		if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
+		/* if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
 			$postDate = explode(" to ", $parameters['postTestDateRange']);
 			$postStartDate = date('Y-m-d', strtotime($postDate[0]));
 			$postEndDate = date('Y-m-d', strtotime($postDate[1]));
 			$sQuery = $sQuery->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
 			// \Zend\Debug\Debug::dump($sQuery2);die;
-		}
+		} */
 		$querycontainer->questionPreQueryStr =  $sQuery;
 		if (isset($sWhere) && $sWhere != "") {
 			$sQuery->where($sWhere);
@@ -526,13 +526,13 @@ class QuestionTable extends AbstractTableGateway
 			$preEndDate = date('Y-m-d', strtotime($preDate[1]));
 			$iQuery = $iQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
 		}
-		if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
+		/* if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
 			$postDate = explode(" to ", $parameters['postTestDateRange']);
 			$postStartDate = date('Y-m-d', strtotime($postDate[0]));
 			$postEndDate = date('Y-m-d', strtotime($postDate[1]));
 			$iQuery = $iQuery->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
 			// \Zend\Debug\Debug::dump($sQuery2);die;
-		}
+		} */
 		$iQuery = $sql->getSqlStringForSqlObject($iQuery);
 		$iTotal = $dbAdapter->query($iQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$output = array(
@@ -548,7 +548,7 @@ class QuestionTable extends AbstractTableGateway
 			$row[] = ucwords($aRow['question']);
 			$row[] = $aRow['preQCount'];
 			$row[] = $aRow['preRCount'];
-			$sQuery2 = $sql->select()->from(array('q' => $this->table))->columns(array('question_id', 'question', 'correct_option'))
+			/* $sQuery2 = $sql->select()->from(array('q' => $this->table))->columns(array('question_id', 'question', 'correct_option'))
 				->join(array('post' => 'posttest_questions'), 'q.question_id = post.question_id', array('postQCount' => new Expression('COUNT(post_test_id)'), "postRCount" => new Expression("SUM(CASE WHEN (post.score  = 1) THEN 1 ELSE 0 END)")), 'left')
 				->join(array('t' => 'tests'), 'post.test_id = t.test_id', array('posttest_start_datetime', 'pretest_start_datetime'))
 				->group("q.question_id");
@@ -583,7 +583,7 @@ class QuestionTable extends AbstractTableGateway
 			} else {
 				$row[] = '0';
 				$row[] = '0';
-			}
+			} */
 
 
 			$output['aaData'][] = $row;

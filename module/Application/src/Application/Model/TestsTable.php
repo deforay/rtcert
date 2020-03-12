@@ -29,15 +29,15 @@ class TestsTable extends AbstractTableGateway {
         return array('testStatus'=>$preTestStatus);
     }
 
-    public function fetchUserTestList($parameters) {
+    public function fetchUserTestList($parameters,$acl) {
         // \Zend\Debug\Debug::dump($parameters);die;
         /* Array of database columns which should be read and sent back to DataTables. Use a space where
         * you want to insert a non-database field (for example a counter or static image)
         */
         $querycontainer = new Container('query');
         $common = new CommonService();
-        $aColumns = array('full_name', "DATE_FORMAT(pretest_start_datetime,'%d-%b-%Y %H:%i:%s')","DATE_FORMAT(pretest_end_datetime,'%d-%b-%Y %H:%i:%s')",'pre_test_score','pre_test_status',"DATE_FORMAT(posttest_start_datetime,'%d-%b-%Y %H:%i:%s')","DATE_FORMAT(posttest_end_datetime,'%d-%b-%Y %H:%i:%s')", 'post_test_score','post_test_status');
-        $orderColumns = array('full_name', 'pretest_start_datetime', 'pretest_end_datetime','pre_test_score','pre_test_status','posttest_start_datetime','posttest_end_datetime','post_test_score','post_test_status');
+        $aColumns = array('first_name', "DATE_FORMAT(pretest_start_datetime,'%d-%b-%Y %H:%i:%s')","DATE_FORMAT(pretest_end_datetime,'%d-%b-%Y %H:%i:%s')",'pre_test_score','pre_test_status');
+        $orderColumns = array('first_name', 'pretest_start_datetime', 'pretest_end_datetime','pre_test_score','pre_test_status');
         /*
          * Paging
          */
@@ -110,8 +110,7 @@ class TestsTable extends AbstractTableGateway {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from(array('t' => 'tests'))
-                                ->join(array('bu' => 'biosafety_user'), 'bu.bs_user_id=t.user_id', array('full_name'))
-                                ->join(array('rbp' => 'r_biosafety_professions'), 'bu.rbp_job_id=rbp.rbp_id', array('rbp_job'));
+                                ->join(array('p' => 'provider'), 'p.id=t.user_id', array('first_name','last_name'));
 
         /* Export Filder start */
         if(isset($parameters['preTestDateRange']) && $parameters['preTestDateRange']!='')
@@ -121,13 +120,13 @@ class TestsTable extends AbstractTableGateway {
             $preEndDate = date('Y-m-d', strtotime($preDate[1]));
             $sQuery = $sQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
         }
-        if(isset($parameters['postTestDateRange']) && $parameters['postTestDateRange']!='')
+        /* if(isset($parameters['postTestDateRange']) && $parameters['postTestDateRange']!='')
         {
             $postDate = explode(" to ",$parameters['postTestDateRange']);
             $postStartDate = date('Y-m-d', strtotime($postDate[0]));
             $postEndDate = date('Y-m-d', strtotime($postDate[1]));
             $sQuery = $sQuery->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
-        }
+        } */
         /* Export Filder end */
         
         if (isset($sWhere) && $sWhere != "") {
@@ -165,6 +164,9 @@ class TestsTable extends AbstractTableGateway {
             "aaData" => array()
         );
 
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+
         foreach ($rResult as $aRow) {
             $preStartDate = '';$preEndDate = '';$postStartDate = '';$postEndDate = '';
             if($aRow['pretest_start_datetime']!=NULL && $aRow['pretest_start_datetime']!='0000-00-00 00:00:00' && $aRow['pretest_start_datetime']!=''){
@@ -175,27 +177,29 @@ class TestsTable extends AbstractTableGateway {
                 $preEndAry = explode(" ",$aRow['pretest_end_datetime']);
                 $preEndDate = $common->humanDateFormat($preEndAry[0])." ".$preEndAry[1];
             }
-            if($aRow['posttest_start_datetime']!=NULL && $aRow['posttest_start_datetime']!='0000-00-00 00:00:00' && $aRow['posttest_start_datetime']!=''){
+            /* if($aRow['posttest_start_datetime']!=NULL && $aRow['posttest_start_datetime']!='0000-00-00 00:00:00' && $aRow['posttest_start_datetime']!=''){
                 $postStartAry = explode(" ",$aRow['posttest_start_datetime']);
                 $postStartDate = $common->humanDateFormat($postStartAry[0])." ".$postStartAry[1];
             }
             if($aRow['posttest_end_datetime']!=NULL && $aRow['posttest_end_datetime']!='0000-00-00 00:00:00' && $aRow['posttest_end_datetime']!=''){
                 $postEndAry = explode(" ",$aRow['posttest_end_datetime']);
                 $postEndDate = $common->humanDateFormat($postEndAry[0])." ".$postEndAry[1];
-            }
+            } */
             $row = array();
-            $row[] = ucwords($aRow['full_name']);
+            $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = $preStartDate;
             $row[] = $preEndDate;
             $row[] = $aRow['pre_test_score'];
-            $row[] = $aRow['pre_test_status'];
-            $row[] = $postStartDate;
-            $row[] = $postEndDate;
-            $row[] = $aRow['post_test_score'];
-            $row[] = $aRow['post_test_status'];
+            $row[] = ucwords($aRow['pre_test_status']);
+            // $row[] = $postStartDate;
+            // $row[] = $postEndDate;
+            // $row[] = $aRow['post_test_score'];
+            // $row[] = $aRow['post_test_status'];
             
-            if($aRow['user_test_status']=='pass'){
-                $row[] = '<a href="/biosafety/pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>';
+            if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\Certification', 'certificate-pdf')){
+                $row[] = '<a href="/provider/certificate-pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>';
+            }else if($aRow['pre_test_status'] == 'completed'){
+                $row[] = "Fail";
             }else{
                 $row[] = "";
             }
@@ -205,12 +209,13 @@ class TestsTable extends AbstractTableGateway {
     }
     public function fetchCertificateFieldDetails($testId)
     {
+        // \Zend\Debug\Debug::dump($testId);die;
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         //if the user completed his pre test
-        $sQuery = $sql->select()->from(array('t' => 'tests'))->columns(array('pre_test_status','post_test_status','test_id','pretest_start_datetime','posttest_end_datetime','pre_test_score','post_test_score','certificate_no'))
-                                ->join(array('bs'=>'biosafety_user'),'bs.bs_user_id=t.user_id',array('full_name','organization'))
+        $sQuery = $sql->select()->from(array('t' => 'tests'))->columns(array('pre_test_status','test_id','pretest_start_datetime','pre_test_score','certificate_no'))
+                                ->join(array('p' => 'provider'), 'p.id=t.user_id', array('first_name','last_name'))
                                 ->where(array('t.test_id' => $testId))
                                 // ->order('test_id DESC')
                                 ->limit(1);

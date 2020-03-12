@@ -224,8 +224,7 @@ class TestService{
         $attachedResult['filename'] = $filename;
         return $attachedResult;
     }
-    public function getCertificateFieldDetails($testId)
-    {
+    public function getCertificateFieldDetails($testId){
         $db = $this->sm->get('TestsTable');
         return $db->fetchCertificateFieldDetails($testId);
     }
@@ -254,10 +253,8 @@ class TestService{
                 if(count($cResult) > 0) {
                     foreach($cResult as $aRow) {
                         $row = array();
-                        $row[] = ucfirst($aRow['full_name']);
-                        // \Zend\Debug\Debug::dump($aRow['rbp_job']);die;
+                        $row[] = ucfirst($aRow['first_name'].' '.$aRow['last_name']);
                         $row[] = ucfirst($aRow['rbp_job']);
-
                         // Pre date time check
                         if(($aRow['pretest_start_datetime'] != "") && ($aRow['pretest_start_datetime'] != '0000-00-00 00:00:00') && ($aRow['pretest_start_datetime'] != NULL)){
 
@@ -271,12 +268,11 @@ class TestService{
                         }else{
                             $row[] = "";
                         }
-
                         $row[] = $aRow['pre_test_score'];
                         $row[] = ucfirst($aRow['pre_test_status']);
 
                         // Post date time check
-                        if(($aRow['posttest_start_datetime'] != "") && ($aRow['posttest_start_datetime'] != '0000-00-00 00:00:00') && ($aRow['posttest_start_datetime'] != NULL)){
+                        /* if(($aRow['posttest_start_datetime'] != "") && ($aRow['posttest_start_datetime'] != '0000-00-00 00:00:00') && ($aRow['posttest_start_datetime'] != NULL)){
 
                             $row[] = date("F jS,Y (H:i:s)", strtotime($aRow['posttest_start_datetime']));
                         }else{
@@ -287,12 +283,12 @@ class TestService{
                             $row[] = date("F jS,Y (H:i:s)", strtotime($aRow['posttest_end_datetime']));
                         }else{
                             $row[] = "";
-                        }
+                        } */
 
-                        $row[] = $aRow['post_test_score'];
-                        $row[] = ucfirst($aRow['post_test_status']);
+                        // $row[] = $aRow['post_test_score'];
+                        // $row[] = ucfirst($aRow['post_test_status']);
                         $row[] = $aRow['certificate_no'];
-                        $row[] = ucfirst($aRow['user_test_status']);
+                        $row[] = (isset($aRow['user_test_status']) && $aRow['user_test_status'] != '')?ucfirst($aRow['user_test_status']):'Fail';
 
                         $output[] = $row;
                     }
@@ -328,18 +324,18 @@ class TestService{
                 }
                 // $sheet->setCellValue('A2', html_entity_decode('Biosafety Test Details', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 
-                $sheet->setCellValue('A1', html_entity_decode('Participant Name', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('B1', html_entity_decode('Participant Profession', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('C1', html_entity_decode('Pre Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('D1', html_entity_decode('Pre Test End Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('E1', html_entity_decode('Pre Test Score', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('F1', html_entity_decode('Pre Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('G1', html_entity_decode('Post Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('A1', html_entity_decode('Name', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('B1', html_entity_decode('Profession', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('C1', html_entity_decode('Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('D1', html_entity_decode('Test End Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('E1', html_entity_decode('Test Score', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('F1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                /* $sheet->setCellValue('G1', html_entity_decode('Post Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('H1', html_entity_decode('Post Test End Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('J1', html_entity_decode('Post Test Score', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('I1', html_entity_decode('Post Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('K1', html_entity_decode('Certificate No', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('L1', html_entity_decode('Participant Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('I1', html_entity_decode('Post Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING); */
+                $sheet->setCellValue('G1', html_entity_decode('Certificate No', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('H1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
 
 
                 // $sheet->mergeCells('A2:B2');
@@ -353,10 +349,10 @@ class TestService{
                 $sheet->getStyle('F1')->applyFromArray($styleArray);
                 $sheet->getStyle('G1')->applyFromArray($styleArray);
                 $sheet->getStyle('H1')->applyFromArray($styleArray);
-                $sheet->getStyle('I1')->applyFromArray($styleArray);
+                /* $sheet->getStyle('I1')->applyFromArray($styleArray);
                 $sheet->getStyle('J1')->applyFromArray($styleArray);
                 $sheet->getStyle('K1')->applyFromArray($styleArray);
-                $sheet->getStyle('L1')->applyFromArray($styleArray);
+                $sheet->getStyle('L1')->applyFromArray($styleArray); */
 
 
                 foreach ($output as $rowNo => $rowData) {
@@ -381,21 +377,21 @@ class TestService{
                 }
 
                 $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-                $filename = 'biosafety-test-list' . date('d-M-Y-H-i-s') . '.xls';
+                $filename = 'provider-test-list' . date('d-M-Y-H-i-s') . '.xls';
                 //The name of the directory that we need to create.
-                $directoryName = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'biosafety-test';
-
+                $directoryName = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'provider-test';
+                
                 //Check if the directory already exists.
                 if(!is_dir($directoryName)){
                     //Directory does not exist, so lets create it.
                     mkdir($directoryName, 0755);
-                    $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'biosafety-test' . DIRECTORY_SEPARATOR . $filename);
-
+                    $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'provider-test' . DIRECTORY_SEPARATOR . $filename);
+                    
                 }else{
                     chmod($directoryName, 0777);
-                    $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'biosafety-test' . DIRECTORY_SEPARATOR . $filename);
+                    $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'provider-test' . DIRECTORY_SEPARATOR . $filename);
                 }
-                $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'biosafety-test' . DIRECTORY_SEPARATOR . $filename);
+                // $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'provider-test' . DIRECTORY_SEPARATOR . $filename);
                 return $filename;
             }else{
                 return "not-found";
@@ -403,7 +399,7 @@ class TestService{
         }
         catch (Exception $exc) {
             return "";
-            error_log("GENERATE-TOUR-PLAN-REPORT-EXCEL--" . $exc->getMessage());
+            error_log("EXPORT-PROVIDERS-TEST-REPORT-EXCEL--" . $exc->getMessage());
             error_log($exc->getTraceAsString());
         }
     }

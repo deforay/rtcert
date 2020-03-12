@@ -1,0 +1,120 @@
+<?php
+use Application\Service\CommonService;
+
+$common = new CommonService();
+// Extend the TCPDF class to create custom Header and Footer
+$preTestDate = explode(" ",$result['field']['pretest_start_datetime']);
+$dateFormat = date("m/d/Y", strtotime($preTestDate[0]));;
+ /* \Zend\Debug\Debug::dump($dateFormat);
+ \Zend\Debug\Debug::dump($result);die; */
+class MYPDF extends TCPDF {
+    
+}
+
+// create new PDF document
+$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+// set document information
+$pdf->SetCreator(PDF_CREATOR);
+$pdf->SetAuthor('Dabre Adjaratou');
+$pdf->SetTitle('Personnel Certificate');
+$pdf->SetSubject('Certificate');
+$pdf->SetKeywords('TCPDF, PDF, Certificate, test, guide');
+
+
+// set margins
+$pdf->SetMargins(5, 5, 5);
+$pdf->SetHeaderMargin(0);
+$pdf->SetFooterMargin(0);
+
+// remove default footer
+$pdf->setPrintFooter(false);
+
+// set auto page breaks
+//$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+// set image scale factor
+$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+// set some language-dependent strings (optional)
+if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
+    require_once(dirname(__FILE__) . '/lang/eng.php');
+    $pdf->setLanguageArray($l);
+}
+
+// ---------------------------------------------------------
+// set font
+$pdf->SetFont('times', '', 12);
+$pdf->setFontSubsetting(false);
+// remove default header
+$pdf->setPrintHeader(false);
+$pdf->SetMargins(10, 20, 10, true);
+// add a page
+$pdf->AddPage();
+$pdf->Rect(15,15,180,250,'F','',$fill_color = array(241,236,231));
+
+
+// -- set new background ---
+$pdf->SetAutoPageBreak(false, 0);
+// set bacground image
+//$img_file = dirname(__CLASS__) . 'public/assets/images/microsoft-word-certificate-borders.png';
+//$pdf->Image($img_file, 0, 0, 295, 209, '', '', '', false, 300, '', false, false, 0);
+// set the starting point for the page content
+$pdf->setPageMark();
+
+//$header_text = '<div style="text-align:center;"><p >' . strtoupper($result['field']['organization']) . '</p></div>';
+
+$certificate_title = '<div style="width=10px; height=10px; text-align:center;"><span style="line-height: 0.0">This certificate is awarded to</span><br></div>';
+
+$tester='<div style=" color:#36a2eb; font-size:170%; text-align:center;">&nbsp;&nbsp;'.strtoupper($result['field']['first_name'].' '.$result['field']['last_name']).'&nbsp;&nbsp;</div>';
+$textHr = '<div style="text-align:center;width:50%;">__________________________________________________________</div>'; 
+$text_content='<div style="text-align:center;">
+<span style="font-size:85%;">for successful completion of the training and testing component of the professional RT Certification Test</span> <br/><br/>
+<span style=" Font-Weight: Bold ">
+    RT Certification Test
+    <br/><br/>
+    on
+    <br/><br/>
+    <span>'.$dateFormat.'</span><br/>
+<span>
+Certificate Number - '.$result['field']['certificate_no'].'</span>
+</span>
+
+<br/><br/>
+<span style="font-size:70%">This program has been approved by the RT Certification for 1.25 <br/>
+CDC ILB RT Certificvation Team</span>
+</div>';
+
+$textFooter = '<div style="font-size:75%">
+Pascale Ondoa, MD, MSc, PhD
+<br/>
+Directior of Science and New initiatives
+<br/>
+African Society for Laboratory Medicine
+</div>';
+
+// set different text position
+//$pdf->writeHTMLCell(0, 0, 10, 5, $header_text, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 05, 62, $certificate_title, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 05, 78, $tester, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 10, 94, $textHr, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 10, 115, $text_content, 0, 0, 0, true, 'J', true);
+//$pdf->writeHTMLCell(0, 0, 130, 220, $textFooter, 0, 0, 0, true, 'J', true);
+
+
+//$img_file = dirname(__CLASS__) . 'public/assets/images/logo_cert1.png';
+$img_file2 = dirname(__CLASS__) . 'public/assets/images/logo_cert2.jpg';
+$img_file3 = dirname(__CLASS__) . 'public/assets/images/logo_cert3.png';
+
+//$pdf->Image($img_file, 25, 25, 35, '', '', '', '', false, 300, '', false, false, 0);
+
+$pdf->Image($img_file2, 165, 22, 20, '', '', '', '', false, 300, '', false, false, 0);
+
+$pdf->Image($img_file3, 25, 210, 40, '', '', '', '', false, 300, '', false, false, 0);
+
+///---------------------------------------------------------
+//Close and output PDF document
+$pdf->Output(ucfirst($result['field']['first_name'].$result['field']['last_name']) . '_HIVRT Certification_' . date('Y') . '.pdf', 'I');
+exit;
+//============================================================+
+// END OF FILE
+//============================================================+

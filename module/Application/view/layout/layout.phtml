@@ -87,6 +87,12 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", 
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Tests</a></li>";
 }
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
+  $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Test Frequency</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "frequency-question")) {
+  $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'frequency-question')).">Frequency Question</a></li>";
+}
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
   $certificateMenu.="<li><a href=".$this->url('certification',array('action' => 'index')).">Certifications</a></li>";
 }

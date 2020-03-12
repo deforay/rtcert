@@ -20,6 +20,7 @@ class PretestQuestionsTable extends AbstractTableGateway {
        $logincontainer = new Container('credo');
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $questionDb = new \Application\Model\QuestionTable($this->adapter);
+        $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         if(isset($params['questionId']) && trim($params['questionId']) != ""){
@@ -59,15 +60,24 @@ class PretestQuestionsTable extends AbstractTableGateway {
             $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
             $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if(!$questionResult['pre_test_id']){
+                $passPercent = $testConfigDb->getTestConfigValue('passing-percentage');
+
                 $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('score' => new \Zend\Db\Sql\Expression('SUM(score)')))
                                         ->where(array('pt.test_id'=>$lastInsertedTestsId));
                 $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
-                $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+                $preTestResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+                $preScore = ($preTestResult['score'] / $preTestResult['totalQuestion']);
+                $preTotal = round($preScore * 100);
                 $data = array(
                     'pretest_end_datetime' => date("Y-m-d H:i:s", time()),
                     'pre_test_status' => "completed",
-                    'pre_test_score' => $questionResult['score']
+                    'pre_test_score' => $preTestResult['score']
                 );
+                if($preTotal>=$passPercent){
+                    $data['user_test_status'] = 'pass';
+                }else{
+                    $data['user_test_status'] = 'fail';
+                }
                 $testDb->update($data,array('test_id'=>$testResult['testStatus']['test_id']));
             }
         }
