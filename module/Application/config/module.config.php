@@ -17,9 +17,9 @@ return array(
             // module. Simply drop new controllers in, and you can access them
             // using the path /application/:controller/:action
             'home' => array(
-                'type'    => 'Segment',
+                'type'    => 'Literal',
                 'options' => array(
-                    'route' => '/[/:action][/][:id]',
+                    'route' => '/',
                     'defaults' => array(
                         'controller'    => 'Application\Controller\Index',
                         'action'        => 'index',

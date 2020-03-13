@@ -5,7 +5,7 @@
 	</div>
 	<div class="main-content">
 		<div class="widget widget-fullwidth widget-small" style="padding:5px;">
-            <form role="form" name="addFacilityInfo" id="addFacilityInfo" method="post" action="<?php echo $this->url('test-question', array('action' => 'add')); ?>" autocomplete="off" >
+            <form name="addTestQuestion" id="addTestQuestion" method="post" action="<?php echo $this->url('test-question', array('action' => 'add')); ?>" autocomplete="off" >
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="panel panel-default">
@@ -88,11 +88,11 @@
     var optionsList = [];
     function validateNow() {
 		flag = deforayValidator.init({
-            formId: 'addFacilityInfo'
+            formId: 'addTestQuestion'
 		});
 		if (flag) {
             if (duplicateName) {
-                document.getElementById('addFacilityInfo').submit();
+                document.getElementById('addTestQuestion').submit();
             }
 		}
     }
