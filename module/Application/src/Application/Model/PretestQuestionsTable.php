@@ -60,7 +60,7 @@ class PretestQuestionsTable extends AbstractTableGateway {
             $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
             $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if(!$questionResult['pre_test_id']){
-                $passPercent = $testConfigDb->getTestConfigValue('passing-percentage');
+                $passPercent = $testConfigDb->fetchTestValue('passing-percentage');
 
                 $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('score' => new \Zend\Db\Sql\Expression('SUM(score)')))
                                         ->where(array('pt.test_id'=>$lastInsertedTestsId));
