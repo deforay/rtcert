@@ -64,7 +64,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "
   $testerMenu.="<li><a href=".$this->url('provider',array('action' => 'index')).">Manage Testers</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\WrittenExam", "add")) {
-  $testerExamMenu.="<li><a href=".$this->url('written-exam',array('action' => 'add')).">Written Examinations</a></li>";
+  $testerExamMenu.="<li><a href=".$this->url('written-exam',array('action' => 'index')).">Written Examinations</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExam", "add")) {
   $testerExamMenu.="<li><a href=".$this->url('practical-exam',array('action' => 'add')).">Practical Examinations</a></li>";

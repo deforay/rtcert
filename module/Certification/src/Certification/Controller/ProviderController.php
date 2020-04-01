@@ -407,9 +407,9 @@ class ProviderController extends AbstractActionController {
                 $footer = "<br><br>This is an auto-generated email, please don't reply to this email address.<b><br></b><br>";
                 $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
                 
-                $fromMail = "thanaseelan@deforay.com";
-                $fromName = "Thanaseelan";
-                $cc = "";
+                $fromMail = $configResult['provider']['from']['email'];
+                $fromName = $configResult['provider']['from']['name'];
+                $cc = $configResult['provider']['to']['cc'];
                 $bcc = "";
                 /* Mail services end */
                 $commonService = $this->getServiceLocator()->get('CommonService');
