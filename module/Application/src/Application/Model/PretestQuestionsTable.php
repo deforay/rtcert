@@ -5,24 +5,28 @@ use Zend\Session\Container;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Expression;
 use Application\Service\CommonService;
 
 class PretestQuestionsTable extends AbstractTableGateway {
 
     protected $table = 'pretest_questions';
+    protected $writtenExamTable = null;
 
-    public function __construct(Adapter $adapter) {
+    public function __construct(Adapter $adapter,$writtenExamTable='') {
         $this->adapter = $adapter;
+        $this->writtenExamTable = $writtenExamTable;
     }
     
     public function savePreTestData($params){
-       $logincontainer = new Container('credo');
+        $logincontainer = new Container('credo');
         $testDb = new \Application\Model\TestsTable($this->adapter);
         $questionDb = new \Application\Model\QuestionTable($this->adapter);
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        $lastInsertedTestsId = 0;
         if(isset($params['questionId']) && trim($params['questionId']) != ""){
             //first check allready start datetime
             $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
@@ -36,7 +40,6 @@ class PretestQuestionsTable extends AbstractTableGateway {
             $lastInsertedTestsId = $testResult['testStatus']['test_id'];
 
             $questionData = $questionDb->fetchQuestionsListById(base64_decode($params['questionId']));
-
             $correctOptAry = explode(",",$questionData['correct_option']);
             $aryInter = array_intersect($params['optionId'],$correctOptAry);
             if(count($aryInter) == count($params['optionId'])){
@@ -59,13 +62,14 @@ class PretestQuestionsTable extends AbstractTableGateway {
                         ->where('pt.response_id IS NULL');
             $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
             $questionResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-            if(!$questionResult['pre_test_id']){
+            
+            if(!$questionResult){
                 $passPercent = $testConfigDb->fetchTestValue('passing-percentage');
 
-                $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('score' => new \Zend\Db\Sql\Expression('SUM(score)')))
+                $tsQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('score' => new \Zend\Db\Sql\Expression('SUM(score)'),'totalQuestion' => new \Zend\Db\Sql\Expression('COUNT(*)')))
                                         ->where(array('pt.test_id'=>$lastInsertedTestsId));
-                $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
-                $preTestResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+                $tsQueryStr = $sql->getSqlStringForSqlObject($tsQuery);
+                $preTestResult = $dbAdapter->query($tsQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
                 $preScore = ($preTestResult['score'] / $preTestResult['totalQuestion']);
                 $preTotal = round($preScore * 100);
                 $data = array(
@@ -79,6 +83,61 @@ class PretestQuestionsTable extends AbstractTableGateway {
                     $data['user_test_status'] = 'fail';
                 }
                 $testDb->update($data,array('test_id'=>$testResult['testStatus']['test_id']));
+                $forWrittenQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('pre_test_id','score'))
+                        ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('test_id','pre_test_score'))
+                        ->join(array('tq' => 'test_questions'), 'tq.question_id = pt.question_id', array('correct_option'))
+                        ->join(array('ts' => 'test_sections'), 'ts.section_id = tq.section', array('section_name','section_slug'))
+                        ->where(array('t.user_id' => $logincontainer->userId))
+                        // ->where('pt.response_id IS NULL')
+                        ;
+                $forWrittenQueryStr = $sql->getSqlStringForSqlObject($forWrittenQuery);
+                $forWrittenResult = $dbAdapter->query($forWrittenQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+                // For getting total attended test count
+                $typeQuery = $sql->select()->from('tests')->columns(array("type" => new Expression("COUNT(*)")))->where(array('user_id' => $logincontainer->userId));
+                $typeQueryStr = $sql->getSqlStringForSqlObject($typeQuery);
+                $type = $dbAdapter->query($typeQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+                // For getting user name for who send the link to provider as admin
+                $pQuery = $sql->select()->from(array('p'=>'provider'))->columns(array('link_send_by'))
+                ->join(array('u' => 'users'), 'u.id = p.link_send_by', array('id','first_name','last_name'))
+                ->where(array('p.id' => $logincontainer->userId));
+                $pQueryStr = $sql->getSqlStringForSqlObject($pQuery);
+                $pUser = $dbAdapter->query($pQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+                foreach($forWrittenResult as $row){
+                    $wQuery = $sql->select()->from('written_exam')->where(array('test_id'=>$row['test_id']));
+                    $wQueryStr = $sql->getSqlStringForSqlObject($wQuery);
+                    $writtenDataTest = $dbAdapter->query($wQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+
+                    $qa = (isset($row['section_slug']) && $row['section_slug'] == 'qa' && $row['score'] > 0)?1:0;
+                    $rt = (isset($row['section_slug']) && $row['section_slug'] == 'overview-of-rt' && $row['score'] > 0)?1:0;
+                    $safety = (isset($row['section_slug']) && $row['section_slug'] == 'safety' && $row['score'] > 0)?1:0;
+                    $specimen = (isset($row['section_slug']) && $row['section_slug'] == 'specimen-collection' && $row['score'] > 0)?1:0;
+                    $testingAlgo = (isset($row['section_slug']) && $row['section_slug'] == 'serial-alogrithm' && $row['score'] > 0)?1:0;
+                    $reportKeeping = (isset($row['section_slug']) && $row['section_slug'] == 'record-keeping' && $row['score'] > 0)?1:0;
+                    $eqaPt = (isset($row['section_slug']) && $row['section_slug'] == 'eqa-and-dts-pt' && $row['score'] > 0)?1:0;
+                    $ethics = (isset($row['section_slug']) && $row['section_slug'] == 'professional-ethics' && $row['score'] > 0)?1:0;
+                    $inventory = (isset($row['section_slug']) && $row['section_slug'] == 'inventory' && $row['score'] > 0)?1:0;
+                    $writtenData = array(
+                        'id_written_exam'       => ($writtenDataTest)?$writtenDataTest['id_written_exam']:null,
+                        'test_id'               => $row['test_id'],
+                        'exam_type'             => (isset($type) && $type)?$type['type'].' attempt':'1 attempt',
+                        'provider_id'           => $logincontainer->userId,
+                        'exam_admin'            => ($pUser)?ucwords($pUser['first_name'].' '.$pUser['last_name']):'provider',
+                        'date'                  => date('d-m-Y'),
+                        'qa_point'              => $qa,
+                        'rt_point'              => $rt,
+                        'safety_point'          => $safety,
+                        'specimen_point'        => $specimen,
+                        'testing_algo_point'    => $testingAlgo,
+                        'report_keeping_point'  => $reportKeeping,
+                        'EQA_PT_points'         => $eqaPt,
+                        'ethics_point'          => $ethics,
+                        'inventory_point'       => $inventory,
+                        'inventory_point'       => ($writtenDataTest)?$writtenDataTest['id']:null,
+                        'inventory_point'       => ($writtenDataTest)?$writtenDataTest['id']:null
+                    );
+                    
+                    $this->writtenExamTable->saveWrittenExamByTest((object)$writtenData);
+                }
             }
         }
         return $lastInsertedTestsId;

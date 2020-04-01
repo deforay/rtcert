@@ -814,3 +814,10 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 ALTER TABLE `provider` ADD `link_send_count` INT(11) NOT NULL AFTER `last_updated_by`, ADD `link_send_on` DATETIME NOT NULL AFTER `link_send_count`, ADD `link_send_by` INT(11) NOT NULL AFTER `link_send_on`, ADD `link_token` INT(11) NOT NULL AFTER `link_send_by`;
 -- Thana 12 Mar 2020
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Provider', 'frequency-question', 'Frequency Question'), ('Certification\\Controller\\Provider', 'test-frequency', 'Test Frequency'), ('Certification\\Controller\\Provider', 'certificate-pdf', 'Certificate Pdf');
+-- Thana 31 Mar, 2020
+ALTER TABLE `test_sections` ADD `section_slug` VARCHAR(255) NULL DEFAULT NULL AFTER `section_name`;
+ALTER TABLE `written_exam` ADD `test_id` INT(11) NULL DEFAULT NULL AFTER `id_written_exam`;
+-- Thana 01 Apr, 2020
+ALTER TABLE `pretest_questions` CHANGE `question_text` `question_text` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `test_questions` CHANGE `question` `question` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `test_options` CHANGE `option` `option` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;

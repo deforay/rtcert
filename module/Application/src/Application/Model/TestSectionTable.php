@@ -31,6 +31,7 @@ class TestSectionTable extends AbstractTableGateway {
         if(isset($params['sectionName']) && trim($params['sectionName']) != ""){
             $this->insert(array(
                 'section_name'  => $params['sectionName'],
+                'section_slug'  => $param['sectionSlug'],
                 'status'        => $params['status'],
             ));
             return $this->lastInsertValue;
@@ -42,7 +43,7 @@ class TestSectionTable extends AbstractTableGateway {
         /* Array of database columns which should be read and sent back to DataTables. Use a space where
          * you want to insert a non-database field (for example a counter or static image)
          */
-        $aColumns = array('section_name','status');
+        $aColumns = array('section_name', 'status');
         $orderColumns = array('section_name','status');
         /*
          * Paging
@@ -159,6 +160,7 @@ class TestSectionTable extends AbstractTableGateway {
         foreach ($rResult as $aRow) {
             $row = array();
             $row[] = ucwords($aRow['section_name']);
+            // $row[] = $aRow['section_slug'];
             $row[] = ucwords($aRow['status']);
             if ($acl->isAllowed($role, 'Application\Controller\TestSection', 'edit')) {
                 $row[] = '<a href="/test-section/edit/' . base64_encode($aRow['section_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';
@@ -182,8 +184,9 @@ class TestSectionTable extends AbstractTableGateway {
         $result = 0;
         if(isset($param['sectionId']) && trim($param['sectionId']) != ""){
             $result = $this->update(array(
-                'section_name' => $param['sectionName'],
-                'status' => $param['status'],
+                'section_name'  => $param['sectionName'],
+                'section_slug'  => $param['sectionSlug'],
+                'status'        => $param['status'],
             ),array("section_id"=>base64_decode($param['sectionId'])));
         } 
         return $result;

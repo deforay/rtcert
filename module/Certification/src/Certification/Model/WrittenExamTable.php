@@ -30,7 +30,7 @@ class WrittenExamTable extends AbstractTableGateway {
     public function fetchAll() {
         $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
-        $sqlSelect->columns(array('id_written_exam', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
+        $sqlSelect->columns(array('id_written_exam', 'test_id', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
             'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'));
         $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name','district'), 'left')
                 ->where(array('display' => 'yes'));
@@ -65,6 +65,7 @@ class WrittenExamTable extends AbstractTableGateway {
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
 
         $data = array(
+            'test_id' => (isset($written_exam->test_id) && $written_exam->test_id != '')?$written_exam->test_id:'',
             'exam_type' => $written_exam->exam_type,
             'provider_id' => $written_exam->provider_id,
             'exam_admin' => strtoupper($written_exam->exam_admin),
@@ -93,6 +94,49 @@ class WrittenExamTable extends AbstractTableGateway {
             if ($this->getWrittenExam($id_written_exam)) {
                 $data['updated_on'] = $common->getDateTime();
                 $data['updated_by'] = $sessionLogin->userId;
+                $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
+            } else {
+                throw new \Exception('Written Exam id does not exist');
+            }
+        }
+    }
+
+    public function saveWrittenExamByTest($written_exam) {
+        $sessionLogin = new Container('credo');
+        $common = new CommonService($this->sm);
+        $date = $written_exam->date;
+        $date_explode = explode("-", $date);
+        $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
+
+        $data = array(
+            'test_id' => (isset($written_exam->test_id) && $written_exam->test_id != '')?$written_exam->test_id:'',
+            'exam_type' => $written_exam->exam_type,
+            'provider_id' => $written_exam->provider_id,
+            'exam_admin' => strtoupper($written_exam->exam_admin),
+            'date' => $newsdate,
+            'qa_point' => $written_exam->qa_point,
+            'rt_point' => $written_exam->rt_point,
+            'safety_point' => $written_exam->safety_point,
+            'specimen_point' => $written_exam->specimen_point,
+            'testing_algo_point' => $written_exam->testing_algo_point,
+            'report_keeping_point' => $written_exam->report_keeping_point,
+            'EQA_PT_points' => $written_exam->EQA_PT_points,
+            'ethics_point' => $written_exam->ethics_point,
+            'inventory_point' => $written_exam->inventory_point,
+            'total_points' => $written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point,
+            'final_score' => (($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / 25
+        );
+        $id_written_exam = (int) $written_exam->id_written_exam;
+        if ($id_written_exam == 0) {
+            $data['added_on'] = $common->getDateTime();
+            $data['added_by'] = $written_exam->added_by;
+            // $data['updated_on'] = $common->getDateTime();
+            // $data['updated_by'] = $sessionLogin->userId;
+            $this->tableGateway->insert($data);
+        } else {
+            if ($this->getWrittenExam($id_written_exam)) {
+                $data['updated_on'] = $common->getDateTime();
+                $data['updated_by'] = $written_exam->updated_by;
                 $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
             } else {
                 throw new \Exception('Written Exam id does not exist');

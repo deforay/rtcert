@@ -9,6 +9,7 @@ use Zend\InputFilter\InputFilterAwareInterface;
 class WrittenExam implements InputFilterAwareInterface {
 
     public $id_written_exam;
+    public $test_id;
     public $exam_type;
     public $provider_id;
     public $exam_admin;
@@ -29,6 +30,7 @@ class WrittenExam implements InputFilterAwareInterface {
 
     public function exchangeArray($data) {
         $this->id_written_exam = (!empty($data['id_written_exam'])) ? $data['id_written_exam'] : null;
+        $this->test_id = (!empty($data['test_id'])) ? $data['test_id'] : null;
         $this->exam_type = (!empty($data['exam_type'])) ? $data['exam_type'] : null;
         $this->provider_id = (!empty($data['provider_id'])) ? $data['provider_id'] : null;
         $this->exam_admin = (!empty($data['exam_admin'])) ? $data['exam_admin'] : null;

@@ -276,6 +276,7 @@ class QuestionTable extends AbstractTableGateway
 			->join(array('s' => 'test_sections'), 'q.section = s.section_id', array('section_name'))
 			->where(array('q.question_id' => $questionId));
 		$sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+		// die($sQueryStr);
 		return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 	}
 
@@ -336,13 +337,24 @@ class QuestionTable extends AbstractTableGateway
 		$testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
 		$logincontainer = new Container('credo');
 		$result = array();
+		$dbAdapter = $this->adapter;
+		$sql = new Sql($dbAdapter);
 		$testResult = $testDb->getTestDataByUserId($logincontainer->userId);
 		
 		//global result
 		$testConfigResult = $testConfigDb->fetchTestConfigDetails();
+		// \Zend\Debug\Debug::dump($testResult);
+		// \Zend\Debug\Debug::dump($testConfigResult);die;
 		if (!$testResult['testStatus']) {
 			$result = $this->insertQuestion();
-		} else if (isset($testResult['testStatus']['pre_test_status']) && $testResult['testStatus']['pre_test_status'] == 'completed' && isset($testResult['testStatus']['post_test_status']) && $testResult['testStatus']['post_test_status'] == 'completed' && $testConfigResult[2]['test_config_value'] == 'yes') {
+		} else if (isset($testResult['testStatus']['pre_test_status']) && $testResult['testStatus']['pre_test_status'] == 'completed' && $testConfigResult[2]['test_config_value'] == 'yes') {
+			$qQuery = $sql->select()->from('tests')->columns(array('total' => new \Zend\Db\Sql\Expression('COUNT(*)')))->where(array('user_id'=>$logincontainer->userId));
+			$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+			$testCountResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+			if($testCountResult){
+				$container = new Container('alert');
+				$container->alertMsg = "You are already attended the test in ".$testCountResult['total']." time. Can you attend again?";
+			}
 			$result = $this->insertQuestion();
 		} else if (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['pre_test_status'] == NULL || $testResult['testStatus']['pre_test_status'] != 'completed')) {
 			$result['question'] = $this->getRandomQuestions($testResult['testStatus']['test_id'], null, 'pretest_questions', 'pre_test_id');

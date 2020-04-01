@@ -61,10 +61,15 @@ class Module
 
         if (php_sapi_name() != 'cli') {
             $eventManager->attach('dispatch', array($this, 'preSetter'), 100);
-            //$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'dispatchError'), -999);
+            $eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'dispatchError'), -999);
         }
     }
 
+    public function dispatchError(MvcEvent $event) {
+        $error = $event->getError();
+        $baseModel = new ViewModel();
+        $baseModel->setTemplate('layout/layout');
+    }
 
     public function preSetter(MvcEvent $e)
     {
@@ -246,7 +251,8 @@ class Module
                 },
                 'PretestQuestionsTable' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new PretestQuestionsTable($dbAdapter);
+                    $writtenExamTable = $sm->get('\Certification\Model\WrittenExamTable');
+                    $table = new PretestQuestionsTable($dbAdapter,$writtenExamTable);
                     return $table;
                 },
                 'TestsTable' => function($sm) {

@@ -12,7 +12,12 @@
 							<form role="form" name="testSection" id="testSection" method="post" action="<?php echo $this->url('test-section', array('action' => 'edit')); ?>" autocomplete="off">
 								<div class="form-group col-lg-6">
 									<label for="sectionName" class="col-sm-3 control-label">Section Name<span class="mandatory">*</span></label>
-									<input type="text" value="<?php echo $testSectionResult['section_name'];?>" placeholder="Enter section name" class="form-control isRequired" name="sectionName" id="sectionName" title="Please enter the section name" onblur="checkNameValidation('test_sections', 'section_name', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>, 'Entered category already exist. Please enter an another category.')">
+									<input type="text" value="<?php echo $testSectionResult['section_name'];?>" placeholder="Enter section name" class="form-control isRequired" name="sectionName" id="sectionName" title="Please enter the section name" onblur="checkNameValidation('test_sections', 'section_name', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>', 'Entered category already exist. Please enter an another category.')">
+								</div>
+
+								<div class="form-group col-lg-6">
+								<label for="sectionSlug" class="col-sm-3 control-label">Section slug<span class="mandatory">*</span></label>
+									<input type="text" value="<?php echo $testSectionResult['section_slug'];?>" placeholder="Enter section slug" class="form-control isRequired" name="sectionSlug" id="sectionSlug" title="Please enter the section slug" onblur="checkNameValidation('test_sections', 'section_slug', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>', 'Entered category slug already exist. Please enter an another category slug.')">
 								</div>
 
 								<div class="form-group col-lg-6">
@@ -37,9 +42,14 @@
 	</div>
 </div>
 <script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/slug.js'); ?>"></script>
 <script type="text/javascript">
 	duplicateName = true;
-
+	$(document).ready(function(){
+		$("#sectionName").stringToSlug({
+			getPut : "#sectionSlug"
+		});
+	});
 	function validateNow() {
 		flag = deforayValidator.init({
 			formId: 'testSection'
