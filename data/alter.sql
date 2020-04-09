@@ -821,3 +821,33 @@ ALTER TABLE `written_exam` ADD `test_id` INT(11) NULL DEFAULT NULL AFTER `id_wri
 ALTER TABLE `pretest_questions` CHANGE `question_text` `question_text` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `test_questions` CHANGE `question` `question` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `test_options` CHANGE `option` `option` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+-- Thana 08 Apr, 2020
+INSERT INTO `resources` (`resource_id`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'Print Test PDF');
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'view-pdf-question', 'View PDF Questions'), ('Application\\Controller\\PrintTestPdf', 'index', 'Access'), ('Application\\Controller\\PrintTestPdf', 'add', 'Add New Test'), ('Application\\Controller\\PrintTestPdf', 'print-pdf-question', 'Print PDF Questions');
+-- Thana 09 Apr, 2020
+CREATE TABLE `print_test_pdf` (
+ `ptp_id` int NOT NULL AUTO_INCREMENT,
+ `ptp_title` varchar(50) DEFAULT NULL,
+ `ptp_no_participants` int DEFAULT NULL,
+ `ptp_variation` int DEFAULT NULL,
+ `ptp_create_on` datetime DEFAULT NULL,
+ `ptp_create_by` int DEFAULT NULL,
+ PRIMARY KEY (`ptp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `print_test_pdf_details` (
+ `ptpd_id` int NOT NULL AUTO_INCREMENT,
+ `ptp_id` int DEFAULT NULL,
+ `variant_no` int DEFAULT NULL,
+ `question_id` int DEFAULT NULL,
+ `question` text,
+ `response_id` int DEFAULT NULL,
+ `response_txt` text,
+ PRIMARY KEY (`ptpd_id`),
+ KEY `ptp_id` (`ptp_id`),
+ KEY `question_id` (`question_id`),
+ KEY `response_id` (`response_id`),
+ CONSTRAINT `print_test_pdf_details_ibfk_1` FOREIGN KEY (`ptp_id`) REFERENCES `print_test_pdf` (`ptp_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+ CONSTRAINT `print_test_pdf_details_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `test_questions` (`question_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+ CONSTRAINT `print_test_pdf_details_ibfk_3` FOREIGN KEY (`response_id`) REFERENCES `test_options` (`option_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -19,7 +19,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
 			</div>
 			<div class="col-sm-4">
 				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','add')) { ?>
-					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Section</a>
+					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Question</a>
 				<?php } ?>
 			</div>
 		  </div>

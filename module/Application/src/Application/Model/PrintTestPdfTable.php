@@ -1,0 +1,407 @@
+<?php
+
+namespace Application\Model;
+
+use Zend\Db\Sql\Expression;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\Sql\Sql;
+use Application\Service\CommonService;
+use Zend\Session\Container;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Description of Countries
+ *
+ * @author thanaseelan
+ */
+class PrintTestPdfTable extends AbstractTableGateway {
+
+    protected $table = 'print_test_pdf';
+
+    public function __construct(Adapter $adapter) {
+        $this->adapter = $adapter;
+    }
+
+    public function fetchprintTestPdfList($parameters,$acl) {
+        /* Array of database columns which should be read and sent back to DataTables. Use a space where
+        * you want to insert a non-database field (for example a counter or static image)
+        */
+        $querycontainer = new Container('query');
+        $common = new CommonService();
+        $aColumns = array('ptp_title', 'ptp_no_participants', 'ptp_variation', 'first_name',"DATE_FORMAT(ptp_create_on,'%d-%b-%Y %H:%i:%s')");
+        $orderColumns = array('ptp_title', 'ptp_no_participants', 'ptp_variation', 'first_name','ptp_create_on');
+        /*
+         * Paging
+         */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+         * Ordering
+         */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+         * Filtering
+         * NOTE this does not match the built-in DataTables filtering which does it
+         * word by word on any field. It's possible to do here, but concerned about efficiency
+         * on very large tables, and MySQL's regex functionality is very limited
+         */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+         * SQL queries
+         * Get data to display
+         */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('ptp'=>$this->table))
+        ->join(array('u'=>'users'),'ptp.ptp_create_by=u.id',array('first_name','last_name'));
+
+        /* Export Filder start */
+        if(isset($parameters['pdfTestDate']) && $parameters['pdfTestDate']!='')
+        {
+            $pdfDate = explode(" to ",$parameters['pdfTestDate']);
+            $pdfStartDate = date('Y-m-d', strtotime($pdfDate[0]));
+            $pdfEndDate = date('Y-m-d', strtotime($pdfDate[1]));
+            $sQuery = $sQuery->where(array("DATE(ptp_create_on) >='" . $pdfStartDate . "'", "DATE(ptp_create_on) <='" . $pdfEndDate . "'"));
+        }
+        
+        if(isset($parameters['pdfTitle']) && $parameters['pdfTitle']!='')
+        {
+            $sQuery = $sQuery->where(array('ptp.ptp_id'=> (int)base64_decode($parameters['pdfTitle'])));
+        }
+        /* Export Filder end */
+        
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr;die;
+        $querycontainer->testQueryStr =  $sQueryStr;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $iTotal = $this->select()->count();
+
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = ucwords($aRow['ptp_title']);
+            $row[] = $aRow['ptp_no_participants'];
+            $row[] = $aRow['ptp_variation'];
+            $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
+            $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
+            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')){
+                $row[] = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye">  View PDF Questions</i></a>';
+            }
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+    
+    public function fetchPtpDetailsInGrid($parameters,$acl) {
+        /* Array of database columns which should be read and sent back to DataTables. Use a space where
+        * you want to insert a non-database field (for example a counter or static image)
+        */
+        $querycontainer = new Container('query');
+        $common = new CommonService();
+        $aColumns = array('ptp_title', 'ptp_no_participants', 'variant_no', 'first_name',"DATE_FORMAT(ptp_create_on,'%d-%b-%Y %H:%i:%s')");
+        $orderColumns = array('ptp_title', 'ptp_no_participants', 'variant_no', 'first_name','ptp_create_on');
+        /*
+         * Paging
+         */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+         * Ordering
+         */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+         * Filtering
+         * NOTE this does not match the built-in DataTables filtering which does it
+         * word by word on any field. It's possible to do here, but concerned about efficiency
+         * on very large tables, and MySQL's regex functionality is very limited
+         */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+         * SQL queries
+         * Get data to display
+         */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('ptp'=>$this->table))
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('variant_no'))
+        ->join(array('u'=>'users'),'ptp.ptp_create_by=u.id',array('first_name','last_name'))
+        ->group(array('ptpd'=>'variant_no'));
+
+        /* Export Filder start */
+        if(isset($parameters['pdfTestDate']) && $parameters['pdfTestDate']!='')
+        {
+            $pdfDate = explode(" to ",$parameters['pdfTestDate']);
+            $pdfStartDate = date('Y-m-d', strtotime($pdfDate[0]));
+            $pdfEndDate = date('Y-m-d', strtotime($pdfDate[1]));
+            $sQuery = $sQuery->where(array("DATE(ptp_create_on) >='" . $pdfStartDate . "'", "DATE(ptp_create_on) <='" . $pdfEndDate . "'"));
+        }
+        
+        if(isset($parameters['pdfTitle']) && $parameters['pdfTitle']!='')
+        {
+            $sQuery = $sQuery->where(array('ptp.ptp_id'=> (int)base64_decode($parameters['pdfTitle'])));
+        }
+        
+        if(isset($parameters['ptpId']) && $parameters['ptpId']!='')
+        {
+            $sQuery = $sQuery->where(array('ptp.ptp_id'=> (int)$parameters['ptpId']));
+        }
+        /* Export Filder end */
+        
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr;die;
+        $querycontainer->testQueryStr =  $sQueryStr;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $iTotalsQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $iTotal = $dbAdapter->query($iTotalsQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->count();
+
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = ucwords($aRow['ptp_title']);
+            $row[] = $aRow['ptp_no_participants'];
+            $row[] = $aRow['variant_no'];
+            $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
+            $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
+            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
+                $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-print">  Print PDF Questions</i></a>';
+            }
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
+    public function savePrintTestPdfData($params){
+        $logincontainer = new Container('credo');
+        $ptpdetailsDb = new \Application\Model\PrintTestPdfDetailsTable($this->adapter);
+        $questionDb = new \Application\Model\QuestionTable($this->adapter);
+        $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
+		$testConfigResult = $testConfigDb->fetchTestConfigDetails();
+        if(!isset($params['ptpTitle']) && $params['ptpTitle'] == ''){
+            return false;
+        }
+
+        $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone('Asia/Calcutta'));
+        $data = array(
+            'ptp_title' => $params['ptpTitle'],
+            'ptp_no_participants' => $params['ptpNoOfParticipants'],
+            'ptp_variation' => $params['ptpNoOfVariants'],
+            'ptp_create_on' => $date->format('Y-m-d H:i:s'),
+            'ptp_create_by' => $logincontainer->userId
+        );
+
+        $this->insert($data);
+        $lastInsertedId = $this->lastInsertValue;
+        if($lastInsertedId > 0){
+            if($params['ptpNoOfVariants'] > 0){
+                foreach(range(1, $params['ptpNoOfVariants']) as $number){
+                    $questionResult = $this->getRandomPdfQuestions(null, $testConfigResult[1]['test_config_value'], 'print_test_pdf', 'ptp_id');
+                    foreach ($questionResult as $questionList) {
+                        $ptpdetailsData = array(
+                            'ptp_id'        => $lastInsertedId,
+                            'variant_no'    => $number,
+                            'question_id'   => $questionList['question_id'],
+                            'question'      => $questionList['question'],
+                            'response_id'   => $questionList['correct_option'],
+                            'response_txt'  => $questionList['correct_option_text']
+                        );
+                        $ptpdetailsDb->insert($ptpdetailsData);
+                    }
+               } 
+            }
+        }
+        return $lastInsertedId;
+    }
+
+    public function getRandomPdfQuestions($testId = null, $limit = null, $tableName, $primary)
+	{
+		$dbAdapter = $this->adapter;
+		$sql = new Sql($dbAdapter);
+		//get list of all questions
+		$qQuery = $sql->select()->from(array('q' => 'test_questions'));
+		if ($testId == null) {
+			$qQuery = $qQuery->order(new Expression('RAND()'))
+				->where(array('status' => 'active'))
+				->limit($limit);
+		} else if ($limit == null) {
+			$qQuery = $qQuery->join(array('ptp' => $tableName), 'ptp.question_id=q.question_id', array($primary, 'ptp_id', 'question_id', 'response_id'))
+				->where(array('ptp.ptp_id' => $testId))
+				->order('ptp.' . $primary . ' ASC');
+		}
+		$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+		$questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+		return $questionResult;
+    }
+    
+    public function fetchPtpDetailsById($ptpId){
+        return $this->select(array('ptp_id'=>(int)$ptpId))->current();
+    }
+    
+    public function fetchAllprintTestPdf(){
+        return $this->select()->toArray();
+    }
+}

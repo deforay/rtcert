@@ -1,0 +1,237 @@
+<?php
+use Zend\Session\Container;
+$sessionLogin = new Container('credo');
+$role = $sessionLogin->roleCode;
+$acl = $this->layout()->acl;
+if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) {
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
+}else{
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+}
+?>
+<style>
+    .pull-right{
+        float:right;
+    }
+</style>
+<!-- DATA TABLES -->
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
+<script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
+<div class="am-content">
+    <!-- Content Header (Page header) -->
+    <div class="page-head">
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Print Test PDF</h2>
+            </div>
+            <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'add')) {?>
+            <div class="col-sm-4">
+                <a href="javascript:void(0)" onclick="insertPanel(this);" class="pull-right btn btn-info btn-add-panel"><i class="fa fa-plus"></i> Add New Tests</a>
+            </div>
+            <?php } ?>
+        </div>
+    </div>
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="widget widget-fullwidth widget-small add-panel" style="padding:5px;display:none;">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+						<form role="form" name="testSection" id="testSection" method="post" action="<?php echo $this->url('print-test-pdf', array('action' => 'add')); ?>" autocomplete="off" >
+							<div class="form-group col-lg-6">
+							    <label for="ptpTitle" class="col-sm-3 control-label">Title<span class="mandatory">*</span></label>
+								<input type="text" placeholder="Enter Test Title" class="form-control isRequired" name="ptpTitle" id="ptpTitle" title="Please enter the Test Title" onblur="checkNameValidation('print_test_pdf', 'ptp_title', this, null, 'Entered test title already exist. Please enter an another title.')">
+							</div>
+							<div class="form-group col-lg-6">
+							    <label for="ptpNoOfParticipants" class="col-sm-4 control-label">No of Participants<span class="mandatory">*</span></label>
+								<input type="text" onblur="checkParticipants(this)" placeholder="Enter no of participants" class="form-control isRequired" name="ptpNoOfParticipants" id="ptpNoOfParticipants" title="Please enter the number of participants">
+							</div>
+							<div class="form-group col-lg-6 variants" style="display:none;">
+							    <label for="ptpNoOfVariants" class="col-sm-3 control-label">No of Variants<span class="mandatory">*</span></label>
+								<input type="text" placeholder="Enter no of variants" class="form-control" name="ptpNoOfVariants" id="ptpNoOfVariants" title="Please enter the number of variants">
+							</div>
+							
+							<div class="spacer  col-lg-12">
+								<button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit New Test</button>
+								<button type="button" onclick="deletePanel(this)" class="btn btn-space btn-default">Cancel</button>
+							</div>
+						</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
+            <label for="pdfTestDate" class="col-sm-1 control-label" style="padding-top: 5px;">Filter Date:</label>
+            <div class="col-sm-3">
+                <input type="text" style=" " class="form-control " id="pdfTestDate" name="pdfTestDate" placeholder="Select test date" title="Please enter month"/>
+            </div>
+    
+            <label for="pdfTitle" class="col-sm-1 control-label" style="padding-top: 5px;">Filter By Title:</label>
+            <div class="col-sm-3">
+                <select type="text" class="form-control " id="pdfTitle" name="pdfTitle" placeholder="Select Post test date" title="Please select the title">
+                    <option value=''>--Select--</option>
+                    <?php foreach($ptpSelectResult as $row){
+                        echo '<option value="'.base64_encode($row['ptp_id']).'">'.$row['ptp_title'].'</option>';
+                    }?>
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <a href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
+                <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
+                <a href="javascript:void(0)" onclick="downloadUserData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="widget-fullwidth widget-small" style="padding:5px;width:100%;">
+            <table id="printTestPdfTable" class="table table-bordered table-striped table-hover table-fw-widget">
+                <thead>
+                    <tr>
+                        <th style="width:50%">Title</th>
+                        <th style="width:10%">Number of Participant</th>
+                        <th style="width:10%">Number of Variants</th>
+                        <th style="width:100%">Test Created By</th>
+                        <th style="width:100%">Created On</th>
+                        <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) { ?>
+                        <th style="width:10%">Action</th>
+                        <?php } ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="dataTables_empty">Loading data from server</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
+<!-- <script type="text/javascript" src="< ?php echo $this->basePath('assets/js/jquery.dataTables.min.js'); ?>"></script> -->
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('assets/js/daterangepicker.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript">
+    duplicateName = true;
+    /* Table initialisation */
+    oTable = null;
+    function validateNow() {
+		flag = deforayValidator.init({
+				formId: 'testSection'
+		});
+		if (flag) {
+				if (duplicateName) {
+					document.getElementById('testSection').submit();
+				}
+		}
+    }
+    $(document).ready(function() {
+        oTable = $('#printTestPdfTable').dataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "aoColumns": [
+                <?php echo $editAction; ?>
+            ],
+            "sAjaxSource": "<?php echo $this->url('print-test-pdf',array('action' => 'index')); ?>",
+            "fnServerData": function ( sSource, aoData, fnCallback ) {
+                aoData.push({ "name": "pdfTestDate", "value": $("#pdfTestDate").val() });
+                aoData.push({ "name": "pdfTitle", "value": $("#pdfTitle").val() });
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        } );
+
+        $('#pdfTestDate').daterangepicker(
+            {
+                ranges   : {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract('days', 1), moment().subtract('days', 1)],
+                    'Last 7 Days': [moment().subtract('days', 6), moment()],
+                    'Last 30 Days': [moment().subtract('days', 29), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
+                },
+                startDate: moment().subtract(29, 'days'),
+                endDate  : moment()
+            },
+            function (start, end) {
+                $('#pdfTestDate').val(start.format('DD-MMM-YYYY') + ' to ' + end.format('DD-MMM-YYYY'))
+            }
+        )
+    } );
+    
+    function downloadUserData()
+    {
+        alert("This is under development");
+        return false;
+        $.post("<?php echo $this->url('provider',array('action'=>'export-test-details')); ?>",
+            function(data){
+            if(data == "" || data == null  || data == undefined || $.trim(data) == 'not-found'){
+                alert('Unable to generate download');
+            }else{
+                window.open('/temporary/provider-test/'+data, '_blank');
+            }
+        });
+
+    }
+    
+    function reDraw(){
+        oTable.fnDraw();
+    }
+
+    $("#resetValues").click(function(){ 
+        $("#pdfTestDate").val(''); 
+        oTable.fnDraw();
+    });
+
+    function insertPanel(obj){
+        $(obj).hide(500);
+        $('.add-panel').show(500);
+    }
+
+    function deletePanel(obj){
+        $('.btn-add-panel').show(500);
+        $('.add-panel').hide(500);
+    }
+
+    function checkParticipants(obj){
+        if(obj.value > 1){
+            $('.variants').show(500);
+            $('#ptpNoOfVariants').addClass('isRequired');
+        }else{
+            $('#ptpNoOfVariants').removeClass('isRequired');
+            $('.variants').hide(500);
+        }
+    }
+
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
+</script>

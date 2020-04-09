@@ -207,6 +207,7 @@ class TestsTable extends AbstractTableGateway {
         }
         return $output;
     }
+    
     public function fetchCertificateFieldDetails($testId)
     {
         // \Zend\Debug\Debug::dump($testId);die;

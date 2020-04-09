@@ -85,7 +85,10 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", 
   $testerReminderMenu.="<li><a href=".$this->url('test-section',array('action' => 'index')).">Online Question Categories</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Tests</a></li>";
+  $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Test Questions</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('print-test-pdf',array('action' => 'index')).">Print Test PDF</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
   $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Test Frequency</a></li>";

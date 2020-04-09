@@ -177,6 +177,16 @@ return array(
                     ),
                 ),
             ),
+            'print-test-pdf' => array(
+                'type' => 'segment',
+                'options' => array(
+                     'route' => '/print-test-pdf[/:action][/][:id]',
+                     'defaults' => array(
+                          'controller' => 'Application\Controller\PrintTestPdf',
+                          'action' => 'index',
+                     ),
+                ),
+           ),
         ),
     ),
     'service_manager' => array(
@@ -214,6 +224,7 @@ return array(
             'Application\Controller\TestSection'    => 'Application\Controller\TestSectionController',
             'Application\Controller\TestQuestion'   => 'Application\Controller\TestQuestionController',
             'Application\Controller\Test'           => 'Application\Controller\TestController',
+            'Application\Controller\PrintTestPdf'   => 'Application\Controller\PrintTestPdfController',
         ),
     ),
     'view_manager' => array(
