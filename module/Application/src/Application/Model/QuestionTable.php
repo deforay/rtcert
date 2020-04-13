@@ -538,13 +538,6 @@ class QuestionTable extends AbstractTableGateway
 			$preEndDate = date('Y-m-d', strtotime($preDate[1]));
 			$iQuery = $iQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
 		}
-		/* if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
-			$postDate = explode(" to ", $parameters['postTestDateRange']);
-			$postStartDate = date('Y-m-d', strtotime($postDate[0]));
-			$postEndDate = date('Y-m-d', strtotime($postDate[1]));
-			$iQuery = $iQuery->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
-			// \Zend\Debug\Debug::dump($sQuery2);die;
-		} */
 		$iQuery = $sql->getSqlStringForSqlObject($iQuery);
 		$iTotal = $dbAdapter->query($iQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$output = array(
@@ -560,44 +553,6 @@ class QuestionTable extends AbstractTableGateway
 			$row[] = ucwords($aRow['question']);
 			$row[] = $aRow['preQCount'];
 			$row[] = $aRow['preRCount'];
-			/* $sQuery2 = $sql->select()->from(array('q' => $this->table))->columns(array('question_id', 'question', 'correct_option'))
-				->join(array('post' => 'posttest_questions'), 'q.question_id = post.question_id', array('postQCount' => new Expression('COUNT(post_test_id)'), "postRCount" => new Expression("SUM(CASE WHEN (post.score  = 1) THEN 1 ELSE 0 END)")), 'left')
-				->join(array('t' => 'tests'), 'post.test_id = t.test_id', array('posttest_start_datetime', 'pretest_start_datetime'))
-				->group("q.question_id");
-			if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
-				$querycontainer->postTestDateRange =  $parameters['postTestDateRange'];
-				$postDate = explode(" to ", $parameters['postTestDateRange']);
-				$postStartDate = date('Y-m-d', strtotime($postDate[0]));
-				$postEndDate = date('Y-m-d', strtotime($postDate[1]));
-				$sQuery2 = $sQuery2->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
-				// \Zend\Debug\Debug::dump($sQuery2);die;
-			} else if (isset($parameters['preTestDateRange']) && $parameters['preTestDateRange'] != '') {
-				$querycontainer->preTestDateRange =  $parameters['preTestDateRange'];
-				$querycontainer->postTestDateRange = "";
-				$preDate = explode(" to ", $parameters['preTestDateRange']);
-				$preStartDate = date('Y-m-d', strtotime($preDate[0]));
-				$preEndDate = date('Y-m-d', strtotime($preDate[1]));
-				$sQuery2 = $sQuery2->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
-
-				$sQuery2 = $sQuery2->where(array('q.question_id' => $aRow['question_id']));
-			} else {
-				$sQuery2 = $sQuery2->where(array('q.question_id' => $aRow['question_id']));
-				$querycontainer->preTestDateRange = "";
-				$querycontainer->postTestDateRange = "";
-			}
-			$sQueryStr2 = $sql->getSqlStringForSqlObject($sQuery2);
-			// echo $sQueryStr2;die;
-			$result = $dbAdapter->query($sQueryStr2, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-			if ($result['postQCount'] != "") {
-
-				$row[] = $result['postQCount'];
-				$row[] = $result['postRCount'];
-			} else {
-				$row[] = '0';
-				$row[] = '0';
-			} */
-
-
 			$output['aaData'][] = $row;
 		}
 		return $output;
