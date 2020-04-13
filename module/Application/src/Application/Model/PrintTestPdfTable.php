@@ -337,6 +337,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
     public function savePrintTestPdfData($params){
         $logincontainer = new Container('credo');
+        $common = new CommonService();
         $ptpdetailsDb = new \Application\Model\PrintTestPdfDetailsTable($this->adapter);
         $questionDb = new \Application\Model\QuestionTable($this->adapter);
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
@@ -357,21 +358,34 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $this->insert($data);
         $lastInsertedId = $this->lastInsertValue;
         if($lastInsertedId > 0){
+            $questionResult = $this->getRandomPdfQuestions(null, $testConfigResult[1]['test_config_value'], 'print_test_pdf', 'ptp_id');
             if($params['ptpNoOfVariants'] > 0){
                 foreach(range(1, $params['ptpNoOfVariants']) as $number){
-                    $questionResult = $this->getRandomPdfQuestions(null, $testConfigResult[1]['test_config_value'], 'print_test_pdf', 'ptp_id');
-                    foreach ($questionResult as $questionList) {
+                    $randomArray = $common->getRandomArray(0,count($questionResult));
+                    foreach ($randomArray as $randNo) {
                         $ptpdetailsData = array(
                             'ptp_id'        => $lastInsertedId,
                             'variant_no'    => $number,
-                            'question_id'   => $questionList['question_id'],
-                            'question'      => $questionList['question'],
-                            'response_id'   => $questionList['correct_option'],
-                            'response_txt'  => $questionList['correct_option_text']
+                            'question_id'   => $questionResult[$randNo]['question_id'],
+                            'question'      => $questionResult[$randNo]['question'],
+                            'response_id'   => $questionResult[$randNo]['correct_option'],
+                            'response_txt'  => $questionResult[$randNo]['correct_option_text']
                         );
                         $ptpdetailsDb->insert($ptpdetailsData);
                     }
-               } 
+                } 
+            }else{
+                foreach ($questionResult as $questionList) {
+                    $ptpdetailsData = array(
+                        'ptp_id'        => $lastInsertedId,
+                        'variant_no'    => $number,
+                        'question_id'   => $questionList['question_id'],
+                        'question'      => $questionList['question'],
+                        'response_id'   => $questionList['correct_option'],
+                        'response_txt'  => $questionList['correct_option_text']
+                    );
+                    $ptpdetailsDb->insert($ptpdetailsData);
+                }
             }
         }
         return $lastInsertedId;

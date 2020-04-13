@@ -3,7 +3,7 @@ use Application\Service\CommonService;
 use Zend\Session\Container;
 
 $common = new CommonService();
-// \Zend\Debug\Debug::dump($result);die;
+// \Zend\Debug\Debug::dump($ptpId);die;
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
@@ -85,77 +85,59 @@ $pdf->SetMargins(12, 12, 12, true);
 /* add a page */
 $pdf->AddPage();
 $tbl = '';
-$tbl .= '<table nobr="true" style="width:100%;" border="0" cellpadding="2"  align="center">';
+$tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">';
     $tbl .= '<tr nobr="true" align="center">';
-        $tbl .= '<td style="width:100%;" align="center"><h1>This is the sample test from RT Cert</h1></td>';
-    $tbl .= '</tr>';
-    $tbl .= '<tr nobr="true" align="center">';
-        $tbl .= '<td style="width:100%;" align="center"><h4>We are used for testig the question with some new knowledge base system</h4></td>';
-    $tbl .= '</tr>';
-    $tbl .= '<tr nobr="true" align="center">';
-        $tbl .= '<td style="width:100%;font-size:12px;" align="center"><p align="center">(We are want to attending the test without any fail it may be quire and return as a success message for some time)</p></td>';
+        $tbl .= '<td style="width:100%;" align="center"><h1>'.$result['ptpDetails']['title'].'</h1></td>';
     $tbl .= '</tr>';
     $tbl .= '<tr nobr="true" align="center">';
         $tbl .= '<td style="width:100%;" align="center">
                     <table border="1" align="center" cellpadding="2" style="width:100%;">
                         <tr>
                             <td style="width:100%;">
-                                <h5>Kindly Fill the below form before you attend the test</h5><br><p style="width:100%;font-size:12px;">(This is must follow the fill the form for every tester)</p>
+                                <h5>Kindly Fill the below form before you attend the test</h5><br>
                                 <table nobr="true" style="width:100%;" cellpadding="2" border="0" align="center">
                                     <tr nobr="true" align="center">
                                         <td align="left" style="font-size:14px;"><u>TESTER IDENTIFICATION</u><br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Professional Registration No (if available)</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Registration No</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Last Name (Surname)*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Last Name (Surname)*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">First Name*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Middle Name (3rd name)</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">First Name*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Province*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Districts*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Middle Name (3rd name)</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Type of HIV Test Modality/Point*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Phone*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Province*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Email*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Prefered Contact Method*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Districts*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Current Job Title*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Facility Name*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Type of HIV Test Modality/Point*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Phone*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Email*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Prefered Contact Method*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Current Job Title*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Facility Name*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Time Worked As Tester*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:25%;font-size:13px;">Time Worked As Tester*</td>
+                                        <td align="left" style="width:25%;font-size:13px;">___________________<br></td>
                                     </tr>
                                 </table>
                             </td>
@@ -167,16 +149,12 @@ $tbl .= '<table nobr="true" style="width:100%;" border="0" cellpadding="2"  alig
                                         <td align="left" style="font-size:14px;"><u>TESTING SITE IN CHARGE</u><br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Full Name*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Phone*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Email*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br><br></td>
+                                        <td align="left" style="width:14.6%;font-size:13px;">Full Name*</td>
+                                        <td align="left" style="width:24.6%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:10.6%;font-size:13px;">Phone*</td>
+                                        <td align="left" style="width:18.6%;font-size:13px;">______________<br></td>
+                                        <td align="left" style="width:10.6%;font-size:13px;">Email*</td>
+                                        <td align="left" style="width:18.6%;font-size:13px;">______________<br></td>
                                     </tr>
                                 </table>
                             </td>
@@ -188,16 +166,12 @@ $tbl .= '<table nobr="true" style="width:100%;" border="0" cellpadding="2"  alig
                                         <td align="left" style="font-size:14px;"><u>FACILITY IN CHARGE</u><br></td>
                                     </tr>
                                     <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Full Name*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Phone*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
-                                    </tr>
-                                    <tr nobr="true" align="center">
-                                        <td align="left" style="width:50%;font-size:13px;">Email*</td>
-                                        <td align="left" style="width:50%;font-size:13px;">_______________________________________<br></td>
+                                        <td align="left" style="width:14.6%;font-size:13px;">Full Name*</td>
+                                        <td align="left" style="width:24.6%;font-size:13px;">___________________<br></td>
+                                        <td align="left" style="width:10.6%;font-size:13px;">Phone*</td>
+                                        <td align="left" style="width:18.6%;font-size:13px;">______________<br></td>
+                                        <td align="left" style="width:10.6%;font-size:13px;">Email*</td>
+                                        <td align="left" style="width:18.6%;font-size:13px;">______________<br></td>
                                     </tr>
                                 </table>
                             </td>
@@ -230,5 +204,5 @@ $tbl .= '</table>';
     
 $pdf->writeHTML($tbl);
 
-$pdf->Output(ucfirst('RT Certification') . '_RTCert' . date('Y') . '.pdf', 'I');
+$pdf->Output(ucfirst('RT Certification') . '_RTCert_Set-' .$ptpId[1] .'_'.date('dMY') . '.pdf', 'I');
 exit;

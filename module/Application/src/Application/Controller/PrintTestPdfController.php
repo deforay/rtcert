@@ -35,7 +35,7 @@ class PrintTestPdfController extends AbstractActionController{
             $ptpResult = $printTestPdfService->getPtpDetailsById($ptpId);
             return new ViewModel(array(
                 'ptpResult'         => $ptpResult,
-                'ptpSelectResult'   => $printTestPdfService->getAllprintTestPdf($parameters)
+                'ptpSelectResult'   => $printTestPdfService->getAllprintTestPdf()
             ));
         }
     }
@@ -54,7 +54,7 @@ class PrintTestPdfController extends AbstractActionController{
         $ptpId=base64_decode($this->params()->fromRoute('id'));
         $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' => $printTestPdfService->getPdfDetailsById($ptpId)));
+        $viewModel->setVariables(array('result' => $printTestPdfService->getPdfDetailsById($ptpId),'ptpId' => explode('##',$ptpId)));
         $viewModel->setTerminal(true);
         return $viewModel;
     }

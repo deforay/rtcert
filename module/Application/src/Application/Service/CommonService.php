@@ -748,6 +748,18 @@ class CommonService {
         $testConfigDb = $this->sm->get('TestConfigTable');
         return $testConfigDb->fetchTestValue($globalName);        
     }
+
+    public function getRandomArray($min,$max){
+        $valArray = array();
+        foreach(range($min,$max) as $val){
+            $indexVal = $min;
+            do {
+                $indexVal = rand($min,$max);
+            } while (in_array($indexVal,$valArray));
+            $valArray[] = $indexVal;
+        }
+        return $valArray;
+    }
 }
 
 ?>
