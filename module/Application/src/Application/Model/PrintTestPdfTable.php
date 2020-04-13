@@ -328,7 +328,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
             if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
-                $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-print">  Print PDF Questions</i></a>';
+                $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Print PDF Questions</i></a>';
             }
             $output['aaData'][] = $row;
         }
@@ -388,8 +388,10 @@ class PrintTestPdfTable extends AbstractTableGateway {
 				->where(array('status' => 'active'))
 				->limit($limit);
 		} else if ($limit == null) {
-			$qQuery = $qQuery->join(array('ptp' => $tableName), 'ptp.question_id=q.question_id', array($primary, 'ptp_id', 'question_id', 'response_id'))
-				->where(array('ptp.ptp_id' => $testId))
+            $qQuery = $qQuery->join(array('ptp' => $tableName), 'ptp.question_id=q.question_id', array($primary, 'ptp_id', 'question_id', 'response_id'))
+                ->join(array('tq'=>'test_questions'),'tq.question_id=ptp.question_id',array('section'))
+                ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name','section_slug'))
+				->where(array('ptp.ptp_id' => $testId,'tq.status'=>'active','ts.status'=>'active'))
 				->order('ptp.' . $primary . ' ASC');
 		}
 		$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
@@ -403,5 +405,63 @@ class PrintTestPdfTable extends AbstractTableGateway {
     
     public function fetchAllprintTestPdf(){
         return $this->select()->toArray();
+    }
+    
+    public function fetchPdfDetailsById($ptpId){
+        $ptpId = explode('##',$ptpId);
+        // \Zend\Debug\Debug::dump($ptpId);die;
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        // To get the ptp details
+        $ptpQuery = $sql->select()->from(array('ptp'=>$this->table))
+        ->join(array('u'=>'users'),'ptp.ptp_create_by=u.id',array('first_name','last_name'))
+        ->where(array('ptp_id'=>(int)$ptpId[0]));
+        $ptpQueryStr = $sql->getSqlStringForSqlObject($ptpQuery);
+        $ptpResult = $dbAdapter->query($ptpQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+        $questionList['ptpDetails'] = array(
+            'title'         => $ptpResult['ptp_title'],
+            'noParticipant' => $ptpResult['ptp_no_participants'],
+            'noVariant'     => $ptpResult['ptp_variation'],
+            'createBy'      => ucwords($ptpResult['first_name'].' '.$ptpResult['last_name'])
+        );
+        // To get the ptp details
+        $qQuery = $sql->select()->from(array('ptp' => 'print_test_pdf'))
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('ptpd_id','variant_no','question_id','question','response_id','response_txt'))
+        ->join(array('tq'=>'test_questions'),'tq.question_id=ptpd.question_id',array('section'))
+        ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name','section_slug'))
+        ->where(array('ptpd.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1],'tq.status'=>'active','ts.status'=>'active'))
+        ->order(array('ptpd_id ASE'));
+        $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+        $questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        
+        foreach($questionResult as $key=>$question){
+            $optionsList = array();
+            $questionList['questions'][($key+1)]['questionList'] = array(
+                'variant_no'            => $question['variant_no'],
+                'section_name'          => $question['section_name'],
+                'question'              => $question['question'],
+                'response_txt'          => $question['response_txt']
+            );
+            // To get the option list
+            $optionsList = $this->fetchOptionList((int)$question['question_id']);
+            foreach($optionsList as $option){
+                $questionList['questions'][($key+1)]['optionList'][] = $option['option'];
+                // $questionList['questions'][($key+1)]['optionList'] = $optionsList;
+            }
+        }
+        return $questionList;
+    }
+
+    public function fetchOptionList($qId){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $qQuery = $sql->select()->from(array('to' => 'test_options'))
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.question_id=to.question',array('question_id'))
+        ->where(array('ptpd.question_id'=>$qId,'to.status'=>'active'))
+        ->order('to.option_id ASE')
+        ->group('to.option_id');
+        $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+        // die($qQueryStr);
+        return $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 }

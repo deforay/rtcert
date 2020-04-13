@@ -66,4 +66,9 @@ class PrintTestPdfService {
         $db = $this->sm->get('PrintTestPdfTable');
         return $db->fetchAllprintTestPdf();
     }
+    
+    public function getPdfDetailsById($ptpId){
+        $db = $this->sm->get('PrintTestPdfTable');
+        return $db->fetchPdfDetailsById($ptpId);
+    }
 }

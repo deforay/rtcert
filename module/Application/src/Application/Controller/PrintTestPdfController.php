@@ -51,6 +51,11 @@ class PrintTestPdfController extends AbstractActionController{
     }
 
     public function printPdfQuestionAction(){
-        die("under development");
+        $ptpId=base64_decode($this->params()->fromRoute('id'));
+        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' => $printTestPdfService->getPdfDetailsById($ptpId)));
+        $viewModel->setTerminal(true);
+        return $viewModel;
     }
 }

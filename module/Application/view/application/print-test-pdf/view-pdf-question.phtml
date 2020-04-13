@@ -30,23 +30,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
     <!-- Main content -->
     <div class="main-content">
         <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
-            <label for="pdfTestDate" class="col-sm-1 control-label" style="padding-top: 5px;">Filter Date:</label>
-            <div class="col-sm-3">
-                <input type="text" style=" " class="form-control " id="pdfTestDate" name="pdfTestDate" placeholder="Select test date" title="Please enter month"/>
-            </div>
-    
-            <label for="pdfTitle" class="col-sm-1 control-label" style="padding-top: 5px;">Filter By Title:</label>
-            <div class="col-sm-3">
-                <select type="text" class="form-control " id="pdfTitle" name="pdfTitle" placeholder="Select Post test date" title="Please select the title">
-                    <option value=''>--Select--</option>
-                    <?php foreach($ptpSelectResult as $row){
-                        echo '<option value="'.base64_encode($row['ptp_id']).'">'.$row['ptp_title'].'</option>';
-                    }?>
-                </select>
-            </div>
-            <div class="col-sm-4">
-                <a href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
-                <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
+            <div class="col-sm-12 pull-right">
                 <a href="javascript:void(0)" onclick="downloadUserData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
             </div>
         </div>
@@ -105,8 +89,8 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             ],
             "sAjaxSource": "<?php echo $this->url('print-test-pdf',array('action' => 'view-pdf-question')); ?>",
             "fnServerData": function ( sSource, aoData, fnCallback ) {
-                aoData.push({ "name": "pdfTestDate", "value": $("#pdfTestDate").val() });
-                aoData.push({ "name": "pdfTitle", "value": $("#pdfTitle").val() });
+                // aoData.push({ "name": "pdfTestDate", "value": $("#pdfTestDate").val() });
+                // aoData.push({ "name": "pdfTitle", "value": $("#pdfTitle").val() });
                 aoData.push({ "name": "ptpId", "value": <?php echo $ptpResult['ptp_id'];?> });
                 $.ajax({
                     "dataType": 'json',
