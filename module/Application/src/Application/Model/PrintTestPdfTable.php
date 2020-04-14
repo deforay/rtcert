@@ -161,16 +161,29 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
-
+        $editAccess = false;$changeStatusAccess = false;$viewPdfAccess=false;
         foreach ($rResult as $aRow) {
+            $eidOption = '';$viewPdfQuestion = '';$changeStatus = '';
             $row = array();
             $row[] = ucwords($aRow['ptp_title']);
             $row[] = $aRow['ptp_no_participants'];
             $row[] = $aRow['ptp_variation'];
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
+            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'edit')){
+                $editAccess = true;
+                $eidOption = '<a href="javascript:void(0);" onclick="showModal(\'/facility/get-facility-name\',800,450);" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-pencil">  Edit Title</i></a>';
+            }
+            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'change-status')){
+                $changeStatusAccess = true;
+                $changeStatus = '';
+            }
             if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')){
-                $row[] = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye">  View PDF Questions</i></a>';
+                $viewPdfAccess = true;
+                $viewPdfQuestion = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye">  View PDF Questions Variants</i></a>';
+            }
+            if($editAccess = true || $changeStatusAccess == true || $viewPdfAccess == true){
+                $row[] = $eidOption.$changeStatus.$viewPdfQuestion;
             }
             $output['aaData'][] = $row;
         }
@@ -367,9 +380,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                             'ptp_id'        => $lastInsertedId,
                             'variant_no'    => $number,
                             'question_id'   => $questionResult[$randNo]['question_id'],
-                            'question'      => $questionResult[$randNo]['question'],
-                            'response_id'   => $questionResult[$randNo]['correct_option'],
-                            'response_txt'  => $questionResult[$randNo]['correct_option_text']
+                            'response_id'   => $questionResult[$randNo]['correct_option']
                         );
                         $ptpdetailsDb->insert($ptpdetailsData);
                     }
@@ -380,9 +391,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                         'ptp_id'        => $lastInsertedId,
                         'variant_no'    => $number,
                         'question_id'   => $questionList['question_id'],
-                        'question'      => $questionList['question'],
-                        'response_id'   => $questionList['correct_option'],
-                        'response_txt'  => $questionList['correct_option_text']
+                        'response_id'   => $questionList['correct_option']
                     );
                     $ptpdetailsDb->insert($ptpdetailsData);
                 }
@@ -440,8 +449,8 @@ class PrintTestPdfTable extends AbstractTableGateway {
         );
         // To get the ptp details
         $qQuery = $sql->select()->from(array('ptp' => 'print_test_pdf'))
-        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('ptpd_id','variant_no','question_id','question','response_id','response_txt'))
-        ->join(array('tq'=>'test_questions'),'tq.question_id=ptpd.question_id',array('section'))
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('ptpd_id','variant_no','question_id','response_id'))
+        ->join(array('tq'=>'test_questions'),'tq.question_id=ptpd.question_id',array('section','question_code','question'))
         ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name','section_slug'))
         ->where(array('ptpd.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1],'tq.status'=>'active','ts.status'=>'active'))
         ->order(array('ptpd_id ASE'));
@@ -453,14 +462,13 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $questionList['questions'][($key+1)]['questionList'] = array(
                 'variant_no'            => $question['variant_no'],
                 'section_name'          => $question['section_name'],
-                'question'              => $question['question'],
-                'response_txt'          => $question['response_txt']
+                'question_code'         => $question['question_code'],
+                'question'              => $question['question']
             );
             // To get the option list
             $optionsList = $this->fetchOptionList((int)$question['question_id']);
             foreach($optionsList as $option){
                 $questionList['questions'][($key+1)]['optionList'][] = $option['option'];
-                // $questionList['questions'][($key+1)]['optionList'] = $optionsList;
             }
         }
         return $questionList;

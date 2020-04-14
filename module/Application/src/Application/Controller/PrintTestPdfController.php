@@ -17,7 +17,7 @@ class PrintTestPdfController extends AbstractActionController{
         }else{
             $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
             return new ViewModel(array(
-                'ptpSelectResult' => $printTestPdfService->getAllprintTestPdf($parameters)
+                'ptpSelectResult' => $printTestPdfService->getAllprintTestPdf()
             ));
         }
     }

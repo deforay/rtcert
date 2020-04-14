@@ -4,16 +4,19 @@ namespace Certification\Form;
 
 use Zend\Form\Form;
 
-class TrainingOrganizationForm extends Form {
+class TrainingOrganizationForm extends Form
+{
 
-    public function __construct($name = null) {
+    public function __construct($name = null)
+    {
 
         parent::__construct('trainning_organization');
-        $this->setAttributes(array(
-            'method'=> 'post',
-            
+        $this->setAttributes(
+            array(
+                'method' => 'post',
+
             )
-                );
+        );
 
         $this->add(array(
             'name' => 'training_organization_id',
@@ -23,9 +26,16 @@ class TrainingOrganizationForm extends Form {
             'name' => 'training_organization_name',
             'type' => 'Text',
             'options' => array(
-                'label' => 'training organization name',
+                'label' => 'Name of the Organization',
             ),
-           
+        ));
+        
+        $this->add(array(
+            'name' => 'abbreviation',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Abbreviation',
+            ),
         ));
 
         $this->add(array(
@@ -42,6 +52,22 @@ class TrainingOrganizationForm extends Form {
                 ),
             ),
         ));
+        
+        $this->add(array(
+            'name' => 'address',
+            'type' => 'Textarea',
+            'options' => array(
+                'label' => 'Address & Contact Information',
+            ),
+        ));
+        
+        $this->add(array(
+            'name' => 'phone',
+            'type' => 'Text',
+            'options' => array(
+                'label' => 'Phone Number',
+            ),
+        ));
 
         $this->add(array(
             'name' => 'submit',
@@ -52,5 +78,4 @@ class TrainingOrganizationForm extends Form {
             ),
         ));
     }
-
 }

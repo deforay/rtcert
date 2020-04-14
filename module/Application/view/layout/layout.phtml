@@ -59,7 +59,9 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrga
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
   $trainingMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
 }
-
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
+  $testerMenu.="<li><a href=".$this->url('print-test-pdf',array('action' => 'index')).">Print Written Test</a></li>";
+}
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "index")) {
   $testerMenu.="<li><a href=".$this->url('provider',array('action' => 'index')).">Manage Testers</a></li>";
 }
@@ -75,6 +77,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination"
 //if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "pending")) {
   //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
 //}
+
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
 }
@@ -86,9 +89,6 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", 
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Test Questions</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('print-test-pdf',array('action' => 'index')).">Print Test PDF</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
   $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Test Frequency</a></li>";
@@ -268,7 +268,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
           <ul class="nav navbar-nav am-top-menu">
           <?php if($geoGraphicalMenu!='' || $configMenu!='' || $adminMenu!=''){ ?>
           <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">System Admin <b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
               <ul class="dropdown-menu">
               <?php if($geoGraphicalMenu!='' || $configMenu!=''){ ?>
                   <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>

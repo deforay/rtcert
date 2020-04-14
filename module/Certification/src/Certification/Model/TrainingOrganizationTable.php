@@ -38,8 +38,11 @@ class TrainingOrganizationTable extends AbstractTableGateway {
 
     public function saveTraining_Organization(TrainingOrganization $training_organization) {
         $data = array(
-            'training_organization_name' => strtoupper($training_organization->training_organization_name),
-            'type_organization' => $training_organization->type_organization
+            'training_organization_name'    => strtoupper($training_organization->training_organization_name),
+            'abbreviation'                  => $training_organization->abbreviation,
+            'type_organization'             => $training_organization->type_organization,
+            'address'                       => $training_organization->address,
+            'phone'                         => $training_organization->phone
         );
 //        var_dump($training_organization);
         $training_organization_id = (int) $training_organization->training_organization_id;

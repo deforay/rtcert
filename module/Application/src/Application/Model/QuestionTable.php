@@ -35,10 +35,10 @@ class QuestionTable extends AbstractTableGateway
 		$optionDb = new \Application\Model\TestOptionsTable($this->adapter);
 		if (isset($param['questionSection']) && trim($param['questionSection']) != "") {
 			$data = array(
-				'question' => $param['questionSection'],
-				'section' => base64_decode($param['section']),
-				//'correct_option' => $param['correctOption'],
-				'status' => $param['status'],
+				'question' 		=> $param['questionSection'],
+				'section' 		=> base64_decode($param['section']),
+				'question_code' => $param['questionCode'],
+				'status' 		=> $param['status'],
 			);
 
 			$this->insert($data);
@@ -88,7 +88,7 @@ class QuestionTable extends AbstractTableGateway
 			$data = array(
 				'question' => $param['questionSection'],
 				'section' => base64_decode($param['section']),
-				//'correct_option' => $param['correctOption'],
+				'question_code' => $param['questionCode'],
 				'status' => $param['status'],
 			);
 			$updateResult = $this->update($data, array('question_id' => base64_decode($param['questionId'])));
@@ -141,8 +141,8 @@ class QuestionTable extends AbstractTableGateway
 		/* Array of database columns which should be read and sent back to DataTables. Use a space where
     * you want to insert a non-database field (for example a counter or static image)
     */
-		$aColumns = array('q.question', 's.section_name', 'q.correct_option_text', 'q.status');
-		$orderColumns = array('q.question', 's.section_name', 'q.correct_option_text', 'q.status');
+		$aColumns = array('q.question_code','q.question', 's.section_name', 'q.correct_option_text', 'q.status');
+		$orderColumns = array('q.question_id','q.question_code','q.question', 's.section_name', 'q.correct_option_text', 'q.status');
 		/*
     * Paging
     */
@@ -254,6 +254,7 @@ class QuestionTable extends AbstractTableGateway
 
 		foreach ($rResult as $aRow) {
 			$row = array();
+			$row[] = ucwords($aRow['question_code']);
 			$row[] = ucwords($aRow['question']);
 			$row[] = ucwords($aRow['section_name']);
 			$row[] = ucwords($aRow['correct_option_text']);

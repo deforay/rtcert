@@ -827,7 +827,7 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 -- Thana 09 Apr, 2020
 CREATE TABLE `print_test_pdf` (
  `ptp_id` int NOT NULL AUTO_INCREMENT,
- `ptp_title` varchar(50) DEFAULT NULL,
+ `ptp_title` text,
  `ptp_no_participants` int DEFAULT NULL,
  `ptp_variation` int DEFAULT NULL,
  `ptp_create_on` datetime DEFAULT NULL,
@@ -840,9 +840,7 @@ CREATE TABLE `print_test_pdf_details` (
  `ptp_id` int DEFAULT NULL,
  `variant_no` int DEFAULT NULL,
  `question_id` int DEFAULT NULL,
- `question` text,
  `response_id` int DEFAULT NULL,
- `response_txt` text,
  PRIMARY KEY (`ptpd_id`),
  KEY `ptp_id` (`ptp_id`),
  KEY `question_id` (`question_id`),
@@ -851,3 +849,8 @@ CREATE TABLE `print_test_pdf_details` (
  CONSTRAINT `print_test_pdf_details_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `test_questions` (`question_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
  CONSTRAINT `print_test_pdf_details_ibfk_3` FOREIGN KEY (`response_id`) REFERENCES `test_options` (`option_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- Thana 14 Apr, 2020
+ALTER TABLE `test_questions` ADD `question_code` VARCHAR(50) NULL DEFAULT NULL AFTER `question_id`;
+ALTER TABLE `training_organization` ADD `abbreviation` TEXT NULL DEFAULT NULL AFTER `training_organization_name`;
+ALTER TABLE `training_organization` ADD `address` TEXT NULL DEFAULT NULL AFTER `type_organization`, ADD `phone` VARCHAR(255) NULL DEFAULT NULL AFTER `address`;
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'edit', 'Edit Title'), ('Application\\Controller\\PrintTestPdf', 'change-status', 'Change Status');

@@ -11,8 +11,12 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <div class="form-group col-lg-6">
-                                <label for="questionSection" class="col-sm-3 control-label">Question<span class="mandatory">*</span></label>
-                                <input type="text" value="<?php echo $questionResult['question']; ?>" class="form-control isRequired" id="questionSection" name="questionSection" placeholder="Enter question" title="Please enter the question" onblur="checkNameValidation('test_questions', 'question', this, '<?php echo "question_id##" .$questionResult['question_id']; ?>', 'Entered question already exist. Please enter an another question.')"/>
+                                    <label for="questionCode" class="col-sm-3 control-label">Question Code<span class="mandatory">*</span></label>
+                                <input type="text" value="<?php echo $questionResult['question_code']; ?>" class="form-control isRequired" id="questionCode" name="questionCode" placeholder="Enter question code" title="Please enter the question code" onblur="checkNameValidation('test_questions', 'question_code', this, '<?php echo "question_id##" .$questionResult['question_id']; ?>', 'Entered question code already exist. Please enter an another question code.')"/>
+                                </div>
+                                <div class="form-group col-lg-6">
+                                    <label for="questionSection" class="col-sm-3 control-label">Question<span class="mandatory">*</span></label>
+                                    <input type="text" value="<?php echo $questionResult['question']; ?>" class="form-control isRequired" id="questionSection" name="questionSection" placeholder="Enter question" title="Please enter the question" onblur="checkNameValidation('test_questions', 'question', this, '<?php echo "question_id##" .$questionResult['question_id']; ?>', 'Entered question already exist. Please enter an another question.')"/>
                                 </div>
                                 
                                 <div class="form-group col-lg-6">
