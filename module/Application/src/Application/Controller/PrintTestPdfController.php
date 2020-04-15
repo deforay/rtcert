@@ -58,4 +58,35 @@ class PrintTestPdfController extends AbstractActionController{
         $viewModel->setTerminal(true);
         return $viewModel;
     }
+
+    public function editAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()){
+            $params = $request->getPost();
+            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+            $result = $printTestPdfService->savePdfTitle($params);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }else{
+            $layout = $this->layout();
+            $layout->setTemplate('layout/modal');
+            $ptpId=base64_decode($this->params()->fromRoute('id'));
+            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+            return new ViewModel(array(
+                'result' => $printTestPdfService->getPrintTestPdfDetailsById($ptpId)
+            ));
+        }
+    }
+
+    public function changeStatusAction(){
+        $request = $this->getRequest();
+        if ($request->isPost()){
+            $params = $request->getPost();
+            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $printTestPdfService->changeStatus($params)));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+    }
 }

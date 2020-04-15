@@ -162,6 +162,15 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $editAccess = false;$changeStatusAccess = false;$viewPdfAccess=false;
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'edit')){
+            $editAccess = true;
+        }
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'change-status')){
+            $changeStatusAccess = true;
+        }
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')){
+            $viewPdfAccess = true;
+        }
         foreach ($rResult as $aRow) {
             $eidOption = '';$viewPdfQuestion = '';$changeStatus = '';
             $row = array();
@@ -170,17 +179,26 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $row[] = $aRow['ptp_variation'];
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
-            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'edit')){
-                $editAccess = true;
-                $eidOption = '<a href="javascript:void(0);" onclick="showModal(\'/facility/get-facility-name\',800,450);" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-pencil">  Edit Title</i></a>';
+            if($editAccess){
+                $eidOption = '<a href="javascript:void(0);" onclick="showModal(\'/print-test-pdf/edit/'.base64_encode($aRow['ptp_id']).'\',800,300);" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-pencil"></i> Edit Title</a>';
             }
-            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'change-status')){
-                $changeStatusAccess = true;
-                $changeStatus = '';
+            if($changeStatusAccess){
+                if(isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active'){
+                    $changeStatus = '<label class="switch" title="Activate/Deactivate Status">
+                                        <input title="Activate/Deactivate Status" type="checkbox" value="active" checked onchange="saveStatus(\''.base64_encode($aRow['ptp_id']).'\',this)">
+                                        <span class="btn btn-success slider round" title="Activate/Deactivate Status"></span>
+                                    </label>';
+                }else{
+                    $changeStatus = '<label class="switch">
+                                        <input type="checkbox" value="inactive" onchange="saveStatus(\''.base64_encode($aRow['ptp_id']).'\',this)">
+                                        <span class="btn btn-success slider round"></span>
+                                    </label>';
+                }
             }
-            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')){
-                $viewPdfAccess = true;
-                $viewPdfQuestion = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye">  View PDF Questions Variants</i></a>';
+            if($viewPdfAccess){
+                if(isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active'){
+                    $viewPdfQuestion = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye"></i> View PDF Questions Sets</a>';
+                }
             }
             if($editAccess = true || $changeStatusAccess == true || $viewPdfAccess == true){
                 $row[] = $eidOption.$changeStatus.$viewPdfQuestion;
@@ -332,7 +350,10 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
-
+        $viewPdf = false;
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
+            $viewPdf = true;
+        }
         foreach ($rResult as $aRow) {
             $row = array();
             $row[] = ucwords($aRow['ptp_title']);
@@ -340,8 +361,12 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $row[] = $aRow['variant_no'];
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
-            if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
-                $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Print PDF Questions</i></a>';
+            if($viewPdf == true){
+                if(isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active'){
+                    $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Print PDF Questions</i></a>';
+                }else{
+                    $row[] = '<a href="javascript:void(0);" class="btn btn-default" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-ban">  Disabled</i></a>';
+                }
             }
             $output['aaData'][] = $row;
         }
@@ -361,11 +386,12 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
         $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone('Asia/Calcutta'));
         $data = array(
-            'ptp_title' => $params['ptpTitle'],
-            'ptp_no_participants' => $params['ptpNoOfParticipants'],
-            'ptp_variation' => $params['ptpNoOfVariants'],
-            'ptp_create_on' => $date->format('Y-m-d H:i:s'),
-            'ptp_create_by' => $logincontainer->userId
+            'ptp_title'             => $params['ptpTitle'],
+            'ptp_no_participants'   => $params['ptpNoOfParticipants'],
+            'ptp_variation'         => $params['ptpNoOfVariants'],
+            'ptp_status'            => $params['pdfStatus'],
+            'ptp_create_on'         => $date->format('Y-m-d H:i:s'),
+            'ptp_create_by'         => $logincontainer->userId
         );
 
         $this->insert($data);
@@ -485,5 +511,17 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
         // die($qQueryStr);
         return $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+    }
+
+    public function fetchPrintTestPdfDetailsById($ptpId){
+        return $this->select(array('ptp_id'=>(int)$ptpId))->current();
+    }
+    
+    public function savePdfTitleData($params){
+        return $this->update(array('ptp_title'=>$params['title']),array('ptp_id'=>(int)base64_decode($params['ptpId'])));
+    }
+    
+    public function saveChangedStatus($params){
+        return $this->update(array('ptp_status'=>(isset($params['status']) && $params['status'] == 'active')?'inactive':'active'),array('ptp_id'=>(int)base64_decode($params['ptpId'])));
     }
 }

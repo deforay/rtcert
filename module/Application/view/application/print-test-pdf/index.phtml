@@ -4,7 +4,7 @@ $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) {
-    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center inline","bSortable":false}';
 }else{
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 }
@@ -12,6 +12,72 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
 <style>
     .pull-right{
         float:right;
+    }
+    .inline{
+        display: inline-flex;
+    }
+    .action-btn{
+        margin-left: 10px !important; 
+    }
+    .switch {
+        position: relative;
+        width: 60px;
+        height: 34px;
+        margin-bottom: 0px;
+        margin-left: 10px;
+    }
+
+    .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #68c5b5;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
     }
 </style>
 <!-- DATA TABLES -->
@@ -55,7 +121,15 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
 							<div class="form-group col-lg-6 variants" style="display:none;">
 							    <label for="ptpNoOfVariants" class="col-sm-3 control-label">No of Variants<span class="mandatory">*</span></label>
 								<input type="text" placeholder="Enter no of variants" class="form-control" name="ptpNoOfVariants" id="ptpNoOfVariants" title="Please enter the number of variants">
-							</div>
+                            </div>
+                            
+                            <div class="form-group col-lg-6">
+                                <label for="pdfStatus" class="col-sm-3 control-label" style="padding-top: 5px;">Status:</label>
+                                <select type="text" class="form-control" id="pdfStatus" name="pdfStatus" placeholder="Select status" title="Please select the status">
+                                    <option value='active'>Active</option>
+                                    <option value='inactive'>Inactive</option>
+                                </select>
+                            </div>
 							
 							<div class="spacer  col-lg-12">
 								<button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit New Test</button>
@@ -70,7 +144,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
         <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
             <label for="pdfTestDate" class="col-sm-1 control-label" style="padding-top: 5px;">Filter Date:</label>
             <div class="col-sm-3">
-                <input type="text" style=" " class="form-control " id="pdfTestDate" name="pdfTestDate" placeholder="Select test date" title="Please enter month"/>
+                <input type="text" class="form-control " id="pdfTestDate" name="pdfTestDate" placeholder="Select test date" title="Please enter month"/>
             </div>
     
             <label for="pdfTitle" class="col-sm-1 control-label" style="padding-top: 5px;">Filter By Title:</label>
@@ -82,6 +156,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                     }?>
                 </select>
             </div>
+
             <div class="col-sm-4">
                 <a href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
                 <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
@@ -100,7 +175,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                         <th style="width:100%">Test Created By</th>
                         <th style="width:100%">Created On</th>
                         <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) { ?>
-                        <th style="width:10%">Action</th>
+                        <th style="width: 15%;display: table-cell;">Action</th>
                         <?php } ?>
                     </tr>
                 </thead>
@@ -233,5 +308,15 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                 duplicateName = true;
             }
         });
+    }
+
+    function saveStatus(id,obj){
+        var cnfm = confirm("Are you sure want to change status?");
+	    if(cnfm){
+            $.post("<?php echo $this->url('print-test-pdf',array('action'=>'change-status')); ?>",{status:obj.value,ptpId:id},
+            function(data) {
+                oTable.fnDraw();
+            });
+	    }
     }
 </script>

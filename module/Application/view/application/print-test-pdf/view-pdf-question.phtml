@@ -5,11 +5,17 @@ $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) {
-    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center inline","bSortable":false}';
 }else{
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 }
 ?>
+
+<style>
+    .inline{
+        display: inline-flex;
+    }
+</style>
 <!-- DATA TABLES -->
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
 <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
@@ -46,7 +52,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                         <th style="width:100%">Test Created By</th>
                         <th style="width:100%">Created On</th>
                         <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')) { ?>
-                        <th style="width:10%">Action</th>
+                        <th style="width:10%;display: table-cell;">Action</th>
                         <?php } ?>
                     </tr>
                 </thead>

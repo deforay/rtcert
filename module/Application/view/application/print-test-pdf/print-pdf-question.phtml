@@ -80,12 +80,8 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                     $tbl .= '<td align="center" style="width:5%;font-size:13px;"><br><b>'.$sno.'</b></td>';
                     $tbl .= '<td align="center" style="width:11%;font-size:13px;"><b>'.$qRow['questionList']['question_code'].'</b></td>';
                     $tbl .= '<td align="left" style="width:85%;font-size:13px;"><b>'.$qRow['questionList']['question'].'</b>';
-                        for($i=0;$i<count($qRow['optionList']);$i++) {
-                            $tbl .= '<li>'.$qRow['optionList'][$i].'</li>';
-                            /* if(isset($qRow['optionList'][($i+1)])){
-                                $tbl .= '<td align="left" style="width:50%;font-size:13px;">'.$qRow['optionList'][($i+1)].'</td>';
-                                $i++;
-                            } */
+                        foreach($qRow['optionList'] as $row) {
+                            $tbl .= '<li>'.trim($row).'</li>';
                         }
                     $tbl .='</td>';
                 $tbl .= '</tr>';

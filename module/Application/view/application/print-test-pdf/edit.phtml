@@ -1,0 +1,87 @@
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
+<div class="am-content">
+	<div class="page-head">
+		<h2>Edit Print Written Exam Title</h2>
+	</div>
+	<div class="main-content">
+		<div class="widget widget-fullwidth widget-small" style="padding:5px;">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<form role="form" name="testSection" id="testSection" method="post" action="<?php echo $this->url('print-test-pdf', array('action' => 'edit')); ?>" autocomplete="off">
+                                <div class="form-group col-lg-6">
+                                    <label for="ptpTitle" class="col-sm-3 control-label">Title<span class="mandatory">*</span></label>
+                                    <input type="text" value ="<?php echo $result['ptp_title'];?>" placeholder="Enter Test Title" class="form-control isRequired" name="ptpTitle" id="ptpTitle" title="Please enter the Test Title" onblur="checkNameValidation('print_test_pdf', 'ptp_title', this,'<?php echo "ptp_id##".$result['ptp_id'];?>', 'Entered test title already exist. Please enter an another title.')">
+                                </div>
+
+								<div class="spacer  col-lg-12">
+									<input type="hidden" name="ptpId" id="ptpId" value="<?php echo base64_encode($result['ptp_id']);?>"/>
+									<button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit</button>
+									<a href="javascript:void(0);" onclick="closeThisModel();" class="btn btn-space btn-default">Cancel</a>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/slug.js'); ?>"></script>
+<script type="text/javascript">
+	duplicateName = true;
+	$(document).ready(function(){
+		$("#sectionName").stringToSlug({
+			getPut : "#sectionSlug"
+		});
+	});
+	function validateNow() {
+		flag = deforayValidator.init({
+			formId: 'testSection'
+		});
+		if (flag) {
+			if (duplicateName) {
+				saveTitle();
+			}
+		}
+	}
+	function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
+
+    function saveTitle(){
+        var cnfm = confirm("Are you sure want to change title?");
+	    if(cnfm){
+            $.post("<?php echo $this->url('print-test-pdf',array('action'=>'edit')); ?>",{title:$('#ptpTitle').val(),ptpId:$('#ptpId').val()},
+            function(data) {
+                if (data>0) {
+                    alert("Title updated successfully");
+                    parent.closeModal();
+                    parent.window.location.href=window.parent.location.href;
+                }else{
+                    alert("You are entered existing title.");
+                    parent.closeModal();
+                }
+            });
+	    }
+    }
+
+    function closeThisModel(){
+        parent.closeModal();
+    }
+</script>
