@@ -35,7 +35,8 @@ class PrintTestPdfController extends AbstractActionController{
             $ptpResult = $printTestPdfService->getPtpDetailsById($ptpId);
             return new ViewModel(array(
                 'ptpResult'         => $ptpResult,
-                'ptpSelectResult'   => $printTestPdfService->getAllprintTestPdf()
+                'ptpSelectResult'   => $printTestPdfService->getAllprintTestPdf(),
+                'ptpId'             => $this->params()->fromRoute('id')
             ));
         }
     }
@@ -53,10 +54,15 @@ class PrintTestPdfController extends AbstractActionController{
     public function printPdfQuestionAction(){
         $ptpId=base64_decode($this->params()->fromRoute('id'));
         $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-        $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' => $printTestPdfService->getPdfDetailsById($ptpId),'ptpId' => explode('##',$ptpId)));
-        $viewModel->setTerminal(true);
-        return $viewModel;
+        $result = $printTestPdfService->getPdfDetailsById($ptpId);
+        if($result['ptpDetails']['title'] != ''){
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }else{
+            return $this->_redirect()->toRoute('print-test-pdf');
+        }
     }
 
     public function editAction()
@@ -87,6 +93,49 @@ class PrintTestPdfController extends AbstractActionController{
             $viewModel->setVariables(array('result' => $printTestPdfService->changeStatus($params)));
             $viewModel->setTerminal(true);
             return $viewModel;
+        }
+    }
+
+    public function answerKeyOneAction(){
+        $ptpId=base64_decode($this->params()->fromRoute('id'));
+        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+        $result = $printTestPdfService->getPdfDetailsById($ptpId,'answer');
+        if($result['ptpDetails']['title'] != ''){
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }else{
+            return $this->_redirect()->toRoute('print-test-pdf');
+        }
+    }
+
+    public function answerKeyTwoAction(){
+        $ptpId=base64_decode($this->params()->fromRoute('id'));
+        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+        $result = $printTestPdfService->getPdfDetailsById($ptpId,'answer');
+        if($result['ptpDetails']['title'] != ''){
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }else{
+            return $this->_redirect()->toRoute('print-test-pdf');
+        }
+    }
+    
+    public function examinationAction(){
+        $ptpId=base64_decode($this->params()->fromRoute('id'));
+        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+        $result = $printTestPdfService->getPdfDetailsById($ptpId,'examination');
+        // \Zend\Debug\Debug::dump($result);die;
+        if($result['ptpDetails']['title'] != ''){
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }else{
+            return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
 }

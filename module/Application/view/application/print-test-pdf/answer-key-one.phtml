@@ -73,29 +73,33 @@ $pdf->SetMargins(12, 12, 12, true);
 $pdf->AddPage();
 
 $tbl = '';
-$tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">';
+$tbl .= '<table style="width:100%;" border="0" cellpadding="2">';
     $tbl .= '<tr align="center">';
-        $tbl .= '<td style="width:100%;" align="center"><h3>'.$result['ptpDetails']['title'].'</h3></td>';
+        $tbl .= '<td style="width:100%;" align="center"><h3>'.$result['ptpDetails']['title'].'</h3><br>Answer Key One - '.strtoupper($result['ptpDetails']['unique_id']).' - '.$result['ptpDetails']['variant_no'].'</td>';
     $tbl .= '</tr>';
     $tbl .= '<tr align="center">';
         $tbl .= '<td style="width:100%;" align="center">';
             $tbl .= '<table style="width:100%;" border="1" cellpadding="2"  align="center">
                 <thead>
-                    <tr align="center" style="background-color:#BFBFBF;">
+                    <tr align="center" style="background-color:#f1f1f1;">
                         <th align="center" style="width:5%;font-size:14px;"><b>S/N</b></th>
                         <th align="center" style="width:11%;font-size:14px;"><b>Question Code</b></th>
-                        <th align="center" style="width:85%;font-size:14px;"><b>Questions</b></th>
+                        <th align="center" style="width:54%;font-size:14px;"><b>Questions</b></th>
+                        <th align="center" style="width:30%;font-size:14px;"><b>Correct Answer</b></th>
                     </tr>
                 </thead><tbody>';
                 foreach($result['questions'] as $sno=>$qRow){
                 $tbl .= '<tr cellpadding="2">';
                     $tbl .= '<td align="center" style="width:5%;font-size:13px;"><br><b>'.$sno.'</b></td>';
                     $tbl .= '<td align="center" style="width:11%;font-size:13px;background-color:#f1f1f1;"><b>'.$qRow['questionList']['question_code'].'</b></td>';
-                    $tbl .= '<td align="left" style="width:85%;font-size:13px;"><b>'.$qRow['questionList']['question'].'</b>';
+                    $tbl .= '<td align="left" style="width:54%;font-size:13px;"><b>'.$qRow['questionList']['question'].'</b>';
+                    if(isset($qRow['optionList']) && count($qRow['optionList']) > 0){
                         foreach($qRow['optionList'] as $row) {
                             $tbl .= '<li>'.trim($row).'</li>';
                         }
+                    }
                     $tbl .='</td>';
+                    $tbl .= '<td align="center" style="width:30%;font-size:13px;background-color:#BFBFBF;"><b>'.$qRow['questionList']['correct_option'].'</b></td>';
                 $tbl .= '</tr>';
                 }
             $tbl .= '</tbody></table>
@@ -105,5 +109,5 @@ $tbl .= '</table>';
     
 $pdf->writeHTML($tbl);
 
-$pdf->Output(ucfirst('RT Certification') . '_RTCert_Set-' .$ptpId[1] .'_'.date('dMY') . '.pdf', 'I');
+$pdf->Output(ucfirst('RT Certification') . '_Answer_Key_one_Set-' .$ptpId[1] .'_'.date('dMY') . '.pdf', 'I');
 exit;

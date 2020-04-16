@@ -15,6 +15,9 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
     .inline{
         display: inline-flex;
     }
+    .action-btn{
+        margin-left: 10px !important; 
+    }
 </style>
 <!-- DATA TABLES -->
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
@@ -31,16 +34,15 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             <div class="col-sm-8">
                 <h2>View PDF Questions</h2>
             </div>
-        </div>
-    </div>
-    <!-- Main content -->
-    <div class="main-content">
-        <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
-            <div class="col-sm-12 pull-right">
-                <a href="javascript:void(0)" onclick="downloadUserData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
+            <div class="col-sm-4" style=" margin-top: 10px; ">
+                <a href="<?php echo $this->url('print-test-pdf',array('action' => 'index')); ?>" class="btn btn-default pull-right action-btn"><i class="fa fa-arrow-left" aria-hidden="true"> Back to Print Written Test</i></a>
+                <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'examination')) {?>
+                    <a href="<?php echo $this->url('print-test-pdf',array('action' => 'examination','id'=>$ptpId)); ?>" class="btn btn-success pull-right action-btn" target="_blank"><i class="fa fa-print" aria-hidden="true"> Examination Sheet</i></a>
+                <?php }?>
             </div>
         </div>
     </div>
+    <!-- Main content -->
     <div class="main-content">
         <div class="widget-fullwidth widget-small" style="padding:5px;width:100%;">
             <table id="printTestPdfTable" class="table table-bordered table-striped table-hover table-fw-widget">
@@ -126,20 +128,6 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             }
         )
     } );
-    
-    function downloadUserData()
-    {
-        alert("This is under development");
-        return false;
-        $.post("<?php echo $this->url('provider',array('action'=>'export-test-details')); ?>",
-            function(data){
-            if(data == "" || data == null  || data == undefined || $.trim(data) == 'not-found'){
-                alert('Unable to generate download');
-            }else{
-                window.open('/temporary/provider-test/'+data, '_blank');
-            }
-        });
-    }
     
     function reDraw(){
         oTable.fnDraw();

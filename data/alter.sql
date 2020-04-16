@@ -856,3 +856,5 @@ ALTER TABLE `training_organization` ADD `address` TEXT NULL DEFAULT NULL AFTER `
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'edit', 'Edit Title'), ('Application\\Controller\\PrintTestPdf', 'change-status', 'Change Status');
 -- Thana 15 Apr, 2020
 ALTER TABLE `print_test_pdf` ADD `ptp_status` VARCHAR(25) NOT NULL DEFAULT 'active' COMMENT 'active and inactive status' AFTER `ptp_create_by`;
+ALTER TABLE `print_test_pdf_details` ADD `unique_id` VARCHAR(50) NULL DEFAULT NULL AFTER `response_id`;
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'answer-key-one', 'Answer Key One'), ('Application\\Controller\\PrintTestPdf', 'answer-key-two', 'Answer Key Two'), ('Application\\Controller\\PrintTestPdf', 'examination', 'Examination Sheet');

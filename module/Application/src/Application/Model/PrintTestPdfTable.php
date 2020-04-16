@@ -350,23 +350,39 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
-        $viewPdf = false;
+        $accessPdf = false;$answerKeyOne = false;$answerKeyTwo = false;
         if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
-            $viewPdf = true;
+            $accessPdf = true;
+        }
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'answer-key-one')){
+            $answerKeyOne = true;
+        }
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'answer-key-two')){
+            $answerKeyTwo = true;
         }
         foreach ($rResult as $aRow) {
+            $viewPdf='';$akeyOne='';$akeyTwo='';
             $row = array();
             $row[] = ucwords($aRow['ptp_title']);
             $row[] = $aRow['ptp_no_participants'];
             $row[] = $aRow['variant_no'];
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
-            if($viewPdf == true){
+            if($accessPdf == true){
                 if(isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active'){
-                    $row[] = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Print PDF Questions</i></a>';
+                    $viewPdf = '<a href="/print-test-pdf/print-pdf-question/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Print PDF Questions</i></a>';
                 }else{
-                    $row[] = '<a href="javascript:void(0);" class="btn btn-default" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-ban">  Disabled</i></a>';
+                    $viewPdf = '<a href="javascript:void(0);" class="btn btn-default action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-ban">  Disabled</i></a>';
                 }
+            }
+            if($answerKeyOne){
+                $akeyOne = '<a href="/print-test-pdf/answer-key-one/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Answer Key 1</i></a>';
+            }
+            if($answerKeyTwo){
+                $akeyTwo = '<a href="/print-test-pdf/answer-key-two/' . base64_encode($aRow['ptp_id'].'##'.$aRow['variant_no']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;" target="_blank"><i class="fa fa-print">  Answer Key 2</i></a>';
+            }
+            if($accessPdf == true || $answerKeyOne == true || $answerKeyTwo == true){
+                $row[] = $viewPdf.$akeyOne.$akeyTwo;
             }
             $output['aaData'][] = $row;
         }
@@ -377,7 +393,6 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $logincontainer = new Container('credo');
         $common = new CommonService();
         $ptpdetailsDb = new \Application\Model\PrintTestPdfDetailsTable($this->adapter);
-        $questionDb = new \Application\Model\QuestionTable($this->adapter);
         $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
 		$testConfigResult = $testConfigDb->fetchTestConfigDetails();
         if(!isset($params['ptpTitle']) && $params['ptpTitle'] == ''){
@@ -386,7 +401,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
 
         $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone('Asia/Calcutta'));
         $data = array(
-            'ptp_title'             => $params['ptpTitle'],
+            'ptp_title'             => trim($params['ptpTitle']),
             'ptp_no_participants'   => $params['ptpNoOfParticipants'],
             'ptp_variation'         => $params['ptpNoOfVariants'],
             'ptp_status'            => $params['pdfStatus'],
@@ -398,6 +413,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $lastInsertedId = $this->lastInsertValue;
         if($lastInsertedId > 0){
             $questionResult = $this->getRandomPdfQuestions(null, $testConfigResult[1]['test_config_value'], 'print_test_pdf', 'ptp_id');
+            $randomString = $common->generateRandomString();
             if($params['ptpNoOfVariants'] > 0){
                 foreach(range(1, $params['ptpNoOfVariants']) as $number){
                     $randomArray = $common->getRandomArray(0,count($questionResult));
@@ -405,6 +421,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                         $ptpdetailsData = array(
                             'ptp_id'        => $lastInsertedId,
                             'variant_no'    => $number,
+                            'unique_id'     => $randomString,
                             'question_id'   => $questionResult[$randNo]['question_id'],
                             'response_id'   => $questionResult[$randNo]['correct_option']
                         );
@@ -416,6 +433,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                     $ptpdetailsData = array(
                         'ptp_id'        => $lastInsertedId,
                         'variant_no'    => $number,
+                        'unique_id'     => $randomString,
                         'question_id'   => $questionList['question_id'],
                         'response_id'   => $questionList['correct_option']
                     );
@@ -456,30 +474,60 @@ class PrintTestPdfTable extends AbstractTableGateway {
         return $this->select()->toArray();
     }
     
-    public function fetchPdfDetailsById($ptpId){
-        $ptpId = explode('##',$ptpId);
-        // \Zend\Debug\Debug::dump($ptpId);die;
+    public function fetchPdfDetailsById($ptpId,$answer=''){
+        $questionList = array();
+        if($answer != 'examination'){
+            $ptpId = explode('##',$ptpId);
+        }
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         // To get the ptp details
         $ptpQuery = $sql->select()->from(array('ptp'=>$this->table))
-        ->join(array('u'=>'users'),'ptp.ptp_create_by=u.id',array('first_name','last_name'))
-        ->where(array('ptp_id'=>(int)$ptpId[0]));
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('unique_id','variant_no'))
+        ->join(array('u'=>'users'),'ptp.ptp_create_by=u.id',array('first_name','last_name'));
+        if($answer == 'examination'){
+            $ptpQuery = $ptpQuery->where(array('ptp.ptp_id'=>(int)$ptpId));
+        }else{
+            $ptpQuery = $ptpQuery->where(array('ptp.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1]));
+        }
         $ptpQueryStr = $sql->getSqlStringForSqlObject($ptpQuery);
         $ptpResult = $dbAdapter->query($ptpQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         $questionList['ptpDetails'] = array(
             'title'         => $ptpResult['ptp_title'],
             'noParticipant' => $ptpResult['ptp_no_participants'],
             'noVariant'     => $ptpResult['ptp_variation'],
+            'unique_id'     => $ptpResult['unique_id'],
+            'variant_no'    => $ptpResult['variant_no'],
             'createBy'      => ucwords($ptpResult['first_name'].' '.$ptpResult['last_name'])
         );
+        //Examination section 
+        if($answer == 'examination'){
+            $sectionQuery = $sql->select()->from(array('ptp' => 'print_test_pdf'))->columns(array('ptp_id'))
+            ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('totalCount'=>new Expression('COUNT(*)')))
+            ->join(array('tq'=>'test_questions'),'tq.question_id=ptpd.question_id',array('question_code'))
+            ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name','section_slug','total'=>new Expression('COUNT(*)')))
+            ->where(array('ptp.ptp_id'=>(int)$ptpId,'ptpd.variant_no'=>1,'tq.status'=>'active','ts.status'=>'active'))
+            ->order(array('ptpd_id ASE'))
+            ->group(array('ts.section_id'));
+            $sectionQueryStr = $sql->getSqlStringForSqlObject($sectionQuery);
+            $questionList['examination'] = $dbAdapter->query($sectionQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        }
         // To get the ptp details
         $qQuery = $sql->select()->from(array('ptp' => 'print_test_pdf'))
-        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('ptpd_id','variant_no','question_id','response_id'))
+        ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('variant_no','question_id'))
         ->join(array('tq'=>'test_questions'),'tq.question_id=ptpd.question_id',array('section','question_code','question'))
-        ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name','section_slug'))
-        ->where(array('ptpd.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1],'tq.status'=>'active','ts.status'=>'active'))
+        ->join(array('ts'=>'test_sections'),'ts.section_id=tq.section',array('section_name'))
+        ->where(array('tq.status'=>'active','ts.status'=>'active'))
         ->order(array('ptpd_id ASE'));
+        if($answer == 'examination'){
+            $qQuery = $qQuery->where(array('ptp.ptp_id'=>(int)$ptpId,'ptpd.variant_no'=>1));
+        }else{
+            $qQuery = $qQuery->where(array('ptp.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1]));
+        }
+        if($answer == 'answer'){
+            $qQuery = $qQuery->join(array('to'=>'test_options'),'ptpd.response_id=to.option_id',array('option'));
+            $qQuery = $qQuery->group(array('ptpd.question_id'));
+        }
         $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
         $questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         
@@ -491,10 +539,13 @@ class PrintTestPdfTable extends AbstractTableGateway {
                 'question_code'         => $question['question_code'],
                 'question'              => $question['question']
             );
+            if($answer == 'answer'){
+                $questionList['questions'][($key+1)]['questionList']['correct_option'] = $question['option'];
+            }
             // To get the option list
             $optionsList = $this->fetchOptionList((int)$question['question_id']);
             foreach($optionsList as $option){
-                $questionList['questions'][($key+1)]['optionList'][] = $option['option'];
+                $questionList['questions'][($key+1)]['optionList'][] = trim($option['option']);
             }
         }
         return $questionList;
@@ -503,13 +554,12 @@ class PrintTestPdfTable extends AbstractTableGateway {
     public function fetchOptionList($qId){
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $qQuery = $sql->select()->from(array('to' => 'test_options'))
+        $qQuery = $sql->select()->from(array('to' => 'test_options'))->columns(array('option'=> new Expression('TRIM(to.option)')))
         ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.question_id=to.question',array('question_id'))
         ->where(array('ptpd.question_id'=>$qId,'to.status'=>'active'))
         ->order('to.option_id ASE')
         ->group('to.option_id');
         $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
-        // die($qQueryStr);
         return $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 

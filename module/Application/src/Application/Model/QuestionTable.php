@@ -35,7 +35,7 @@ class QuestionTable extends AbstractTableGateway
 		$optionDb = new \Application\Model\TestOptionsTable($this->adapter);
 		if (isset($param['questionSection']) && trim($param['questionSection']) != "") {
 			$data = array(
-				'question' 		=> $param['questionSection'],
+				'question' 		=> trim($param['questionSection']),
 				'section' 		=> base64_decode($param['section']),
 				'question_code' => $param['questionCode'],
 				'status' 		=> $param['status'],
@@ -50,9 +50,9 @@ class QuestionTable extends AbstractTableGateway
 			if ($n > 0) {
 				for ($i = 0; $i < $n; $i++) {
 					$optionData = array(
-						'question' => $lastInsertedId,
-						'option' => $param['option'][$i],
-						'status' => $param['optionStatus'][$i],
+						'question' 	=> $lastInsertedId,
+						'option' 	=> trim($param['option'][$i]),
+						'status' 	=> $param['optionStatus'][$i],
 					);
 					$optionDb->insert($optionData);
 					$lastOptionId = $optionDb->lastInsertValue;
@@ -72,7 +72,6 @@ class QuestionTable extends AbstractTableGateway
 
 	public function updateQuestion($param)
 	{
-		//\Zend\Debug\Debug::dump($param);die;
 		$optionDb = new \Application\Model\TestOptionsTable($this->adapter);
 
 		if (isset($param['deletedQuestionList']) && trim($param['deletedQuestionList']) != "") {
@@ -86,10 +85,10 @@ class QuestionTable extends AbstractTableGateway
 
 		if (isset($param['questionSection']) && trim($param['questionSection']) != "") {
 			$data = array(
-				'question' => $param['questionSection'],
-				'section' => base64_decode($param['section']),
-				'question_code' => $param['questionCode'],
-				'status' => $param['status'],
+				'question' 		=> trim($param['questionSection']),
+				'section' 		=> base64_decode($param['section']),
+				'question_code' => trim($param['questionCode']),
+				'status' 		=> $param['status'],
 			);
 			$updateResult = $this->update($data, array('question_id' => base64_decode($param['questionId'])));
 			$lastUpdatedId = base64_decode($param['questionId']);
@@ -103,21 +102,20 @@ class QuestionTable extends AbstractTableGateway
 				for ($i = 0; $i < $n; $i++) {
 					if (isset($param['optionId'][$i]) && trim($param['optionId'][$i]) != "") {
 						$optionData = array(
-							'question' => $lastUpdatedId,
-							'option' => $param['option'][$i],
-							'status' => $param['optionStatus'][$i],
+							'question' 	=> $lastUpdatedId,
+							'option' 	=> trim($param['option'][$i]),
+							'status' 	=> $param['optionStatus'][$i],
 						);
 						if ($param['selectedCheckBox'][$i] == 'yes') {
 							$correctOptionId[] = base64_decode($param['optionId'][$i]);
 							$correctOptionText[] = $param['option'][$i];
 						}
 						$r = $optionDb->update($optionData, array('option_id' => base64_decode($param['optionId'][$i])));
-						// \Zend\Debug\Debug::dump( base64_decode($param['optionId'][$i]) );die;
 					} else {
 						$optionNewData = array(
-							'question' => $lastUpdatedId,
-							'option' => $param['option'][$i],
-							'status' => $param['optionStatus'][$i],
+							'question' 	=> $lastUpdatedId,
+							'option' 	=> trim($param['option'][$i]),
+							'status' 	=> $param['optionStatus'][$i],
 						);
 						$optionDb->insert($optionNewData);
 						$lastOptionId = $optionDb->lastInsertValue;
