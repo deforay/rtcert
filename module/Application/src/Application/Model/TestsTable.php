@@ -166,6 +166,8 @@ class TestsTable extends AbstractTableGateway {
 
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
+        $testConfigDb = new \Application\Model\TestConfigTable($this->adapter);
+        $maxQuestion = $testConfigDb->fetchTestValue('passing-percentage');
 
         foreach ($rResult as $aRow) {
             $preStartDate = '';$preEndDate = '';$postStartDate = '';$postEndDate = '';
@@ -177,27 +179,18 @@ class TestsTable extends AbstractTableGateway {
                 $preEndAry = explode(" ",$aRow['pretest_end_datetime']);
                 $preEndDate = $common->humanDateFormat($preEndAry[0])." ".$preEndAry[1];
             }
-            /* if($aRow['posttest_start_datetime']!=NULL && $aRow['posttest_start_datetime']!='0000-00-00 00:00:00' && $aRow['posttest_start_datetime']!=''){
-                $postStartAry = explode(" ",$aRow['posttest_start_datetime']);
-                $postStartDate = $common->humanDateFormat($postStartAry[0])." ".$postStartAry[1];
-            }
-            if($aRow['posttest_end_datetime']!=NULL && $aRow['posttest_end_datetime']!='0000-00-00 00:00:00' && $aRow['posttest_end_datetime']!=''){
-                $postEndAry = explode(" ",$aRow['posttest_end_datetime']);
-                $postEndDate = $common->humanDateFormat($postEndAry[0])." ".$postEndAry[1];
-            } */
+            $score = ($aRow['pre_test_score'] / $maxQuestion);
             $row = array();
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = $preStartDate;
             $row[] = $preEndDate;
-            $row[] = $aRow['pre_test_score'];
+            $row[] = round($score * 100).' %';
             $row[] = ucwords($aRow['pre_test_status']);
-            // $row[] = $postStartDate;
-            // $row[] = $postEndDate;
-            // $row[] = $aRow['post_test_score'];
-            // $row[] = $aRow['post_test_status'];
             
-            if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\Certification', 'certificate-pdf')){
-                $row[] = '<a href="/provider/certificate-pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>';
+            /* if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\Certification', 'certificate-pdf')){
+                $row[] = '<a href="/provider/certificate-pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>'; */
+            if($aRow['user_test_status']=='pass'){
+                $row[] = "Pass";
             }else if($aRow['pre_test_status'] == 'completed'){
                 $row[] = "Fail";
             }else{

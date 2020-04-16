@@ -383,7 +383,6 @@ class ProviderController extends AbstractActionController {
         if ($request->isPost()) {
             $params = $request->getPost();
             $provider = $this->getProviderTable()->saveLinkSend($params);
-            // \Zend\Debug\Debug::dump($provider);die;
             if($provider){
                 /* Mail services start */
                 $config = new \Zend\Config\Reader\Ini();
@@ -400,7 +399,7 @@ class ProviderController extends AbstractActionController {
                     ,"".$configResult['domain']."/provider/login?u=".$key."");
                 $mailContent = trim("HI<b> ##USER## ,<br><br></b><span>You are invited to attend online Safety Familiarization for Clinicians Test.
                 <br><br></span>To attend the test <b>##URL##</b> or copy and paste the URL <b>##URLWITHOUTLINK##</b> in the
-                browser<span>.<br></span><br><br>Regards,<br><b>CDC ILB</b> RT Certificvation Team<b><br></b>");
+                browser<span>.<br></span><br><br>Regards,<br>RT Certification Team<b><br></b>");
                 $message = str_replace($mainSearch, $mainReplace, $mailContent);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));

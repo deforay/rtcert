@@ -23,6 +23,7 @@ $districtLabel = (isset($config['districts']) && trim($config['districts'])!= ''
 $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?ucwords($config['facilities']):'Facilities';
 $geoGraphicalMenu = '';
 $configMenu = '';
+$onlineTestConfig = '';
 $adminMenu = '';
 $trainingMenu = '';
 $testerMenu = '';
@@ -45,7 +46,15 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "inde
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")) {
   $configMenu.="<li><a href=".$this->url('certification',array('action' => 'pdf-setting')).">Certificate PDF Settings</a></li>";
 }
-
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestConfig", "index")) {
+  $onlineTestConfig.="<li><a href=".$this->url('test-config',array('action' => 'index')).">Online Test Config</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", "index")) {
+  $onlineTestConfig.="<li><a href=".$this->url('test-section',array('action' => 'index')).">Online Question Categories</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
+  $onlineTestConfig.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Test Questions</a></li>";
+}
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Roles", "index")) {
   $adminMenu.="<li><a href=".$this->url('roles',array('action' => 'index')).">Roles</a></li>";
 }
@@ -56,9 +65,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrga
   $adminMenu.="<li><a href=".$this->url('training-organization',array('action' => 'index')).">Training Organizations</a></li>";
 }
 
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
-  $trainingMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
-}
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
   $testerMenu.="<li><a href=".$this->url('print-test-pdf',array('action' => 'index')).">Print Written Test</a></li>";
 }
@@ -81,21 +87,10 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination"
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
   $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestConfig", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('test-config',array('action' => 'index')).">Online Test Config</a></li>";
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
+  $testerReminderMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('test-section',array('action' => 'index')).">Online Question Categories</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Test Questions</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
-  $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Test Frequency</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "frequency-question")) {
-  $testerReminderMenu.="<li><a href=".$this->url('provider',array('action' => 'frequency-question')).">Frequency Question</a></li>";
-}
+
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
   $certificateMenu.="<li><a href=".$this->url('certification',array('action' => 'index')).">Certifications</a></li>";
 }
@@ -113,6 +108,12 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certificatio
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "xls")) {
   $reportMenu.="<li><a href=".$this->url('recertification',array('action' => 'xls'))."> Recertification Reports</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
+  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Online Test Reports</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "frequency-question")) {
+  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'frequency-question')).">Online Test Question Frequency</a></li>";
 }
 ?>
 <!DOCTYPE html>
@@ -281,6 +282,13 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                           <?php echo $geoGraphicalMenu; ?>
                       </ul>
                   </li>
+                  <?php if($onlineTestConfig!=''){?>
+                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Online Test Configuration</a>
+                        <ul class="dropdown-menu">
+                            <?php echo $onlineTestConfig; ?>
+                        </ul>
+                    </li>
+                  <?php }?>
               <li class="divider"></li>
               <?php }  ?>
               <?php echo $adminMenu; ?>                    
@@ -308,12 +316,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertificat
                   <?php echo $certificateMenu; ?>
                 </ul>
                 </li>
-              <?php } if($trainingMenu!=''){ ?>
-              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Training <span class="caret"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                <?php echo $trainingMenu; ?>
-                </ul>
-              </li>
               <?php } if($reportMenu!=''){ ?>
                 <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
                       <ul role="menu" class="dropdown-menu">
