@@ -375,7 +375,7 @@ class CommonService {
     
     public function getAllConfig($parameters){
         $configDb = $this->sm->get('GlobalTable');
-        return $configDb->fetchAllConfig($parameters);      
+        return $configDb->fetchAllConfig($parameters);
     }
     public function getGlobalConfigDetails(){
         $globalDb = $this->sm->get('GlobalTable');
@@ -747,6 +747,11 @@ class CommonService {
     public function getTestValue($globalName){
         $testConfigDb = $this->sm->get('TestConfigTable');
         return $testConfigDb->fetchTestValue($globalName);        
+    }
+    
+    public function getHeaderText(){
+        $configDb = $this->sm->get('GlobalTable');
+        return $configDb->fetchHeaderText();     
     }
 
     public function getRandomArray($min,$max){

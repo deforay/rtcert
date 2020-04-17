@@ -10,13 +10,19 @@ class ConfigController extends AbstractActionController
 {
     public function indexAction()
     {
-       $request = $this->getRequest();
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
             $commonService = $this->getServiceLocator()->get('CommonService');
             $result = $commonService->getAllConfig($params);
             return $this->getResponse()->setContent(Json::encode($result));
         }
+        $commonService = $this->getServiceLocator()->get('CommonService');
+        $result = $commonService->getHeaderText();
+        return new ViewModel(array(
+            'header_text'               => $result['textHeader'],
+            'header_text_font_size'     => $result['HeaderTextFont']
+        ));
     }
     
     public function editGlobalAction(){
@@ -28,9 +34,9 @@ class ConfigController extends AbstractActionController
             return $this->redirect()->toRoute('config');
         }else{
             $configResult=$commonService->getGlobalConfigDetails();
-             return new ViewModel(array(
-                    'config' => $configResult,
-                ));
+            return new ViewModel(array(
+                'config' => $configResult,
+            ));
         }
     }
 

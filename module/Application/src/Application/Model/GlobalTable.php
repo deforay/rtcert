@@ -21,9 +21,11 @@ use Application\Service\CommonService;
 class GlobalTable extends AbstractTableGateway {
 
     protected $table = 'global_config';
+    protected $certificationTable = null;
 
-    public function __construct(Adapter $adapter) {
+    public function __construct(Adapter $adapter, $certificationTable='') {
         $this->adapter = $adapter;
+        $this->certificationTable = $certificationTable;
     }
     
     public function fetchAllConfig($parameters) {
@@ -217,5 +219,8 @@ class GlobalTable extends AbstractTableGateway {
         $configValues = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $configValues[0]['global_value'];
     }
-    
+
+    public function fetchHeaderText(){
+        return array('textHeader'=>$this->certificationTable->SelectTexteHeader(),'HeaderTextFont'=>$this->certificationTable->SelectHeaderTextFontSize());
+    }
 }

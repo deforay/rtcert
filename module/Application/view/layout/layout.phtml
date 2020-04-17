@@ -40,11 +40,8 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\District", "
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
   $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">".$facilityLabel."</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
-  $configMenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Config</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")) {
-  $configMenu.="<li><a href=".$this->url('certification',array('action' => 'pdf-setting')).">Certificate PDF Settings</a></li>";
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index") || isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")) {
+  $configMenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Configuration</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestConfig", "index")) {
   $onlineTestConfig.="<li><a href=".$this->url('test-config',array('action' => 'index')).">Online Test Config</a></li>";
@@ -272,11 +269,11 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
               <ul class="dropdown-menu">
               <?php if($geoGraphicalMenu!='' || $configMenu!=''){ ?>
-                  <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
-                      <ul class="dropdown-menu">
+                  <!-- <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
+                      <ul class="dropdown-menu"> -->
                         <?php echo $configMenu; ?>
-                      </ul>
-                  </li>
+                      <!-- </ul>
+                  </li> -->
                   <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
                       <ul class="dropdown-menu">
                           <?php echo $geoGraphicalMenu; ?>

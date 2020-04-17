@@ -1,68 +1,262 @@
 <?php
+
 use Zend\Session\Container;
+
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl=$this->layout()->acl;
-
+$acl = $this->layout()->acl;
 ?>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/jasny-bootstrap.min.css'); ?>" />
+<style>
+	/* Style the tab */
+	.tab {
+		overflow: hidden;
+		border: 1px solid #ccc;
+		background-color: #f1f1f1;
+	}
+
+	/* Style the buttons inside the tab */
+	.tab button {
+		background-color: inherit;
+		float: left;
+		border: none;
+		outline: none;
+		cursor: pointer;
+		padding: 14px 16px;
+		transition: 0.3s;
+		font-size: 17px;
+	}
+
+	/* Change background color of buttons on hover */
+	.tab button:hover {
+		background-color: #ddd;
+	}
+
+	/* Create an active/current tablink class */
+	.tab button.active {
+		background-color: #ccc;
+	}
+
+	/* Style the tab content */
+	.tabcontent {
+		border: 1px solid #ccc;
+		border-top: none;
+	}
+</style>
+<div class="tab">
+<?php if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")){ ?>
+	<button class="tablinks active" onclick="openBlock(event, 'global-config')">Global Config</button>
+<?php } if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")){ ?>
+	<button class="tablinks" onclick="openBlock(event, 'pdf-config')">PDF Config</button>
+<?php }?>
+</div>
 <div class="am-content">
-    <div class="page-head">
-        <div class="row">
+	<?php if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")){ ?>
+	<div id="global-config" class="tabcontent">
+			<div class="page-head">
+				<div class="row">
+					<div class="col-sm-8">
+						<h2>Global Config</h2>
+					</div>
+					<div class="col-sm-4">
+						<?php if ($acl->isAllowed($role, 'Application\Controller\Config', 'edit-global')) { ?>
+							<a href="<?php echo $this->url('config', array('action' => 'edit-global')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Edit Global Config</a>
+						<?php } ?>
+					</div>
+				</div>
+
+			</div>
+			<div class="main-content">
+				<div class="widget widget-fullwidth widget-small" style="padding:5px;width:100%;">
+					<table id="config" class="table table-bordered table-striped table-hover table-fw-widget" style="width:100%;">
+						<thead>
+							<tr>
+								<th style="width:90%;">Config</th>
+								<th style="width:95%;">Value</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="2" class="dataTables_empty">Loading data from server</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php } if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")){ ?>
+	<div id="pdf-config" class="tabcontent" style="display: none;">
+		<div class="page-head">
+			<div class="row">
 				<div class="col-sm-8">
-				<h2>Global Config</h2>
+					<h2>PDF Settings</h2>
 				</div>
 				<div class="col-sm-4">
-				    <?php if ($acl->isAllowed($role, 'Application\Controller\Config','edit-global')) { ?>
-					<a href="<?php echo $this->url('config',array('action' => 'edit-global'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Edit Global Config</a>
+					<?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'add')) { ?>
+						<a href="<?php echo $this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('last') => base64_encode('SARRI'), base64_encode('first') => base64_encode('HUBERT'), base64_encode('middle') => base64_encode('JASSIE JAMES'), base64_encode('professional_reg_no') => base64_encode('Ab-37-eg'), base64_encode('certification_id') => base64_encode(date('Y') . '-C000'), base64_encode('date_issued') => base64_encode(date('Y-m-d'))))); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Test a PDF</a>
 					<?php } ?>
+
 				</div>
-		  </div>
-      
-    </div>
-    <div class="main-content">
-        <div class="widget widget-fullwidth widget-small" style="padding:5px;width:100%;">
-            <table id="config" class="table table-bordered table-striped table-hover table-fw-widget"  style="width:100%;">
-              <thead>
-                <tr>
-                    <th style="width:90%;">Config</th>
-                    <th style="width:95%;">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                    <td colspan="2" class="dataTables_empty">Loading data from server</td>
-                </tr>
-              </tbody>
-            </table>
-        </div>
-    </div>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="widget widget-fullwidth widget-small" style="padding:5px;">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<form role="form" class="form-horizontal" name="pdf-setting" id="pdf-setting" method="post" action="<?php echo $this->url('certification', array('action' => 'pdf-setting')); ?>" enctype="multipart/form-data" autocomplete="off" onsubmit="return validateForm()">
+									<div class="form-group">
+										<div class="col-lg-3">
+											<label for="" class=" control-label">Logo Left</label>
+											<div class="fileinput fileinput-new" data-provides="fileinput">
+												<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
+												<?php if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert1.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert1.png')) { ?>
+													<img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image"/>
+												<?php }else{ ?>
+													<img src="/uploads/logo/logo_cert1.png"/>
+												<?php } ?>
+												</div>
+												<div>
+													<span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span>
+														<input type="file" id="logo_left" name="logo_left" title="Please select logo image" >
+													</span>
+												</div>
+												<div class="box-body">
+													Make sure the image is in <code>PNG format</code> and has a maximum size of: <code>425x352 pixels</code>
+												</div>
+											</div>
+										</div>
+
+										<div class="col-lg-6">
+											<label for="" class=" control-label">Supervising Organization (Name or related text)</label>
+											<textarea rows="5" cols="60" id="header_text" name="header_text" maxlength="163"><?php echo $header_text;?></textarea>
+											<label for="" class=" control-label">Font Size (in px)</label>
+											<input type="text" id="header_text_font_size" name="header_text_font_size" value="<?php echo $header_text_font_size;?>"/>
+											<div class="box-body"> <code>Warning !</code> the number of characters is limited to <code>163.</code>  </div>
+
+											
+											<span class="pull-right" id="characters" style="margin-top: 10px;" ></span> 
+										</div>
+
+										<div class="col-lg-3">
+											<label for="" class="control-label">Logo Right</label>
+											<div class="fileinput fileinput-new" data-provides="fileinput">
+												<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
+												<?php if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert2.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo".DIRECTORY_SEPARATOR. 'logo_cert2.png')) { ?>
+													<img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image"/>
+												<?php }else{ ?>
+													<img src="/uploads/logo/logo_cert2.png"/>
+												<?php } ?>
+												</div>
+												<div>
+													<span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span>
+														<input type="file" id="logo_right" name="logo_right" title="Please select logo image" >
+													</span>
+												</div>
+												<div class="box-body">
+													Make sure the image is in <code>PNG format</code> and has a maximum size of: <code>425x352 pixels</code> 
+												</div>
+											</div>
+										</div>
+										<div class="col-sm-offset-5">
+											<button type="submit" class="btn  btn-space btn-primary">VALIDATE</button>
+											<a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('dashboard'); ?>" >CANCEL</a> 
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
 </div>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/datatables.min.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.blockUI.min.js'); ?>"></script>
+<!-- <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script> -->
+<!-- <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script> -->
+<script>
+	var msg_logo_left = '<?php echo $this->msg_logo_left ?>';
+	var msg_logo_right = '<?php echo $this->msg_logo_right; ?>';
+	var msg_header_text = '<?php echo $this->msg_header_text; ?>';
+</script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/pdfSetting.js'); ?>"></script>
 <script type="text/javascript">
-    table = null;
-    $(document).ready(function () {
-    table = $('#config').DataTable({
-        "bProcessing": true,
-        "bServerSide": true,
-         "aoColumns": [
-                {"sClass":"center"},
-                {"sClass":"center"},
-            ],
-         "aaSorting": [[ 0, "desc" ]],
-         "sAjaxSource": "<?php echo $this->url('config',array('action' => 'index')); ?>",
-         "fnServerData": function ( sSource, aoData, fnCallback ) {
-                $.ajax({
-                    "dataType": 'json',
-                    "type": "POST",
-                    "url": sSource,
-                    "data": aoData,
-                    "success": function(json){
-                      $.unblockUI();
-                      fnCallback(json);
-                     }
-                });
-            }
-    } );
-  });  
+	table = null;
+	$(document).ready(function() {
+		table = $('#config').DataTable({
+			"bProcessing": true,
+			"bServerSide": true,
+			"aoColumns": [{
+					"sClass": "center"
+				},
+				{
+					"sClass": "center"
+				},
+			],
+			"aaSorting": [
+				[0, "desc"]
+			],
+			"sAjaxSource": "<?php echo $this->url('config', array('action' => 'index')); ?>",
+			"fnServerData": function(sSource, aoData, fnCallback) {
+				$.ajax({
+					"dataType": 'json',
+					"type": "POST",
+					"url": sSource,
+					"data": aoData,
+					"success": function(json) {
+						$.unblockUI();
+						fnCallback(json);
+					}
+				});
+			}
+		});
+	});
+
+	function openBlock(evt, configName) {
+		var i, tabcontent, tablinks;
+		tabcontent = document.getElementsByClassName("tabcontent");
+		for (i = 0; i < tabcontent.length; i++) {
+			tabcontent[i].style.display = "none";
+		}
+		tablinks = document.getElementsByClassName("tablinks");
+		for (i = 0; i < tablinks.length; i++) {
+			tablinks[i].className = tablinks[i].className.replace(" active", "");
+		}
+		document.getElementById(configName).style.display = "block";
+		evt.currentTarget.className += " active";
+	}
+	function Edit() {
+		if (window.XMLHttpRequest) {
+			// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp = new XMLHttpRequest();
+		} else { // code for IE6, IE5
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+
+				if (window.DOMParser) {
+					// code for modern browsers
+					parser = new DOMParser();
+					htmlDoc = parser.parseFromString(this.responseText, "text/html");
+				} else {
+					// code for old IE browsers
+					htmlDoc = new ActiveXObject("Microsoft.HTMLDOM");
+					htmlDoc.async = false;
+					htmlDoc.load(text);
+				}
+				//                                                       
+				var data = htmlDoc.getElementById("header_text").value;
+				document.getElementById("header_text").innerHTML = data;
+			}
+		}
+		xmlhttp.open("GET", "<?php echo $this->url('certification', array('action' => 'header-text')); ?>", true);
+		xmlhttp.send();
+	}
 </script>

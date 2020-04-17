@@ -184,7 +184,8 @@ class Module
                 },
                 'GlobalTable' => function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new GlobalTable($dbAdapter);
+                    $certificationTable = $sm->get('\Certification\Model\CertificationTable');
+                    $table = new GlobalTable($dbAdapter, $certificationTable);
                     return $table;
                 },
                 'EventLogTable' => function ($sm) {
