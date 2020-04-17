@@ -553,6 +553,8 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function saveLinkSend($params){
+        $globalDb = new GlobalTable($this->adapter);
+        $countryName = $globalDb->getGlobalValue('country-name');
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
         $prodiver = $this->getProvider(base64_decode($params['providerId']));
@@ -565,7 +567,9 @@ class ProviderTable extends AbstractTableGateway {
             $data['link_send_by']   = $sessionLogin->userId;
             $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
             if($update > 0){
-                return $this->getProvider(base64_decode($params['providerId']));
+                $result['countryName'] = $countryName;
+                $result['provider'] = $this->getProvider(base64_decode($params['providerId']));
+                return $result;
             }else{
                 return false;
             }

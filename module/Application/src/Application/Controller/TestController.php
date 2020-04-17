@@ -73,6 +73,7 @@ class TestController extends AbstractActionController{
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toUrl("/provider/login");
         }
-        return new ViewModel();
+        $commonService = $this->getServiceLocator()->get('CommonService');
+        return new ViewModel(array('name'=>$commonService->getGlobalValue('country-name')));
     }
 }
