@@ -27,8 +27,10 @@ $acl = $this->layout()->acl;
                 <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'add')) { ?>
                     <a href="<?php echo $this->url('practical-exam', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add a practical exam</a>
                 <?php } ?>
-
             </div>
+        </div>
+        <div class="row">
+            <span class="muted pull-right" style="font-size:15px;padding-left:10px;color: darkgray;">(Please ensure that the tester is <a href="/provider/">enrolled</a> before you record the Written Exam results)</span>
         </div>
     </div>
 

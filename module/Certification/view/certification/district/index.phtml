@@ -53,7 +53,17 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                         'placeholder' => 'Name of '.$districtLabel,
                         'autocomplete' => 'off',
                         'id' => 'District Name',
-                        'onclick' => 'emptyInput(this)',                           
+                        'onclick' => 'emptyInput(this)',
+                        'onblur' => 'checkNameValidation("location_details","location_name", this, null, "The district name that you entered already exist..Please enter different district name")'
+                    ]);
+
+                    $form->get('location_code')->setAttributes([
+                        'class' => 'form-control',
+                        'placeholder' => 'District Code',
+                        'autocomplete' => 'off',
+                        'id' => 'District Name',
+                        'onclick' => 'emptyInput(this)',
+                        'onblur' => 'checkNameValidation("location_details","location_code", this, null, "The district code that you entered already exist..Please enter different district code")'
                     ]);
                     
                     $form->get('latitude')->setAttributes([
@@ -92,10 +102,17 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6"> 
+                            <?= $this->formLabel($form->get('location_code')); ?>
+                            <?= $this->formElement($form->get('location_code')); ?>
+                            <?= $this->formElementErrors($form->get('location_code')); ?>
+                        </div>
+                        <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('latitude')); ?>
                             <?= $this->formElement($form->get('latitude')); ?>
                             <?= $this->formElementErrors($form->get('latitude')); ?>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('longitude')); ?>
                             <?= $this->formElement($form->get('longitude')); ?>
@@ -119,6 +136,7 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
 
                             <th style="width:50%"><?php echo $districtLabel; ?> Name </th>
                             <th style="width:50%"> <?php echo $regionLabel; ?> </th>
+                            <th style="width:50%"> District Code</th>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\District', 'edit')) { ?>
                                 <th>Edit</th>
                             <?php } ?>
@@ -134,6 +152,7 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                             <tr>
                                 <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($district['location_name'])); ?></div>
                                 <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($district['region_name'])); ?></div>
+                                <td><div style="width:200px;overflow:auto;"><?php echo $this->escapeHtml($district['location_code']); ?></div>
                                 </td>
                                 <?php if ($acl->isAllowed($role, 'Certification\Controller\District', 'edit')) { ?>
                                     <td>
@@ -181,5 +200,21 @@ districtLabel = '<?php echo $districtLabel; ?>';
             "aServerSide": true,
         })
     });
-</script>
 
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
+</script>

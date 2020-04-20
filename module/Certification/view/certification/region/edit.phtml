@@ -49,6 +49,15 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                     'autocomplete' => 'off',
                     'id' => 'Region Name',
                     'onclick' => 'emptyInput(this)',
+                    'onblur' => 'checkNameValidation("location_details","location_name", this, "location_id##'.$this->location_id.'", "The region name that you entered already exist..Please enter different region name")'
+                ]);
+                $form->get('location_code')->setAttributes([
+                    'class' => 'form-control',
+                    'placeholder' => 'Province Code',
+                    'autocomplete' => 'off',
+                    'id' => 'location_code',
+                    'onclick' => 'emptyInput(this)',
+                    'onblur' => 'checkNameValidation("location_details","location_code", this, "location_id##'.$this->location_id.'", "The region code that you entered already exist..Please enter different region code")'
                 ]);
                 $form->get('latitude')->setAttributes([
                     'class' => 'form-control',
@@ -83,6 +92,11 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                         <?= $this->formLabel($form->get('location_name')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('location_name')); ?>
                         <?= $this->formElementErrors($form->get('location_name')); ?>
+                    </div>
+                    <div class="form-group col-lg-6"> 
+                        <?= $this->formLabel($form->get('location_code')); ?>
+                        <?= $this->formElement($form->get('location_code')); ?>
+                        <?= $this->formElementErrors($form->get('location_code')); ?>
                     </div>
                     <div class="form-group col-lg-6"> 
                         <?= $this->formLabel($form->get('latitude')); ?>
@@ -123,5 +137,21 @@ regionLabel = '<?php echo $regionLabel; ?>';
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
 <script src="<?php echo $this->basePath('assets/js/daterangepicker.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/personnel_certification/region.js'); ?>" type="text/javascript"></script>
-
-
+<script>
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
+</script>

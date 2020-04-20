@@ -46,7 +46,15 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                         'autocomplete' => 'off',
                         'id' => 'Region Name',
                         'onclick' => 'emptyInput(this)',
-                           
+                        'onblur' => 'checkNameValidation("location_details","location_name", this, null, "The region name that you entered already exist..Please enter different region name")'
+                    ]);
+                    $form->get('location_code')->setAttributes([
+                        'class' => 'form-control',
+                        'placeholder' => 'Province Code',
+                        'autocomplete' => 'off',
+                        'id' => 'location_code',
+                        'onclick' => 'emptyInput(this)',
+                        'onblur' => 'checkNameValidation("location_details","location_code", this, null, "The region code that you entered already exist..Please enter different region code")'
                     ]);
                     $form->get('latitude')->setAttributes([
                         'class' => 'form-control',
@@ -85,6 +93,11 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                             <?= $this->formElementErrors($form->get('location_name')); ?>
                         </div>
                         <div class="form-group col-lg-6"> 
+                            <?= $this->formLabel($form->get('location_code')); ?>
+                            <?= $this->formElement($form->get('location_code')); ?>
+                            <?= $this->formElementErrors($form->get('location_code')); ?>
+                        </div>
+                        <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('latitude')); ?>
                             <?= $this->formElement($form->get('latitude')); ?>
                             <?= $this->formElementErrors($form->get('latitude')); ?>
@@ -111,6 +124,7 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                         <tr>
                             <th style="width:50%"><?php echo $regionLabel; ?> Name </th>
                             <th style="width:50%">Country Name </th>
+                            <th style="width:50%">Province Code </th>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\Region', 'edit')) { ?>
                             <th>Edit</th>
                             <?php }   ?>
@@ -125,6 +139,7 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                             <tr>
                                 <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($region['location_name'])); ?></div></td>
                                  <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($region['country_name'])); ?></div></td>
+                                 <td><div style="width:200px;overflow:auto;"><?php echo $this->escapeHtml($region['location_code']); ?></div></td>
                                 <?php if ($acl->isAllowed($role, 'Certification\Controller\Region', 'edit')) { ?>
                                     <td>
                                         <div style="width:80px;overflow:auto;"><a href="<?php echo $this->url('region', array('action' => 'edit', 'id' => base64_encode($region['location_id']))); ?>"> <span class="glyphicon glyphicon-pencil"> Edit</span></a></div>
@@ -172,5 +187,21 @@ regionLabel = '<?php echo $regionLabel; ?>';
         });
         $("#Country").val(1);
     });
+    
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg)
+    {
+        checkValue = document.getElementById(obj.id).value;
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
+        function(data) {
+            if (data > 0)
+            {
+                alert(msg);
+                duplicateName = false;
+                document.getElementById(obj.id).value = "";
+            }
+            else {
+                duplicateName = true;
+            }
+        });
+    }
 </script>
-

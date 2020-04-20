@@ -1,6 +1,8 @@
 <?php
-$path = explode('/',trim($_SERVER['REQUEST_URI']));
+$path = explode('/', trim($_SERVER['REQUEST_URI']));
+
 use Zend\Session\Container;
+
 $container = new Container('alert');
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -10,17 +12,17 @@ $notificationCount = $this->GetNotificationCount();
 $totalCount = 0;
 $certificate = 0;
 $reminder = 0;
-if(isset($notificationCount['nb']) && (int)$notificationCount['nb'] > 0){
-  $certificate = (int)$notificationCount['nb'];
-  $totalCount+= $certificate;
+if (isset($notificationCount['nb']) && (int) $notificationCount['nb'] > 0) {
+	$certificate = (int) $notificationCount['nb'];
+	$totalCount += $certificate;
 }
-if(isset($notificationCount['nb2']) && (int)$notificationCount['nb2'] > 0){
-  $reminder = (int)$notificationCount['nb2'];
-  $totalCount+= $reminder;
+if (isset($notificationCount['nb2']) && (int) $notificationCount['nb2'] > 0) {
+	$reminder = (int) $notificationCount['nb2'];
+	$totalCount += $reminder;
 }
-$regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucwords($config['region']):'Regions';
-$districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?ucwords($config['districts']):'Districts';
-$facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?ucwords($config['facilities']):'Facilities';
+$regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucwords($config['region']) : 'Regions';
+$districtLabel = (isset($config['districts']) && trim($config['districts']) != '') ? ucwords($config['districts']) : 'Districts';
+$facilityLabel = (isset($config['facilities']) && trim($config['facilities']) != '') ? ucwords($config['facilities']) : 'Facilities';
 $geoGraphicalMenu = '';
 $configMenu = '';
 $onlineTestConfig = '';
@@ -28,415 +30,442 @@ $adminMenu = '';
 $trainingMenu = '';
 $testerMenu = '';
 $testerExamMenu = '';
+$testerExamSubMenu = '';
 $testerReminderMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Region", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('region',array('action' => 'index')).">".$regionLabel."</a></li>";
+	$geoGraphicalMenu .= "<li><a href=" . $this->url('region', array('action' => 'index')) . ">" . $regionLabel . "</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\District", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('district',array('action' => 'index')).">".$districtLabel."</a></li>";
+	$geoGraphicalMenu .= "<li><a href=" . $this->url('district', array('action' => 'index')) . ">" . $districtLabel . "</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Facility", "index")) {
-  $geoGraphicalMenu.="<li><a href=".$this->url('facility',array('action' => 'index')).">".$facilityLabel."</a></li>";
+	$geoGraphicalMenu .= "<li><a href=" . $this->url('facility', array('action' => 'index')) . ">" . $facilityLabel . "</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index") || isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "pdf-setting")) {
-  $configMenu.="<li><a href=".$this->url('config',array('action' => 'index')).">Global Configuration</a></li>";
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) {
+	$configMenu .= "<li><a href=" . $this->url('config', array('action' => 'index')) . ">Global Configuration</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestConfig", "index")) {
-  $onlineTestConfig.="<li><a href=".$this->url('test-config',array('action' => 'index')).">Online Test Config</a></li>";
+	$onlineTestConfig .= "<li><a href=" . $this->url('test-config', array('action' => 'index')) . ">Online Test Config</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSection", "index")) {
-  $onlineTestConfig.="<li><a href=".$this->url('test-section',array('action' => 'index')).">Online Question Categories</a></li>";
+	$onlineTestConfig .= "<li><a href=" . $this->url('test-section', array('action' => 'index')) . ">Online Question Categories</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestion", "index")) {
-  $onlineTestConfig.="<li><a href=".$this->url('test-question',array('action' => 'index')).">Online Test Questions</a></li>";
+	$onlineTestConfig .= "<li><a href=" . $this->url('test-question', array('action' => 'index')) . ">Online Test Questions</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Roles", "index")) {
-  $adminMenu.="<li><a href=".$this->url('roles',array('action' => 'index')).">Roles</a></li>";
+	$adminMenu .= "<li><a href=" . $this->url('roles', array('action' => 'index')) . ">Roles</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index")) {
-  $adminMenu.="<li><a href=".$this->url('users',array('action' => 'index')).">Users</a></li>";
+	$adminMenu .= "<li><a href=" . $this->url('users', array('action' => 'index')) . ">Users</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganization", "index")) {
-  $adminMenu.="<li><a href=".$this->url('training-organization',array('action' => 'index')).">Training Organizations</a></li>";
+	$adminMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
 }
 
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
-  $testerMenu.="<li><a href=".$this->url('print-test-pdf',array('action' => 'index')).">Print Written Test</a></li>";
+	$testerMenu .= "<li><a href=" . $this->url('print-test-pdf', array('action' => 'index')) . ">Print Written Test</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "index")) {
-  $testerMenu.="<li><a href=".$this->url('provider',array('action' => 'index')).">Manage Testers</a></li>";
+	$testerMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\WrittenExam", "add")) {
-  $testerExamMenu.="<li><a href=".$this->url('written-exam',array('action' => 'add')).">Written Examinations</a></li>";
+	$testerExamSubMenu .= "<li><a href=" . $this->url('written-exam', array('action' => 'add')) . ">Written Examinations</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExam", "add")) {
-  $testerExamMenu.="<li><a href=".$this->url('practical-exam',array('action' => 'add')).">Practical Examinations</a></li>";
+	$testerExamSubMenu .= "<li><a href=" . $this->url('practical-exam', array('action' => 'add')) . ">Practical Examinations</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "index")) {
-  $testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'index')).">Recommendations</a></li>";
-}
+
 //if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "pending")) {
-  //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
+//$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
 //}
 
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('recertification',array('action' => 'index')).">Recertifications Reminder</a></li>";
+	$testerReminderMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "index")) {
-  $testerReminderMenu.="<li><a href=".$this->url('training',array('action' => 'index')).">Manage Trainings</a></li>";
+	$testerReminderMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
 }
 
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index")) {
-  $certificateMenu.="<li><a href=".$this->url('certification',array('action' => 'index')).">Certifications</a></li>";
+	$certificateMenu .= "<li><a href=" . $this->url('certification', array('action' => 'index')) . ">Certifications</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\CertificationMail", "index")) {
-  $certificateMenu.="<li><a href=".$this->url('certification-mail',array('action' => 'index'))."> E-mail</a></li>";
+	$certificateMenu .= "<li><a href=" . $this->url('certification-mail', array('action' => 'index')) . "> E-mail</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "index")) {
+	$certificateMenu .= "<li><a href=" . $this->url('examination', array('action' => 'index')) . ">Recommendations</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "xls")) {
-  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'xls'))."> Tester Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('provider', array('action' => 'xls')) . "> Tester Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Training", "xls")) {
-  $reportMenu.="<li><a href=".$this->url('training',array('action' => 'xls'))."> Training Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('training', array('action' => 'xls')) . "> Training Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "xls")) {
-  $reportMenu.="<li><a href=".$this->url('certification',array('action' => 'xls'))."> Certification Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('certification', array('action' => 'xls')) . "> Certification Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "xls")) {
-  $reportMenu.="<li><a href=".$this->url('recertification',array('action' => 'xls'))."> Recertification Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'xls')) . "> Recertification Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
-  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'test-frequency')).">Online Test Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('provider', array('action' => 'test-frequency')) . ">Online Test Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "frequency-question")) {
-  $reportMenu.="<li><a href=".$this->url('provider',array('action' => 'frequency-question')).">Online Test Question Frequency</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('provider', array('action' => 'frequency-question')) . ">Online Test Question Frequency</a></li>";
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="<?php echo $this->basePath('favicon.ico'); ?>">
-    <title><?php echo $sessionLogin->countryName; ?> - Tester Certification </title>
-    
-    <style type="text/css">
-    .pd-5{
-      padding : 0px 5px;
-    }
-.dropdown-submenu{ position: relative; }
 
-.dropdown-submenu>.dropdown-menu{
-  top:0;
-  left:100%;
-  margin-top:-6px;
-  margin-left:-1px;
-  -webkit-border-radius:0 6px 6px 6px;
-  -moz-border-radius:0 6px 6px 6px;
-  border-radius:0 6px 6px 6px;
-}
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="<?php echo $this->basePath('favicon.ico'); ?>">
+	<title><?php echo $sessionLogin->countryName; ?> - Tester Certification </title>
 
-.dropdown-submenu>a:after{
-  display:block;
-  content:" ";
-  float:right;
-  width:0;
-  height:0;
-  border-color:transparent;
-  border-style:solid;
-  border-width:5px 0 5px 5px;
-  border-left-color:#cccccc;
-  margin-top:5px;margin-right:-10px;
-}
-.dropdown-submenu:hover>a:after{
-  border-left-color:#555;
-}
-.dropdown-submenu.pull-left{ float: none; }
-.dropdown-submenu.pull-left>.dropdown-menu{
-  left: -100%;
-  margin-left: 10px;
-  -webkit-border-radius: 6px 0 6px 6px;
-  -moz-border-radius: 6px 0 6px 6px;
-  border-radius: 6px 0 6px 6px;
-}
+	<style type="text/css">
+		.pd-5 {
+			padding: 0px 5px;
+		}
 
-@media (min-width: 768px) { 
+		.dropdown-submenu {
+			position: relative;
+		}
 
-}
-@media (min-width: 992px) { 
+		.dropdown-submenu>.dropdown-menu {
+			top: 0;
+			left: 100%;
+			margin-top: -6px;
+			margin-left: -1px;
+			-webkit-border-radius: 0 6px 6px 6px;
+			-moz-border-radius: 0 6px 6px 6px;
+			border-radius: 0 6px 6px 6px;
+		}
 
-}
-@media (min-width: 1200px) { 
+		.dropdown-submenu>a:after {
+			display: block;
+			content: " ";
+			float: right;
+			width: 0;
+			height: 0;
+			border-color: transparent;
+			border-style: solid;
+			border-width: 5px 0 5px 5px;
+			border-left-color: #cccccc;
+			margin-top: 5px;
+			margin-right: -10px;
+		}
 
-}      
-    </style>
-    <!-- Latest compiled and minified CSS -->
-    
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/bootstrap.min.css'); ?>" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"/>
-    
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/datatables.min.css'); ?>"/>
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/stroke-7/style.css'); ?>"/>
-    <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/deforayModal.css'); ?>" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/jquery.nanoscroller/css/nanoscroller.css'); ?>"/>
-    <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/font-awesome.min.css'); ?>"/>
+		.dropdown-submenu:hover>a:after {
+			border-left-color: #555;
+		}
 
-    <!--[if lt IE 9]>
+		.dropdown-submenu.pull-left {
+			float: none;
+		}
+
+		.dropdown-submenu.pull-left>.dropdown-menu {
+			left: -100%;
+			margin-left: 10px;
+			-webkit-border-radius: 6px 0 6px 6px;
+			-moz-border-radius: 6px 0 6px 6px;
+			border-radius: 6px 0 6px 6px;
+		}
+
+		@media (min-width: 768px) {}
+
+		@media (min-width: 992px) {}
+
+		@media (min-width: 1200px) {}
+	</style>
+	<!-- Latest compiled and minified CSS -->
+
+	<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/bootstrap.min.css'); ?>" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
+
+	<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/datatables.min.css'); ?>" />
+	<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/stroke-7/style.css'); ?>" />
+	<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/deforayModal.css'); ?>" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/jquery.nanoscroller/css/nanoscroller.css'); ?>" />
+	<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/font-awesome.min.css'); ?>" />
+
+	<!--[if lt IE 9]>
     <script src="<?php echo $this->basePath('assets/js/html5shiv.min.js'); ?>" type="text/javascript"></script>
     <script src="<?php echo $this->basePath('assets/js/respond.min.js'); ?>" type="text/javascript"></script>
     <![endif]-->
-    
-    <style>
-      .widget{
-        border: 2px solid #ccc;
-        border-radius:5px;
-      }
-      
-      .table thead tr th, .table thead tr td {
-        /* background-color: #3598DC;
+
+	<style>
+		.widget {
+			border: 2px solid #ccc;
+			border-radius: 5px;
+		}
+
+		.table thead tr th,
+		.table thead tr td {
+			/* background-color: #3598DC;
         color: #fff; 
         font-weight:normal !important; */
-        background-color: #eee;
-        color: #666;
-        font-weight:bold !important;
-        font-size:0.95em !important;  
-        text-align:center;
-        vertical-align:middle !important;
-      }
-      
-      .datatables tbody tr td, .datatables tbody tr td a{
-        font-size:0.95em;
-      }
-      
-      .mandatory {
-        color: red;
-      }
-      a.mobLogin:hover{background-color:#194F74}
-      .badge-notify{
-        background:red;
-        position:relative;
-        top: -20px;
-        left: -20px;
-      }
-    </style>
-    
-    <link rel="stylesheet" href="<?php echo $this->basePath('assets/css/style.css?v=0.3'); ?>" type="text/css"/>
-    <script src="<?php echo $this->basePath('assets/lib/jquery/jquery.min.js'); ?>" type="text/javascript"></script>
-  </head>
-  <body>
-    <div class="am-wrapper">
-    <nav class="navbar navbar-default navbar-fixed-top am-top-header">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <div class="page-title"><span>RT Tester Certification</span></div>
-            <?php if(isset($sessionLogin->userId)){ 
-                  $control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode =='provider')?'login':'provider'; ?>
-                  <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a>
-                  <?php } else { ?>
-                  <a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" style="color: #fff;" class="mobLogin" href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a>
-                  <?php }
-            
-            // Which page to show when clicking on Logo image - changes based on login status
-            
-            if(isset($sessionLogin->userId)){ 
-              $dashboard = "/dashboard";
-            }else{
-              $dashboard = "/";
-            }
-            ?>
+			background-color: #eee;
+			color: #666;
+			font-weight: bold !important;
+			font-size: 0.95em !important;
+			text-align: center;
+			vertical-align: middle !important;
+		}
 
-            <a href="<?php echo $dashboard; ?>" class="navbar-brand">
-              <?php
-                if(isset($config) && count($config)>0 && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo". DIRECTORY_SEPARATOR . $config['logo'])){
-	        	  ?>
-                  <img src="<?php echo $this->basePath('uploads/logo/'.$config['logo']); ?>" style="width:100%;margin-top:5px;"/>
-              <?php } else{ ?>
-                  <img src="<?php echo $this->basePath('assets/img/logo.png') ?>" style="width:100%;margin-top:5px;"/>
-              <?php } ?>
-            </a>
-            
-          </div>
+		.datatables tbody tr td,
+		.datatables tbody tr td a {
+			font-size: 0.95em;
+		}
 
-          <a href="#" data-toggle="collapse" data-target="#am-navbar-collapse" class="am-toggle-top-header-menu collapsed"><span class="icon s7-angle-down"></span></a>
-          
-          <div id="am-navbar-collapse" class="collapse navbar-collapse">
-            <?php if(isset($sessionLogin->userId)){ ?>
-          <ul class="nav navbar-nav am-top-menu">
-          <?php if($geoGraphicalMenu!='' || $configMenu!='' || $adminMenu!=''){ ?>
-          <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-              <?php if($geoGraphicalMenu!='' || $configMenu!=''){ ?>
-                  <!-- <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
+		.mandatory {
+			color: red;
+		}
+
+		a.mobLogin:hover {
+			background-color: #194F74
+		}
+
+		.badge-notify {
+			background: red;
+			position: relative;
+			top: -20px;
+			left: -20px;
+		}
+	</style>
+
+	<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/style.css?v=0.3'); ?>" type="text/css" />
+	<script src="<?php echo $this->basePath('assets/lib/jquery/jquery.min.js'); ?>" type="text/javascript"></script>
+</head>
+
+<body>
+	<div class="am-wrapper">
+		<nav class="navbar navbar-default navbar-fixed-top am-top-header">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<div class="page-title"><span>RT Tester Certification</span></div>
+					<?php if (isset($sessionLogin->userId)) {
+						$control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode == 'provider') ? 'login' : 'provider'; ?>
+						<a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a>
+					<?php } else { ?>
+						<a class="mobLogin page-title btn btn-primary" style="font-size: 14px;float: right;margin-right: 3%; cursor: pointer; cursor: hand;" style="color: #fff;" class="mobLogin" href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a>
+					<?php }
+
+					// Which page to show when clicking on Logo image - changes based on login status
+
+					if (isset($sessionLogin->userId)) {
+						$dashboard = "/dashboard";
+					} else {
+						$dashboard = "/";
+					}
+					?>
+
+					<a href="<?php echo $dashboard; ?>" class="navbar-brand">
+						<?php
+						if (isset($config) && count($config) > 0 && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $config['logo'])) {
+						?>
+							<img src="<?php echo $this->basePath('uploads/logo/' . $config['logo']); ?>" style="width:100%;margin-top:5px;" />
+						<?php } else { ?>
+							<img src="<?php echo $this->basePath('assets/img/logo.png') ?>" style="width:100%;margin-top:5px;" />
+						<?php } ?>
+					</a>
+
+				</div>
+
+				<a href="#" data-toggle="collapse" data-target="#am-navbar-collapse" class="am-toggle-top-header-menu collapsed"><span class="icon s7-angle-down"></span></a>
+
+				<div id="am-navbar-collapse" class="collapse navbar-collapse">
+					<?php if (isset($sessionLogin->userId)) { ?>
+						<ul class="nav navbar-nav am-top-menu">
+							<?php if ($geoGraphicalMenu != '' || $configMenu != '' || $adminMenu != '') { ?>
+								<li class="dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+									<ul class="dropdown-menu">
+										<?php if ($geoGraphicalMenu != '' || $configMenu != '') { ?>
+											<!-- <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration</a>
                       <ul class="dropdown-menu"> -->
-                        <?php echo $configMenu; ?>
-                      <!-- </ul>
+											<?php echo $configMenu; ?>
+											<!-- </ul>
                   </li> -->
-                  <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
-                      <ul class="dropdown-menu">
-                          <?php echo $geoGraphicalMenu; ?>
-                      </ul>
-                  </li>
-                  <?php if($onlineTestConfig!=''){?>
-                    <li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Online Test Configuration</a>
-                        <ul class="dropdown-menu">
-                            <?php echo $onlineTestConfig; ?>
-                        </ul>
-                    </li>
-                  <?php }?>
-              <li class="divider"></li>
-              <?php }  ?>
-              <?php echo $adminMenu; ?>                    
-              </ul>
-          </li>
-            <?php } if($testerMenu!='' || $testerExamMenu!='' || $testerReminderMenu!=''){ ?>
-              <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
-                    <ul role="menu" class="dropdown-menu">
-                    <?php if($testerMenu!=''){
-                       echo $testerMenu; ?>
-                      <li class="divider"></li>
-                    <?php } if($testerExamMenu!=''){
-                     echo $testerExamMenu; ?>
-                      <li class="divider"></li>
-                    <?php } ?>
-                      <!--<li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>-->
-                      <?php echo $testerReminderMenu; ?>
-                    </ul>
-              </li>
-            <?php } ?>
-                  
-          <?php if($role!= 'DEO' && $certificateMenu!=''){ ?>
-                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Manage Certifications<span class="caret"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                  <?php echo $certificateMenu; ?>
-                </ul>
-                </li>
-              <?php } if($reportMenu!=''){ ?>
-                <li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
-                      <ul role="menu" class="dropdown-menu">
-                        <?php echo $reportMenu; ?>
-                      </ul>
-                </li>
-                <?php } ?>
-              </ul> 
-          <?php } ?>
-          <?php if(!isset($sessionLogin->userId)){ ?>
-          <ul class="nav navbar-nav navbar-right am-user-nav">
-            <li class="pd-5"><a href="/login" class="btn btn-warning">Login</a></li>
-          </ul>
-          <?php } ?>   
+											<li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Manage Geographical Divisions</a>
+												<ul class="dropdown-menu">
+													<?php echo $geoGraphicalMenu; ?>
+												</ul>
+											</li>
+											<?php if ($onlineTestConfig != '') { ?>
+												<li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Online Test Configuration</a>
+													<ul class="dropdown-menu">
+														<?php echo $onlineTestConfig; ?>
+													</ul>
+												</li>
+											<?php } ?>
+											<li class="divider"></li>
+										<?php }  ?>
+										<?php echo $adminMenu; ?>
+									</ul>
+								</li>
+							<?php }
+							if ($testerMenu != '' || $testerExamMenu != '' || $testerReminderMenu != '' || $testerExamSubMenu != '') { ?>
+								<li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
+									<ul role="menu" class="dropdown-menu">
+										<?php if ($testerMenu != '') {
+											echo $testerMenu; ?>
+											<li class="divider"></li>
+										<?php }
+										if($testerExamSubMenu != ''){
+											echo '<li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Record Test Results</a>
+												<ul class="dropdown-menu">
+													'.$testerExamSubMenu.'
+												</ul>
+											</li>';
+										}
+										if ($testerExamMenu != '') {
+											echo $testerExamMenu; ?>
+											<li class="divider"></li>
+										<?php } ?>
+										<!--<li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>-->
+										<?php echo $testerReminderMenu; ?>
+									</ul>
+								</li>
+							<?php } ?>
 
-          <ul class="nav navbar-nav navbar-right am-user-nav">
-            <?php if(isset($sessionLogin->userId)){ ?>
-              <li class="dropdown">
-              
-                <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><?php echo $loginUserRoleName; ?> &nbsp;<img src="/assets/img/nobody.jpg">
-                <?php if($totalCount > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index") && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?><span class="badge badge-notify"><?php echo $totalCount; ?></span><?php } ?><span class="angle-down s7-angle-down"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                  <?php
-                  if(isset($sessionLogin->userId)){
-                    if($certificate > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index"))){ ?>
-                  <li><a href="<?php echo $this->url('certification', array('action' => 'index'), array('query' => array('src' => 'top'))); ?>"><span class="badge"><?php echo $certificate; ?></span> Certificate(s)</a></li>
-                  <?php } if($reminder > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?>
-                  <li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>"><span class="badge"><?php echo $reminder; ?></span> Reminder(s)</a></li>
-                  <?php } ?>
-                  <?php $control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode =='provider')?'login':'provider';?>
-                  <li><a href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a></li>
-                  <?php }else{
-                  ?>
-                  <li><a href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a></li>
-                  <?php
-                  }?>
-                </ul>
-              </li>
-            <?php } ?>
-            </ul>                       
-          </div>
-        </div>
-      </nav>
-      
-      <?php echo $this->content; ?>
-      
-    </div>
-    <div id="dDiv" class="dialog"> 
-      <div style="text-align:center"><span onclick="closeModal();" style="float:right;clear:both;" class="closeModal"></span></div> 
-      <iframe id="dFrame" src="" style="border:none;" scrolling='yes' marginwidth='0' marginheight='0' frameborder='0' vspace='0' hspace='0' >some problem</iframe> 
-    </div>
-    
-    <script src="<?php echo $this->basePath('assets/lib/jquery.nanoscroller/javascripts/jquery.nanoscroller.min.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/main.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/lib/bootstrap/dist/js/bootstrap.min.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/lib/jquery-ui/jquery-ui.min.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/jasny-bootstrap.min.js'); ?>" type="text/javascript"/>
-    <script src="<?php echo $this->basePath('assets/lib/countup/countUp.min.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/tokenfield.min.js'); ?>" type="text/javascript"/>
-    <script src="<?php echo $this->basePath('assets/lib/chartjs/Chart.js?v=0.1'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/deforayValidation.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/deforayModal.js'); ?>" type="text/javascript"></script>
-    <script src="<?php echo $this->basePath('assets/js/cookie.js'); ?>" type="text/javascript"></script>
-    <script type="text/javascript">
-      $(document).ready(function(){
-      	//initialize the javascript
-      	App.init();
-      });
-      
-      $(document).ready(function() {
-            <?php
-            if (isset($container->alertMsg) && $container->alertMsg != "") {
-                ?>
-                alert("<?php echo $container->alertMsg; ?>");
-                <?php
-                $container->alertMsg = "";
-                unset($container->alertMsg);
-            }
-            ?>
-      });
+							<?php if ($role != 'DEO' && $certificateMenu != '') { ?>
+								<li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Manage Certifications<span class="caret"></span></a>
+									<ul role="menu" class="dropdown-menu">
+										<?php echo $certificateMenu; ?>
+									</ul>
+								</li>
+							<?php }
+							if ($reportMenu != '') { ?>
+								<li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Reports<span class="caret"></span></a>
+									<ul role="menu" class="dropdown-menu">
+										<?php echo $reportMenu; ?>
+									</ul>
+								</li>
+							<?php } ?>
+						</ul>
+					<?php } ?>
+					<?php if (!isset($sessionLogin->userId)) { ?>
+						<ul class="nav navbar-nav navbar-right am-user-nav">
+							<li class="pd-5"><a href="/login" class="btn btn-warning">Login</a></li>
+						</ul>
+					<?php } ?>
 
-    (function($){
-            $(document).ready(function(){
-                    $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
-                            event.preventDefault(); 
-                            event.stopPropagation(); 
-                            $(this).parent().siblings().removeClass('open');
-                            $(this).parent().toggleClass('open');
-                    });
-            });
-    })(jQuery);
-    
-    jQuery(".checkNum").keydown(function (e) {
-        // Allow: backspace, delete, tab, escape, enter and .
-        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-             // Allow: Ctrl+A
-            (e.keyCode == 65 && e.ctrlKey === true) || 
-             // Allow: home, end, left, right
-            (e.keyCode >= 35 && e.keyCode <= 39)) {
-                 // let it happen, don't do anything
-                 return;
-        }
-        // Ensure that it is a number and stop the keypress
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-            e.preventDefault();
-        }
-    });
-    
-    function showModal(url, w, h) {
-      showdefModal('dDiv', w, h);
-      document.getElementById('dFrame').style.height = h + 'px';
-      document.getElementById('dFrame').style.width = w + 'px';
-      document.getElementById('dFrame').src = url;
-    }
+					<ul class="nav navbar-nav navbar-right am-user-nav">
+						<?php if (isset($sessionLogin->userId)) { ?>
+							<li class="dropdown">
 
-    function closeModal() {
-      document.getElementById('dFrame').src = "";
-      hidedefModal('dDiv');
-    }
-    
-    function getTestHistory(ID){
-      showModal('<?php echo $this->url('provider',array('action'=>'test-history')); ?>?tester='+ID, 900, 540);
-    }
-/* http://www.bootply.com/nZaxpxfiXz */
-    </script>
-  </body>
+								<a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle"><?php echo $loginUserRoleName; ?> &nbsp;<img src="/assets/img/nobody.jpg">
+									<?php if ($totalCount > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index") && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?><span class="badge badge-notify"><?php echo $totalCount; ?></span><?php } ?><span class="angle-down s7-angle-down"></span></a>
+								<ul role="menu" class="dropdown-menu">
+									<?php
+									if (isset($sessionLogin->userId)) {
+										if ($certificate > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certification", "index"))) { ?>
+											<li><a href="<?php echo $this->url('certification', array('action' => 'index'), array('query' => array('src' => 'top'))); ?>"><span class="badge"><?php echo $certificate; ?></span> Certificate(s)</a></li>
+										<?php }
+										if ($reminder > 0 && (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Recertification", "index"))) { ?>
+											<li><a href="<?php echo $this->url('recertification', array('action' => 'index')); ?>"><span class="badge"><?php echo $reminder; ?></span> Reminder(s)</a></li>
+										<?php } ?>
+										<?php $control = (isset($sessionLogin->roleCode) && $sessionLogin->roleCode == 'provider') ? 'login' : 'provider'; ?>
+										<li><a href="<?php echo $this->url($control, array('action' => 'logout')); ?>"> <span class="icon s7-power"></span>Sign Out</a></li>
+									<?php } else {
+									?>
+										<li><a href="<?php echo $this->url('login', array('action' => 'index')); ?>"> Login</a></li>
+									<?php
+									} ?>
+								</ul>
+							</li>
+						<?php } ?>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<?php echo $this->content; ?>
+
+	</div>
+	<div id="dDiv" class="dialog">
+		<div style="text-align:center"><span onclick="closeModal();" style="float:right;clear:both;" class="closeModal"></span></div>
+		<iframe id="dFrame" src="" style="border:none;" scrolling='yes' marginwidth='0' marginheight='0' frameborder='0' vspace='0' hspace='0'>some problem</iframe>
+	</div>
+
+	<script src="<?php echo $this->basePath('assets/lib/jquery.nanoscroller/javascripts/jquery.nanoscroller.min.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/main.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/lib/bootstrap/dist/js/bootstrap.min.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/lib/jquery-ui/jquery-ui.min.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/jasny-bootstrap.min.js'); ?>" type="text/javascript" />
+	<script src="<?php echo $this->basePath('assets/lib/countup/countUp.min.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/tokenfield.min.js'); ?>" type="text/javascript" />
+	<script src="<?php echo $this->basePath('assets/lib/chartjs/Chart.js?v=0.1'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/deforayValidation.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/deforayModal.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/cookie.js'); ?>" type="text/javascript"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			//initialize the javascript
+			App.init();
+		});
+
+		$(document).ready(function() {
+			<?php
+			if (isset($container->alertMsg) && $container->alertMsg != "") {
+			?>
+				alert("<?php echo $container->alertMsg; ?>");
+			<?php
+				$container->alertMsg = "";
+				unset($container->alertMsg);
+			}
+			?>
+		});
+
+		(function($) {
+			$(document).ready(function() {
+				$('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+					event.preventDefault();
+					event.stopPropagation();
+					$(this).parent().siblings().removeClass('open');
+					$(this).parent().toggleClass('open');
+				});
+			});
+		})(jQuery);
+
+		jQuery(".checkNum").keydown(function(e) {
+			// Allow: backspace, delete, tab, escape, enter and .
+			if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+				// Allow: Ctrl+A
+				(e.keyCode == 65 && e.ctrlKey === true) ||
+				// Allow: home, end, left, right
+				(e.keyCode >= 35 && e.keyCode <= 39)) {
+				// let it happen, don't do anything
+				return;
+			}
+			// Ensure that it is a number and stop the keypress
+			if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+				e.preventDefault();
+			}
+		});
+
+		function showModal(url, w, h) {
+			showdefModal('dDiv', w, h);
+			document.getElementById('dFrame').style.height = h + 'px';
+			document.getElementById('dFrame').style.width = w + 'px';
+			document.getElementById('dFrame').src = url;
+		}
+
+		function closeModal() {
+			document.getElementById('dFrame').src = "";
+			hidedefModal('dDiv');
+		}
+
+		function getTestHistory(ID) {
+			showModal('<?php echo $this->url('provider', array('action' => 'test-history')); ?>?tester=' + ID, 900, 540);
+		}
+		/* http://www.bootply.com/nZaxpxfiXz */
+	</script>
+</body>
+
 </html>
