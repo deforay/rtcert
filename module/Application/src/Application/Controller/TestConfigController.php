@@ -28,9 +28,12 @@ class TestConfigController extends AbstractActionController
             $commonService->updateTestConfig($params);
             return $this->redirect()->toRoute('test-config');
         } else {
-            $configResult = $commonService->getTestConfigDetails();
+            $configResult = $commonService->getTestConfigEditDetails();
+            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
+            $sectionResult = $testSectionService->getTestSectionAllList();
             return new ViewModel(array(
                 'config' => $configResult,
+                'sectionResult' => $sectionResult
             ));
         }
     }

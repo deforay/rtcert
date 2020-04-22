@@ -1,3 +1,8 @@
+<?php 
+    // \Zend\Debug\Debug::dump($config);die;
+    $configDetails = (count($config['configDetails']) > 0);
+    // \Zend\Debug\Debug::dump($configDetails);die;
+?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/jasny-bootstrap.min.css'); ?>" />
 <div class="am-content">
     <div class="page-head">
@@ -6,37 +11,55 @@
     <div class="main-content">
         <div class="widget widget-fullwidth widget-small" style="padding:5px;">
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <form role="form" class="form-horizontal" name="editConfig" id="editConfig" method="post" action="<?php echo $this->url('test-config', array('action' => 'edit')); ?>" enctype="multipart/form-data" autocomplete="off">
-                                <?php foreach($config as $fieldrow){ 
+                            <form role="form" name="editConfig" id="editConfig" method="post" action="<?php echo $this->url('test-config', array('action' => 'edit')); ?>" enctype="multipart/form-data" autocomplete="off">
+                                <?php foreach ($config['config'] as $fieldrow) {
                                     $display = '';
-                                    if($fieldrow['test_config_name'] != 'allow-retest'){
-                                        $display = '<div class="form-group">
-                                                        <label for="'.$fieldrow['test_config_name'].'" class="col-sm-2 control-label">'.$fieldrow['display_name'].'<span class="mandatory">*</span></label>
-                                                        <div class="col-lg-4">
-                                                            <input name="'.$fieldrow['test_config_name'].'" id="'.$fieldrow['test_config_name'].'" class="form-control isRequired" placeholder="Enter the '.$fieldrow['display_name'].'" title="Please enter '.$fieldrow['display_name'].'" value="'.$fieldrow['test_config_value'].'" />
-                                                        </div>
+                                    if ($fieldrow['test_config_name'] != 'allow-retest') {
+                                        $display = '<div class="form-group col-lg-6">
+                                                        <label for="' . $fieldrow['test_config_name'] . '" class="col-sm-6 control-label">' . $fieldrow['display_name'] . '<span class="mandatory">*</span></label>
+                                                        <input name="' . $fieldrow['test_config_name'] . '" id="' . $fieldrow['test_config_name'] . '" class="form-control isRequired" placeholder="Enter the ' . $fieldrow['display_name'] . '" title="Please enter ' . $fieldrow['display_name'] . '" value="' . $fieldrow['test_config_value'] . '" />
                                                     </div>';
-                                    }else{
-                                        $selectYes = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "yes")?"selected='selected'":"";
-                                        $selectNo = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "no")?"selected='selected'":"";
-                                        $display = '<div class="form-group">
-                                                        <label for="'.$fieldrow['test_config_name'].'" class="col-sm-2 control-label">'.$fieldrow['display_name'].'<span class="mandatory">*</span></label>
-                                                        <div class="col-lg-4">
-                                                            <select name="'.$fieldrow['test_config_name'].'" id="'.$fieldrow['test_config_name'].'" class="form-control isRequired" placeholder="Select the '.$fieldrow['display_name'].'" title="Select enter '.$fieldrow['display_name'].'">
-                                                                <option value="">--Select--</option>
-                                                                <option value="yes" '.$selectYes.'>Yes</option>
-                                                                <option value="no" '.$selectNo.'>No</option>
-                                                            </select>
-                                                        </div>
+                                    } else {
+                                        $selectYes = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "yes") ? "selected='selected'" : "";
+                                        $selectNo = (isset($fieldrow['test_config_value']) && $fieldrow['test_config_value'] == "no") ? "selected='selected'" : "";
+                                        $display = '<div class="form-group col-lg-6">
+                                                        <label for="' . $fieldrow['test_config_name'] . '" class="col-sm-6 control-label">' . $fieldrow['display_name'] . '<span class="mandatory">*</span></label>
+                                                        <select name="' . $fieldrow['test_config_name'] . '" id="' . $fieldrow['test_config_name'] . '" class="form-control isRequired" placeholder="Select the ' . $fieldrow['display_name'] . '" title="Select enter ' . $fieldrow['display_name'] . '">
+                                                            <option value="">--Select--</option>
+                                                            <option value="yes" ' . $selectYes . '>Yes</option>
+                                                            <option value="no" ' . $selectNo . '>No</option>
+                                                        </select>
                                                     </div>';
                                     }
                                     echo $display;
-                                }?>
+                                } ?>
                                 <hr>
-                                <div class="spacer col-lg-5" align="center">
+                                <table class="table table-bordered table-striped table-hover table-fw-widget" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 05%;">Area Code</th>
+                                            <th style="width: 20%;">Content Area</th>
+                                            <th style="width: 35%;">Description</th>
+                                            <th style="width: 20%;">Number of Questions</th>
+                                            <th style="width: 20%;">Examination Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($sectionResult as $key=>$section){ ?>
+                                            <tr>
+                                                <td><?php echo ($key+1);?></td>
+                                                <td><input type="hidden" id="sectionId<?php echo ($key+1);?>" name="sectionId[]" value="<?php echo $section['section_id'];?>"/><?php echo $section['section_name'];?></td>
+                                                <td><?php echo $section['section_description'];?></td>
+                                                <td><input value="<?php echo ($configDetails)?$config['configDetails'][$section['section_id']]['no_of_questions']:'';?>" type="txt" class="form-control isRequired" name="noQuestion[]" id="noQuestion<?php echo ($key+1);?>" placeholder="Number of questions" title="Please enter the number of question in the section" onblur="getPercentage(this.value,'noPercentage<?php echo ($key+1);?>');"/></td>
+                                                <td><input value="<?php echo ($configDetails)?$config['configDetails'][$section['section_id']]['percentage']:'';?>" type="txt" class="form-control isRequired" name="noPercentage[]" id="noPercentage<?php echo ($key+1);?>" placeholder="Number of percentage" title="Please enter the percentage for this section"/></td>
+                                            </tr>
+                                        <?php }?>
+                                    </tbody>
+                                </table>
+                                <div class="spacer col-lg-12" align="center">
                                     <button type="button" onclick="validateNow();" class="btn btn-space btn-primary">Update</button>
                                     <a href="<?php echo $this->url('test-config', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a>
                                 </div>
@@ -56,5 +79,21 @@
         if (flag) {
             document.getElementById('editConfig').submit();
         }
+    }
+
+    function getPercentage(val,id){
+        var reach = 0;
+        $('#'+id).val((val*4)+'%');
+        var len = $('input[name="noPercentage[]"]').length;
+        $('input[name="noPercentage[]"]').each(function(i,e){
+            // console.log(parseInt(e.value));
+            if(parseInt(e.value) != '' && parseInt(e.value) != NaN){
+                if(reach>100){
+                    alert('Percentage reached 100');
+                    return false;
+                }
+                reach+=parseInt(e.value);
+            }
+        });
     }
 </script>

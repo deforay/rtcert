@@ -858,3 +858,5 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 ALTER TABLE `print_test_pdf` ADD `ptp_status` VARCHAR(25) NOT NULL DEFAULT 'active' COMMENT 'active and inactive status' AFTER `ptp_create_by`;
 ALTER TABLE `print_test_pdf_details` ADD `unique_id` VARCHAR(50) NULL DEFAULT NULL AFTER `response_id`;
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'answer-key-one', 'Answer Key One'), ('Application\\Controller\\PrintTestPdf', 'answer-key-two', 'Answer Key Two'), ('Application\\Controller\\PrintTestPdf', 'examination', 'Examination Sheet');
+-- Thana 22 Apr, 2020
+ALTER TABLE `test_sections` ADD `section_description` TEXT NULL DEFAULT NULL AFTER `section_slug`;

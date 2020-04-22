@@ -30,9 +30,10 @@ class TestSectionTable extends AbstractTableGateway {
     public function addTestSection($params) {
         if(isset($params['sectionName']) && trim($params['sectionName']) != ""){
             $this->insert(array(
-                'section_name'  => $params['sectionName'],
-                'section_slug'  => $param['sectionSlug'],
-                'status'        => $params['status'],
+                'section_name'          => $params['sectionName'],
+                'section_slug'          => $param['sectionSlug'],
+                'section_description'   => $param['sectionDescription'],
+                'status'                => $params['status']
             ));
             return $this->lastInsertValue;
         }
@@ -184,9 +185,10 @@ class TestSectionTable extends AbstractTableGateway {
         $result = 0;
         if(isset($param['sectionId']) && trim($param['sectionId']) != ""){
             $result = $this->update(array(
-                'section_name'  => $param['sectionName'],
-                'section_slug'  => $param['sectionSlug'],
-                'status'        => $param['status'],
+                'section_name'          => $param['sectionName'],
+                'section_slug'          => $param['sectionSlug'],
+                'section_description'   => $param['sectionDescription'],
+                'status'                => $param['status']
             ),array("section_id"=>base64_decode($param['sectionId'])));
         } 
         return $result;

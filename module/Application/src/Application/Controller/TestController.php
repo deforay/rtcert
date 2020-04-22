@@ -20,7 +20,6 @@ class TestController extends AbstractActionController{
             $questionResult = $questionService->getQuestionAllList();
             $testService = $this->getServiceLocator()->get('TestService');
             $redirect = $testService->getPostTestCompleteDetails();
-            // \Zend\Debug\Debug::dump($questionResult);die;
 
             if(isset($questionResult['posttest-page'])){
                 if(((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) && (($questionResult['testResultStatus']['testStatus']['post_test_status']==NULL) || ($questionResult['testResultStatus']['testStatus']['post_test_status']== ""))){

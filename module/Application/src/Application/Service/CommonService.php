@@ -743,6 +743,11 @@ class CommonService {
         $testConfigDb = $this->sm->get('TestConfigTable');
         return $testConfigDb->fetchTestConfigDetails();        
     }
+    
+    public function getTestConfigEditDetails(){
+        $testConfigDb = $this->sm->get('TestConfigTable');
+        return $testConfigDb->fetchTestConfigEdit();        
+    }
 
     public function getTestValue($globalName){
         $testConfigDb = $this->sm->get('TestConfigTable');

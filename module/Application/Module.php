@@ -27,6 +27,7 @@ use Application\Model\UserCountryMapTable;
 use Application\Model\UserProvinceMapTable;
 use Application\Model\UserDistrictMapTable;
 use Application\Model\TestConfigTable;
+use Application\Model\TestConfigDetailsTable;
 use Application\Model\TestSectionTable;
 use Application\Model\QuestionTable;
 use Application\Model\TestOptionsTable;
@@ -231,6 +232,11 @@ class Module
                 'TestConfigTable' => function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new TestConfigTable($dbAdapter);
+                    return $table;
+                },
+                'TestConfigDetailsTable' => function ($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new TestConfigDetailsTable($dbAdapter);
                     return $table;
                 },
                 'TestSectionTable' => function($sm) {

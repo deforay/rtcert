@@ -118,7 +118,6 @@ class TestConfigTable extends AbstractTableGateway
         }
 
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
-        //error_log($sQueryForm);
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
@@ -151,6 +150,22 @@ class TestConfigTable extends AbstractTableGateway
     {
         return $this->select()->toArray();
     }
+    
+    public function fetchTestConfigEdit()
+    {
+        $testCondifDetailsDB = new TestConfigDetailsTable($this->adapter);
+        $result['config'] =  $this->select()->toArray();
+        $configDetails =  $testCondifDetailsDB->select()->toArray();
+        if(isset($configDetails) && count($configDetails) > 0){
+            foreach($configDetails as $cd){
+                $result['configDetails'][$cd['section_id']] = array(
+                    'no_of_questions'   => $cd['no_of_questions'],
+                    'percentage'        => $cd['percentage']
+                );
+            }
+        }
+        return $result;
+    }
 
     public function fetchTestValue($globalName)
     {
@@ -160,13 +175,27 @@ class TestConfigTable extends AbstractTableGateway
 
     public function updateTestConfigDetails($params)
     {
-        $status = false;
+        $testCondifDetailsDB = new TestConfigDetailsTable($this->adapter);
         foreach ($params as $fieldName => $fieldValue) {
-            $result = $this->update(array('test_config_value' => $fieldValue), array('test_config_name' => $fieldName));
-            if ($result > 0) {
-                $status = true;
-            }
+            $this->update(array('test_config_value' => $fieldValue), array('test_config_name' => $fieldName));
         }
-        return $status;
+        if(isset($params['sectionId']) && count($params['sectionId']) > 0){
+            foreach($params['sectionId'] as $key=>$sectionId){
+                if($testCondifDetailsDB->select(array('section_id'=>$sectionId))->current()){
+                    $testCondifDetailsDB->update(array(
+                        'no_of_questions'   => $params['noQuestion'][$key],
+                        'percentage'        => $params['noPercentage'][$key],
+                    ),array('section_id'    => $sectionId));
+                }else{
+                    $testCondifDetailsDB->insert(array(
+                        'section_id'        => $sectionId,
+                        'no_of_questions'   => $params['noQuestion'][$key],
+                        'percentage'        => $params['noPercentage'][$key],
+                    ));
+                }
+            }
+
+        }
+        return true;
     }
 }

@@ -11,17 +11,22 @@
 						<div class="panel-body">
 							<form role="form" name="testSection" id="testSection" method="post" action="<?php echo $this->url('test-section', array('action' => 'edit')); ?>" autocomplete="off">
 								<div class="form-group col-lg-6">
-									<label for="sectionName" class="col-sm-3 control-label">Section Name<span class="mandatory">*</span></label>
+									<label for="sectionName" class="col-sm-6 control-label">Section Name<span class="mandatory">*</span></label>
 									<input type="text" value="<?php echo $testSectionResult['section_name'];?>" placeholder="Enter section name" class="form-control isRequired" name="sectionName" id="sectionName" title="Please enter the section name" onblur="checkNameValidation('test_sections', 'section_name', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>', 'Entered category already exist. Please enter an another category.')">
 								</div>
 
 								<div class="form-group col-lg-6">
-								<label for="sectionSlug" class="col-sm-3 control-label">Section slug<span class="mandatory">*</span></label>
+								<label for="sectionSlug" class="col-sm-6 control-label">Section slug<span class="mandatory">*</span></label>
 									<input type="text" value="<?php echo $testSectionResult['section_slug'];?>" placeholder="Enter section slug" class="form-control isRequired" name="sectionSlug" id="sectionSlug" title="Please enter the section slug" onblur="checkNameValidation('test_sections', 'section_slug', this, '<?php echo "section_id##".$testSectionResult['section_id'];?>', 'Entered category slug already exist. Please enter an another category slug.')">
 								</div>
 
 								<div class="form-group col-lg-6">
-									<label for="sectionName" class="col-sm-3 control-label">Status<span class="mandatory">*</span></label>
+								<label for="sectionDescription" class="col-sm-6 control-label">Section Description<span class="mandatory">*</span></label>
+									<textarea type="text" value="<?php echo $testSectionResult['section_description'];?>" placeholder="Enter section description" class="form-control isRequired" name="sectionDescription" id="sectionDescription" title="Please enter the section description"></textarea>
+								</div>
+
+								<div class="form-group col-lg-6">
+									<label for="sectionName" class="col-sm-6 control-label">Status<span class="mandatory">*</span></label>
 									<select class="form-control isRequired" name="status" id="status" title="Please select Section status">
 										<option value="">--Select--</option>
 										<option value="active" <?php echo (isset($testSectionResult['status']) && $testSectionResult['status'] =='active')?"selected='selected'":"";?>>Active</option>
