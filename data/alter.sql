@@ -860,3 +860,12 @@ ALTER TABLE `print_test_pdf_details` ADD `unique_id` VARCHAR(50) NULL DEFAULT NU
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\PrintTestPdf', 'answer-key-one', 'Answer Key One'), ('Application\\Controller\\PrintTestPdf', 'answer-key-two', 'Answer Key Two'), ('Application\\Controller\\PrintTestPdf', 'examination', 'Examination Sheet');
 -- Thana 22 Apr, 2020
 ALTER TABLE `test_sections` ADD `section_description` TEXT NULL DEFAULT NULL AFTER `section_slug`;
+CREATE TABLE `test_config_details` (
+ `id` int NOT NULL AUTO_INCREMENT,
+ `section_id` int DEFAULT NULL,
+ `no_of_questions` varchar(50) DEFAULT NULL,
+ `percentage` varchar(50) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `section_id` (`section_id`),
+ CONSTRAINT `test_config_details_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `test_sections` (`section_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=10;

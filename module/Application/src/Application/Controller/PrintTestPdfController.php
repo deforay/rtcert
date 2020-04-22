@@ -128,7 +128,6 @@ class PrintTestPdfController extends AbstractActionController{
         $ptpId=base64_decode($this->params()->fromRoute('id'));
         $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
         $result = $printTestPdfService->getPdfDetailsById($ptpId,'examination');
-        // \Zend\Debug\Debug::dump($result);die;
         if($result['ptpDetails']['title'] != ''){
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result));

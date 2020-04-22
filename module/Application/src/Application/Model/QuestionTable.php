@@ -398,21 +398,17 @@ class QuestionTable extends AbstractTableGateway
 				$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 				foreach($questions as $key=>$q){
 					$questionResult[] = array(
-						'question_id' => $q['question_id'],
-						'question_code' => $q['question_code'],
-						'question' => $q['question'],
-						'section' => $q['section'],
-						'status' => $q['status'],
-						'correct_option' => $q['correct_option'],
-						'correct_option_text' => $q['correct_option_text'],
+						'question_id'           => $q['question_id'],
+						'question_code'         => $q['question_code'],
+						'question'              => $q['question'],
+						'section'               => $q['section'],
+						'status'                => $q['status'],
+						'correct_option'        => $q['correct_option'],
+						'correct_option_text'   => $q['correct_option_text'],
+						'pre_test_id'           => (isset($q['pre_test_id']) && $q['pre_test_id'] != '')?$q['pre_test_id']:'',
+						'test_id'               => (isset($q['test_id']) && $q['test_id'] != '')?$q['test_id']:'',
+						'response_id'           => (isset($q['response_id']) && $q['response_id'] != '')?$q['response_id']:'',
 					);
-					if ($limit == null){
-						$last = array_key_last($questionResult);
-						$questionResult[$last]['pre_test_id'] = $q['pre_test_id'];
-						$questionResult[$last]['test_id'] = $q['test_id'];
-						$questionResult[$last]['question_id'] = $q['question_id'];
-						$questionResult[$last]['response_id'] = $q['response_id'];
-					}
 				}
 			}
 		}else{

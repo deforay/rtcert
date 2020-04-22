@@ -3,8 +3,8 @@
 $totalNumberOfQuestion = count($result['questions']);
 $totalNumberOfExamination = count($result['examination']);
 $tdCount = $totalNumberOfQuestion/13;
-$tsecTdCount = $totalNumberOfExamination/5;
-
+$tsecTdCount = round($totalNumberOfExamination/5);
+// die(ceil($totalNumberOfExamination/2));
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
@@ -105,7 +105,7 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                 <li>Make sure to answer <span style="font-weight: bold;text-decoration: underline;">all</span> the questions. Each correct answer will receive <span style="font-weight: bold;">one (1) point.</span> Incorrect answers or questions left unanswered will be scored <span style="font-weight: bold;">zero (0) point.</span> A total score of <span style="font-weight: bold;">80% (or 20 points)</span> or <span style="font-weight: bold;">higher</span> is required to pass the examination. </li>
                                                 <li>Before turning in your examination sheet, verify that you have answered all the questions, indicated your name, the date and signed the examination sheet.</li>
                                             </ul>
-                                        <br></td>
+                                        </td>
                                     </tr>';
                                     if($tdCount == 0){
                                         $tbl .='<tr align="center">
@@ -185,7 +185,7 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                         $tbl .='<tr align="center">
                                             <td align="center" style="width:100%;"><br><br>';
                                                 $tbl .= '<table style="width:100%;" border="1" cellpadding="2"  align="center">
-                                                    <tr align="center" style="background-color:#0000;">
+                                                    <tr border="1" align="center" style="background-color:#0000;">
                                                         <td align="center" style="color:white;"><h5>Score to be summarized by proctor or evaluator only</h5></td>
                                                     </tr>
                                                     <thead>
@@ -205,8 +205,8 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                         $totalPonts+=$qRow['total'];
                                                     }
                                                 $tbl .= '</tbody>
-                                                <tfoot>
-                                                    <tr>
+                                                <tfoot border="1">
+                                                    <tr border="1">
                                                         <td align="center" style="width:60%;font-size:13px;background-color:#BFBFBF;"></td>
                                                         <td align="center" style="width:20%;font-size:13px;"></td>
                                                         <td align="center" style="width:20%;font-size:13px;background-color:#BFBFBF;">'.$totalPonts.'</td>
@@ -236,7 +236,7 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                         </tr>
                                                     </thead><tbody>';
                                                     $totalPonts = 0;$halfExamCount = 0;
-                                                    for($k=0;$k<($totalNumberOfExamination/2);$k++){
+                                                    for($k=0;$k<=($totalNumberOfExamination/2);$k++){
                                                         $tbl .= '<tr cellpadding="2">';
                                                             $tbl .= '<td align="center" style="width:50%;font-size:13px;"><br>'.$result['examination'][$k]['section_name'].'</td>';
                                                             $tbl .= '<td align="center" style="width:25%;font-size:13px;"></td>';
@@ -247,8 +247,8 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                     }
                                                 $tbl .= '</tbody>';
                                                 if($halfExamCount >= $totalNumberOfExamination){
-                                                    $tbl .= '<tfoot>
-                                                        <tr>
+                                                    $tbl .= '<tfoot border="1">
+                                                        <tr border="1">
                                                             <td align="center" style="width:50%;font-size:13px;background-color:#BFBFBF;"></td>
                                                             <td align="center" style="width:25%;font-size:13px;"></td>
                                                             <td align="center" style="width:25%;font-size:13px;background-color:#BFBFBF;">'.$totalPonts.'</td>
@@ -267,7 +267,7 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                                 <th align="center" style="width:25%;font-size:14px;background-color:#BFBFBF;"><b>Points Expected</b></th>
                                                             </tr>
                                                         </thead><tbody>';
-                                                        for($l=($totalNumberOfExamination/2);$l<$totalNumberOfExamination;$l++){
+                                                        for($l=($halfExamCount+1);$l<$totalNumberOfExamination;$l++){
                                                             $tbl .= '<tr cellpadding="2">';
                                                                 $tbl .= '<td align="center" style="width:50%;font-size:13px;"><br>'.$result['examination'][$l]['section_name'].'</td>';
                                                                 $tbl .= '<td align="center" style="width:25%;font-size:13px;"></td>';
@@ -280,10 +280,10 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                             }
                                         $tbl.='</tr></tbody>
                                         <tfoot border="1">
-                                            <tr>
-                                                <td align="center" style="width:75%;font-size:13px;background-color:#BFBFBF;"></td>
-                                                <td align="center" style="width:12.5%;font-size:13px;"></td>
-                                                <td align="center" style="width:12.5%;font-size:13px;background-color:#BFBFBF;">'.$totalPonts.'</td>
+                                            <tr border="1" style="height:80%;">
+                                                <td align="center" style="width:75%;height:80%;font-size:13px;background-color:#BFBFBF;"></td>
+                                                <td align="center" style="width:12.5%;height:80%;font-size:13px;"></td>
+                                                <td align="center" style="width:12.5%;height:80%;font-size:13px;background-color:#BFBFBF;">'.$totalPonts.'</td>
                                             </tr>
                                         </tfoot>';
                                     }

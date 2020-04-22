@@ -357,18 +357,22 @@ class ProviderController extends AbstractActionController {
             return $this->redirect()->toUrl($route);
         }
         $tester = $this->params()->fromQuery('u', null);
-        $params = $this->getProviderTable()->getProviderByToken($tester);
-        if(!$params){
-            $container = new Container('alert');
-            $container->alertMsg = "Your link expired. Kindly request a link to RT Certification admin";
+        if($tester){
+            $params = $this->getProviderTable()->getProviderByToken($tester);
+            if(!$params){
+                $container = new Container('alert');
+                $container->alertMsg = "Your link expired. Kindly request a link to RT Certification admin";
+            }else{
+                $logincontainer = new Container('credo');
+                $logincontainer->roleName = 'RT Providers';
+                $logincontainer->userId = $params['id'];
+                $logincontainer->login = $params['username'];
+                $logincontainer->roleId = 6;
+                $logincontainer->roleCode = 'provider';
+                return $this->redirect()->toUrl('/test/intro');
+            }
         }else{
-            $logincontainer = new Container('credo');
-            $logincontainer->roleName = 'RT Providers';
-            $logincontainer->userId = $params['id'];
-            $logincontainer->login = $params['username'];
-            $logincontainer->roleId = 6;
-            $logincontainer->roleCode = 'provider';
-            return $this->redirect()->toUrl('/test/intro');
+            return $this->redirect()->toUrl('/');
         }
     }
 
