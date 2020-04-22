@@ -2,8 +2,8 @@
 // \Zend\Debug\Debug::dump($result);die;
 $totalNumberOfQuestion = count($result['questions']);
 $totalNumberOfExamination = count($result['examination']);
-$tdCount = round($totalNumberOfQuestion/13);
-$tsecTdCount = round($totalNumberOfExamination/5);
+$tdCount = $totalNumberOfQuestion/13;
+$tsecTdCount = $totalNumberOfExamination/5;
 
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
@@ -143,14 +143,14 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                         </tr>
                                                     </thead><tbody>';
                                                     $halfCount = 0;
-                                                    for($i=1;$i<=($totalNumberOfQuestion/2);$i++){
+                                                    for($i=1;$i<=ceil($totalNumberOfQuestion/2);$i++){
                                                         $tbl .= '<tr cellpadding="2">';
                                                             $tbl .= '<td align="center" style="width:15%;font-size:13px;"><br><b>'.$i.'</b></td>';
                                                             $tbl .= '<td align="center" style="width:25%;font-size:13px;background-color:#f1f1f1;"><b></b></td>';
                                                             $tbl .= '<td align="center" style="width:30%;font-size:13px;"></td>';
                                                             $tbl .= '<td align="center" style="width:30%;font-size:13px;background-color:#BFBFBF;"></td>';
                                                         $tbl .= '</tr>';
-                                                        $halfCount = $i;
+                                                        $halfCount = round($i);
                                                     }
                                                 $tbl .= '</tbody></table>
                                             </td>';
@@ -165,7 +165,7 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
                                                                 <th align="center" style="width:30%;font-size:14px;background-color:#BFBFBF;"><b>Correct Answer</b></th>
                                                             </tr>
                                                         </thead><tbody>';
-                                                        for($j=(($totalNumberOfQuestion/2)+1);$j<=$totalNumberOfQuestion;$j++){
+                                                        for($j=($halfCount+1);$j<=$totalNumberOfQuestion;$j++){
                                                             $tbl .= '<tr cellpadding="2">';
                                                                 $tbl .= '<td align="center" style="width:15%;font-size:13px;"><br><b>'.round($j).'</b></td>';
                                                                 $tbl .= '<td align="center" style="width:25%;font-size:13px;background-color:#f1f1f1;"><b></b></td>';
