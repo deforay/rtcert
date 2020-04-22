@@ -1,5 +1,5 @@
 <?php
-// \Zend\Debug\Debug::dump($result);die;
+// \Zend\Debug\Debug::dump($ptpId);die;
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
@@ -93,5 +93,5 @@ $tbl .= '</table>';
     
 $pdf->writeHTML($tbl);
 
-$pdf->Output(ucfirst('RT Certification') . '_Answer_Key_Two_Set-' .$ptpId[1] .'_'.date('dMY') . '.pdf', 'I');
+$pdf->Output(ucfirst('RT Certification') . '_Answer_Key_Two_Set-Two_'.date('dMY') . '.pdf', 'I');
 exit;
