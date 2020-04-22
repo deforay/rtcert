@@ -18,8 +18,12 @@ class IndexController extends AbstractActionController{
 
         $dashService = $this->getServiceLocator()->get('DashboardService');
         $quickStats = $dashService->getQuickStats();
-        return new ViewModel(array(
+        $viewModel = new ViewModel(array(
             'quickStats' => $quickStats,
         ));
+
+        $viewModel->setTerminal(true);
+        return $viewModel;
+
     }
 }
