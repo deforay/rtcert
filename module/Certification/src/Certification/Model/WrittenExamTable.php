@@ -14,6 +14,7 @@ use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 use Zend\Db\Adapter\AdapterInterface;
 use \Application\Model\GlobalTable;
+use \Application\Model\TestConfigTable;
 use \Application\Service\CommonService;
 
 class WrittenExamTable extends AbstractTableGateway {
@@ -104,10 +105,14 @@ class WrittenExamTable extends AbstractTableGateway {
     public function saveWrittenExamByTest($written_exam) {
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
+        $dbAdapter = $this->adapter;
+        $testConfigDb = new TestConfigTable($dbAdapter);
         $date = $written_exam->date;
         $date_explode = explode("-", $date);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
-
+        $noOfQuestion = $testConfigDb->fetchTestValue('maximum-question-per-test');
+        $noOfQuestion = (isset($noOfQuestion) && $noOfQuestion > 0)?$noOfQuestion:25;
+        // echo $noOfQuestion;die;
         $data = array(
             'test_id' => (isset($written_exam->test_id) && $written_exam->test_id != '')?$written_exam->test_id:'',
             'exam_type' => $written_exam->exam_type,
@@ -124,7 +129,7 @@ class WrittenExamTable extends AbstractTableGateway {
             'ethics_point' => $written_exam->ethics_point,
             'inventory_point' => $written_exam->inventory_point,
             'total_points' => $written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point,
-            'final_score' => (($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / 25
+            'final_score' => ((($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / $noOfQuestion)
         );
         $id_written_exam = (int) $written_exam->id_written_exam;
         if ($id_written_exam == 0) {

@@ -569,13 +569,6 @@ class QuestionTable extends AbstractTableGateway
 			$preEndDate = date('Y-m-d', strtotime($preDate[1]));
 			$sQuery = $sQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
 		}
-		/* if (isset($parameters['postTestDateRange']) && $parameters['postTestDateRange'] != '') {
-			$postDate = explode(" to ", $parameters['postTestDateRange']);
-			$postStartDate = date('Y-m-d', strtotime($postDate[0]));
-			$postEndDate = date('Y-m-d', strtotime($postDate[1]));
-			$sQuery = $sQuery->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
-			// \Zend\Debug\Debug::dump($sQuery2);die;
-		} */
 		$querycontainer->questionPreQueryStr =  $sQuery;
 		if (isset($sWhere) && $sWhere != "") {
 			$sQuery->where($sWhere);
