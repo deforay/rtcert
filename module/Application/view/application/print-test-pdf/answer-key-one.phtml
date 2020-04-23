@@ -71,9 +71,20 @@ $pdf->SetMargins(12, 12, 12, true);
 
 /* add a page */
 $pdf->AddPage();
-
+if(isset($result['config']) && $result['config'] != ''){
+    if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . 'logo_cert1.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . 'logo_cert1.png')) {
+        $logoImg = '<img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image" />';
+    } else {
+        $logoImg = '<img width="70" src="/uploads/logo/logo_cert1.png" />';
+    }
+}
 $tbl = '';
 $tbl .= '<table style="width:100%;" border="0" cellpadding="2">';
+    if(isset($result['config']) && $result['config'] != ''){
+        $tbl .= '<tr align="center">';
+            $tbl .= '<td style="width:100%;margin-bottom:25px;" align="center">'.$logoImg.'</td>';
+        $tbl .= '</tr>';
+    }
     $tbl .= '<tr align="center">';
         $tbl .= '<td style="width:100%;" align="center"><h3>'.$result['ptpDetails']['title'].'</h3><br>Answer Key One - '.strtoupper($result['ptpDetails']['unique_id']).' - '.$result['ptpDetails']['variant_no'].'</td>';
     $tbl .= '</tr>';

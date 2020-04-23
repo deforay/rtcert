@@ -450,28 +450,60 @@ class PrintTestPdfTable extends AbstractTableGateway {
 		$sql = new Sql($dbAdapter);
 		$questionResult = array();
 		$testCondifDetailsDB = new TestConfigDetailsTable($this->adapter);
-		$configDetails =  $testCondifDetailsDB->select()->toArray();
+        $configDetails =  $testCondifDetailsDB->select()->toArray();
+        $configCount = count($configDetails);
         if(isset($configDetails) && count($configDetails) > 0){
 			$secLimit = 0;
 			foreach($configDetails as $cd){
+                if($cd['no_of_questions']>0){
+                    //get list of all questions
+                    $qQuery = $sql->select()->from(array('q' => 'test_questions'));
+                    $secLimit += $cd['no_of_questions'];
+                    if ($testId == null) {
+                        $qQuery = $qQuery->order(new Expression('RAND()'))
+                        ->where(array('status' => 'active','section'=>$cd['section_id']));
+                        if($secLimit<=$limit){
+                            $qQuery->limit($cd['no_of_questions']);
+                        }else{
+                            return $questionResult;
+                        }
+                    } else if ($limit == null) {
+                        $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
+                            ->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
+                            ->order('pq.' . $primary . ' ASC');
+                    }
+                    $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+                    // die($qQueryStr);
+                    $questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+                    foreach($questions as $key=>$q){
+                        $questionResult[] = array(
+                            'question_id'           => $q['question_id'],
+                            'question_code'         => $q['question_code'],
+                            'question'              => $q['question'],
+                            'section'               => $q['section'],
+                            'status'                => $q['status'],
+                            'correct_option'        => $q['correct_option'],
+                            'correct_option_text'   => $q['correct_option_text'],
+                            'pre_test_id'           => (isset($q['pre_test_id']) && $q['pre_test_id'] != '')?$q['pre_test_id']:'',
+                            'test_id'               => (isset($q['test_id']) && $q['test_id'] != '')?$q['test_id']:'',
+                            'response_id'           => (isset($q['response_id']) && $q['response_id'] != '')?$q['response_id']:'',
+                        );
+                    }
+				}
+            }
+            if($secLimit<=$limit && $secLimit >=$configCount){
 				//get list of all questions
 				$qQuery = $sql->select()->from(array('q' => 'test_questions'));
-				$secLimit += $cd['no_of_questions'];
 				if ($testId == null) {
 					$qQuery = $qQuery->order(new Expression('RAND()'))
-					->where(array('status' => 'active','section'=>$cd['section_id']));
-					if($secLimit<=$limit){
-						$qQuery->limit($cd['no_of_questions']);
-					}else{
-						return $questionResult;
-					}
+						->where(array('status' => 'active'))
+						->limit(($limit-$secLimit));
 				} else if ($limit == null) {
 					$qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
-						->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
+						->where(array('pq.test_id' => $testId))
 						->order('pq.' . $primary . ' ASC');
 				}
 				$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
-				// die($qQueryStr);
 				$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 				foreach($questions as $key=>$q){
 					$questionResult[] = array(
@@ -501,7 +533,6 @@ class PrintTestPdfTable extends AbstractTableGateway {
 					->order('pq.' . $primary . ' ASC');
 			}
 			$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
-			die($qQueryStr);
 			$questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		}
 		return $questionResult;
@@ -516,12 +547,13 @@ class PrintTestPdfTable extends AbstractTableGateway {
     }
     
     public function fetchPdfDetailsById($ptpId,$answer=''){
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $globaclConfigDB = new GlobalTable($dbAdapter);
         $questionList = array();
         if($answer != 'examination'){
             $ptpId = explode('##',$ptpId);
         }
-        $dbAdapter = $this->adapter;
-        $sql = new Sql($dbAdapter);
         // To get the ptp details
         $ptpQuery = $sql->select()->from(array('ptp'=>$this->table))
         ->join(array('ptpd'=>'print_test_pdf_details'),'ptpd.ptp_id=ptp.ptp_id',array('unique_id','variant_no'))
@@ -589,6 +621,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                 $questionList['questions'][($key+1)]['optionList'][] = trim($option['option']);
             }
         }
+        $questionList['config'] = $globaclConfigDB->getGlobalValue('logo');
         return $questionList;
     }
 

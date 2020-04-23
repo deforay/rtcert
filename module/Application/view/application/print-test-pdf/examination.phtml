@@ -1,10 +1,9 @@
 <?php
-// \Zend\Debug\Debug::dump($result);die;
+// \Zend\Debug\Debug::dump($result['config']);die;
 $totalNumberOfQuestion = count($result['questions']);
 $totalNumberOfExamination = count($result['examination']);
 $tdCount = $totalNumberOfQuestion/13;
 $tsecTdCount = round($totalNumberOfExamination/5);
-// die(ceil($totalNumberOfExamination/2));
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
 
@@ -65,8 +64,22 @@ $pdf->SetMargins(05, 05, 05, true);
 
 /* add a page */
 $pdf->AddPage();
+$logoImg = 'hi';
+/* Logo file check */
+if(isset($result['config']) && $result['config'] != ''){
+    if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . 'logo_cert1.png') && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . 'logo_cert1.png')) {
+        $logoImg = '<img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=No image" />';
+    } else {
+        $logoImg = '<img width="70" src="/uploads/logo/logo_cert1.png" />';
+    }
+}
 $tbl = '';
 $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">';
+    if(isset($result['config']) && $result['config'] != ''){
+        $tbl .= '<tr align="center">';
+            $tbl .= '<td style="width:100%;margin-bottom:25px;" align="center">'.$logoImg.'</td>';
+        $tbl .= '</tr>';
+    }
     $tbl .= '<tr align="center">';
         $tbl .= '<td style="width:100%;margin-bottom:25px;" align="center"><h5>HIV Tester Certification - Written Examination Sheet</h5></td>';
     $tbl .= '</tr>';
