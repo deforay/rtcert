@@ -27,7 +27,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         <div class="row widget-fullwidth widget-small" style="padding:5px;width:100%;">
                 <label for="preTestDateRange" class="col-sm-1 control-label" style="padding-top: 5px;">Test Date:</label>
                 <div class="col-sm-3">
-                        <input type="text" style=" " class="form-control " id="preTestDateRange" name="preTestDateRange" placeholder="Select test date" title="Please enter month"/>
+                        <input type="text" class="form-control " id="preTestDateRange" name="preTestDateRange" placeholder="Select test date" title="Please enter month"/>
                 </div>
         
                 <!-- <label for="postTestDateRange" class="col-sm-1 control-label" style="padding-top: 5px;">Post-Test Date:</label>
@@ -37,7 +37,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 <div class="col-sm-4">
                     <a  href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
                     <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
-                    <a href="javascript:void(0)" onclick="downloadUserData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
+                    <a href="javascript:void(0)" onclick="downloadTestFrequency();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
                 </div>
         </div>
     </div>
@@ -148,7 +148,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 
     } );
        
-    function downloadUserData()
+    function downloadTestFrequency()
     {
         $.post("<?php echo $this->url('provider',array('action'=>'export-test-details')); ?>",
             function(data){

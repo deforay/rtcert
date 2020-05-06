@@ -137,4 +137,18 @@ class PrintTestPdfController extends AbstractActionController{
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
+
+    public function exportDataAction()
+    {
+        $request = $this->getRequest();
+        if($request->isPost())
+        {
+            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+            $result=$printTestPdfService->exportPdfDataDetails();
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+    }
 }

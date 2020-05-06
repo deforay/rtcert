@@ -136,10 +136,10 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
-
+        $querycontainer = new Container('query');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
-        $querycontainer->testQueryStr =  $sQueryStr;
+        $querycontainer->printTestPdfQueryStr = $sQueryStr;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */

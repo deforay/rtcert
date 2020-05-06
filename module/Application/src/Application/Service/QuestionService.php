@@ -107,7 +107,6 @@ class QuestionService {
     public function exportQuestionDetails(){
         try{
             $querycontainer = new Container('query');
-            $common = new \Application\Service\CommonService();
             $excel = new PHPExcel();
             $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
             $cacheSettings = array('memoryCacheSize' => '80MB');
@@ -121,46 +120,12 @@ class QuestionService {
             
             $output= array();
             if(count($sResult) > 0) {
-                $cQueryStr = $sql->getSqlStringForSqlObject($querycontainer->questionPreQueryStr);
-                $cResult = $dbAdapter->query($cQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-                if(count($cResult) > 0) {
-                    $common = new CommonService();
-                    foreach($cResult as $aRow) {
-                        $row = array();
-                        $row[] = ucfirst($aRow['question']);
-                        $row[] = $aRow['preQCount'];
-                        $row[] = $aRow['preRCount'];
-                        /* $sQuery2 = $sql->select()->from(array('q' => 'questions'))->columns(array('question_id','question','correct_option'))
-                              ->join(array('post' => 'posttest_questions'), 'q.question_id = post.question_id', array('postQCount' => new Expression('COUNT(post_test_id)'),"postRCount" => new Expression("SUM(CASE WHEN (post.score  = 1) THEN 1 ELSE 0 END)")),'left')
-                              ->join(array('t' => 'tests'), 'post.test_id = t.test_id', array('posttest_start_datetime','pretest_start_datetime'))
-                              ->group("q.question_id");
-                        if(isset($querycontainer->postTestDateRange) && $querycontainer->postTestDateRange!='')
-                        {
-                            $postDate = explode(" to ",$querycontainer->postTestDateRange);
-                            $postStartDate = date('Y-m-d', strtotime($postDate[0]));
-                            $postEndDate = date('Y-m-d', strtotime($postDate[1]));
-                            $sQuery2 = $sQuery2->where(array("DATE(t.posttest_start_datetime) >='" . $postStartDate . "'", "DATE(t.posttest_start_datetime) <='" . $postEndDate . "'"));
-                        }else if(isset($querycontainer->preTestDateRange) && $querycontainer->preTestDateRange!=''){
-                            $preDate = explode(" to ",$querycontainer->preTestDateRange);
-                            $preStartDate = date('Y-m-d', strtotime($preDate[0]));
-                            $preEndDate = date('Y-m-d', strtotime($preDate[1]));
-                            $sQuery2 = $sQuery2->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
-
-                            $sQuery2 = $sQuery2->where(array('q.question_id' => $aRow['question_id']));
-                        }else{
-                            $sQuery2 = $sQuery2->where(array('q.question_id' => $aRow['question_id']));
-                        }
-                        $sQueryStr2 = $sql->getSqlStringForSqlObject($sQuery2);
-                        $result = $dbAdapter->query($sQueryStr2, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-                        if($result['postQCount'] != ""){
-                            $row[] = $result['postQCount'];
-                            $row[] = $result['postRCount'];
-                        }else{
-                            $row[] = '0';
-                            $row[] = '0';
-                        } */
-                        $output[] = $row;
-                    }
+                foreach($sResult as $aRow) {
+                    $row = array();
+                    $row[] = ucfirst($aRow['question']);
+                    $row[] = $aRow['preQCount'];
+                    $row[] = $aRow['preRCount'];
+                    $output[] = $row;
                 }
                 $styleArray = array(
                     'font' => array(
@@ -188,22 +153,14 @@ class QuestionService {
                             ),
                         )
                     );
-                // if(isset($parameters['searchByEmployee']) && $parameters['searchByEmployee']!=''){
-                //     $cdate =  $parameters['searchByEmployee'];
-                // }
-                // $sheet->setCellValue('A2', html_entity_decode('Biosafety Test Details', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 
                 $sheet->setCellValue('A1', html_entity_decode('Questions', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('B1', html_entity_decode('No.of times shown to people test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('C1', html_entity_decode('No. of times people got it right in test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                // $sheet->setCellValue('D1', html_entity_decode('No.of times shown to participants post test	', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                // $sheet->setCellValue('E1', html_entity_decode('No. of times people got it right in post test', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
 
                 $sheet->getStyle('A1')->applyFromArray($styleArray);
                 $sheet->getStyle('B1')->applyFromArray($styleArray);
                 $sheet->getStyle('C1')->applyFromArray($styleArray);
-                // $sheet->getStyle('D1')->applyFromArray($styleArray);
-                // $sheet->getStyle('E1')->applyFromArray($styleArray);
 
                 foreach ($output as $rowNo => $rowData) {
                     $colNo = 0;
@@ -227,7 +184,7 @@ class QuestionService {
                 }
 
                 $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-                $filename = 'question-frequency' . date('d-M-Y-H-i-s') . '.xls';
+                $filename = 'online-test-question-frequency-(' . date('d-M-Y-H-i-s') . ').xls';
                 $directoryName = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'question-frequency';
 
                 if(!is_dir($directoryName)){
