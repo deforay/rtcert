@@ -604,8 +604,7 @@ section {
 # Counts
 --------------------------------------------------------------*/
 .counts {
-  background: white;
-  padding: 30px 0 40px 0;
+  padding: 70px 0 20px 0;
 }
 
 .counts .count-box {
@@ -613,7 +612,6 @@ section {
   width: 100%;
   position: relative;
   text-align: center;
-  background: #fff;
 }
 
 .counts .count-box i {

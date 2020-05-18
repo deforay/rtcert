@@ -9294,7 +9294,7 @@ button:focus {
   [Splash screen]
 */
 .am-splash-screen {
-  background-color: #383737;
+  background-color: #fff;
 }
 .am-splash-screen .am-wrapper {
   padding-top: 0;
@@ -10691,6 +10691,8 @@ li.L9 {
   max-width: 400px;
   margin: 80px auto;
   padding: 10px;
+  border:1px solid #ddd;
+
 }
 .login-container .panel-default {
   background: transparent;
@@ -10733,7 +10735,8 @@ li.L9 {
 }
 .login-container .panel-default .panel-body .form-group .input-group .input-group-addon .icon {
   font-size: 20px;
-  color: #ffffff;
+  color: #000;
+  font-weight:bold;
 }
 .login-container .panel-default .panel-body .form-group .input-group .form-control {
   border: 0;
