@@ -39,6 +39,12 @@ $acl = $this->layout()->acl;
     .text-success{
         color:#086200 !important;
     }
+    .lastcol{
+        opacity:0.8;
+    }
+    .lastcol:hover{
+        opacity:1;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -128,45 +134,45 @@ $acl = $this->layout()->acl;
                         }
                         ?>
                         <tr>
-                            <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_reg_no); ?></div></td>
-                            <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->professional_reg_no); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_id); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $certificationTime; ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><a href="javascript:void(0);" style="cursor:pointer;text-decoration:underline;" onclick="getTestHistory('<?php echo base64_encode($provider->id); ?>');"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></a></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->region_name); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->district_name); ?></div></td>
-                            <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->type_vih_test); ?></div></td>
-                            <td><div style="width:100px;overflow:auto;"><?php echo $this->escapeHtml($provider->phone); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->email); ?></div></td>
-                            <td><div style="width:80px;overflow:auto;"><?php echo $this->escapeHtml($provider->prefered_contact_method); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->current_jod); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->time_worked); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_name); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_address); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_name); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_phone); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_email); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_name); ?></div></td>
-                            <td><div style="width:120px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_phone); ?></div></td>
-                            <td><div style="width:180px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_email); ?></div></td>
+                            <td><?php echo $this->escapeHtml($provider->certification_reg_no); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->professional_reg_no); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->certification_id); ?></td>
+                            <td><?php echo $certificationTime; ?></td>
+                            <td><a href="javascript:void(0);" style="cursor:pointer;text-decoration:underline;" onclick="getTestHistory('<?php echo base64_encode($provider->id); ?>');"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></a></td>
+                            <td><?php echo $this->escapeHtml($provider->region_name); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->district_name); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->type_vih_test); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->phone); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->email); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->prefered_contact_method); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->current_jod); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->time_worked); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->facility_name); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->facility_address); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->test_site_in_charge_name); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->test_site_in_charge_phone); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->test_site_in_charge_email); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->facility_in_charge_name); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->facility_in_charge_phone); ?></td>
+                            <td><?php echo $this->escapeHtml($provider->facility_in_charge_email); ?></td>
 
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'edit')) { ?>
                                 <td>
-                                    <div style="width:70px;height:40px;overflow:auto;">
-                                        <a href="<?php echo $this->url('provider', array('action' => 'edit', 'id' => base64_encode($provider->id))); ?>"><span class="glyphicon glyphicon-pencil">Edit</span></a> 
-                                    </div>
+                                    
+                                        <a class="btn btn-primary" href="<?php echo $this->url('provider', array('action' => 'edit', 'id' => base64_encode($provider->id))); ?>"><span class="glyphicon glyphicon-pencil">Edit</span></a> 
+                                    
                                 </td> 
                             <?php } ?>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) { ?>
                                 <td>
                                     <?php if(!isset($provider->examid)){ ?>
-                                        <div style="overflow:auto;">
-                                            <a onclick="if (!confirm('Do you really want to remove ' + '<?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?>' + ' ?')) {
+                                        
+                                            <a class="btn btn-primary" onclick="if (!confirm('Do you really want to remove ' + '<?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?>' + ' ?')) {
                                                         alert('Canceled!');
                                                         return false;
                                                     }
                                                     ;"  href="<?php echo $this->url('provider', array('action' => 'delete', 'id' => $provider->id)); ?>"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a> 
-                                        </div>
+                                    
                                     <?php } ?>
                                 </td>
                             <?php } ?>
@@ -174,17 +180,17 @@ $acl = $this->layout()->acl;
                                 <td>
                                 <?php if(isset($provider->final_decision) && $provider->final_decision!= null && trim($provider->final_decision)!= ''){
                                     if (strcasecmp($provider->final_decision, 'Certified') == 0) { ?>
-                                    <div style="overflow:auto;">
+                                    
                                        <a href="<?php echo $this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('id') => base64_encode($provider->certid), base64_encode('last') => base64_encode($provider->last_name), base64_encode('first') => base64_encode($provider->first_name), base64_encode('middle') => base64_encode($provider->middle_name), base64_encode('professional_reg_no') => base64_encode($provider->professional_reg_no), base64_encode('certification_id') => base64_encode($provider->certification_id), base64_encode('date_issued') => base64_encode($provider->date_certificate_issued)))); ?>" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>
-                                    </div>
+                                    
                                 <?php } } ?>
                                 </td>
                             <?php } ?>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { ?>
-                                <td>
-                                    <div style="overflow:auto;width: 120px;">
-                                       <a href="javascript:void(0);" onclick="sendTestLink('<?php echo base64_encode($provider->id);?>','<?php echo $this->escapeHtml($provider->email);?>');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link(<?php echo (isset($provider->link_send_count) && $provider->link_send_count > 0)?$provider->link_send_count:0;?>)</a>
-                                    </div>
+                                <td class="lastcol">
+                                    
+                                       <a href="javascript:void(0);" class="btn btn-primary" onclick="sendTestLink('<?php echo base64_encode($provider->id);?>','<?php echo $this->escapeHtml($provider->email);?>');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link(<?php echo (isset($provider->link_send_count) && $provider->link_send_count > 0)?$provider->link_send_count:0;?>)</a>
+                                    
                                 </td>
                             <?php } ?>
                         </tr>
