@@ -3483,28 +3483,28 @@ fieldset[disabled] .btn-primary.active {
   background-color: #ffffff;
 }
 .btn-success {
-  border-color: #68c5b5;
+  
   color: #ffffff;
-  background-color: #7accbe;
-  border-color: #7accbe;
+  background-color: #8bb83a;
+  border-color: #8bb83a;
 }
 .btn-success:focus,
 .btn-success.focus {
   color: #ffffff;
-  background-color: #55beac;
-  border-color: #307d70;
+  background-color: #8bb83a;
+  border-color: #8bb83a;
 }
 .btn-success:hover {
   color: #ffffff;
-  background-color: #55beac;
-  border-color: #42ad9b;
+  background-color: #8bb83a;
+  border-color: #8bb83a;
 }
 .btn-success:active,
 .btn-success.active,
 .open > .dropdown-toggle.btn-success {
   color: #ffffff;
-  background-color: #55beac;
-  border-color: #42ad9b;
+  background-color: #8bb83a;
+  border-color: #8bb83a;
 }
 .btn-success:active:hover,
 .btn-success.active:hover,
@@ -3516,8 +3516,8 @@ fieldset[disabled] .btn-primary.active {
 .btn-success.active.focus,
 .open > .dropdown-toggle.btn-success.focus {
   color: #ffffff;
-  background-color: #42ad9b;
-  border-color: #307d70;
+  background-color: #8bb83a;
+  border-color: #8bb83a;
 }
 .btn-success:active,
 .btn-success.active,
@@ -3557,15 +3557,15 @@ fieldset[disabled] .btn-success.active {
 }
 .btn-success:hover {
   color: #ffffff;
-  background-color: #8cd3c7;
-  border-color: #8cd3c7;
+  background-color: #98dc35;
+  border-color: #98dc35;
 }
 .btn-success:active,
 .btn-success.active,
 .open > .dropdown-toggle.btn-success {
   color: #ffffff;
-  background-color: #68c5b5;
-  border-color: #68c5b5;
+  background-color: #98dc35;
+  border-color: #98dc35;
 }
 .btn-success:active:hover,
 .btn-success.active:hover,
@@ -3577,8 +3577,8 @@ fieldset[disabled] .btn-success.active {
 .btn-success.active.focus,
 .open > .dropdown-toggle.btn-success.focus {
   color: #ffffff;
-  background-color: #68c5b5;
-  border-color: #68c5b5;
+  background-color: #98dc35;
+  border-color: #98dc35;
 }
 .btn-success:active,
 .btn-success.active,
@@ -3611,7 +3611,6 @@ fieldset[disabled] .btn-success.active {
   background-color: #ffffff;
 }
 .btn-info {
-  border-color: #79c1d9;
   color: #ffffff;
   background-color: #8dcadf;
   border-color: #8dcadf;
@@ -5100,7 +5099,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
   color: #ffffff;
-  background-color: #ed5454;
+  /* background-color: #ed5454; */
+  background-color: #153c58 ;
 }
 .navbar-default .navbar-nav > .disabled > a,
 .navbar-default .navbar-nav > .disabled > a:hover,
@@ -5120,13 +5120,14 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
-  border-color: #ec4444;
+  border-color: #153c58;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
-  background-color: #ed5454;
-  color: #ffffff;
+  /* background-color: #ed5454; */
+  background-color: #153c58;
+  color: #fff;
 }
 @media (max-width: 767px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
@@ -5141,7 +5142,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
     color: #ffffff;
-    background-color: #0c91ed;
+    background-color: #153c58;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover,
@@ -5463,7 +5464,7 @@ a.label:focus {
   background-color: #ea3434;
 }
 .label-success {
-  background-color: #7accbe;
+  background-color: #17da62;
 }
 .label-success[href]:hover,
 .label-success[href]:focus {
@@ -7520,7 +7521,7 @@ button:focus {
 	[Top header]
 */
 .am-top-header {
-  background-color: #ef6262;
+  /* background-color: #ef6262; */
   border: 0;
   margin-bottom: 0;
 }
@@ -7530,7 +7531,7 @@ button:focus {
           transition: all 0.35s ease;
 }
 .am-top-header .navbar-header .navbar-brand {
-  background-color: #ef6262;
+  /* background-color: #ef6262; */
   color: #ffffff;
   padding-top: 0;
   padding-bottom: 0;

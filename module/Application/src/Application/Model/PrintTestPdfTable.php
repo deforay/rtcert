@@ -180,7 +180,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $row[] = ucwords($aRow['first_name'].' '.$aRow['last_name']);
             $row[] = date('d-M-Y h:i A',strtotime($aRow['ptp_create_on']));
             if($editAccess){
-                $eidOption = '<a href="javascript:void(0);" onclick="showModal(\'/print-test-pdf/edit/'.base64_encode($aRow['ptp_id']).'\',800,300);" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-pencil"></i> Edit Title</a>';
+                $eidOption = '<a href="javascript:void(0);" onclick="showModal(\'/print-test-pdf/edit/'.base64_encode($aRow['ptp_id']).'\',800,300);" class="btn btn-primary action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-pencil"></i> Edit Title</a>';
             }
             if($changeStatusAccess){
                 if(isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active'){

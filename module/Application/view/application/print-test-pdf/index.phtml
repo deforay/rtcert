@@ -97,7 +97,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             </div>
             <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'add')) {?>
             <div class="col-sm-4">
-                <a href="javascript:void(0)" onclick="insertPanel(this);" class="pull-right btn btn-info btn-add-panel"><i class="fa fa-plus"></i> Add New Tests</a>
+                <a href="javascript:void(0)" onclick="insertPanel(this);" class="pull-right btn btn-primary btn-add-panel"><i class="fa fa-plus"></i> Add New Tests</a>
             </div>
             <?php } ?>
         </div>
@@ -158,7 +158,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             </div>
 
             <div class="col-sm-4">
-                <a href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-info">Filter</a>
+                <a href="javascript:void(0)" onclick="reDraw();" value="Filter" class="col-sm-2 btn btn-primary">Filter</a>
                 <a href="javascript:void(0)" id="resetValues" value="Reset" class="col-sm-2 btn btn-danger" style="margin-left: 12px;width: 73px;">Reset</a>
                 <a href="javascript:void(0)" onclick="downloadPrintTestPdfData();" class="col-sm-8 btn btn-primary pull-right" style="margin-left: 12px;width: 165px;"><i class="fa fa-download"></i>&nbsp;  Export Excel</a>
             </div>
