@@ -608,7 +608,7 @@ return array(
             'pdf' => 'deny',
             'xls' => 'deny',
             'header-text' => 'deny',
-            'recommend' => 'deny',
+            'recommend' => 'allow',
         ),
         'Certification\\Controller\\CertificationMail' => array(
             'index' => 'deny',
@@ -642,20 +642,24 @@ return array(
             'add' => 'deny',
             'edit' => 'deny',
             'export-facility' => 'deny',
-            'map-province' => 'deny',
             'get-province-list' => 'deny',
+            'map-province' => 'deny',
             'get-facility-name' => 'deny',
         ),
         'Certification\\Controller\\Provider' => array(
             'index' => 'deny',
             'add' => 'deny',
+            'certificate-pdf' => 'deny',
             'delete' => 'deny',
             'district' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
             'facility' => 'deny',
+            'frequency-question' => 'deny',
             'login' => 'allow',
             'logout' => 'allow',
+            'send-test-link' => 'deny',
+            'test-frequency' => 'deny',
         ),
         'Application\\Controller\\Roles' => array(
             'index' => 'deny',
@@ -674,6 +678,11 @@ return array(
         ),
         'Application\\Controller\\TestConfig' => array(
             'index' => 'deny',
+            'edit' => 'deny',
+        ),
+        'Application\\Controller\\TestQuestion' => array(
+            'index' => 'deny',
+            'add' => 'deny',
             'edit' => 'deny',
         ),
         'Application\\Controller\\Test' => array(
@@ -703,10 +712,16 @@ return array(
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestQuestion' => array(
+        'Application\\Controller\\PrintTestPdf' => array(
             'index' => 'deny',
             'add' => 'deny',
+            'answer-key-one' => 'deny',
+            'answer-key-two' => 'deny',
+            'change-status' => 'deny',
             'edit' => 'deny',
+            'examination' => 'deny',
+            'print-pdf-question' => 'deny',
+            'view-pdf-question' => 'deny',
         ),
         'Certification\\Controller\\Recertification' => array(
             'index' => 'deny',

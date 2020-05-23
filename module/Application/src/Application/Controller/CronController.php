@@ -16,6 +16,12 @@ class CronController extends AbstractActionController {
        $commonService->sendTempMail();
     }
     
+    public function sendTestAlertMailAction(){
+        $sm = $this->getServiceLocator();
+        $providerTable = $sm->get('Certification\Model\ProviderTable');
+        $providerTable->sendAutoTestLink();
+    }
+    
     public function sendAuditMailAction(){
        $commonService = $this->getServiceLocator()->get('CommonService');
        $commonService->sendAuditMail();

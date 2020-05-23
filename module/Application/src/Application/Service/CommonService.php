@@ -771,5 +771,4 @@ class CommonService {
         return $valArray;
     }
 }
-
 ?>

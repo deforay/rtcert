@@ -869,3 +869,6 @@ CREATE TABLE `test_config_details` (
  KEY `section_id` (`section_id`),
  CONSTRAINT `test_config_details_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `test_sections` (`section_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=10;
+-- Thana 22 May, 2020
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Certificate expiry days for alert', 'certificate-alert-days', '25');
+ALTER TABLE `provider` ADD `test_link_send` VARCHAR(10) NOT NULL DEFAULT 'no' AFTER `link_token`;

@@ -557,12 +557,12 @@ class ProviderTable extends AbstractTableGateway {
         $countryName = $globalDb->getGlobalValue('country-name');
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
-        $prodiver = $this->getProvider(base64_decode($params['providerId']));
+        $provider = $this->getProvider(base64_decode($params['providerId']));
         $update = 0;
         $token = $common->generateRandomString(8);
-        if ($prodiver) {
+        if ($provider) {
             $data['link_token']     = $token;
-            $data['link_send_count']= (((isset($prodiver->link_send_count) && $prodiver->link_send_count != '')?$prodiver->link_send_count:0) +1);
+            $data['link_send_count']= (isset($provider->link_send_count) && $provider->link_send_count != '')?($provider->link_send_count+1):1;
             $data['link_send_on']   = $common->getDateTime();
             $data['link_send_by']   = $sessionLogin->userId;
             $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
@@ -581,14 +581,16 @@ class ProviderTable extends AbstractTableGateway {
     public function getProviderByToken($tester){
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        $checkedRow = array();
+        
         $config = new \Zend\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         $loginQuery = $sql->select()->from('provider')->where('link_token != "" AND link_token IS NOT NULL');
         $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
-        // die($loginStr);
         $result = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         /* Cehck the tester token */
         foreach($result as $row){
+            
             $linkEncode = $row['link_token'] . $configResult["password"]["salt"];
             if($tester == hash('sha256', $linkEncode)){
                 $checkedRow = $row;
@@ -597,10 +599,88 @@ class ProviderTable extends AbstractTableGateway {
         $testConfigDb = new TestConfigTable($dbAdapter);
         $linkExpire = $testConfigDb->fetchTestValue('link-expire');
         /* To cehck the config hour */
-        $hour = abs(strtotime(date('Y-m-d H:i:s')) - strtotime($checkedRow['link_send_on']))/(60*60);
-        if($linkExpire < round($hour)){
+        if(isset($checkedRow) && count($checkedRow) > 0){
+            $hour = abs(strtotime(date('Y-m-d H:i:s')) - strtotime($checkedRow['link_send_on']))/(60*60);
+            if($linkExpire < round($hour)){
+                return false;
+            }
+            return $checkedRow;
+        }else{
             return false;
         }
-        return $checkedRow;
+    }
+
+    public function sendAutoTestLink()
+    {
+        $common = new CommonService($this->sm);
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $certifyId = array();
+        /* Get global value */
+        $globalDb = new GlobalTable($this->adapter);
+        $testConfigDb = new TestConfigTable($this->adapter);
+        $countryName = $globalDb->getGlobalValue('country-name');
+        $days = $globalDb->getGlobalValue('certificate-alert-days');
+        $expire = $testConfigDb->fetchTestValue('link-expire');
+        $expire = (isset($expire) && $expire > 0)?$expire:24;
+        /* Compare expiry days */
+        $compareDate = date('Y-m-d',strtotime('-'.$days.' DAYS'));
+
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('certifyId'=>'id','date_certificate_issued','date_end_validity'))
+        ->join(array('e' => 'examination'),'c.examination=e.id',array('add_to_certification'))
+        ->join(array('p' => 'provider'),'e.provider=p.id',array('providerId'=>'id','first_name','middle_name','last_name','email','test_link_send', 'link_send_count','certification_id'))
+        ->where(array('p.link_token like ""', 'c.date_end_validity >= "'.$compareDate.'"','p.test_link_send'=>'no','p.certification_id not like ""',))
+        ->group('p.id');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        // die($queryStr);
+        $providerResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        if(count($providerResult) > 0){
+            /* Mail services start */
+            $config = new \Zend\Config\Reader\Ini();
+            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+            $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
+            $fromMail = $configResult['provider']['from']['email'];
+            $fromName = $configResult['provider']['from']['name'];
+            $cc = $configResult['provider']['to']['cc'];
+            $bcc = "";
+            
+            foreach($providerResult as $provider){
+                $token = $common->generateRandomString(8);
+                $data['link_token']     = $token;
+                $data['test_link_send'] = 'yes';
+                $data['link_send_count']= (isset($provider['link_send_count']) && $provider['link_send_count'] != '')?($provider['link_send_count']+1):1;;
+                $data['link_send_on']   = $common->getDateTime();
+                $data['link_send_by']   = 0;
+                $this->tableGateway->update($data, array('id' => $provider['providerId']));
+                /* Insert content to temp mail */
+                $to = $provider['email'];
+                $subject = trim("RT Certification test request mail");
+                
+                $linkEncode = $token . $configResult["password"]["salt"];
+                $key = hash('sha256', $linkEncode);
+                $mainReplace = array(
+                    $provider['first_name'].' '.$provider['last_name'],
+                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>"
+                    ,"".$configResult['domain']."/provider/login?u=".$key."");
+
+                $mailContent = trim("Dear<b> ##USER## ,<br><br></b><span>Your RTCQI Certificate ". $provider['certification_id'] ." is expiring on " . $provider['date_end_validity'] . ".
+                <br><br></span>To renew your certificate, you will have to appear for the written and practical tests again.
+                <br><br>We are sending you the link to the written test.
+                <br><br>Please click the following link or copy and paste in your browser address bar
+                <br><br><b>##URLWITHOUTLINK##</b>
+                <br><br>Please note that this link can be used only once and will expire in ".$expire." hours.
+                <br><br>If you have any questions, please feel free to reach out to us.
+                <span>.<br></span><br><br>Thanks and Regards,<br><b>".$countryName."</b> RTCQI Tester Certification Team<b><br></b>");
+                
+                $message = str_replace($mainSearch, $mainReplace, $mailContent);
+                $message = str_replace("&nbsp;", "", strval($message));
+                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $footer = "<br><br>This is an auto-generated email, please don't reply to this email address.<b><br></b><br>";
+                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+                $common->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
+                $certifyId[] = $provider['certifyId'];
+            }
+        }
+        return $certifyId;
     }
 }

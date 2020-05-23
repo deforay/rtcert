@@ -257,6 +257,16 @@ return array(
                         ),
                     ),
                 ),
+                'test-mail-console-route' => array(
+                    'type' => 'simple',
+                    'options' => array(
+                        'route' => 'send-test-alert-mail',
+                        'defaults' => array(
+                            'controller' => 'Application\Controller\Cron',
+                            'action' => 'send-test-alert-mail'
+                        ),
+                    ),
+                ),
                 'db-backup-console-route' => array(
                     'type'    => 'simple',
                     'options' => array(
