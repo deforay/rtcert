@@ -376,9 +376,16 @@ $acl = $this->layout()->acl;
 
                             <div style="margin-top: 25px">
 
+                                <div class="well container">
+                                <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumns">Show/hide</a></h3> 
+                                </div>
+                                <div id="manageColumns">
+                                </div>
+                                </div>
                                 <table id="provider" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" >
                                     <thead>
-                                        <tr>
+                                        <tr class="allproviders">
                                             <th>Certification Registration No</th>
                                             <th > Professional Registration No (if available)</th>
                                             <th style="width:10%;">Certification ID</th>
@@ -392,6 +399,7 @@ $acl = $this->layout()->acl;
                                             <th style="width:10%;">Prefered Contact Method</th>
                                             <th style="width:10%;" >Current Job</th>
                                             <th>Time worked as tester</th>
+                                            <th style="width:10%;" >UserName</th>
                                             <th style="width:10%;" >Facility Name</th>
                                             <th style="width:10%;" >Facility Address</th>
                                             <th>Testing Site In charge Name</th>
@@ -436,7 +444,7 @@ $acl = $this->layout()->acl;
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->current_jod); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->time_worked); ?></div></td>
                                                 <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->username); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->password); ?></div></td>
+                                                <!-- <td><div style="width:120px;height:40px;overflow:auto;">< ?php echo $this->escapeHtml($provider->password); ?></div></td> -->
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_name); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_address); ?></div></td>
                                                 <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_name); ?></div></td>
@@ -484,16 +492,49 @@ $acl = $this->layout()->acl;
 </script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/provider.js'); ?>"></script>
 <script>
-    $(document).ready(function () {
-        $('#provider').dataTable({
+
+$(document).ready(function () {
+        /* 
+            The below snippet dynamically list toggleable button.
+            It can show/hide columns
+        */
+        var listOfColumns = '';
+        $('tr.allproviders').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumns").html(listOfColumns);
+        /* Ends Here */
+
+       var table = $('#provider').DataTable({
             "aProcessing": true,
             "aServerSide": true,
-            "aaSorting": []
+            "aaSorting": [],
         });
-        $("#Country").val(1);
-        showRegion(1);
-    });
 
+        $('a.toggle-vis').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = table.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumns").hide();
+        $("#shBtnManageColumns").click(function(){
+            $("#manageColumns").toggle('fast','linear');
+        });
+                      
+    });
+    
+    /* Toggles Color of button */
+    function toggleBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
     function showRegion(str) {
             if (str == "") {
                document.getElementById("Region").innerHTML = "<option value=''>Please Choose a Country First</option>";
