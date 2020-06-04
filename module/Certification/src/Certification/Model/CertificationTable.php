@@ -338,7 +338,7 @@ class CertificationTable
     {
         $db = $this->tableGateway->getAdapter();
         $sql1 = 'select certification_id, date_end_validity from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and final_decision="certified" and provider=' . $provider . ' ORDER BY date_certificate_issued DESC LIMIT 1';
-        //die($sql1);
+        die($sql1);
         $statement = $db->query($sql1);
         $result = $statement->execute();
         $certification_id = null;
@@ -361,6 +361,7 @@ class CertificationTable
                 $certification_id = null;
             }
         }
+        // \Zend\Debug\Debug::dump($certification_id);die;
         return $certification_id;
     }
 
