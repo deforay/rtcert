@@ -36,6 +36,7 @@ use Application\Model\PretestQuestionsTable;
 use Application\Model\TestsTable;
 use Application\Model\PrintTestPdfTable;
 use Application\Model\PrintTestPdfDetailsTable;
+use Application\Model\MailTemplateTable;
 
 use Application\Service\DashboardService;
 use Application\Service\UserService;
@@ -47,6 +48,7 @@ use Application\Service\TestSectionService;
 use Application\Service\QuestionService;
 use Application\Service\TestService;
 use Application\Service\PrintTestPdfService;
+use Application\Service\MailService;
 
 use Application\Model\Acl;
 use Zend\Mvc\ModuleRouteListener;
@@ -280,6 +282,11 @@ class Module
                     $table = new PrintTestPdfDetailsTable($dbAdapter);
                     return $table;
                 },
+                'MailTemplateTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new MailTemplateTable($dbAdapter);
+                    return $table;
+                },
 
                 'DashboardService' => function ($sm) {
                     return new DashboardService($sm);
@@ -313,6 +320,9 @@ class Module
                 },
                 'PrintTestPdfService' => function($sm) {
                     return new PrintTestPdfService($sm);
+                },
+                'MailService' => function($sm) {
+                    return new MailService($sm);
                 },
             ),
 

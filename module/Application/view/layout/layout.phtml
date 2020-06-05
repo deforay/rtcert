@@ -64,6 +64,9 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Users", "index
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganization", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
 }
+if (isset($acl) && $acl->isAllowed($role, "Application\Controller\MailTemplate", "index")) {
+	$adminMenu .= "<li><a href=" . $this->url('mail-template', array('action' => 'index')) . ">Mail Template</a></li>";
+}
 
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdf", "index")) {
 	$testerMenu .= "<li><a href=" . $this->url('print-test-pdf', array('action' => 'index')) . ">Print Written Test</a></li>";

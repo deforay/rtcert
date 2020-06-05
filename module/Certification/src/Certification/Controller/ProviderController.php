@@ -395,8 +395,10 @@ class ProviderController extends AbstractActionController {
                 $subject = trim("RT Certification test request mail");
                 
                 $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
+                
                 $linkEncode = $provider['provider']->link_token . $configResult["password"]["salt"];
                 $key = hash('sha256', $linkEncode);
+                
                 $mainReplace = array(
                     $provider['provider']->first_name.' '.$provider['provider']->last_name,
                     "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>"

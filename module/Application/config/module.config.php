@@ -186,7 +186,17 @@ return array(
                           'action' => 'index',
                      ),
                 ),
-           ),
+            ),
+            'mail-template' => array(
+                'type' => 'segment',
+                'options' => array(
+                     'route' => '/mail-template[/:action][/][:id]',
+                     'defaults' => array(
+                          'controller' => 'Application\Controller\MailTemplate',
+                          'action' => 'index',
+                     ),
+                ),
+            ),
         ),
     ),
     'service_manager' => array(
@@ -225,6 +235,7 @@ return array(
             'Application\Controller\TestQuestion'   => 'Application\Controller\TestQuestionController',
             'Application\Controller\Test'           => 'Application\Controller\TestController',
             'Application\Controller\PrintTestPdf'   => 'Application\Controller\PrintTestPdfController',
+            'Application\Controller\MailTemplate'   => 'Application\Controller\MailTemplateController',
         ),
     ),
     'view_manager' => array(

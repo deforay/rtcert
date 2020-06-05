@@ -167,7 +167,20 @@ class PretestQuestionsTable extends AbstractTableGateway {
         // die($sQueryStr);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         $maxQuestion = $testConfigDb->fetchTestConfigDetails();
+        $sResult['preTestQuestion'] = $this->getQuestionList($testResult['testStatus']['test_id'],'pretest_questions');
         $sResult['maxQuestion'] = $maxQuestion[1]['test_config_value'];
+        return $sResult;
+    }
+
+    public function getQuestionList($testId,$tableName)
+    {
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('ptq' => $tableName))
+                                ->join(array('q' => 'test_questions'), 'q.question_id = ptq.question_id', array('correct_option_text'))
+                                ->where(array('ptq.test_id'=>$testId));
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $sResult;
     }
 }

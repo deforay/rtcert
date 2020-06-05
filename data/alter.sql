@@ -872,3 +872,17 @@ CREATE TABLE `test_config_details` (
 -- Thana 22 May, 2020
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Certificate expiry days for alert', 'certificate-alert-days', '25');
 ALTER TABLE `provider` ADD `test_link_send` VARCHAR(10) NOT NULL DEFAULT 'no' AFTER `link_token`;
+
+-- Thana 04 Jun, 2020
+INSERT INTO `resources` (`resource_id`, `display_name`) VALUES ('Application\\Controller\\MailTemplate', 'Mail Template');
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\MailTemplate', 'index', 'Manage Mail Template');
+CREATE TABLE `mail_template` (
+ `mail_temp_id` int NOT NULL AUTO_INCREMENT,
+ `mail_purpose` varchar(255) NOT NULL,
+ `from_name` varchar(255) DEFAULT NULL,
+ `mail_from` varchar(255) DEFAULT NULL,
+ `mail_subject` varchar(255) DEFAULT NULL,
+ `mail_content` text,
+ `mail_footer` text,
+ PRIMARY KEY (`mail_temp_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;

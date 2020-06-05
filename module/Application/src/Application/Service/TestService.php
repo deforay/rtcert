@@ -43,8 +43,39 @@ class TestService{
 
     
     public function getPreResultDetails(){
+        $config = new \Zend\Config\Reader\Ini();
         $db = $this->sm->get('PreTestQuestionsTable');
-        return $db->fetchPreResultDetails();
+        $testConfigDb = $this->sm->get('TestConfigTable');
+        $tempMailDb = $this->sm->get('TempMailTable');
+        $mailTemplateDb = $this->sm->get('MailTemplateTable');
+        $preResult = $db->fetchPreResultDetails();
+        $configResult = $testConfigDb->fetchTestConfig();
+        // To send passed certificate to slmta biosafety users
+        $maxQuestion = count($preResult['preTestQuestion']);    
+        $score = ($preResult['pre_test_score'] / $maxQuestion);
+        $total = round($score * 100);
+        if($total>=$configResult['0']['test_config_value']){
+            $mailTemplateDetails = $mailTemplateDb->fetchMailTemplate('biosafetyUserActivation');
+            $testsDb = $this->sm->get('TestsTable');
+            $result = $testsDb->fetchCertificateFieldDetails($preResult['test_id']);
+            $fileAttached = $this->saveCertificate($result);
+            $preTestDate = explode(" ",$result['field']['pretest_end_datetime']);
+            $dateFormat = date("d, M Y", strtotime($preTestDate[0]));;
+            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+            $toMail = $preResult['email_id'];
+            $cc = $mailTemplateDetails['mail_from'];
+            $bcc = $mailTemplateDetails['mail_from'];
+            $subject = "Certificate for Safety Familiarization for Clinicians course";
+            $message = "Dear ".$preResult['full_name'].",<br><br>";
+            $message.="Thank you for completing the Safety Familiarization for Clinicians course. Your certificate ".$result['field']['certificate_no']." dated ".$dateFormat." is attached with this email.<br><br>";
+            $message.= "Regards,<br>Biosafety eLearning Team";
+            $footer = $mailTemplateDetails['mail_footer'];
+            $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+            $fromMail = $mailTemplateDetails['mail_from'];
+            $fromName = $mailTemplateDetails['from_name'];
+            $tempMailDb->insertTempMail($message,$fromMail,$toMail,$cc,$bcc,$subject,$fromName,$fileAttached['filename']);
+        }
+        return $preResult;
     }
     /* Add data to post test  table */
     public function addPostTestData($params){
