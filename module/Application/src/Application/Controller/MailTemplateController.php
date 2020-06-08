@@ -1,31 +1,42 @@
 <?php
-namespace Admin\Controller;
+namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Json\Json;
 use Zend\View\Model\ViewModel;
+use Zend\Mvc\Controller\AbstractActionController;
 
 class MailTemplateController extends AbstractActionController{
 
     public function indexAction(){
         $request = $this->getRequest();
+        if ($request->isPost()){
+            $parameters = $request->getPost();
+            $mailServices = $this->getServiceLocator()->get('MailService');
+            $result = $mailServices->getMailServiceListInGrid($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function addAction(){
+        $request = $this->getRequest();
         $mailServices =$this->getServiceLocator()->get('MailService');
         if($request->isPost()){
             $param = $request->getPost();
-            $mailServices->updateMailTemplateDetails($param);
-            return $this->redirect()->toRoute('mail-template', array('action' => 'index','id' => $param['mailPurpose']));   
+            $mailServices->saveMailTemplateDetails($param);
+            return $this->redirect()->toRoute('mail-template'); 
         }
-        else{
-            $mailHead='';
-            $mailPurpose=$this->params()->fromRoute('id');
-            if($mailPurpose=='userActivation'){
-                $mailHead='User Activation Mail Template';
-            }
-            $mailTemplate = $mailServices->getMailTemplate($mailPurpose);
-            return new ViewModel(array(
-                'mailhead'=>$mailHead,
-                'mailPurpose'=>$mailPurpose,
-                'mailtemplate' => $mailTemplate
-            ));
+    }
+    
+    public function editAction(){
+        $request = $this->getRequest();
+        $mailServices =$this->getServiceLocator()->get('MailService');
+        if($request->isPost()){
+            $param = $request->getPost();
+            $mailServices->saveMailTemplateDetails($param);
+            return $this->redirect()->toRoute('mail-template');
+        } else{
+            $id=base64_decode($this->params()->fromRoute('id'));
+            return new ViewModel(array('result' => $mailServices->getMailTemplate($id)));
         }
     }
 

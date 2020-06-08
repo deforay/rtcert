@@ -875,7 +875,7 @@ ALTER TABLE `provider` ADD `test_link_send` VARCHAR(10) NOT NULL DEFAULT 'no' AF
 
 -- Thana 04 Jun, 2020
 INSERT INTO `resources` (`resource_id`, `display_name`) VALUES ('Application\\Controller\\MailTemplate', 'Mail Template');
-INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\MailTemplate', 'index', 'Manage Mail Template');
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\MailTemplate', 'index', 'Access Template'), ('Application\\Controller\\MailTemplate', 'add', 'Add New Template'), ('Application\\Controller\\MailTemplate', 'edit', 'Edit Template');
 CREATE TABLE `mail_template` (
  `mail_temp_id` int NOT NULL AUTO_INCREMENT,
  `mail_purpose` varchar(255) NOT NULL,
@@ -886,3 +886,7 @@ CREATE TABLE `mail_template` (
  `mail_footer` text,
  PRIMARY KEY (`mail_temp_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+ALTER TABLE `mail_template` ADD `mail_status` VARCHAR(50) NULL DEFAULT 'inactive' AFTER `mail_footer`;
+
+ALTER TABLE `mail_template` ADD `mail_title` VARCHAR(255) NULL DEFAULT NULL AFTER `mail_temp_id`;
