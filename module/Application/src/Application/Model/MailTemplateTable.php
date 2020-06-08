@@ -150,6 +150,10 @@ class MailTemplateTable extends AbstractTableGateway {
     public function fetchMailTemplate($id) {
        return $this->select(array('mail_temp_id' =>$id))->current();
     }
+    
+    public function fetchMailTemplateByPurpose($purpose) {
+       return $this->select(array('mail_purpose' =>$purpose,'mail_status' => 'active'))->current();
+    }
     public function saveMailTemplate($params) {
         // Debug::dump($params);die;
         $params['mainContent'] = str_replace("&nbsp;"," ",strval($params['mainContent']));

@@ -7,6 +7,7 @@ use Zend\Session\Container;
 use Zend\Db\Adapter\Adapter;
 use \Application\Service\CommonService;
 use TCPDF;
+use Zend\Debug\Debug;
 use Zend\Mail\Transport\Smtp as SmtpTransport;
 use Zend\Mail\Transport\SmtpOptions;
 use Zend\Mail;
@@ -49,32 +50,53 @@ class TestService{
         $tempMailDb = $this->sm->get('TempMailTable');
         $mailTemplateDb = $this->sm->get('MailTemplateTable');
         $preResult = $db->fetchPreResultDetails();
-        $configResult = $testConfigDb->fetchTestConfig();
-        // To send passed certificate to slmta biosafety users
+        $configs = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+        
+        $passScore = $testConfigDb->fetchTestValue('passing-percentage');
         $maxQuestion = count($preResult['preTestQuestion']);    
         $score = ($preResult['pre_test_score'] / $maxQuestion);
         $total = round($score * 100);
-        if($total>=$configResult['0']['test_config_value']){
-            $mailTemplateDetails = $mailTemplateDb->fetchMailTemplate('biosafetyUserActivation');
+       
+        // To send result to the providers
+        $toMail = $preResult['email_id'];
+        $cc = $configs['provider']['to']['cc'];
+        $bcc = $configs['provider']['to']['bcc'];
+
+        // if($total>=$passScore){
+        if(true){
+            $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose('online-test-mail-pass');
             $testsDb = $this->sm->get('TestsTable');
-            $result = $testsDb->fetchCertificateFieldDetails($preResult['test_id']);
-            $fileAttached = $this->saveCertificate($result);
-            $preTestDate = explode(" ",$result['field']['pretest_end_datetime']);
-            $dateFormat = date("d, M Y", strtotime($preTestDate[0]));;
-            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-            $toMail = $preResult['email_id'];
-            $cc = $mailTemplateDetails['mail_from'];
-            $bcc = $mailTemplateDetails['mail_from'];
-            $subject = "Certificate for Safety Familiarization for Clinicians course";
-            $message = "Dear ".$preResult['full_name'].",<br><br>";
-            $message.="Thank you for completing the Safety Familiarization for Clinicians course. Your certificate ".$result['field']['certificate_no']." dated ".$dateFormat." is attached with this email.<br><br>";
-            $message.= "Regards,<br>Biosafety eLearning Team";
-            $footer = $mailTemplateDetails['mail_footer'];
-            $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
-            $fromMail = $mailTemplateDetails['mail_from'];
-            $fromName = $mailTemplateDetails['from_name'];
-            $tempMailDb->insertTempMail($message,$fromMail,$toMail,$cc,$bcc,$subject,$fromName,$fileAttached['filename']);
+            $result = $testsDb->fetchTestsDetailsByTestId($preResult['preTestQuestion'][0]['test_id']);
+            // $fileAttached = $this->saveCertificate($result);
+            Debug::dump($result);die;
+            if($mailTemplateDetails){
+                $fromName = $mailTemplateDetails['from_name'];
+                $fromMail = $mailTemplateDetails['mail_from'];
+                $subject = $mailTemplateDetails['mail_subject'];
+
+                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##', '##TESTNAME##', '##SCORE##');
+                $message = str_replace($mainSearch, ' ', $mailTemplateDetails['mail_content']);
+                $message = str_replace("&nbsp;", "", strval($message));
+                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $footer = $mailTemplateDetails['mail_footer'];
+                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+            }
+        } else{
+            $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose('online-test-mail-fail');
+            if($mailTemplateDetails){
+                $fromName = $mailTemplateDetails['from_name'];
+                $fromMail = $mailTemplateDetails['mail_from'];
+                $subject = $mailTemplateDetails['mail_subject'];
+
+                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##', '##TESTNAME##', '##SCORE##');
+                $message = str_replace($mainSearch, ' ', $mailTemplateDetails['mail_content']);
+                $message = str_replace("&nbsp;", "", strval($message));
+                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $footer = $mailTemplateDetails['mail_footer'];
+                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+            }
         }
+        $tempMailDb->insertTempMail($message,$fromMail,$toMail,$cc,$bcc,$subject,$fromName,null);
         return $preResult;
     }
     /* Add data to post test  table */
@@ -96,45 +118,6 @@ class TestService{
     public function getPostTestAllDetails(){
         $db = $this->sm->get('PostTestQuestionsTable');
         return $db->fetchPostTestAllDetails();
-    }
-
-
-    public function getPostResultDetails(){
-        $config = new \Zend\Config\Reader\Ini();
-        $db = $this->sm->get('PostTestQuestionsTable');
-        $testConfigDb = $this->sm->get('TestConfigTable');
-        $tempMailDb = $this->sm->get('TempMailTable');
-        $mailTemplateDb = $this->sm->get('MailTemplateTable');
-        $postResult = $db->fetchPostResultDetails();
-        $configResult = $testConfigDb->fetchTestConfigDetails();
-        // To send passed certificate to slmta biosafety users
-        $maxQuestion = count($postResult['preTestQuestion']);    
-        $score = ($postResult['post_test_score'] / $maxQuestion);
-        $total = round($score * 100);
-        if($total>=$configResult['0']['test_config_value']){
-            $mailTemplateDetails = $mailTemplateDb->fetchMailTemplate('biosafetyUserActivation');
-            $testsDb = $this->sm->get('TestsTable');
-            $result = $testsDb->fetchCertificateFieldDetails($postResult['test_id']);
-            $fileAttached = $this->saveCertificate($result);
-            $postTestDate = explode(" ",$result['field']['posttest_end_datetime']);
-            $dateFormat = date("d, M Y", strtotime($postTestDate[0]));;
-            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-            $userName = ucwords($postResult['full_name']);
-            $domainUrlforLink = substr($configResult['domain'],0,-1);
-            $toMail = $postResult['email_id'];
-            $cc = $mailTemplateDetails['mail_from'];
-            $bcc = $mailTemplateDetails['mail_from'];
-            $subject = "Certificate for Safety Familiarization for Clinicians course";
-            $message = "Dear ".$postResult['full_name'].",<br><br>";
-            $message.="Thank you for completing the Safety Familiarization for Clinicians course. Your certificate ".$result['field']['certificate_no']." dated ".$dateFormat." is attached with this email.<br><br>";
-            $message.= "Regards,<br>Biosafety eLearning Team";
-            $footer = $mailTemplateDetails['mail_footer'];
-            $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
-            $fromMail = $mailTemplateDetails['mail_from'];
-            $fromName = $mailTemplateDetails['from_name'];
-            $tempMailDb->insertTempMail($message,$fromMail,$toMail,$cc,$bcc,$subject,$fromName,$fileAttached['filename']);
-        }
-        return $postResult;
     }
 
     function saveCertificate($result){

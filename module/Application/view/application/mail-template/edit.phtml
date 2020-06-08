@@ -61,10 +61,7 @@ use Zend\Debug\Debug;
                                 <div class="form-group col-lg-6">
                                     <label for="mailTitle" class="col-sm-6 control-label">Mail Purpose <span class="mandatory">*</span></label>
                                     <input type="text" class="form-control isRequired" id="mailTitle" name="mailTitle" placeholder="From mail purpose" title="Please enter mail purpose" value="<?php echo $result['mail_title']; ?>"/>
-                                </div>
-                                <div class="form-group col-lg-6">
-                                    <label for="fromName" class="col-sm-6 control-label">Mail Purpose slug <span class="mandatory">*</span></label>
-                                    <input type="text" class="form-control isRequired" id="mailPurpose" name="mailPurpose" placeholder="Enter the purpose first" value="<?php echo $result['mail_purpose'];?>" readonly/>
+                                    <input type="hidden" class="form-control" id="mailPurpose" name="mailPurpose" placeholder="Enter the purpose first" value="<?php echo $result['mail_purpose'];?>" readonly/>
                                 </div>
 
                                 <div class="form-group col-lg-6">
@@ -104,6 +101,8 @@ use Zend\Debug\Debug;
                                         <div><b>##PASSWORD##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Password of the user</div>
                                         <div><b>##URL##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp URL for activating the account</div>
                                         <div><b>##URLWITHOUTLINK##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp simple URL(without) for activating the account</div>
+                                        <div><b>##TESTNAME##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Name of the Test to be send to tester</div>
+                                        <div><b>##SCORE##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Total score earned from the test</div>
                                     </div>
                                 </div>
 
@@ -126,9 +125,9 @@ use Zend\Debug\Debug;
 <script type="text/javascript">
     $(document).ready(function(){
         $(".richtextarea").wysihtml5();
-		$("#mailTitle").stringToSlug({
+		/* $("#mailTitle").stringToSlug({
 			getPut : "#mailPurpose"
-		});
+		}); */
 	});
     function validateNow() {
         flag = deforayValidator.init({
