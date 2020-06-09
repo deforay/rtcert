@@ -142,6 +142,7 @@ class TrainingController extends AbstractActionController {
             $region = $request->getPost('region');
             $district = $request->getPost('district');
             $facility = $request->getPost('facility_id');
+            $excludeTesterName = $request->getPost('exclude_tester_name');
             $training = $this->getTrainingTable()->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
 
             $objPHPExcel = new \PHPExcel();
@@ -218,9 +219,9 @@ class TrainingController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $training['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $training['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $training['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $training['last_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, $training['first_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, $training['middle_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['last_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['first_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['middle_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($training['country_name']))?$training['country_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($training['region_name']))?$training['region_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($training['district_name']))?$training['district_name']:'');

@@ -145,7 +145,18 @@ class TrainingForm extends Form {
             ),
         ));
 
-
+        $this->add(array(
+            'name' => 'exclude_tester_name',
+            'type' => 'Zend\Form\Element\Select',
+            'options' => array(
+                'label' => 'Exclude Tester Name',
+                'empty_option' => 'Please choose exclude tester name',
+                'value_options' => array(
+                    'yes'     => 'Yes',
+                    'no'  => 'No'
+                ),
+            ),
+        ));
 
         $this->add(array(
             'name' => 'submit',

@@ -61,7 +61,18 @@ use Zend\Debug\Debug;
                                 <div class="form-group col-lg-6">
                                     <label for="mailTitle" class="col-sm-6 control-label">Mail Purpose <span class="mandatory">*</span></label>
                                     <input type="text" class="form-control isRequired" id="mailTitle" name="mailTitle" placeholder="From mail purpose" title="Please enter mail purpose" value="<?php echo $result['mail_title']; ?>"/>
-                                    <input type="hidden" class="form-control" id="mailPurpose" name="mailPurpose" placeholder="Enter the purpose first" value="<?php echo $result['mail_purpose'];?>" readonly/>
+                                </div>
+
+                                <div class="form-group col-lg-6">
+                                    <label for="fromName" class="col-sm-6 control-label">Mail Purpose <span class="mandatory">*</span></label>
+                                    <select class="form-control isRequired" name="mailPurpose" id="mailPurpose" title="Please select mail purpose">
+                                        <option value="">--Select--</option>
+                                        <option value="send-online-test-link" <?php echo (isset($result['mail_purpose']) && $result['mail_purpose'] =='send-online-test-link')?"selected='selected'":"";?>>Send Online Test Link</option>
+                                        <option value="online-test-mail-fail" <?php echo (isset($result['mail_purpose']) && $result['mail_purpose'] =='online-test-mail-fail')?"selected='selected'":"";?>>Online Test Mail for Fail</option>
+                                        <option value="online-test-mail-pass" <?php echo (isset($result['mail_purpose']) && $result['mail_purpose'] =='online-test-mail-pass')?"selected='selected'":"";?>>Online Test Mail for Pass</option>
+                                        <option value="certificate-reminder" <?php echo (isset($result['mail_purpose']) && $result['mail_purpose'] =='certificate-reminder')?"selected='selected'":"";?>>Certificate Reminder</option>
+                                        <option value="send-certificate" <?php echo (isset($result['mail_purpose']) && $result['mail_purpose'] =='send-certificate')?"selected='selected'":"";?>>Send Certificate</option>
+                                    </select>
                                 </div>
 
                                 <div class="form-group col-lg-6">
