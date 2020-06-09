@@ -44,12 +44,18 @@ class TestService{
 
     
     public function getPreResultDetails(){
-        $config = new \Zend\Config\Reader\Ini();
         $db = $this->sm->get('PreTestQuestionsTable');
+        /* Check the provider already got mail */
+        $preResult = $db->fetchPreResultDetails();
+        if($preResult['test_mail_send'] == 'yes'){
+            return $preResult;
+        }
+
+        $config = new \Zend\Config\Reader\Ini();
         $testConfigDb = $this->sm->get('TestConfigTable');
         $tempMailDb = $this->sm->get('TempMailTable');
         $mailTemplateDb = $this->sm->get('MailTemplateTable');
-        $preResult = $db->fetchPreResultDetails();
+
         $configs = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         
         $passScore = $testConfigDb->fetchTestValue('passing-percentage');
@@ -58,24 +64,26 @@ class TestService{
         $total = round($score * 100);
        
         // To send result to the providers
-        $toMail = $preResult['email_id'];
+        $toMail = $preResult['email'];
         $cc = $configs['provider']['to']['cc'];
         $bcc = $configs['provider']['to']['bcc'];
 
-        // if($total>=$passScore){
-        if(true){
+        // Debug::dump($preResult);die;
+        if($total>=$passScore){
+        // if(true){
             $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose('online-test-mail-pass');
             $testsDb = $this->sm->get('TestsTable');
             $result = $testsDb->fetchTestsDetailsByTestId($preResult['preTestQuestion'][0]['test_id']);
             // $fileAttached = $this->saveCertificate($result);
-            Debug::dump($result);die;
             if($mailTemplateDetails){
                 $fromName = $mailTemplateDetails['from_name'];
                 $fromMail = $mailTemplateDetails['mail_from'];
                 $subject = $mailTemplateDetails['mail_subject'];
 
-                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##', '##TESTNAME##', '##SCORE##');
-                $message = str_replace($mainSearch, ' ', $mailTemplateDetails['mail_content']);
+                $mainSearch = array('##USER##','##TESTNAME##', '##SCORE##');
+                $mainReplace = array($preResult['first_name'].' '.$preResult['last_name'], 'RTCQI Online Test' ,$total);
+                
+                $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
                 $footer = $mailTemplateDetails['mail_footer'];
@@ -83,20 +91,22 @@ class TestService{
             }
         } else{
             $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose('online-test-mail-fail');
+            // Debug::dump($mailTemplateDetails);die;
             if($mailTemplateDetails){
                 $fromName = $mailTemplateDetails['from_name'];
                 $fromMail = $mailTemplateDetails['mail_from'];
                 $subject = $mailTemplateDetails['mail_subject'];
 
-                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##', '##TESTNAME##', '##SCORE##');
-                $message = str_replace($mainSearch, ' ', $mailTemplateDetails['mail_content']);
+                $mainSearch = array('##USER##','##TESTNAME##', '##SCORE##');
+                $mainReplace = array($preResult['first_name'].$preResult['last_name'], 'RTCQI Online Test' ,$total);
+                $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
                 $footer = $mailTemplateDetails['mail_footer'];
                 $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
             }
         }
-        $tempMailDb->insertTempMail($message,$fromMail,$toMail,$cc,$bcc,$subject,$fromName,null);
+        $tempMailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
         return $preResult;
     }
     /* Add data to post test  table */

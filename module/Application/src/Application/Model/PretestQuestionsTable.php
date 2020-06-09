@@ -161,6 +161,7 @@ class PretestQuestionsTable extends AbstractTableGateway {
         $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
         $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('totalCount' => new \Zend\Db\Sql\Expression('COUNT(pre_test_id)')))
                                 ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('pre_test_score'))
+                                ->join(array('p' => 'provider'), 'p.id = t.user_id', array('id', 'first_name', 'last_name' ,'email' ,'phone', 'test_mail_send'))
                                 ->where(array('t.user_id' => $logincontainer->userId,'t.test_id'=>$testResult['testStatus']['test_id']))
                                 ->order('pt.test_id DESC');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);

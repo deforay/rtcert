@@ -683,4 +683,15 @@ class ProviderTable extends AbstractTableGateway {
         }
         return $certifyId;
     }
+
+    public function updateTestMailSendStatus($id = '')
+    {
+        if(isset($id) && $id != ''){
+            $id = $id;
+        } else{
+            $logincontainer = new Container('credo');
+            $id = $logincontainer->userId;
+        }
+        $this->tableGateway->update(array('test_mail_send' => 'yes'), array('id' => $id));
+    }
 }

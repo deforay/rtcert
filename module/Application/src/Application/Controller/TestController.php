@@ -33,6 +33,9 @@ class TestController extends AbstractActionController{
                 $container->alertMsg ="Your test not started we'll announce to you once activated.";
                 return $this->redirect()->toUrl('/');
             }
+            $sm = $this->getServiceLocator();
+            $providerTable = $sm->get('Certification\Model\ProviderTable');
+            $providerTable->updateTestMailSendStatus();
             return new ViewModel(array(
                 'questionResult'=>$questionResult
             ));
@@ -54,6 +57,11 @@ class TestController extends AbstractActionController{
     public function resultAction(){
         $testService = $this->getServiceLocator()->get('TestService');
         $preResult = $testService->getPreResultDetails();
+        if($preResult['test_mail_send'] != 'yes'){
+            $sm = $this->getServiceLocator();
+            $providerTable = $sm->get('Certification\Model\ProviderTable');
+            $providerTable->updateTestMailSendStatus($preResult['id']);
+        }
         $redirect = $testService->getPostTestCompleteDetails();
         $commonService = $this->getServiceLocator()->get('CommonService');
         $configResult = $commonService->getTestConfigDetails();

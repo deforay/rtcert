@@ -886,7 +886,9 @@ CREATE TABLE `mail_template` (
  `mail_footer` text,
  PRIMARY KEY (`mail_temp_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
-
+-- Thana 08 Jun, 2020
 ALTER TABLE `mail_template` ADD `mail_status` VARCHAR(50) NULL DEFAULT 'inactive' AFTER `mail_footer`;
 
 ALTER TABLE `mail_template` ADD `mail_title` VARCHAR(255) NULL DEFAULT NULL AFTER `mail_temp_id`;
+-- Thana 09 Jun, 2020
+ALTER TABLE `provider` ADD `test_mail_send` VARCHAR(20) NOT NULL DEFAULT 'no' AFTER `test_link_send`;
