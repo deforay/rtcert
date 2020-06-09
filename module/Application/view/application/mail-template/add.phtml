@@ -103,11 +103,15 @@ use Zend\Debug\Debug;
                                         <div><b>##URLWITHOUTLINK##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp simple URL(without) for activating the account</div>
                                         <div><b>##TESTNAME##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Name of the Test to be send to tester</div>
                                         <div><b>##SCORE##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Total score earned from the test</div>
+                                        <div><b>##CERTIFICATE_NUMBER##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Certificate Number to be display</div>
+                                        <div><b>##CERTIFICATE_EXPIRY_DATE##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Certificate expiry date to be display</div>
+                                        <div><b>##EXPIRY_HOURS##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Mail expiry hourse from global config</div>
+                                        <div><b>##COUNTRY##</b>&nbsp&nbsp&nbsp   --- &nbsp&nbsp Country name should showing from global config</div>
                                     </div>
                                 </div>
 
                                 <div class="spacer col-lg-12 text-center">
-                                    <input type="button" class="btn btn-primary" value="Update" onclick="validateNow(); return false;">
+                                    <input type="button" class="btn btn-primary" value="Create" onclick="validateNow(); return false;">
                                     &nbsp;&nbsp;&nbsp;<a href="<?php echo $this->url('mail-template'); ?>" class="btn btn-default">Cancel</a>
                                 </div>
                             </form>

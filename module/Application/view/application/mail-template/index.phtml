@@ -29,10 +29,10 @@ if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) {
             <table id="mailTemplate" class="table table-bordered table-hover"  style="width:100%;">
               <thead>
                 <tr>
+                    <th style="width: 25%;">Title</th>
                     <th style="width: 20%;">From Name</th>
                     <th style="width: 20%;">From Mail</th>
                     <th style="width: 25%;">Subject</th>
-                    <th style="width: 25%;">Title</th>
                     <th style="width: 5%;">Status</th>
                     <?php if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) { ?>
                       <th style="width: 5%;">Action</th>

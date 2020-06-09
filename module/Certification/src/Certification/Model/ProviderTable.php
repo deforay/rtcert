@@ -11,6 +11,7 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Sql\Select;
 use \Application\Model\GlobalTable;
 use \Application\Model\TestConfigTable;
+use \Application\Model\MailTemplateTable;
 use \Application\Service\CommonService;
 use Zend\Db\Sql\Ddl\Column\Datetime;
 
@@ -619,6 +620,7 @@ class ProviderTable extends AbstractTableGateway {
         /* Get global value */
         $globalDb = new GlobalTable($this->adapter);
         $testConfigDb = new TestConfigTable($this->adapter);
+        $mailTemplateDb = new MailTemplateTable($this->adapter);
         $countryName = $globalDb->getGlobalValue('country-name');
         $days = $globalDb->getGlobalValue('certificate-alert-days');
         $expire = $testConfigDb->fetchTestValue('link-expire');
@@ -638,11 +640,13 @@ class ProviderTable extends AbstractTableGateway {
             /* Mail services start */
             $config = new \Zend\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-            $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
-            $fromMail = $configResult['provider']['from']['email'];
-            $fromName = $configResult['provider']['from']['name'];
-            $cc = $configResult['provider']['to']['cc'];
-            $bcc = "";
+            $mainSearch = array('##USER##', '##CERTIFICATE_NUMBER##', '##CERTIFICATE_EXPIRY_DATE##', '##URLWITHOUTLINK##', '##EXPIRY_HOURS##' ,'##COUNTRY##');
+            $mailTemplatesDetals = $mailTemplateDb->fetchMailTemplateByPurpose('certificate-reminder');
+            $fromMail   = $mailTemplatesDetals['mail_from'];
+            $fromName   = $mailTemplatesDetals['from_name'];
+            $subject    = $mailTemplatesDetals['mail_subject'];
+            $cc         = $configResult['provider']['to']['cc'];
+            $bcc        = "";
             
             foreach($providerResult as $provider){
                 $token = $common->generateRandomString(8);
@@ -654,29 +658,24 @@ class ProviderTable extends AbstractTableGateway {
                 $this->tableGateway->update($data, array('id' => $provider['providerId']));
                 /* Insert content to temp mail */
                 $to = $provider['email'];
-                $subject = trim("RT Certification test request mail");
                 
                 $linkEncode = $token . $configResult["password"]["salt"];
                 $key = hash('sha256', $linkEncode);
-                $mainReplace = array(
-                    $provider['first_name'].' '.$provider['last_name'],
-                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>"
-                    ,"".$configResult['domain']."/provider/login?u=".$key."");
+                $mailReplace = array(
+                    $provider['first_name'].' '.$provider['last_name'], 
+                    $provider['certification_id'],
+                    $provider['date_end_validity'],
+                    "".$configResult['domain']."/provider/login?u=".$key."",
+                    $expire,
+                    $countryName
+                );
 
-                $mailContent = trim("Dear<b> ##USER## ,<br><br></b><span>Your RTCQI Certificate ". $provider['certification_id'] ." is expiring on " . $provider['date_end_validity'] . ".
-                <br><br></span>To renew your certificate, you will have to appear for the written and practical tests again.
-                <br><br>We are sending you the link to the written test.
-                <br><br>Please click the following link or copy and paste in your browser address bar
-                <br><br><b>##URLWITHOUTLINK##</b>
-                <br><br>Please note that this link can be used only once and will expire in ".$expire." hours.
-                <br><br>If you have any questions, please feel free to reach out to us.
-                <span>.<br></span><br><br>Thanks and Regards,<br><b>".$countryName."</b> RTCQI Tester Certification Team<b><br></b>");
+                $mailContent = trim($mailTemplatesDetals['mail_content']);
                 
-                $message = str_replace($mainSearch, $mainReplace, $mailContent);
+                $message = str_replace($mainSearch, $mailReplace, $mailContent);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
-                $footer = "<br><br>This is an auto-generated email, please don't reply to this email address.<b><br></b><br>";
-                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+                $message = html_entity_decode($message . $mailTemplatesDetals['mail_footer'], ENT_QUOTES, 'UTF-8');
                 $common->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
                 $certifyId[] = $provider['certifyId'];
             }

@@ -134,10 +134,10 @@ class MailTemplateTable extends AbstractTableGateway {
         
         foreach ($rResult as $aRow) {
             $row = array();
+            $row[] = ucwords($aRow['mail_title']);
             $row[] = ucwords($aRow['from_name']);
             $row[] = $aRow['mail_from'];
             $row[] = ucwords($aRow['mail_subject']);
-            $row[] = ucwords($aRow['mail_title']);
             $row[] = ucwords($aRow['mail_status']);
             if ($acl->isAllowed($role, 'Application\Controller\MailTemplate', 'edit')) {
                 $row[] = '<a href="/mail-template/edit/' . base64_encode($aRow['mail_temp_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';

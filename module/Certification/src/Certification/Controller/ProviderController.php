@@ -7,6 +7,7 @@ use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Provider;
 use Certification\Form\ProviderForm;
+use Zend\Debug\Debug;
 use Zend\Json\Json;
 
 class ProviderController extends AbstractActionController {
@@ -389,36 +390,38 @@ class ProviderController extends AbstractActionController {
             $provider = $this->getProviderTable()->saveLinkSend($params);
             if(isset($provider['provider']->email) && $provider['provider']->email != '' && $provider['provider']->email != null){
                 /* Mail services start */
+                $commonService = $this->getServiceLocator()->get('CommonService');
+                $mailTemplates = $commonService->getMailTemplateByPurpose('send-online-test-link');
                 $config = new \Zend\Config\Reader\Ini();
                 $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
                 $to = $provider['provider']->email;
-                $subject = trim("RT Certification test request mail");
                 
-                $mainSearch = array('##USER##','##URL##','##URLWITHOUTLINK##');
+                $mailSearch = array('##USER##', '##URL##', '##URLWITHOUTLINK##' ,'##COUNTRY##');
                 
                 $linkEncode = $provider['provider']->link_token . $configResult["password"]["salt"];
                 $key = hash('sha256', $linkEncode);
                 
-                $mainReplace = array(
+                $mailReplace = array(
                     $provider['provider']->first_name.' '.$provider['provider']->last_name,
-                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>"
-                    ,"".$configResult['domain']."/provider/login?u=".$key."");
-                $mailContent = trim("HI<b> ##USER## ,<br><br></b><span>You are invited to attend online Safety Familiarization for Clinicians Test.
-                <br><br></span>To attend the test <b>##URL##</b> or copy and paste the URL <b>##URLWITHOUTLINK##</b> in the
-                browser<span>.<br></span><br><br>Regards,<br><b>".$provider['countryName']."</b> RT Certification Team<b><br></b>");
-                $message = str_replace($mainSearch, $mainReplace, $mailContent);
+                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>",
+                    "".$configResult['domain']."/provider/login?u=".$key."",
+                    $provider['countryName']
+                );
+                
+                $message = str_replace($mailSearch, $mailReplace, $mailTemplates['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
-                $footer = "<br><br>This is an auto-generated email, please don't reply to this email address.<b><br></b><br>";
-                $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
+                $message = html_entity_decode($message . $mailTemplates['mail_footer'], ENT_QUOTES, 'UTF-8');
                 
-                $fromMail = $configResult['provider']['from']['email'];
-                $fromName = $configResult['provider']['from']['name'];
+                $fromMail = $mailTemplates['mail_from'];
+                $fromName = $mailTemplates['from_name'];
+                $subject = $mailTemplates['mail_subject'];
                 $cc = $configResult['provider']['to']['cc'];
                 $bcc = "";
                 /* Mail services end */
                 $commonService = $this->getServiceLocator()->get('CommonService');
-                $viewModel = new ViewModel(array('result' => $commonService->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc)));
+                $mail = $commonService->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
+                $viewModel = new ViewModel(array('result' => $mail));
                 $viewModel->setTerminal(true);
                 return $viewModel;
             }else{

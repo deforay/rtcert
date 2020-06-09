@@ -260,7 +260,7 @@ $acl = $this->layout()->acl;
 
     function sendTestLink(id,email){
         if(confirm("Are you sure! Want to send the test link to this provider?")){
-            $.blockUI();
+            // $.blockUI();
             $.post("<?php echo $this->url('provider',array('action'=>'send-test-link')); ?>", {providerId:id,providerKey:email},
             function(data){
                 if(data > 0){

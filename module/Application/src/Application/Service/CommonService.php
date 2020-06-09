@@ -754,6 +754,11 @@ class CommonService {
         return $testConfigDb->fetchTestValue($globalName);        
     }
     
+    public function getMailTemplateByPurpose($purpose){
+        $mailTemplateDb = $this->sm->get('MailTemplateTable');
+        return $mailTemplateDb->fetchMailTemplateByPurpose($purpose);        
+    }
+    
     public function getHeaderText(){
         $configDb = $this->sm->get('GlobalTable');
         return $configDb->fetchHeaderText();     
