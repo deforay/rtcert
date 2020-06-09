@@ -237,4 +237,9 @@ class TestsTable extends AbstractTableGateway {
         $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $certificateField;
     }
+    
+    public function fetchTestsDetailsByTestId($testId){
+        
+        return $this->select(array('test_id' => $testId))->current();
+    }
 }

@@ -11,6 +11,7 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Sql\Select;
 use \Application\Model\GlobalTable;
 use \Application\Model\TestConfigTable;
+use \Application\Model\MailTemplateTable;
 use \Application\Service\CommonService;
 use Zend\Db\Sql\Ddl\Column\Datetime;
 
@@ -557,12 +558,12 @@ class ProviderTable extends AbstractTableGateway {
         $countryName = $globalDb->getGlobalValue('country-name');
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
-        $prodiver = $this->getProvider(base64_decode($params['providerId']));
+        $provider = $this->getProvider(base64_decode($params['providerId']));
         $update = 0;
         $token = $common->generateRandomString(8);
-        if ($prodiver) {
+        if ($provider) {
             $data['link_token']     = $token;
-            $data['link_send_count']= (((isset($prodiver->link_send_count) && $prodiver->link_send_count != '')?$prodiver->link_send_count:0) +1);
+            $data['link_send_count']= (isset($provider->link_send_count) && $provider->link_send_count != '')?($provider->link_send_count+1):1;
             $data['link_send_on']   = $common->getDateTime();
             $data['link_send_by']   = $sessionLogin->userId;
             $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
@@ -581,14 +582,16 @@ class ProviderTable extends AbstractTableGateway {
     public function getProviderByToken($tester){
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        $checkedRow = array();
+        
         $config = new \Zend\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         $loginQuery = $sql->select()->from('provider')->where('link_token != "" AND link_token IS NOT NULL');
         $loginStr = $sql->getSqlStringForSqlObject($loginQuery);
-        // die($loginStr);
         $result = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         /* Cehck the tester token */
         foreach($result as $row){
+            
             $linkEncode = $row['link_token'] . $configResult["password"]["salt"];
             if($tester == hash('sha256', $linkEncode)){
                 $checkedRow = $row;
@@ -597,10 +600,97 @@ class ProviderTable extends AbstractTableGateway {
         $testConfigDb = new TestConfigTable($dbAdapter);
         $linkExpire = $testConfigDb->fetchTestValue('link-expire');
         /* To cehck the config hour */
-        $hour = abs(strtotime(date('Y-m-d H:i:s')) - strtotime($checkedRow['link_send_on']))/(60*60);
-        if($linkExpire < round($hour)){
+        if(isset($checkedRow) && count($checkedRow) > 0){
+            $hour = abs(strtotime(date('Y-m-d H:i:s')) - strtotime($checkedRow['link_send_on']))/(60*60);
+            if($linkExpire < round($hour)){
+                return false;
+            }
+            return $checkedRow;
+        }else{
             return false;
         }
-        return $checkedRow;
+    }
+
+    public function sendAutoTestLink()
+    {
+        $common = new CommonService($this->sm);
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $certifyId = array();
+        /* Get global value */
+        $globalDb = new GlobalTable($this->adapter);
+        $testConfigDb = new TestConfigTable($this->adapter);
+        $mailTemplateDb = new MailTemplateTable($this->adapter);
+        $countryName = $globalDb->getGlobalValue('country-name');
+        $days = $globalDb->getGlobalValue('certificate-alert-days');
+        $expire = $testConfigDb->fetchTestValue('link-expire');
+        $expire = (isset($expire) && $expire > 0)?$expire:24;
+        /* Compare expiry days */
+        $compareDate = date('Y-m-d',strtotime('-'.$days.' DAYS'));
+
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('certifyId'=>'id','date_certificate_issued','date_end_validity'))
+        ->join(array('e' => 'examination'),'c.examination=e.id',array('add_to_certification'))
+        ->join(array('p' => 'provider'),'e.provider=p.id',array('providerId'=>'id','first_name','middle_name','last_name','email','test_link_send', 'link_send_count','certification_id'))
+        ->where(array('p.link_token like ""', 'c.date_end_validity >= "'.$compareDate.'"','p.test_link_send'=>'no','p.certification_id not like ""',))
+        ->group('p.id');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        // die($queryStr);
+        $providerResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        if(count($providerResult) > 0){
+            /* Mail services start */
+            $config = new \Zend\Config\Reader\Ini();
+            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+            $mainSearch = array('##USER##', '##CERTIFICATE_NUMBER##', '##CERTIFICATE_EXPIRY_DATE##', '##URLWITHOUTLINK##', '##EXPIRY_HOURS##' ,'##COUNTRY##');
+            $mailTemplatesDetals = $mailTemplateDb->fetchMailTemplateByPurpose('certificate-reminder');
+            $fromMail   = $mailTemplatesDetals['mail_from'];
+            $fromName   = $mailTemplatesDetals['from_name'];
+            $subject    = $mailTemplatesDetals['mail_subject'];
+            $cc         = $configResult['provider']['to']['cc'];
+            $bcc        = "";
+            
+            foreach($providerResult as $provider){
+                $token = $common->generateRandomString(8);
+                $data['link_token']     = $token;
+                $data['test_link_send'] = 'yes';
+                $data['link_send_count']= (isset($provider['link_send_count']) && $provider['link_send_count'] != '')?($provider['link_send_count']+1):1;;
+                $data['link_send_on']   = $common->getDateTime();
+                $data['link_send_by']   = 0;
+                $this->tableGateway->update($data, array('id' => $provider['providerId']));
+                /* Insert content to temp mail */
+                $to = $provider['email'];
+                
+                $linkEncode = $token . $configResult["password"]["salt"];
+                $key = hash('sha256', $linkEncode);
+                $mailReplace = array(
+                    $provider['first_name'].' '.$provider['last_name'], 
+                    $provider['certification_id'],
+                    $provider['date_end_validity'],
+                    "".$configResult['domain']."/provider/login?u=".$key."",
+                    $expire,
+                    $countryName
+                );
+
+                $mailContent = trim($mailTemplatesDetals['mail_content']);
+                
+                $message = str_replace($mainSearch, $mailReplace, $mailContent);
+                $message = str_replace("&nbsp;", "", strval($message));
+                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $message = html_entity_decode($message . $mailTemplatesDetals['mail_footer'], ENT_QUOTES, 'UTF-8');
+                $common->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
+                $certifyId[] = $provider['certifyId'];
+            }
+        }
+        return $certifyId;
+    }
+
+    public function updateTestMailSendStatus($id = '')
+    {
+        if(isset($id) && $id != ''){
+            $id = $id;
+        } else{
+            $logincontainer = new Container('credo');
+            $id = $logincontainer->userId;
+        }
+        $this->tableGateway->update(array('test_mail_send' => 'yes'), array('id' => $id));
     }
 }

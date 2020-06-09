@@ -1,22 +1,22 @@
 <?php
-$maxQuestion = $preResult['totalCount'];    
+$maxQuestion = $preResult['totalCount'];
 $score = ($preResult['pre_test_score'] / $maxQuestion);
 $total = round($score * 100);
-if($total>=$configResult['0']['test_config_value']){
+if ($total >= $configResult['0']['test_config_value']) {
     $color = 'color:green';
     $display = "display:block;";
-    $passed= true;
-}else{
+    $passed = true;
+} else {
     $color = 'color:red';
     $display = "display:none;";
-    $passed= false;
+    $passed = false;
 }
 
 ?>
 <style type="text/css">
-p{
-    text-align:left;
-}
+    p {
+        text-align: left;
+    }
 </style>
 
 <div class="banner-2 yellow xs-m-10" style="width:1920px;height:157px;">
@@ -29,25 +29,25 @@ p{
     <div class="container">
         <div class="row">
             <div class="col-sm-4 col-xs-12">
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th scope="col" style="width: 100%;"></th>
-                        <th scope="col">Score</th>                    
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>                    
-                    <td><canvas id="scorePie" width="100" height="100" style="max-width:100%;"></canvas></td>
-                    <td scope="row"><span style="font-size:4em;"><?php echo $total; ?></span>/100</td>
-                    </tr>
-                    
-                </tbody>
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 100%;"></th>
+                            <th scope="col">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><canvas id="scorePie" width="100" height="100" style="max-width:100%;"></canvas></td>
+                            <td scope="row"><span style="font-size:4em;"><?php echo $total; ?></span>/100</td>
+                        </tr>
+
+                    </tbody>
                 </table>
-                
+
             </div>
             <div class="col-sm-8 col-xs-12">
-            <div class="">
+                <div class="">
                     <h1>Test Result</h1>
                     <p>
                         Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content.
@@ -60,29 +60,82 @@ p{
             </div>
         </div>
     </div>
+    <?php if(false){?>
+    <div class="page-section white short" style="padding: 30px 0 !important;">
+        <di`v class="container">
+            <div class="col-xs-12 heading-short">
+                <h1 class="short">Test Results</h1>            
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>                        
+                                <th>Sl.No</th>
+                                <th>Question</th>
+                                <th>Option (selected by you)</th>
+                                <th>Option (correct option)</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $i = 1;
+                        foreach($preResult['preTestQuestion'] as $preTest){
+                            ?>
+                            <tr>
+                                <td>
+                                <?php echo $i;?>
+                                </td>
+                                <td>
+                                    <?php echo $preTest['question_text'];?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $qList = json_decode($preTest['response_text'],true);
+                                    foreach($qList as $optData){
+                                        echo $optData."<br/>";
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php echo $preTest['correct_option_text'];?>
+                                </td>
+                                <td>
+                                    <?php echo $preTest['score'];?>
+                                </td>
+                            </tr>
+                            <?php $i++; } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php }?>
 </section>
 
 
 
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" ></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" ></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <script>
-new Chart(document.getElementById("scorePie"),{
-        "type":"doughnut",
-        "data":{
-            "labels":[" Correct Responses "," Incorrect Responses "],
-            "datasets":[{
-                "label":"My First Dataset",
-                "data":[<?php echo $preResult['pre_test_score']; ?>,<?php echo $maxQuestion-$preResult['pre_test_score']; ?>],
-                "borderWidth" : 1,
-                "backgroundColor":["rgb(54, 162, 235)","rgb(255, 99, 132)"]
+    new Chart(document.getElementById("scorePie"), {
+        "type": "doughnut",
+        "data": {
+            "labels": [" Correct Responses ", " Incorrect Responses "],
+            "datasets": [{
+                "label": "My First Dataset",
+                "data": [<?php echo $preResult['pre_test_score']; ?>, <?php echo $maxQuestion - $preResult['pre_test_score']; ?>],
+                "borderWidth": 1,
+                "backgroundColor": ["rgb(54, 162, 235)", "rgb(255, 99, 132)"]
             }]
         },
         options: {
             tooltips: false,
-            legend : false,
-            cutoutPercentage : 80
+            legend: false,
+            cutoutPercentage: 80
         }
     });
 </script>

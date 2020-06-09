@@ -12,6 +12,22 @@ $acl = $this->layout()->acl;
     .center{
         text-align:center;
     }
+    #shBtnRecommendedManageColumns{
+        font-size: 17px;
+        font-weight: 600; 
+    }
+    #shBtnCertificateSent{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    #shBtnCertifiedTable{
+        font-size: 17px;
+        font-weight: 600; 
+    }
+    #shBtnPendingManageColumns{
+        font-size: 17px;
+        font-weight: 600; 
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -39,10 +55,18 @@ $acl = $this->layout()->acl;
             </li>
         </ul>
         <div class="tab-content" id="certificationContent">
+
           <div class="tab-pane <?php echo (trim($src) == 'top')?'':'active'; ?>" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
+          <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnRecommendedManageColumns">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageRecommendedColumns">
+                                    </div>
+                                    </div>
             <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
-                    <tr>
+                    <tr class="allreminders">
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
                           <th>#</th>
                         <?php } ?>
@@ -62,9 +86,16 @@ $acl = $this->layout()->acl;
             </table>
           </div>
           <div class="tab-pane <?php echo (trim($src) == 'top')?'active':''; ?>" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
-            <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+          <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnCertificateSent">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageCertificateSent">
+                                    </div>
+                                    </div>  
+          <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                 <thead>
-                    <tr>
+                    <tr class="certificateSent">
                         <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;">Professional Registration No <br> (if available) </th>
                         <th  style="width:10%;">Certification Registration no </th>
@@ -91,9 +122,16 @@ $acl = $this->layout()->acl;
             </table>
           </div>
           <div class="tab-pane" id="certified" role="tabpanel" aria-labelledby="certified-tab">
-            <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
+          <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="c">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageCertifiedTable">
+                                    </div>
+                                    </div> 
+          <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
-                    <tr>
+                    <tr class="certifiedSent">
                         <th  style="width:10%;">Tester</th>
                         <th  style="width:10%;">Professional Registration No(if available </th>
                         <th  style="width:10%;">Certification Registration no </th>
@@ -117,9 +155,16 @@ $acl = $this->layout()->acl;
             </table>
           </div>
           <div class="tab-pane" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+          <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnPendingManageColumns">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="managePendingTable">
+                                    </div>
+                                    </div>
             <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
                 <thead>
-                    <tr>
+                    <tr class="pendingToSent">
                     <th  style="width:10%;">Tester</th>
                         <th  style="width:20% !important;">Professional Registration No.<br>(if available) </th>
                         <th  style="width:20%;">Certification Registration no. </th>
@@ -154,13 +199,123 @@ $('#certificationTab a').on('click', function (e) {
 })
 
 var recommendedTable = null;
+var toBeSentTable = null;
+var certifiedTable = null;
+var pendingTable = null;
 approvalRow = [];
 $(document).ready(function () {
     recommendedForCertificateInit();
     toBeSentInit();
     certifiedInit();
     pendingInit();
+    var listOfRecommendedColumns = '';
+        $('tr.allreminders').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfRecommendedColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleRecommendedBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageRecommendedColumns").html(listOfRecommendedColumns);
+        $('a.toggle-vis').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = recommendedTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageRecommendedColumns").hide();
+        $("#shBtnRecommendedManageColumns").click(function(){
+            $("#manageRecommendedColumns").toggle('fast','linear');
+        }); 
+
+//
+        var listOfcertificateSent = '';
+        $('tr.certificateSent').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfcertificateSent+='<a class="toggle-certificate-sent btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleCertificateSentBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageCertificateSent").html(listOfcertificateSent);
+        $('a.toggle-certificate-sent').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = toBeSentTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageCertificateSent").hide();
+        $("#shBtnCertificateSent").click(function(){
+            $("#manageCertificateSent").toggle('fast','linear');
+        });     
+//
+        var listOfCertifiedTable = '';
+        $('tr.certifiedSent').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfCertifiedTable+='<a class="toggle-certified-table btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleCertifiedTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageCertifiedTable").html(listOfCertifiedTable);
+        $('a.toggle-certified-table').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = certifiedTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageCertifiedTable").hide();
+        $("#shBtnCertifiedTable").click(function(){
+            $("#manageCertifiedTable").toggle('fast','linear');
+        });
+//
+    var listOfPendingTable = '';
+        $('tr.pendingToSent').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfPendingTable+='<a class="toggle-pending-table btn btn-primary btn-sm" data-column="'+index+'" onclick="togglePendingTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#managePendingTable").html(listOfPendingTable);
+        $('a.toggle-pending-table').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = pendingTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#managePendingTable").hide();
+        $("#shBtnPendingManageColumns").click(function(){
+            $("#managePendingTable").toggle('fast','linear');
+        });
+
+
 });
+
+function toggleRecommendedBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+    function toggleCertificateSentBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+    function toggleCertifiedTableBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+    function togglePendingTableBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
 
 function recommendedForCertificateInit(){
     recommendedTable = $('#recommendedTable').DataTable({
@@ -211,7 +366,7 @@ function recommendedForCertificateInit(){
 }
 
 function toBeSentInit(){
-    $('#toBeSentTable').dataTable({
+    toBeSentTable=$('#toBeSentTable').DataTable({
         "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -254,7 +409,7 @@ function toBeSentInit(){
 }
 
 function certifiedInit(){
-    $('#certifiedTable').dataTable({
+    certifiedTable=$('#certifiedTable').DataTable({
         "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -294,7 +449,7 @@ function certifiedInit(){
 }
 
 function pendingInit(){
-    $('#pendingTable').dataTable({
+    pendingTable=$('#pendingTable').DataTable({
         "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,

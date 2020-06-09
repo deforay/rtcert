@@ -161,13 +161,27 @@ class PretestQuestionsTable extends AbstractTableGateway {
         $testResult = $testDb->getTestDataByUserId($logincontainer->userId);
         $sQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('totalCount' => new \Zend\Db\Sql\Expression('COUNT(pre_test_id)')))
                                 ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('pre_test_score'))
+                                ->join(array('p' => 'provider'), 'p.id = t.user_id', array('id', 'first_name', 'last_name' ,'email' ,'phone', 'test_mail_send'))
                                 ->where(array('t.user_id' => $logincontainer->userId,'t.test_id'=>$testResult['testStatus']['test_id']))
                                 ->order('pt.test_id DESC');
         $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
         // die($sQueryStr);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         $maxQuestion = $testConfigDb->fetchTestConfigDetails();
+        $sResult['preTestQuestion'] = $this->getQuestionList($testResult['testStatus']['test_id'],'pretest_questions');
         $sResult['maxQuestion'] = $maxQuestion[1]['test_config_value'];
+        return $sResult;
+    }
+
+    public function getQuestionList($testId,$tableName)
+    {
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('ptq' => $tableName))
+                                ->join(array('q' => 'test_questions'), 'q.question_id = ptq.question_id', array('correct_option_text'))
+                                ->where(array('ptq.test_id'=>$testId));
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $sResult;
     }
 }
