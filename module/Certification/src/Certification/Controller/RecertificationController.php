@@ -129,6 +129,7 @@ class RecertificationController extends AbstractActionController {
             $district = $request->getPost('district');
             $facility = $request->getPost('facility');
             $due_date = $request->getPost('due_date');
+            $excludeTesterName = $request->getPost('exclude_tester_name');
             if (!empty($due_date)) {
                 $array = explode(" ", $due_date);
                 $startDate = date("Y-m-d", strtotime($array[0]));
@@ -259,9 +260,9 @@ class RecertificationController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $result['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $result['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $result['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $result['last_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, $result['first_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, $result['middle_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['last_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['first_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['middle_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($result['country_name']))?$result['country_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($result['region_name']))?$result['region_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($result['district_name']))?$result['district_name']:'');
