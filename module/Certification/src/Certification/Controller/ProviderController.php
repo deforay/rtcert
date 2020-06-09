@@ -237,6 +237,7 @@ class ProviderController extends AbstractActionController {
             $typeHiv = $request->getPost('type_vih_test');
             $contact_method = $request->getPost('prefered_contact_method');
             $jobTitle = $request->getPost('current_jod');
+            $excludeTesterName = $request->getPost('exclude_tester_name');
             $provider = $this->getProviderTable()->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
             $objPHPExcel = new \PHPExcel();
             $objPHPExcel->setActiveSheetIndex(0);
@@ -300,9 +301,9 @@ class ProviderController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $provider['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $provider['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $provider['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $provider['last_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, $provider['first_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, $provider['middle_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['last_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['first_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['middle_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($provider['country_name']))?$provider['country_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($provider['region_name']))?$provider['region_name']:'');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($provider['district_name']))?$provider['district_name']:'');
