@@ -9295,7 +9295,7 @@ button:focus {
   [Splash screen]
 */
 .am-splash-screen {
-  background-color: #fff;
+  background-color: #fefefe;
 }
 .am-splash-screen .am-wrapper {
   padding-top: 0;
@@ -10689,17 +10689,19 @@ li.L9 {
   [Login]
 */
 .login-container {
-  max-width: 400px;
+  max-width: 450px;
   margin: 80px auto;
   padding: 10px;
   border:1px solid #ddd;
+  background-color:#f7fbfe;
 
 }
 .login-container .panel-default {
-  background: transparent;
+  background-color:#f7fbfe;
   padding: 0;
   border: 0;
   overflow: hidden;
+  margin:0 auto;
   margin-bottom: 20px;
 }
 .login-container .panel-default .panel-heading {
