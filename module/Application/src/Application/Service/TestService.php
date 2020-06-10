@@ -59,6 +59,7 @@ class TestService{
         $configs = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         
         $passScore = $testConfigDb->fetchTestValue('passing-percentage');
+        $testName = $testConfigDb->fetchTestValue('test-name');
         $maxQuestion = count($preResult['preTestQuestion']);    
         $score = ($preResult['pre_test_score'] / $maxQuestion);
         $total = round($score * 100);
@@ -70,7 +71,6 @@ class TestService{
 
         // Debug::dump($preResult);die;
         if($total>=$passScore){
-        // if(true){
             $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose('online-test-mail-pass');
             $testsDb = $this->sm->get('TestsTable');
             $result = $testsDb->fetchTestsDetailsByTestId($preResult['preTestQuestion'][0]['test_id']);
@@ -81,7 +81,7 @@ class TestService{
                 $subject = $mailTemplateDetails['mail_subject'];
 
                 $mainSearch = array('##USER##','##TESTNAME##', '##SCORE##');
-                $mainReplace = array($preResult['first_name'].' '.$preResult['last_name'], 'RTCQI Online Test' ,$total);
+                $mainReplace = array($preResult['first_name'].' '.$preResult['last_name'], $testName ,$total);
                 
                 $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
@@ -98,7 +98,7 @@ class TestService{
                 $subject = $mailTemplateDetails['mail_subject'];
 
                 $mainSearch = array('##USER##','##TESTNAME##', '##SCORE##');
-                $mainReplace = array($preResult['first_name'].$preResult['last_name'], 'RTCQI Online Test' ,$total);
+                $mainReplace = array($preResult['first_name'].$preResult['last_name'], $testName ,$total);
                 $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
