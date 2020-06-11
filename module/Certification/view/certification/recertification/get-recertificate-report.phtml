@@ -1,0 +1,35 @@
+<div class="widget widget-fullwidth widget-small" style="padding:5px;">
+    <table id="recertificateReportTable" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+        <thead class="frezz">
+            <tr class="allproviders">
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
+                <th style="width:10%;">Type of Reminder (prefered_contact_method)</th>
+                <th style="width:10%;">Reminder Sent To</th>
+                <th style="width:10%;">Date Reminder Sent</th>
+                <th style="width:10%;">Region</th>
+                <th style="width:10%;">District</th>
+                <th style="width:10%;">Facility</th>
+            </tr>
+        </thead>
+        <tbody class="frezz">
+
+            <?php foreach ($this->result as $provider) {
+                    // \Zend\Debug\Debug::dump($provider);die;
+            ?>
+                <tr>
+
+                    <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['reminder_type']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['reminder_sent_to']); ?></td>
+                    <td><?php echo $this->escapeHtml(date("d-m-Y", strtotime($provider['date_reminder_sent']))); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
+                    
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</div>

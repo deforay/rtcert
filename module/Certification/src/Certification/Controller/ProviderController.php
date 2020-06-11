@@ -227,7 +227,8 @@ class ProviderController extends AbstractActionController {
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $form = new ProviderForm($dbAdapter);
-        $form->get('submit')->setValue('GET REPORT');
+        $form->get('submit')->setValue('DOWNLOAD REPORT');
+        // $form->get('getreport')->setValue('GET REPORT');
         $request = $this->getRequest();
         if ($request->isPost()) {
             $country = $request->getPost('country');
@@ -334,6 +335,24 @@ class ProviderController extends AbstractActionController {
             exit;
         }
         return array('form' => $form);
+    }
+
+    public function getTesterReportAction()
+    {
+        $request = $this->getRequest();
+        $country = $request->getPost('country');
+        $region = $request->getPost('region');
+        $district = $request->getPost('district');
+        $facility = $request->getPost('facility_id');
+        $typeHiv = $request->getPost('type_vih_test');
+        $contact_method = $request->getPost('prefered_contact_method');
+        $jobTitle = $request->getPost('current_jod');
+        $excludeTesterName = $request->getPost('exclude_tester_name');
+        $provider = $this->getProviderTable()->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' =>$provider));
+        $viewModel->setTerminal(true);
+        return $viewModel;
     }
     
     public function testHistoryAction() {

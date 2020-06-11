@@ -113,11 +113,14 @@ $sessionLogin = new Container('credo');
                                     </div>
                                     <div class="row" style="text-align:center;">
                                         <div class="form-group col-lg-12" style="margin-top: 30px">
-                                            <button class="btn btn-primary" type="submit">GET REPORT</button> 
+                                            <a href="javascript:void(0)" onclick="getCertificateReport();" class="btn btn-primary">GET REPORT</a>
+                                            <button class="btn btn-primary" type="submit">DOWNLOAD REPORT</button> 
                                             <a class="btn  btn-space btn-default" role="button" style="margin-top: 5px" href="<?php echo $this->url('certification', array('action' => 'xls')); ?>" >CANCEL</a>
                                         </div>
                                     </div>
                             </form>
+                            <div id="certificateReport">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -217,6 +220,31 @@ $sessionLogin = new Container('credo');
             xmlhttp.open("GET", "<?php echo $this->url('provider', array('action' => 'facility')); ?>?q=" + str, true);
             xmlhttp.send();
         }
+    }
+
+    function getCertificateReport(){
+        $('#certificateReport').html('');
+        $.post("<?php echo $this->url('certification', array('action' => 'getCertificateReport')); ?>", 
+        {
+            dateRange: $("[name=dateRange]").val(),
+            decision: $("[name=decision]").val(),
+            typeHIV: $("[name=typeHIV]").val(),
+            jobTitle: $("[name=jobTitle]").val(),
+            exclude_tester_name: $("[name=exclude_tester_name]").val(),
+            region: $("[name=region]").val(),
+            district: $("[name=district]").val(),
+            facility_id: $("[name=facility_id]").val(),
+        },
+        function(data) {
+            console.log(data)
+            $('#certificateReport').html(data);
+            var table = $('#certificateReportTable').DataTable({
+                "aProcessing": true,
+                "aServerSide": true,
+                "aaSorting": [],
+            });
+        });
+       
     }
     </script>
 
