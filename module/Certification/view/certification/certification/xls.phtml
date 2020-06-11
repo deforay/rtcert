@@ -146,6 +146,7 @@ $sessionLogin = new Container('credo');
     $(document).ready(function () {
         $("#Country").val(1);
         showRegion(1);
+        getCertificateReport();
     });
     $('#dateRange').daterangepicker({
         format: 'DD-MM-YYYY',
@@ -224,7 +225,8 @@ $sessionLogin = new Container('credo');
 
     function getCertificateReport(){
         $('#certificateReport').html('');
-        $.post("<?php echo $this->url('certification', array('action' => 'getCertificateReport')); ?>", 
+        $.blockUI();
+        $.post("<?php echo $this->url('certification', array('action' => 'get-certificate-report')); ?>", 
         {
             dateRange: $("[name=dateRange]").val(),
             decision: $("[name=decision]").val(),
@@ -236,7 +238,6 @@ $sessionLogin = new Container('credo');
             facility_id: $("[name=facility_id]").val(),
         },
         function(data) {
-            console.log(data)
             $('#certificateReport').html(data);
             var table = $('#certificateReportTable').DataTable({
                 "aProcessing": true,
@@ -244,7 +245,7 @@ $sessionLogin = new Container('credo');
                 "aaSorting": [],
             });
         });
-       
+        $.unblockUI();
     }
     </script>
 

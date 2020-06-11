@@ -1,5 +1,85 @@
 <?php
 
 use Zend\Debug\Debug;
-
-Debug::dump($result);die;
+// Debug::dump($this->params);die;
+if($this->params['Exam'] == 'practical-exam'){
+?>
+<table id="practical-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width: 20%;">Tester Name</th>
+            <th style="width: 20%;">Professional No</th>
+            <th style="width: 20%;">Phone</th>
+            <th style="width: 20%;">Email</th>
+            <th style="width: 20%;">Region</th>
+            <th style="width: 20%;">District</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($this->result as $row) { ?>
+            <tr>
+                <td><?php echo $row['first_name'] . ' ' .$row['middle_name'] . ' ' .$row['last_name']; ?></td>
+                <td><?php echo $row['professional_reg_no']; ?></td>
+                <td><?php echo $row['phone']; ?></td>
+                <td><?php echo $row['email']; ?></td>
+                <td><?php echo $row['regionName']; ?></td>
+                <td><?php echo $row['districtName']; ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+<?php } 
+if($this->params['Exam'] == 'written-exam'){ ?>
+<table id="written-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width: 20%;">Tester Name</th>
+            <th style="width: 20%;">Professional No</th>
+            <th style="width: 20%;">Phone</th>
+            <th style="width: 20%;">Email</th>
+            <th style="width: 20%;">Region</th>
+            <th style="width: 20%;">District</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($this->result as $row) { ?>
+            <tr>
+                <td><?php echo $row['first_name'] . ' ' .$row['middle_name'] . ' ' .$row['last_name']; ?></td>
+                <td><?php echo $row['professional_reg_no']; ?></td>
+                <td><?php echo $row['phone']; ?></td>
+                <td><?php echo $row['email']; ?></td>
+                <td><?php echo $row['regionName']; ?></td>
+                <td><?php echo $row['districtName']; ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+<?php } 
+if($this->params['Exam'] == 'online-exam'){ ?>
+<table id="online-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width: 20%;">Test Started Date time</th>
+            <th style="width: 20%;">Tester Name</th>
+            <th style="width: 20%;">Professional No</th>
+            <th style="width: 20%;">Phone</th>
+            <th style="width: 20%;">Email</th>
+            <th style="width: 20%;">Region</th>
+            <th style="width: 20%;">District</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($this->result as $row) { ?>
+            <tr>
+                <td><?php echo date('d-M-Y (h:i:s a)',strtotime($row['pretest_start_datetime'])); ?></td>
+                <td><?php echo $row['first_name'] . ' ' .$row['middle_name'] . ' ' .$row['last_name']; ?></td>
+                <td><?php echo $row['professional_reg_no']; ?></td>
+                <td><?php echo $row['phone']; ?></td>
+                <td><?php echo $row['email']; ?></td>
+                <td><?php echo $row['regionName']; ?></td>
+                <td><?php echo $row['districtName']; ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+<?php }?>

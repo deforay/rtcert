@@ -200,6 +200,7 @@ $sessionLogin = new Container('credo');
     $(document).ready(function () {
         $("#Country").val(1);
         showRegion(1);
+        getRecertificateReport();
     });
     $('#date').daterangepicker({
         format: 'DD-MM-YYYY',
@@ -292,7 +293,8 @@ $sessionLogin = new Container('credo');
 
     function getRecertificateReport(){
         $('#recertificateReport').html('');
-        $.post("<?php echo $this->url('recertification', array('action' => 'getRecertificateReport')); ?>", 
+        $.blockUI();
+        $.post("<?php echo $this->url('recertification', array('action' => 'get-recertificate-report')); ?>", 
         {
             due_date: $("[name=due_date]").val(),
             reminder_type: $("[name=reminder_type]").val(),
@@ -306,7 +308,6 @@ $sessionLogin = new Container('credo');
             date_reminder_sent: $("[name=date_reminder_sent]").val(),
         },
         function(data) {
-            console.log(data)
             $('#recertificateReport').html(data);
             var table = $('#recertificateReportTable').DataTable({
                 "aProcessing": true,
@@ -314,6 +315,6 @@ $sessionLogin = new Container('credo');
                 "aaSorting": [],
             });
         });
-       
+        $.unblockUI();
     }
 </script>

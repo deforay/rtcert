@@ -179,7 +179,7 @@ class ExaminationController extends AbstractActionController {
             $params = $request->getPost();
             $result = $this->getExaminationTable()->report($params);
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setVariables(array('result' =>$result, 'params' => $params));
             $viewModel->setTerminal(true);
             return $viewModel;
         }

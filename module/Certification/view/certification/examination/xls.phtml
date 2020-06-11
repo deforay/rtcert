@@ -19,20 +19,20 @@ $sessionLogin = new Container('credo');
 
     <div class="page-head">
         <div class="row">
-            <div class="col-sm-4"> <h2>Examination Reports</h2></div>
+            <div class="col-sm-4"> <h2>Examination Pending Reports</h2></div>
 
         </div>
     </div>
     <div class="main-content">
         <ul class="nav nav-tabs" id="examinationTab" role="tablist">
             <li class="nav-item active">
-                <a class="nav-link active" id="online-tab" data-toggle="tab" href="#online-test" role="tab" aria-controls="online-test" aria-selected="false" onclick="onlineTest();">Online Tests</a>
+                <a class="nav-link active" id="online-tab" data-toggle="tab" href="#online-test" role="tab" aria-controls="online-test" aria-selected="false" onclick="onlineTest();">Online Examination</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="practical-tab" data-toggle="tab" href="#practical-test" role="tab" aria-controls="practical-test" aria-selected="true" onclick="practicalTest();">Practical Tests</a>
+                <a class="nav-link" id="practical-tab" data-toggle="tab" href="#practical-test" role="tab" aria-controls="practical-test" aria-selected="true" onclick="practicalTest();">Practical Examination</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="written-tab" data-toggle="tab" href="#written-test" role="tab" aria-controls="written-test" aria-selected="false" onclick="writtenTest();">Written Tests</a>
+                <a class="nav-link" id="written-tab" data-toggle="tab" href="#written-test" role="tab" aria-controls="written-test" aria-selected="false" onclick="writtenTest();">Written Examination</a>
             </li>
         </ul>
         <div class="tab-content" id="examinationContent">
@@ -66,10 +66,11 @@ $sessionLogin = new Container('credo');
                                     </div>
                                     
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
-                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest();">GET REPORT</a>
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('online-exam');">GET REPORT</a>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
+                                <div id="online-exam"></div>
                             </div>
                         </div>
                     </div>
@@ -105,10 +106,11 @@ $sessionLogin = new Container('credo');
                                     </div>
                                     
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
-                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest();">GET REPORT</a>
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('practical-exam');">GET REPORT</a>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
+                                <div id="practical-exam"></div>
                             </div>
                         </div>
                     </div>
@@ -144,10 +146,11 @@ $sessionLogin = new Container('credo');
                                     </div>
                                     
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
-                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest();">GET REPORT</a>
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('written-exam');">GET REPORT</a>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
+                                <div id="written-exam"></div>
                             </div>
                         </div>
                     </div>
@@ -211,11 +214,19 @@ $sessionLogin = new Container('credo');
         }
     }
 
-    function getReportOnlineTest(){
+    function getReportOnlineTest(exam){
+        $('#'+exam).html('');
+        $.blockUI();
         $.post("<?php echo $this->url('examination', array('action' => 'get-report')); ?>", {
-            Region: $('#Region').val(),District: $('#District').val(),Country: $('#Country').val(),Exam: 'practical-exam'
+            Region: $('#Region').val(),District: $('#District').val(),Country: $('#Country').val(),Exam: exam
         },function(data) {
-        
+            $('#'+exam).html(data);
+            var table = $('#'+exam+'-table').DataTable({
+                "aProcessing": true,
+                "aServerSide": true,
+                "aaSorting": [],
+            });
         });
+        $.unblockUI();
     }
     </script>

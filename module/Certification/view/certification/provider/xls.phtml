@@ -171,6 +171,7 @@ $sessionLogin = new Container('credo');
     $(document).ready(function () {
         $("#Country").val(1);
         showRegion(1);
+        getTestReport();
     });
     function showRegion(str) {
             if (str == "") {
@@ -235,7 +236,8 @@ $sessionLogin = new Container('credo');
 
     function getTestReport(){
         $('#testReport').html('');
-        $.post("<?php echo $this->url('provider', array('action' => 'getTesterReport')); ?>", 
+        $.blockUI();
+        $.post("<?php echo $this->url('provider', array('action' => 'get-tester-report')); ?>", 
         {
             region: $("[name=region]").val(),
             district: $("[name=district]").val(),
@@ -246,7 +248,6 @@ $sessionLogin = new Container('credo');
             exclude_tester_name: $("[name=exclude_tester_name]").val(),
         },
         function(data) {
-            // console.log(data)
             $('#testReport').html(data);
             var table = $('#testReportTable').DataTable({
                 "aProcessing": true,
@@ -254,6 +255,6 @@ $sessionLogin = new Container('credo');
                 "aaSorting": [],
             });
         });
-       
+        $.unblockUI();
     }
     </script>

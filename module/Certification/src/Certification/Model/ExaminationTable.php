@@ -872,14 +872,15 @@ class ExaminationTable {
         // Debug::dump($params);die;
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        if($params['Exam'] == 'practical-exam'){
-            $sQuery = $sql->select()->from(array('p_ex'=>'practical_exam'))
-                                    ->columns(array('practicalExamDate'=>'date', 'practical_total_score'))
-                                    ->join(array('p' => 'provider'), "p_ex.provider_id=p.id", array('last_name','first_name','middle_name','phone','email'),'left')
-                                    // ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'))
+        if($params['Exam'] == 'written-exam'){
+            $sQuery = $sql->select()->from(array('p'=>'provider'))
+                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
+                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'))
+                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
                                     ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
                                     ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('p_ex.provider_id NOT IN (p.id)')
+                                    ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
+                                    ->group('p_ex.provider_id')
                                     ;
             if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
                 $sQuery->where(array('p.district' =>$params['District']));
@@ -889,16 +890,19 @@ class ExaminationTable {
                 $sQuery->where(array('l_d_r.country' =>$params['Country']));
             }
             $fQuery = $sql->getSqlStringForSqlObject($sQuery);
-            die($fQuery);
             return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
         
-        if($params['Exam'] == 'written-exam'){
+        if($params['Exam'] == 'practical-exam'){
             $sQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email'))
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id!=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
+                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
+                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
+                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'))
                                     ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left');
+                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
+                                    ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
+                                    ->group('p_ex.provider_id')
+                                    ;
             if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
                 $sQuery->where(array('p.district' =>$params['District']));
             }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
@@ -907,7 +911,24 @@ class ExaminationTable {
                 $sQuery->where(array('l_d_r.country' =>$params['Country']));
             }
             $fQuery = $sql->getSqlStringForSqlObject($sQuery);
-            die($fQuery);
+            return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        }
+        
+        if($params['Exam'] == 'online-exam'){
+            $sQuery = $sql->select()->from(array('t'=>'tests'))
+                                    ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
+                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
+                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
+                                    ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")')
+                                    ;
+            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
+                $sQuery->where(array('p.district' =>$params['District']));
+            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+                $sQuery->where(array('p.region' => $params['Region']));
+            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
+                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            }
+            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
             return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
     }
