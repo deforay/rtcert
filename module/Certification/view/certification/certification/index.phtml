@@ -1,33 +1,25 @@
 <?php
+
 use Zend\Session\Container;
+
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <style>
-    .center{
-        text-align:center;
+    .center {
+        text-align: center;
     }
-    #shBtnRecommendedManageColumns{
-        font-size: 17px;
-        font-weight: 600; 
-    }
-    #shBtnCertificateSent{
+
+    #shBtnRecommendedManageColumns, #shBtnCertificateSent, #shBtnCertifiedTable, #shBtnPendingManageColumns {
         font-size: 17px;
         font-weight: 600;
     }
-    #shBtnCertifiedTable{
-        font-size: 17px;
-        font-weight: 600; 
-    }
-    #shBtnPendingManageColumns{
-        font-size: 17px;
-        font-weight: 600; 
-    }
+
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -40,150 +32,148 @@ $acl = $this->layout()->acl;
 
     <div class="main-content">
         <ul class="nav nav-tabs" id="certificationTab" role="tablist">
-            <li class="nav-item <?php echo (trim($src) == 'top')?'':'active'; ?>">
-              <input type="hidden" id="selectdeselect"/>  
-              <a class="nav-link <?php echo (trim($src) == 'top')?'':'active'; ?>" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="<?php echo (trim($src) == 'top')?'false':'true'; ?>" onclick="recommendedForCertificateInit();">Recommended for Certification</a>
+            <li class="nav-item <?php echo (trim($src) == 'top') ? '' : 'active'; ?>">
+                <input type="hidden" id="selectdeselect" />
+                <a class="nav-link <?php echo (trim($src) == 'top') ? '' : 'active'; ?>" id="recommended-tab" data-toggle="tab" href="#recommended" role="tab" aria-controls="recommended" aria-selected="<?php echo (trim($src) == 'top') ? 'false' : 'true'; ?>" onclick="recommendedForCertificateInit();">Recommended for Certification</a>
             </li>
-            <li class="nav-item <?php echo (trim($src) == 'top')?'active':''; ?>">
-              <a class="nav-link <?php echo (trim($src) == 'top')?'active':''; ?>" id="to-be-sent-tab" data-toggle="tab" href="#to-be-sent" role="tab" aria-controls="to-be-sent" aria-selected="<?php echo (trim($src) == 'top')?'true':'false'; ?>" onclick="toBeSentInit();">Certificates to be sent</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="certified-tab" data-toggle="tab" href="#certified" role="tab" aria-controls="certified" aria-selected="false" onclick="certifiedInit();">Certified Testers</a>
+            <li class="nav-item <?php echo (trim($src) == 'top') ? 'active' : ''; ?>">
+                <a class="nav-link <?php echo (trim($src) == 'top') ? 'active' : ''; ?>" id="to-be-sent-tab" data-toggle="tab" href="#to-be-sent" role="tab" aria-controls="to-be-sent" aria-selected="<?php echo (trim($src) == 'top') ? 'true' : 'false'; ?>" onclick="toBeSentInit();">Certificates to be sent</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="false" onclick="pendingInit();">Pending Testers</a>
+                <a class="nav-link" id="certified-tab" data-toggle="tab" href="#certified" role="tab" aria-controls="certified" aria-selected="false" onclick="certifiedInit();">Certified Testers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="false" onclick="pendingInit();">Pending Testers</a>
             </li>
         </ul>
         <div class="tab-content" id="certificationContent">
+            <div class="tab-pane <?php echo (trim($src) == 'top') ? '' : 'active'; ?>" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" id="shBtnRecommendedManageColumns">Show/hide</a></h3>
+                    </div>
+                    <div id="manageRecommendedColumns"></div>
+                </div>
+                <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+                    <thead>
+                        <tr class="allreminders">
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
+                                <th>#</th>
+                            <?php } ?>
+                            <th style="width:10%;">Tester</th>
+                            <th style="width:10%;">Professional Registration No <br> (if available) </th>
+                            <th style="width:10%;">Certification Registration no </th>
+                            <th style="width:10%;">Certification ID </th>
+                            <th style="width:10%;">Final Decision</th>
+                            <th style="width:10%;">Certificate Issuer</th>
+                            <th style="width:10%;">Date Certificate Issued</th>
+                            <th style="width:10%;">Date Certificate Sent</th>
+                            <th style="width:10%;">Type of Certification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane <?php echo (trim($src) == 'top') ? 'active' : ''; ?>" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" id="shBtnCertificateSent">Show/hide</a></h3>
+                    </div>
+                    <div id="manageCertificateSent">
+                    </div>
+                </div>
+                <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+                    <thead>
+                        <tr class="certificateSent">
+                            <th style="width:10%;">Tester</th>
+                            <th style="width:10%;">Professional Registration No <br> (if available) </th>
+                            <th style="width:10%;">Certification Registration no </th>
+                            <th style="width:10%;">Certification ID </th>
 
-          <div class="tab-pane <?php echo (trim($src) == 'top')?'':'active'; ?>" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
-          <div class="well container">
-                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
-                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnRecommendedManageColumns">Show/hide</a></h3> 
-                                    </div>
-                                    <div id="manageRecommendedColumns">
-                                    </div>
-                                    </div>
-            <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
-                <thead>
-                    <tr class="allreminders">
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
-                          <th>#</th>
-                        <?php } ?>
-                        <th  style="width:10%;">Tester</th>
-                        <th  style="width:10%;">Professional Registration No <br> (if available) </th>
-                        <th  style="width:10%;">Certification Registration no </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Final Decision</th>
-                        <th  style="width:10%;">Certificate Issuer</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
-                        <th style="width:10%;">Date Certificate Sent</th>
-                        <th style="width:10%;">Type of Certification</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane <?php echo (trim($src) == 'top')?'active':''; ?>" id="to-be-sent" role="tabpanel" aria-labelledby="to-be-sent-tab">
-          <div class="well container">
-                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
-                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnCertificateSent">Show/hide</a></h3> 
-                                    </div>
-                                    <div id="manageCertificateSent">
-                                    </div>
-                                    </div>  
-          <table id="toBeSentTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
-                <thead>
-                    <tr class="certificateSent">
-                        <th  style="width:10%;">Tester</th>
-                        <th  style="width:10%;">Professional Registration No <br> (if available) </th>
-                        <th  style="width:10%;">Certification Registration no </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;">Final Decision</th>
-                        <th  style="width:10%;">Certificate Issuer</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
-                        <th style="width:10%;">Date Certificate Sent</th>
-                        <th style="width:10%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
-                            <th style="width:5%;">Download PDF</th>
-                        <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
-                            <th style="width:5%;">E-Mail Certificate</th>
-                        <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
-                            <th style="width:5%;">Update Status</th>
-                        <?php } ?>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane" id="certified" role="tabpanel" aria-labelledby="certified-tab">
-          <div class="well container">
-                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
-                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="c">Show/hide</a></h3> 
-                                    </div>
-                                    <div id="manageCertifiedTable">
-                                    </div>
-                                    </div> 
-          <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
-                <thead>
-                    <tr class="certifiedSent">
-                        <th  style="width:10%;">Tester</th>
-                        <th  style="width:10%;">Professional Registration No(if available </th>
-                        <th  style="width:10%;">Certification Registration no </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;">Final Decision</th>
-                        <th  style="width:10%;">Certificate Issuer</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
-                        <th style="width:10%;">Date Certificate Sent</th>
-                        <th style="width:10%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
-                            <th style="width:5%;">Edit</th>
-                        <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
-                            <th style="width:5%;">PDF</th>
-                        <?php } ?>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane" id="pending" role="tabpanel" aria-labelledby="pending-tab">
-          <div class="well container">
-                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
-                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnPendingManageColumns">Show/hide</a></h3> 
-                                    </div>
-                                    <div id="managePendingTable">
-                                    </div>
-                                    </div>
-            <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget"  style="width:100% !important;">
-                <thead>
-                    <tr class="pendingToSent">
-                    <th  style="width:10%;">Tester</th>
-                        <th  style="width:20% !important;">Professional Registration No.<br>(if available) </th>
-                        <th  style="width:20%;">Certification Registration no. </th>
-                        <th  style="width:20%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;">Final Decision</th>
-                        <!--<th  style="width:10%;">Certificate Issuer</th>-->
-                        <!--<th  style="width:10%;">Date Certificate Issued</th>-->
-                        <!--<th style="width:10%;">Date Certificate Sent</th>-->
-                        <th style="width:10%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
-                            <th style="width:5%;">Edit</th>
-                        <?php } ?>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
+                            <th style="width:10%;">Final Decision</th>
+                            <th style="width:10%;">Certificate Issuer</th>
+                            <th style="width:10%;">Date Certificate Issued</th>
+                            <th style="width:10%;">Date Certificate Sent</th>
+                            <th style="width:10%;">Type of Certification</th>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                                <th style="width:5%;">Download PDF</th>
+                            <?php } ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                                <th style="width:5%;">E-Mail Certificate</th>
+                            <?php } ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                                <th style="width:5%;">Update Status</th>
+                            <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane" id="certified" role="tabpanel" aria-labelledby="certified-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" id="shBtnCertifiedTable">Show/hide</a></h3>
+                    </div>
+                    <div id="manageCertifiedTable">
+                    </div>
+                </div>
+                <table id="certifiedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+                    <thead>
+                        <tr class="certifiedSent">
+                            <th style="width:10%;">Tester</th>
+                            <th style="width:10%;">Professional Registration No(if available </th>
+                            <th style="width:10%;">Certification Registration no </th>
+                            <th style="width:10%;">Certification ID </th>
+
+                            <th style="width:10%;">Final Decision</th>
+                            <th style="width:10%;">Certificate Issuer</th>
+                            <th style="width:10%;">Date Certificate Issued</th>
+                            <th style="width:10%;">Date Certificate Sent</th>
+                            <th style="width:10%;">Type of Certification</th>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
+                                <th style="width:5%;">Edit</th>
+                            <?php } ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                                <th style="width:5%;">PDF</th>
+                            <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" id="shBtnPendingManageColumns">Show/hide</a></h3>
+                    </div>
+                    <div id="managePendingTable">
+                    </div>
+                </div>
+                <table id="pendingTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
+                    <thead>
+                        <tr class="pendingToSent">
+                            <th style="width:10%;">Tester</th>
+                            <th style="width:20% !important;">Professional Registration No.<br>(if available) </th>
+                            <th style="width:20%;">Certification Registration no. </th>
+                            <th style="width:20%;">Certification ID </th>
+
+                            <th style="width:10%;">Final Decision</th>
+                            <!--<th  style="width:10%;">Certificate Issuer</th>-->
+                            <!--<th  style="width:10%;">Date Certificate Issued</th>-->
+                            <!--<th style="width:10%;">Date Certificate Sent</th>-->
+                            <th style="width:10%;">Type of Certification</th>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
+                                <th style="width:5%;">Edit</th>
+                            <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -192,374 +182,442 @@ $acl = $this->layout()->acl;
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.responsive.min.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
-<script type="text/javascript" language="javascript" >
-$('#certificationTab a').on('click', function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
+<script type="text/javascript" language="javascript">
+    $('#certificationTab a').on('click', function(e) {
+        e.preventDefault()
+        $(this).tab('show')
+    })
 
-var recommendedTable = null;
-var toBeSentTable = null;
-var certifiedTable = null;
-var pendingTable = null;
-approvalRow = [];
-$(document).ready(function () {
-    recommendedForCertificateInit();
-    toBeSentInit();
-    certifiedInit();
-    pendingInit();
-    var listOfRecommendedColumns = '';
-        $('tr.allreminders').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfRecommendedColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleRecommendedBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+    var recommendedTable = null;
+    var toBeSentTable = null;
+    var certifiedTable = null;
+    var pendingTable = null;
+    approvalRow = [];
+    $(document).ready(function() {
+        recommendedForCertificateInit();
+        toBeSentInit();
+        certifiedInit();
+        pendingInit();
+        var listOfRecommendedColumns = '';
+        $('tr.allreminders').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfRecommendedColumns += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="toggleRecommendedBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
             });
-        }); 
+        });
         $("#manageRecommendedColumns").html(listOfRecommendedColumns);
-        $('a.toggle-vis').on( 'click', function (e) {
-            e.preventDefault(); 
-            // Get the column API object
-            var column = recommendedTable.column( $(this).attr('data-column') ); 
-            // Toggle the visibility
-            column.visible( ! column.visible() );
-            $("#provider_wrapper").css("overflow-x","scroll");
+        $('a.toggle-vis').on('click', function(e) {
+            e.preventDefault();
+            var column = recommendedTable.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
         });
         $("#manageRecommendedColumns").hide();
-        $("#shBtnRecommendedManageColumns").click(function(){
-            $("#manageRecommendedColumns").toggle('fast','linear');
-        }); 
+        $("#shBtnRecommendedManageColumns").click(function() {
+            $("#manageRecommendedColumns").toggle('fast', 'linear');
+        });
 
-//
+        //
         var listOfcertificateSent = '';
-        $('tr.certificateSent').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfcertificateSent+='<a class="toggle-certificate-sent btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleCertificateSentBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+        $('tr.certificateSent').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfcertificateSent += '<a class="toggle-certificate-sent btn btn-primary btn-sm" data-column="' + index + '" onclick="toggleCertificateSentBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
             });
-        }); 
+        });
         $("#manageCertificateSent").html(listOfcertificateSent);
-        $('a.toggle-certificate-sent').on( 'click', function (e) {
-            e.preventDefault(); 
-            // Get the column API object
-            var column = toBeSentTable.column( $(this).attr('data-column') ); 
-            // Toggle the visibility
-            column.visible( ! column.visible() );
-            $("#provider_wrapper").css("overflow-x","scroll");
+        $('a.toggle-certificate-sent').on('click', function(e) {
+            e.preventDefault();
+            var column = toBeSentTable.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
         });
         $("#manageCertificateSent").hide();
-        $("#shBtnCertificateSent").click(function(){
-            $("#manageCertificateSent").toggle('fast','linear');
-        });     
-//
+        $("#shBtnCertificateSent").click(function() {
+            $("#manageCertificateSent").toggle('fast', 'linear');
+        });
+        //
         var listOfCertifiedTable = '';
-        $('tr.certifiedSent').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfCertifiedTable+='<a class="toggle-certified-table btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleCertifiedTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+        $('tr.certifiedSent').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfCertifiedTable += '<a class="toggle-certified-table btn btn-primary btn-sm" data-column="' + index + '" onclick="toggleCertifiedTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
             });
-        }); 
+        });
         $("#manageCertifiedTable").html(listOfCertifiedTable);
-        $('a.toggle-certified-table').on( 'click', function (e) {
-            e.preventDefault(); 
-            // Get the column API object
-            var column = certifiedTable.column( $(this).attr('data-column') ); 
-            // Toggle the visibility
-            column.visible( ! column.visible() );
-            $("#provider_wrapper").css("overflow-x","scroll");
+        $('a.toggle-certified-table').on('click', function(e) {
+            e.preventDefault();
+            var column = certifiedTable.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
         });
         $("#manageCertifiedTable").hide();
-        $("#shBtnCertifiedTable").click(function(){
-            $("#manageCertifiedTable").toggle('fast','linear');
+        $("#shBtnCertifiedTable").click(function() {
+            $("#manageCertifiedTable").toggle('fast', 'linear');
         });
-//
-    var listOfPendingTable = '';
-        $('tr.pendingToSent').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfPendingTable+='<a class="toggle-pending-table btn btn-primary btn-sm" data-column="'+index+'" onclick="togglePendingTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+        //
+        var listOfPendingTable = '';
+        $('tr.pendingToSent').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfPendingTable += '<a class="toggle-pending-table btn btn-primary btn-sm" data-column="' + index + '" onclick="togglePendingTableBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
             });
-        }); 
+        });
         $("#managePendingTable").html(listOfPendingTable);
-        $('a.toggle-pending-table').on( 'click', function (e) {
-            e.preventDefault(); 
-            // Get the column API object
-            var column = pendingTable.column( $(this).attr('data-column') ); 
-            // Toggle the visibility
-            column.visible( ! column.visible() );
-            $("#provider_wrapper").css("overflow-x","scroll");
+        $('a.toggle-pending-table').on('click', function(e) {
+            e.preventDefault();
+            var column = pendingTable.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
         });
         $("#managePendingTable").hide();
-        $("#shBtnPendingManageColumns").click(function(){
-            $("#managePendingTable").toggle('fast','linear');
+        $("#shBtnPendingManageColumns").click(function() {
+            $("#managePendingTable").toggle('fast', 'linear');
         });
 
 
-});
+    });
 
-function toggleRecommendedBtnClass(btnObj){
-        $(btnObj).toggleClass("btn-default");
-        var children = btnObj.childNodes;
-        var iconTag = children[1].firstChild;
-        $(iconTag).toggleClass("glyphicon-remove");
-    }
-    function toggleCertificateSentBtnClass(btnObj){
-        $(btnObj).toggleClass("btn-default");
-        var children = btnObj.childNodes;
-        var iconTag = children[1].firstChild;
-        $(iconTag).toggleClass("glyphicon-remove");
-    }
-    function toggleCertifiedTableBtnClass(btnObj){
-        $(btnObj).toggleClass("btn-default");
-        var children = btnObj.childNodes;
-        var iconTag = children[1].firstChild;
-        $(iconTag).toggleClass("glyphicon-remove");
-    }
-    function togglePendingTableBtnClass(btnObj){
+    function toggleRecommendedBtnClass(btnObj) {
         $(btnObj).toggleClass("btn-default");
         var children = btnObj.childNodes;
         var iconTag = children[1].firstChild;
         $(iconTag).toggleClass("glyphicon-remove");
     }
 
-function recommendedForCertificateInit(){
-    recommendedTable = $('#recommendedTable').DataTable({
-        "bAutoWidth": false,
-        "bScrollCollapse": false,
-        "bRetrieve": false,
-        "bDestroy": true,
-        "pageLength": 50,
-        "aoColumns": [
-             <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
-                {"sClass":"center","bSortable":false},
-             <?php } ?>
-		{"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":"center"},
-                {"sClass":"center"},
-                {"sClass":"center"}
-        ],
-        //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval'))?3:2; ?>, "asc" ]],
-        "aaSorting": [],
-        "fnDrawCallback": function( oSettings ) {
-            $('input:checkbox').each(function () {
-                if($.inArray(this.value, approvalRow)!= -1){
-                    $('#'+this.id).prop('checked',true);
+    function toggleCertificateSentBtnClass(btnObj) {
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+    function toggleCertifiedTableBtnClass(btnObj) {
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+    function togglePendingTableBtnClass(btnObj) {
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+    function recommendedForCertificateInit() {
+        recommendedTable = $('#recommendedTable').DataTable({
+            "bAutoWidth": false,
+            "bScrollCollapse": false,
+            "bRetrieve": false,
+            "bDestroy": true,
+            "pageLength": 50,
+            "aoColumns": [
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?> {
+                        "sClass": "center",
+                        "bSortable": false
+                    },
+                <?php } ?> {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": "center"
+                },
+                {
+                    "sClass": "center"
+                },
+                {
+                    "sClass": "center"
                 }
-                if($('#selectdeselect').val() == 'deselect'){
-                    $('#'+this.id).prop('checked',false);
-                }
-            });
-        },
-        "bProcessing": true,
-        "bServerSide": true,
-        "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'recommended')); ?>",
-        "fnServerData": function ( sSource, aoData, fnCallback ) {
-            $.ajax({
-                "dataType": 'json',
-                "type": "POST",
-                "url": sSource,
-                "data": aoData,
-                "success": fnCallback
-            });
-        }
-    });
-}
-
-function toBeSentInit(){
-    toBeSentTable=$('#toBeSentTable').DataTable({
-        "bAutoWidth": false,
-        "bScrollCollapse": false,
-        "bRetrieve": false,
-        "bDestroy": true,
-        "pageLength": 10,
-        "aoColumns": [
-		{"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
-                 {"sClass":"center"},
-                <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
-                 {"sClass":"center"},
-                <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
-                 {"sClass":"center"},
-                <?php } ?>
-        ],
-        "aaSorting": [],
-        "bProcessing": true,
-        "bServerSide": true,
-        "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'to-be-sent')); ?>",
-        "fnServerData": function ( sSource, aoData, fnCallback ) {
-            $.ajax({
-                "dataType": 'json',
-                "type": "POST",
-                "url": sSource,
-                "data": aoData,
-                "success": fnCallback
-            });
-        }
-    });
-}
-
-function certifiedInit(){
-    certifiedTable=$('#certifiedTable').DataTable({
-        "bAutoWidth": false,
-        "bScrollCollapse": false,
-        "bRetrieve": false,
-        "bDestroy": true,
-        "pageLength": 10,
-        "aoColumns": [
-		{"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                 <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
-                  {"sClass":"center"},
-                <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
-                 {"sClass":"center"},
-                <?php } ?>
-        ],
-        "aaSorting": [],
-        "bProcessing": true,
-        "bServerSide": true,
-        "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'certified')); ?>",
-        "fnServerData": function ( sSource, aoData, fnCallback ) {
-            $.ajax({
-                "dataType": 'json',
-                "type": "POST",
-                "url": sSource,
-                "data": aoData,
-                "success": fnCallback
-            });
-        }
-    });
-}
-
-function pendingInit(){
-    pendingTable=$('#pendingTable').DataTable({
-        "bAutoWidth": false,
-        "bScrollCollapse": false,
-        "bRetrieve": false,
-        "bDestroy": true,
-        "pageLength": 10,
-        "aoColumns": [
-		{"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                {"sClass":""},
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
-                  {"sClass":"center"},
-                <?php } ?>
-        ],
-        "aaSorting": [],
-        "bProcessing": true,
-        "bServerSide": true,
-        "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'pending')); ?>",
-        "fnServerData": function ( sSource, aoData, fnCallback ) {
-            $.ajax({
-                "dataType": 'json',
-                "type": "POST",
-                "url": sSource,
-                "data": aoData,
-                "success": fnCallback
-            });
-        }
-    });
-}
-
-function selectForApproval(obj){
-    var rowId = $(obj).attr('id');
-    var rowValue = $(obj).attr('value');
-    if($('#'+rowId).is(':checked')){
-       approvalRow.push(rowValue);
-    }else{
-       var examIndex = approvalRow.indexOf(rowValue);
-       approvalRow.splice(examIndex, 1);
+            ],
+            //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval'))?3:2; ?>, "asc" ]],
+            "aaSorting": [],
+            "fnDrawCallback": function(oSettings) {
+                $('input:checkbox').each(function() {
+                    if ($.inArray(this.value, approvalRow) != -1) {
+                        $('#' + this.id).prop('checked', true);
+                    }
+                    if ($('#selectdeselect').val() == 'deselect') {
+                        $('#' + this.id).prop('checked', false);
+                    }
+                });
+            },
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "<?php echo $this->url('certification', array('action' => 'recommended')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        });
     }
-    if(approvalRow.length == 0){
+
+    function toBeSentInit() {
+        toBeSentTable = $('#toBeSentTable').DataTable({
+            "bAutoWidth": false,
+            "bScrollCollapse": false,
+            "bRetrieve": false,
+            "bDestroy": true,
+            "pageLength": 10,
+            "aoColumns": [{
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+            ],
+            "aaSorting": [],
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "<?php echo $this->url('certification', array('action' => 'to-be-sent')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        });
+    }
+
+    function certifiedInit() {
+        certifiedTable = $('#certifiedTable').DataTable({
+            "bAutoWidth": false,
+            "bScrollCollapse": false,
+            "bRetrieve": false,
+            "bDestroy": true,
+            "pageLength": 10,
+            "aoColumns": [{
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+            ],
+            "aaSorting": [],
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "<?php echo $this->url('certification', array('action' => 'certified')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        });
+    }
+
+    function pendingInit() {
+        pendingTable = $('#pendingTable').DataTable({
+            "bAutoWidth": false,
+            "bScrollCollapse": false,
+            "bRetrieve": false,
+            "bDestroy": true,
+            "pageLength": 10,
+            "aoColumns": [{
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                {
+                    "sClass": ""
+                },
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?> {
+                        "sClass": "center"
+                    },
+                <?php } ?>
+            ],
+            "aaSorting": [],
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "<?php echo $this->url('certification', array('action' => 'pending')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        });
+    }
+
+    function selectForApproval(obj) {
+        var rowId = $(obj).attr('id');
+        var rowValue = $(obj).attr('value');
+        if ($('#' + rowId).is(':checked')) {
+            approvalRow.push(rowValue);
+        } else {
+            var examIndex = approvalRow.indexOf(rowValue);
+            approvalRow.splice(examIndex, 1);
+        }
+        if (approvalRow.length == 0) {
+            $('#status,.manageApproval').hide();
+            $('.selectdeselect').attr('onclick', 'selectForAllApproval()');
+            $('.selectdeselect').text('Select All');
+        } else {
+            $('#status,.manageApproval').show();
+            $('.selectdeselect').attr('onclick', 'deSelectForAllApporval()');
+            $('.selectdeselect').text('Deselect All');
+        }
+        $('.selectedRows').html(approvalRow.length + ' Row(s) Selected');
+    }
+
+    function selectForAllApproval() {
+        approvalRow = [];
+        $('#selectdeselect').val('select');
+        $('.approvalRow').prop('checked', true);
+        var approvalIDs = $("#recommendedTable input:checkbox:checked").map(function() {
+            return $(this).val();
+        }).get();
+        approvalRow = approvalIDs;
+        if (approvalRow.length > 0) {
+            $('#status,.manageApproval').show();
+            $('.selectdeselect').attr('onclick', 'deSelectForAllApporval()');
+            $('.selectdeselect').text('Deselect All');
+            $('.selectedRows').html(approvalRow.length + ' Row(s) Selected');
+        } else {
+            alert('Selection not available');
+        }
+    }
+
+    function deSelectForAllApporval() {
+        approvalRow = [];
         $('#status,.manageApproval').hide();
-        $('.selectdeselect').attr('onclick','selectForAllApproval()');
+        $('#selectdeselect').val('deselect');
+        $('.approvalRow').prop('checked', false);
+        $('.selectdeselect').attr('onclick', 'selectForAllApproval()');
         $('.selectdeselect').text('Select All');
-    }else{
-        $('#status,.manageApproval').show();
-        $('.selectdeselect').attr('onclick','deSelectForAllApporval()');
-        $('.selectdeselect').text('Deselect All');
+        $('.selectedRows').html(approvalRow.length + ' Row(s) Selected');
     }
-    $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
-}
 
-function selectForAllApproval(){
-    approvalRow = [];  
-    $('#selectdeselect').val('select');
-    $('.approvalRow').prop('checked',true);
-    var approvalIDs = $("#recommendedTable input:checkbox:checked").map(function(){
-        return $(this).val();
-      }).get();
-    approvalRow = approvalIDs;
-    if(approvalRow.length > 0){
-        $('#status,.manageApproval').show();
-        $('.selectdeselect').attr('onclick','deSelectForAllApporval()');
-        $('.selectdeselect').text('Deselect All');
-        $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
-    }else{
-      alert('Selection not available');
+    function manageApproval() {
+        if (approvalRow.length == 0) {
+            alert('Please select atleast one row and then submit');
+            return false;
+        } else if ($.trim($('#status').val()) == '') {
+            alert('Please select status');
+            return false;
+        } else {
+            $.post("<?php echo $this->url('certification', array('action' => 'approval')); ?>", {
+                    approvalRow: approvalRow,
+                    status: $('#status').val()
+                },
+                function(data) {
+                    deSelectForAllApporval();
+                    recommendedTable.draw();
+                });
+        }
     }
-}
 
-function deSelectForAllApporval(){
-    approvalRow = [];
-    $('#status,.manageApproval').hide(); 
-    $('#selectdeselect').val('deselect');
-    $('.approvalRow').prop('checked',false);
-    $('.selectdeselect').attr('onclick','selectForAllApproval()');
-    $('.selectdeselect').text('Select All');
-    $('.selectedRows').html(approvalRow.length+' Row(s) Selected');
-}
-
-function manageApproval(){
-   if(approvalRow.length == 0){
-        alert('Please select atleast one row and then submit');
-        return false;
-    }else if($.trim($('#status').val()) == ''){
-        alert('Please select status');
-        return false;
-    }else{
-        $.post("<?php echo $this->url('certification',array('action'=>'approval')); ?>", {approvalRow:approvalRow,status:$('#status').val()},
-        function(data){
-            deSelectForAllApporval();
-            recommendedTable.draw();
-        });
+    function markAsSent(IDVar, ID, keyVar, key) {
+        var conf = confirm('Do you really want to mark this certificate as sent?');
+        if (conf) {
+            location.href = "/certification/index?" + IDVar + "=" + ID + "&" + keyVar + "=" + key;
+        } else {
+            return false;
+        }
     }
-}
-
-function markAsSent(IDVar,ID,keyVar,key){
-    var conf = confirm('Do you really want to mark this certificate as sent?');
-    if(conf){
-        location.href="/certification/index?"+IDVar+"="+ID+"&"+keyVar+"="+key;
-    }else{
-        return false;
-    }
-}
-<?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
-//Insert a raw HTML into data table
-var count_elem = document.getElementById('recommendedTable');
-var div = document.createElement('div');
-div.innerHTML = '<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllApproval();" style="padding:4px;margin-bottom: 1vh;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="selectedRows">0 Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<select id="status" title="Select Status" style="display:none;margin-right:1%;"><option value=""> -- Select -- </optin><option value="approved">Approve</optin><option value="rejected">Reject</optin></select><a class="btn btn-primary manageApproval" href="javascript:void(0);" onclick="manageApproval();" style="display:none;padding:4px;margin-bottom: 1vh;">Submit</a>';
-count_elem.parentNode.insertBefore(div, count_elem);
-<?php } ?>
+    <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
+        //Insert a raw HTML into data table
+        var count_elem = document.getElementById('recommendedTable');
+        var div = document.createElement('div');
+        div.innerHTML = '<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllApproval();" style="padding:4px;margin-bottom: 1vh;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="selectedRows">0 Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<select id="status" title="Select Status" style="display:none;margin-right:1%;"><option value=""> -- Select -- </optin><option value="approved">Approve</optin><option value="rejected">Reject</optin></select><a class="btn btn-primary manageApproval" href="javascript:void(0);" onclick="manageApproval();" style="display:none;padding:4px;margin-bottom: 1vh;">Submit</a>';
+        count_elem.parentNode.insertBefore(div, count_elem);
+    <?php } ?>
 </script>
