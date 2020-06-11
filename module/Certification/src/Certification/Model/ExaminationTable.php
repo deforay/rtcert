@@ -10,6 +10,7 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
+use Zend\Debug\Debug;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 
@@ -864,6 +865,51 @@ class ExaminationTable {
             throw new \Exception("Could not find row $id");
         }
         return $row;
+    }
+
+    public function report($params)
+    {
+        // Debug::dump($params);die;
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        if($params['Exam'] == 'practical-exam'){
+            $sQuery = $sql->select()->from(array('p_ex'=>'practical_exam'))
+                                    ->columns(array('practicalExamDate'=>'date', 'practical_total_score'))
+                                    ->join(array('p' => 'provider'), "p_ex.provider_id=p.id", array('last_name','first_name','middle_name','phone','email'),'left')
+                                    // ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'))
+                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
+                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
+                                    ->where('p_ex.provider_id NOT IN (p.id)')
+                                    ;
+            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
+                $sQuery->where(array('p.district' =>$params['District']));
+            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+                $sQuery->where(array('p.region' => $params['Region']));
+            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
+                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            }
+            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+            die($fQuery);
+            return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        }
+        
+        if($params['Exam'] == 'written-exam'){
+            $sQuery = $sql->select()->from(array('p'=>'provider'))
+                                    ->columns(array('last_name','first_name','middle_name','phone','email'))
+                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id!=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
+                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
+                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left');
+            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
+                $sQuery->where(array('p.district' =>$params['District']));
+            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+                $sQuery->where(array('p.region' => $params['Region']));
+            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
+                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            }
+            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+            die($fQuery);
+            return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        }
     }
     
 } 

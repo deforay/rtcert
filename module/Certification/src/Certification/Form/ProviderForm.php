@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
+use Zend\Form\Form;
 use Zend\Session\Container;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Form\Form;
 use Application\Model\GlobalTable;
 
 class ProviderForm extends Form {
