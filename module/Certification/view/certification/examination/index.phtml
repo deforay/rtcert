@@ -12,6 +12,10 @@ $acl = $this->layout()->acl;
     .center{
         text-align:center;
     }
+    .anchor {
+        font-size: 17px;
+        font-weight: 600;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -43,112 +47,149 @@ $acl = $this->layout()->acl;
             </li>
         </ul>
         <div class="tab-content" id="recommendationContent">
-          <div class="tab-pane active" id="recommend" role="tabpanel" aria-labelledby="recommend-tab">
-            <table id="recommendTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
-                <thead>
-                    <tr>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
-                          <th  style="width:4%;"># </th>
-                        <?php } ?>
-                        <th  style="width:10%;">Tester </th>
-                        <th  style="width:10%;">Professional Registration No.<br>(if available) </th>
-                        
-                        <th  style="width:10%;">Certification Registration no. </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;">Written Exam<br>Score </th>
-                        <th  style="width:10%;">Practical Exam<br>Score </th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane fade" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
-            <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-                <thead>
-                    <tr>
-                    <th  style="width:10%;">Tester</th>
-                        <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
-                        <th  style="width:10%;"> Certification Registration no. </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;"> Final Decision</th>
-                        <th  style="width:10%;">Certificate Recommended By</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
-                        <th  style="width:10%;">Date Certificate Sent</th>
-                        <th  style="width:10%;">Type of Certification</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
-            <table id="approvedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-                <thead>
-                    <tr>
+            <div class="tab-pane active" id="recommend" role="tabpanel" aria-labelledby="recommend-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" class="show-hide anchor" data-type="waiting">Show/hide</a></h3>
+                    </div>
+                    <div class="waiting"></div>
+                </div>
+                <table id="recommendTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
+                    <thead>
+                        <tr class="waiting-tr">
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
+                            <th  style="width:4%;"># </th>
+                            <?php } ?>
+                            <th  style="width:10%;">Tester </th>
+                            <th  style="width:10%;">Professional Registration No.<br>(if available) </th>
+                            <th  style="width:10%;">Certification Registration no. </th>
+                            <th  style="width:10%;">Certification ID  </th>
+                            <th  style="width:10%;">Written Exam<br>Score </th>
+                            <th  style="width:10%;">Practical Exam<br>Score </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="dataTables_empty" style="text-align:center;">Loading data from server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="recommended" role="tabpanel" aria-labelledby="recommended-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" class="show-hide anchor" data-type="already">Show/hide</a></h3>
+                    </div>
+                    <div class="already"></div>
+                </div>
+                <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                    <thead>
+                        <tr class="already-tr">
                         <th  style="width:10%;">Tester</th>
-                        <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
-                        <th  style="width:10%;"> Certification Registration no. </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        
-                        <th  style="width:10%;"> Final Decision</th>
-                        <th  style="width:10%;">Certificate Recommended By</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
-                        <th  style="width:10%;">Date Certificate Sent</th>
-                        <th  style="width:10%;">Type of Certification</th>
-                    <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
-                        <th  style="width:10%;">PDF</th>
-                    <?php } ?>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
-            <table id="pendingTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th  style="width:10%;">Tester </th>
-                        <th  style="width:10%;">Region</th>
-                        <th  style="width:10%;">District</th>
-                        <th  style="width:10%;">Phone</th>
-                        <th  style="width:10%;">Email</th>
-                        <th  style="width:10%;">Writen Exam Date</th>
-                        <th  style="width:10%;">Writen Test Score</th>
-                        <th  style="width:10%;">Practical Exam Date</th>
-                        <th  style="width:10%;">Practical Test Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div class="tab-pane fade" id="failed" role="tabpanel" aria-labelledby="failed-tab">
-            <table id="failedTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th  style="width:10%;">Tester </th>
-                        <th  style="width:10%;">Region</th>
-                        <th  style="width:10%;">District</th>
-                        <th  style="width:10%;">Phone</th>
-                        <th  style="width:10%;">Email</th>
-                        <th  style="width:10%;">Writen Exam Date</th>
-                        <th  style="width:10%;">Writen Test Score</th>
-                        <th  style="width:10%;">Practical Exam Date</th>
-                        <th  style="width:10%;">Practical Test Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
+                            <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
+                            <th  style="width:10%;"> Certification Registration no. </th>
+                            <th  style="width:10%;">Certification ID  </th>
+                            <th  style="width:10%;"> Final Decision</th>
+                            <th  style="width:10%;">Certificate Recommended By</th>
+                            <th  style="width:10%;">Date Certificate Issued</th>
+                            <th  style="width:10%;">Date Certificate Sent</th>
+                            <th  style="width:10%;">Type of Certification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="dataTables_empty" style="text-align:center;">Loading data from server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" class="show-hide anchor" data-type="approved">Show/hide</a></h3>
+                    </div>
+                    <div class="approved"></div>
+                </div>
+                <table id="approvedDataTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                    <thead>
+                        <tr class="approved-tr">
+                            <th  style="width:10%;">Tester</th>
+                            <th  style="width:10%;"> Professional Registration No.<br>(if available) </th>
+                            <th  style="width:10%;"> Certification Registration no. </th>
+                            <th  style="width:10%;">Certification ID  </th>
+                            <th  style="width:10%;"> Final Decision</th>
+                            <th  style="width:10%;">Certificate Recommended By</th>
+                            <th  style="width:10%;">Date Certificate Issued</th>
+                            <th  style="width:10%;">Date Certificate Sent</th>
+                            <th  style="width:10%;">Type of Certification</th>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                            <th  style="width:10%;">PDF</th>
+                        <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="10" class="dataTables_empty" style="text-align:center;">Loading data from server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" class="show-hide anchor" data-type="pending">Show/hide</a></h3>
+                    </div>
+                    <div class="pending"></div>
+                </div>
+                <table id="pendingTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                    <thead>
+                        <tr class="pending-tr">
+                            <th  style="width:10%;">Tester </th>
+                            <th  style="width:10%;">Region</th>
+                            <th  style="width:10%;">District</th>
+                            <th  style="width:10%;">Phone</th>
+                            <th  style="width:10%;">Email</th>
+                            <th  style="width:10%;">Writen Exam Date</th>
+                            <th  style="width:10%;">Writen Test Score</th>
+                            <th  style="width:10%;">Practical Exam Date</th>
+                            <th  style="width:10%;">Practical Test Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="9" class="dataTables_empty" style="text-align:center;">Loading data from server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="failed" role="tabpanel" aria-labelledby="failed-tab">
+                <div class="well container">
+                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                        <h3>Manage Columns &nbsp;<a href="javascript:void(0)" class="show-hide anchor" data-type="failed">Show/hide</a></h3>
+                    </div>
+                    <div class="failed"></div>
+                </div>
+                <table id="failedTestTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                    <thead>
+                        <tr class="failed-tr">
+                            <th  style="width:10%;">Tester </th>
+                            <th  style="width:10%;">Region</th>
+                            <th  style="width:10%;">District</th>
+                            <th  style="width:10%;">Phone</th>
+                            <th  style="width:10%;">Email</th>
+                            <th  style="width:10%;">Writen Exam Date</th>
+                            <th  style="width:10%;">Writen Test Score</th>
+                            <th  style="width:10%;">Practical Exam Date</th>
+                            <th  style="width:10%;">Practical Test Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="9" class="dataTables_empty" style="text-align:center;">Loading data from server</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -164,14 +205,133 @@ $('#recommendationTab a').on('click', function (e) {
 })
 
 var recommendTable = null;
+var alreadyTable = null;
+var approvedTable = null;
+var pendingTable = null;
+var failedTable = null;
+
 recommendationRow = [];
+
 $(document).ready(function () {
+    
+    var waitingTab = '';var alreadyTab = '';var approvedTab = '';var pendingTab = '';var failedTab = '';
+
     recommendInit();
     recommendedInit();
     approvedInit();
     pendingTestsInit();
     failedTestsInit();
+
+    /* Each operation waiting start*/
+    $('tr.waiting-tr').each(function() {
+        $(this).find('th').each(function(index) {
+            waitingTab += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="showhide(this);"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+        });
+    });
+
+    $(".waiting").html(waitingTab);
+    $('a.toggle-vis').on('click', function(e) {
+        e.preventDefault();
+        var column = recommendTable.column($(this).attr('data-column'));
+        column.visible(!column.visible());
+        $("#provider_wrapper").css("overflow-x", "scroll");
+    });
+    $(".waiting").hide();
+    /* Each operation waiting end*/
+
+    /* Each operation already start*/
+    $('tr.already-tr').each(function() {
+        $(this).find('th').each(function(index) {
+            alreadyTab += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="showhide(this);"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+        });
+    });
+
+    $(".already").html(alreadyTab);
+    $('a.toggle-vis').on('click', function(e) {
+        e.preventDefault();
+        // console.log(alreadyTable.column);
+        var column = alreadyTable.column($(this).attr('data-column'));
+        column.visible(!column.visible());
+        $("#provider_wrapper").css("overflow-x", "scroll");
+    });
+    $(".already").hide();
+    /* Each operation already end*/
+    
+    /* Each operation approved start*/
+    $('tr.approved-tr').each(function() {
+        $(this).find('th').each(function(index) {
+            approvedTab += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="showhide(this);"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+        });
+    });
+
+    $(".approved").html(approvedTab);
+    $('a.toggle-vis').on('click', function(e) {
+        e.preventDefault();
+        var column = approvedTable.column($(this).attr('data-column'));
+        column.visible(!column.visible());
+        $("#provider_wrapper").css("overflow-x", "scroll");
+    });
+    $(".approved").hide();
+    /* Each operation approved end*/
+    
+    /* Each operation pending start*/
+    $('tr.pending-tr').each(function() {
+        $(this).find('th').each(function(index) {
+            pendingTab += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="showhide(this);"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+        });
+    });
+
+    $(".pending").html(pendingTab);
+    $('a.toggle-vis').on('click', function(e) {
+        e.preventDefault();
+        var column = pendingTable.column($(this).attr('data-column'));
+        column.visible(!column.visible());
+        $("#provider_wrapper").css("overflow-x", "scroll");
+    });
+    $(".pending").hide();
+    /* Each operation pending end*/
+    
+    /* Each operation failed start*/
+    $('tr.failed-tr').each(function() {
+        $(this).find('th').each(function(index) {
+            failedTab += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="showhide(this);"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+        });
+    });
+
+    $(".failed").html(failedTab);
+    $('a.toggle-vis').on('click', function(e) {
+        e.preventDefault();
+        var column = failedTable.column($(this).attr('data-column'));
+        column.visible(!column.visible());
+        $("#provider_wrapper").css("overflow-x", "scroll");
+    });
+    $(".failed").hide();
+    /* Each operation failed end*/
+    $(".show-hide").click(function() {
+        if($(this).attr('data-type') == 'waiting'){
+            $(".waiting").toggle('fast', 'linear');
+        }
+        if($(this).attr('data-type') == 'already'){
+            $(".already").toggle('fast', 'linear');
+        }
+        if($(this).attr('data-type') == 'approved'){
+            $(".approved").toggle('fast', 'linear');
+        }
+        if($(this).attr('data-type') == 'pending'){
+            $(".pending").toggle('fast', 'linear');
+        }
+        if($(this).attr('data-type') == 'failed'){
+            $(".failed").toggle('fast', 'linear');
+        }
+    });
 });
+
+function showhide(btnObj) {
+    $(btnObj).toggleClass("btn-default");
+    var children = btnObj.childNodes;
+    var iconTag = children[1].firstChild;
+    $(iconTag).toggleClass("glyphicon-remove");
+}
 
 function recommendInit(){
     recommendTable = $('#recommendTable').DataTable({
@@ -212,14 +372,16 @@ function recommendInit(){
                 "type": "POST",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                "success": function (json) {
+                    fnCallback(json);
+               }
             });
         }
     });
 }
 
 function recommendedInit(){
-   $('#recommendedTable').dataTable({
+    alreadyTable = $('#recommendedTable').DataTable({
     "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -246,14 +408,16 @@ function recommendedInit(){
                 "type": "POST",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                "success": function (json) {
+                    fnCallback(json);
+               }
             });
         }
     });
 }
 
 function approvedInit(){
-   $('#approvedTable').dataTable({
+    approvedTable = $('#approvedDataTable').DataTable({
     "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -283,14 +447,16 @@ function approvedInit(){
                 "type": "POST",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                "success": function (json) {
+                    fnCallback(json);
+               }
             });
         }
     });
 }
 
 function pendingTestsInit(){
-  $('#pendingTestTable').dataTable({
+    pendingTable = $('#pendingTestTable').DataTable({
     "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -317,14 +483,16 @@ function pendingTestsInit(){
                 "type": "POST",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                "success": function (json) {
+                    fnCallback(json);
+               }
             });
         }
     });
 }
 
 function failedTestsInit(){
-  $('#failedTestTable').dataTable({
+    failedTable = $('#failedTestTable').DataTable({
     "bAutoWidth": false,
         "bScrollCollapse": false,
         "bRetrieve": false,
@@ -351,7 +519,9 @@ function failedTestsInit(){
                 "type": "POST",
                 "url": sSource,
                 "data": aoData,
-                "success": fnCallback
+                "success": function (json) {
+                    fnCallback(json);
+               }
             });
         }
     });
