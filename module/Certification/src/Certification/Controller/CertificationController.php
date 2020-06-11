@@ -358,6 +358,33 @@ class CertificationController extends AbstractActionController {
         );
     }
 
+    public function getCertificateReportAction()
+    {
+        $request = $this->getRequest();
+        $decision = $request->getPost('decision');
+        $typeHiv = $request->getPost('typeHIV');
+        $jobTitle = $request->getPost('jobTitle');
+        $dateRange = $request->getPost('dateRange');
+        if (!empty($dateRange)) {
+            $array = explode(" ", $dateRange);
+            $startDate = date("Y-m-d", strtotime($array[0]));
+            $endDate = date("Y-m-d", strtotime($array[2]));
+        } else {
+            $startDate = "";
+            $endDate = "";
+        }
+        $country = $request->getPost('country');
+        $region = $request->getPost('region');
+        $district = $request->getPost('district');
+        $facility = $request->getPost('facility');
+        $excludeTesterName = $request->getPost('exclude_tester_name');
+        $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' =>$result));
+        $viewModel->setTerminal(true);
+        return $viewModel;
+    }
+
     function pdfSettingAction() {
 
         

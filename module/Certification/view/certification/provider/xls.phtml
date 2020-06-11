@@ -136,12 +136,16 @@ $sessionLogin = new Container('credo');
                                     <?= $this->formElementErrors($form->get('exclude_tester_name')); ?>
                                 </div>
                                 <div class="form-group col-lg-12" style="margin-top: 30px;text-align:center;">
+                                    <!-- <button type="button" class="btn  btn-space btn-primary" onclik="getReport()" >GET REPORT</button> -->
+                                    <a href="javascript:void(0)" onclick="getTestReport();" value="Filter" class="btn  btn-space btn-primary">GET REPORT</a>
                                     <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'xls')); ?>" >CANCEL</a>
+                                    <a class="btn  btn-space btn-default" role="button"  href="<?php echo $this->url('provider', array('action' => 'xls')); ?>" >CANCEL</a>
                                 </div>
                                 <?php echo $this->form()->closeTag();
                                 ?>
                             </form>
+                            <div id="testReport">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -227,5 +231,29 @@ $sessionLogin = new Container('credo');
             xmlhttp.open("GET", "<?php echo $this->url('provider', array('action' => 'facility')); ?>?q=" + str, true);
             xmlhttp.send();
         }
+    }
+
+    function getTestReport(){
+        $('#testReport').html('');
+        $.post("<?php echo $this->url('provider', array('action' => 'getTesterReport')); ?>", 
+        {
+            region: $("[name=region]").val(),
+            district: $("[name=district]").val(),
+            facility_id: $("[name=facility_id]").val(),
+            type_vih_test: $("[name=type_vih_test]").val(),
+            prefered_contact_method: $("[name=prefered_contact_method]").val(),
+            current_jod: $("[name=current_jod]").val(),
+            exclude_tester_name: $("[name=exclude_tester_name]").val(),
+        },
+        function(data) {
+            // console.log(data)
+            $('#testReport').html(data);
+            var table = $('#testReportTable').DataTable({
+                "aProcessing": true,
+                "aServerSide": true,
+                "aaSorting": [],
+            });
+        });
+       
     }
     </script>

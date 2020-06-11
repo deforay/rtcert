@@ -163,11 +163,14 @@ $sessionLogin = new Container('credo');
                                 </div>
                                 <div class="row" style="text-align:center;">
                                     <div class="form-group col-lg-12" style="margin-top: 30px">
-                                        <button class="btn btn-primary" type="submit"  >GET REPORT</button> 
+                                        <a href="javascript:void(0)" onclick="getTrainReport();" class="btn btn-primary">GET REPORT</a>
+                                        <button class="btn btn-primary" type="submit"  >DOWNLOAD REPORT</button> 
                                         <a class="btn  btn-space btn-default" role="button" style="margin-top: 5px" href="<?php echo $this->url('training', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </div>
                         </form>
+                        <div id="trainingReport">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -252,6 +255,33 @@ $sessionLogin = new Container('credo');
             xmlhttp.open("GET", "<?php echo $this->url('provider', array('action' => 'facility')); ?>?q=" + str, true);
             xmlhttp.send();
         }
+    }
+
+    function getTrainReport(){
+        $('#trainingReport').html('');
+        $.post("<?php echo $this->url('training', array('action' => 'getTrainingReport')); ?>", 
+        {
+            type_of_competency: $("[name=type_of_competency]").val(),
+            type_of_training: $("[name=type_of_training]").val(),
+            training_organization_id: $("[name=training_organization_id]").val(),
+            training_certificate: $("[name=training_certificate]").val(),
+            type_vih_test: $("[name=typeHIV]").val(),
+            current_jod: $("[name=jobTitle]").val(),
+            exclude_tester_name: $("[name=exclude_tester_name]").val(),
+            region: $("[name=region]").val(),
+            district: $("[name=district]").val(),
+            facility_id: $("[name=facility_id]").val(),
+        },
+        function(data) {
+            console.log(data)
+            $('#trainingReport').html(data);
+            var table = $('#trainingReportTable').DataTable({
+                "aProcessing": true,
+                "aServerSide": true,
+                "aaSorting": [],
+            });
+        });
+       
     }
 </script>
 

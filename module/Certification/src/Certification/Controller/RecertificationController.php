@@ -118,7 +118,7 @@ class RecertificationController extends AbstractActionController {
         $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $countries = $this->getRecertificationTable()->getAllActiveCountries();
         $form = new RecertificationForm($dbAdapter);
-        $form->get('submit')->setValue('GET REPORT');
+        $form->get('submit')->setValue('DOWNLOAD REPORT');
         $request = $this->getRequest();
         if ($request->isPost()) {
             $decision = $request->getPost('decision');
@@ -326,6 +326,46 @@ class RecertificationController extends AbstractActionController {
             'countries' => $countries,
             'form' => $form
         );
+    }
+
+    public function getRecertificateReportAction()
+    {
+        $request = $this->getRequest();
+        $decision = $request->getPost('decision');
+        $typeHiv = $request->getPost('typeHIV');
+        $jobTitle = $request->getPost('jobTitle');
+        $country = $request->getPost('country');
+        $region = $request->getPost('region');
+        $district = $request->getPost('district');
+        $facility = $request->getPost('facility');
+        $due_date = $request->getPost('due_date');
+        $excludeTesterName = $request->getPost('exclude_tester_name');
+        if (!empty($due_date)) {
+            $array = explode(" ", $due_date);
+            $startDate = date("Y-m-d", strtotime($array[0]));
+            $endDate = date("Y-m-d", strtotime($array[2]));
+        } else {
+//                
+            $startDate = "";
+            $endDate = "";
+        }
+        $reminder_type = $request->getPost('reminder_type');
+        $reminder_sent_to = $request->getPost('reminder_sent_to');
+        $date_reminder_sent = $request->getPost('date_reminder_sent');
+        if (!empty($date_reminder_sent)) {
+            $array2 = explode(" ", $date_reminder_sent);
+            $startDate2 = date("Y-m-d", strtotime($array2[0]));
+            $endDate2 = date("Y-m-d", strtotime($array2[2]));
+        } else {
+//                
+            $startDate2 = "";
+            $endDate2 = "";
+        }
+        $result = $this->getRecertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2);
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' =>$result));
+        $viewModel->setTerminal(true);
+        return $viewModel;
     }
 
 }

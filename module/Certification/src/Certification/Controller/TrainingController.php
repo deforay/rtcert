@@ -268,4 +268,25 @@ class TrainingController extends AbstractActionController {
 //    }
     }
 
+    public function getTrainingReportAction()
+    {
+        $request = $this->getRequest();
+        $type_of_competency = $request->getPost('type_of_competency');
+        $type_of_training = $request->getPost('type_of_training');
+        $training_organization_id = $request->getPost('training_organization_id');
+        $training_certificate = $request->getPost('training_certificate');
+        $typeHiv = $request->getPost('type_vih_test');
+        $jobTitle = $request->getPost('current_jod');
+        $country = $request->getPost('country');
+        $region = $request->getPost('region');
+        $district = $request->getPost('district');
+        $facility = $request->getPost('facility_id');
+        $excludeTesterName = $request->getPost('exclude_tester_name');
+        $training = $this->getTrainingTable()->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' =>$training));
+        $viewModel->setTerminal(true);
+        return $viewModel;
+    }
+
 }
