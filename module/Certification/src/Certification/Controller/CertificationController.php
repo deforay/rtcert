@@ -582,4 +582,32 @@ class CertificationController extends AbstractActionController {
         }
     }
 
+
+    public function certificationExpiryAction() {
+        $countries = $this->getCertificationTable()->getAllActiveCountries();
+        return array(
+            'countries' => $countries,
+        );
+    }
+
+
+    public function getExpiryCertificateReportAction()
+    {
+        $request = $this->getRequest();
+        $expirydata = $request->getPost('expirycertification');
+        $result = $this->getCertificationTable()->expiryReport($expirydata);
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' =>$result, 'params' => $expirydata));
+        $viewModel->setTerminal(true);
+        return $viewModel;
+
+
+        // $params = $request->getPost();
+        // $result = $this->getExaminationTable()->report($params);
+        // $viewModel = new ViewModel();
+        // $viewModel->setVariables(array('result' =>$result, 'params' => $params));
+        // $viewModel->setTerminal(true);
+        // return $viewModel;
+    }
+
 }
