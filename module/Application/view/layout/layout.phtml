@@ -117,7 +117,7 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certificatio
 	$reportMenu .= "<li><a href=" . $this->url('certification', array('action' => 'certification-expiry')) . ">Certification Expiry Report</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Examination", "xls")) {
-	$reportMenu .= "<li><a href=" . $this->url('examination', array('action' => 'xls')) . "> Examination Reports</a></li>";
+	$reportMenu .= "<li><a href=" . $this->url('examination', array('action' => 'xls')) . "> Examination Pending Reports</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "test-frequency")) {
 	$reportMenu .= "<li><a href=" . $this->url('provider', array('action' => 'test-frequency')) . ">Online Test Reports</a></li>";
