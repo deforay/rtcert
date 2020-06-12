@@ -1367,6 +1367,7 @@ class CertificationTable
 
     public function expiryReport($expirydata)
     {
+        
         $logincontainer = new Container('credo');
         $roleCode = $logincontainer->roleCode;
 
@@ -1386,19 +1387,21 @@ class CertificationTable
             $syearmonth = date('Y-m', strtotime('first day of -'.$upForRecertificationdate.' month'));
             
             $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-31';
-            $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
+            $endDate= $syearmonth.'-'.date('d');
+            // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
+            $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
                        
         }
         if ($expirydata=='remindersSent') {
-            $sql = $sql . ' and certification.reminder_sent="no"';
+            $sql = $sql . ' and certification.reminder_sent="yes"';
         }
 
         if ($expirydata=='didNotRecertify') {
             $syearmonth = date('Y-m', strtotime('first day of -'.$didNotRecertifydate.' month'));            
             $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-31';
-            $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
+            $endDate= $syearmonth.'-'.date('d');
+            // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
+            $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
         }
        
         $statement = $db->query($sql);

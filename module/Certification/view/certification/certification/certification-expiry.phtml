@@ -38,8 +38,16 @@ $sessionLogin = new Container('credo');
                         <div class="col-sm-12">
                             <div class="panel panel-default">
                                 <div class="panel-body" >
+                                <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
+                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="upForRecertification">
                                     
-                                    <div id="upForRecertification">
+                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                  
+                                </form>
+                                </br>
+</br>
+</br>
+                                    <div id="upForRecertificationData">
                                     </div>
                                 </div>
                             </div>
@@ -48,13 +56,22 @@ $sessionLogin = new Container('credo');
                 </div>
             </div>
             <div class="tab-pane" id="remindersSent" role="tabpanel" aria-labelledby="practical-tab">
+                
                 <div class="widget widget-fullwidth widget-small" style="padding:5px;">
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="panel panel-default">
-                                <div class="panel-body" >
-                                    
-                                    <div id="remindersSent">
+                                <div class="panel-body" > 
+                                <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
+                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="remindersSent">
+                                  
+                                    <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                  
+                                </form>  
+                                </br>
+</br>
+</br>                                 
+                                    <div id="remindersSentData">
                                     </div>
                                 </div>
                             </div>
@@ -68,7 +85,16 @@ $sessionLogin = new Container('credo');
                         <div class="col-sm-12">
                             <div class="panel panel-default">
                                 <div class="panel-body" >
-                                    <div id="didNotRecertify">
+                                <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
+                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="didNotRecertify">
+                                   
+                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                   
+                                </form> 
+</br>
+</br>
+</br>
+                                    <div id="didNotRecertifyData">
                                     </div>
                                 </div>
                             </div>
@@ -176,13 +202,14 @@ $sessionLogin = new Container('credo');
     }
 
     function getReportOnlineTest(expirycertification){
-        $('#'+expirycertification).html('');
+        $('#'+expirycertification+'Data').html('');
         $.blockUI();
         $.post("<?php echo $this->url('certification', array('action' => 'get-expiry-certificate-report')); ?>", {
             expirycertification: expirycertification
         },function(data) {
-            $('#'+expirycertification).html(data);
+            $('#'+expirycertification+'Data').html(data);
             var table = $('#'+expirycertification+'-table').DataTable({
+            // var table = $('#remindersSent-table').DataTable({
                 "aProcessing": true,
                 "aServerSide": true,
                 "aaSorting": [],
