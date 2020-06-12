@@ -66,6 +66,7 @@ $sessionLogin = new Container('credo');
                                     
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('online-exam');">GET REPORT</a>
+                                        <!-- <a class="btn btn-space btn-primary" role="button" onclick="exportExcel('online-exam');" >DOWNLOAD REPORT</a> -->
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
@@ -225,6 +226,23 @@ $sessionLogin = new Container('credo');
                 "aServerSide": true,
                 "aaSorting": [],
             });
+        });
+        $.unblockUI();
+    }
+
+    function exportExcel(exam){
+        // $('#'+exam).html('');
+        $.blockUI();
+        $.post("<?php echo $this->url('examination', array('action' => 'exportExcel')); ?>", {
+            Region: $('#Region').val(),District: $('#District').val(),Country: $('#Country').val(),Exam: exam
+        },function(data) {
+            console.log(data)
+            // $('#'+exam).html(data);
+            // var table = $('#'+exam+'-table').DataTable({
+            //     "aProcessing": true,
+            //     "aServerSide": true,
+            //     "aaSorting": [],
+            // });
         });
         $.unblockUI();
     }
