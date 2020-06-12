@@ -19,19 +19,19 @@ $sessionLogin = new Container('credo');
 
     <div class="page-head">
         <div class="row">
-            <div class="col-sm-4"> <h2>Examination Pending Reports</h2></div>
+            <div class="col-sm-8"> <h2>Incomplete/Pending Examination Reports</h2></div>
         </div>
     </div>
     <div class="main-content">
         <ul class="nav nav-tabs" id="examinationTab" role="tablist">
             <li class="nav-item active">
-                <a class="nav-link active" id="online-tab" data-toggle="tab" href="#online-test" role="tab" aria-controls="online-test" aria-selected="false" >Online Examination</a>
+                <a class="nav-link active" id="online-tab" data-toggle="tab" href="#online-test" role="tab" aria-controls="online-test" aria-selected="false" >Incomplete Online Written Tests</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="practical-tab" data-toggle="tab" href="#practical-test" role="tab" aria-controls="practical-test" aria-selected="true" >Practical Examination</a>
+                <a class="nav-link" id="practical-tab" data-toggle="tab" href="#practical-test" role="tab" aria-controls="practical-test" aria-selected="true" >Pending Practical Tests</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="written-tab" data-toggle="tab" href="#written-test" role="tab" aria-controls="written-test" aria-selected="false">Written Examination</a>
+                <a class="nav-link" id="written-tab" data-toggle="tab" href="#written-test" role="tab" aria-controls="written-test" aria-selected="false">Pending Written Tests</a>
             </li>
         </ul>
         <div class="tab-content" id="examinationContent">
@@ -43,7 +43,7 @@ $sessionLogin = new Container('credo');
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
                                         <label for="Country">Country</label>
-                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value)">
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'online')">
                                             <option value="" selected>Please Choose a Country</option>
                                             <?php foreach($country as $crow) { ?>
                                                 <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
@@ -53,21 +53,20 @@ $sessionLogin = new Container('credo');
 
                                     <div class="col-lg-6">
                                         <label for="Region">Province</label>
-                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value)">
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'online')">
                                             <option value="">Please choose a Country</option>
                                         </select>                                                                    
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="District">Districts</label>
-                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)" onchange="showFacilities(this.value)">
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
                                             <option value="">Please Choose a District</option>
                                         </select>                                                                    
                                     </div>
                                     <input type="hidden" id="Exam" name="Exam" value="online-exam">
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('online-exam');">GET REPORT</a>
-                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
-                                        <!-- <a class="btn btn-space btn-primary" role="button" onclick="exportExcel('online-exam');" >DOWNLOAD REPORT</a> -->
+                                        <!-- <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button> -->
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
@@ -85,7 +84,7 @@ $sessionLogin = new Container('credo');
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
                                         <label for="Country">Country</label>
-                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value)">
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'practical')">
                                             <option value="" selected>Please Choose a Country</option>
                                             <?php foreach($country as $crow) { ?>
                                                 <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
@@ -95,20 +94,20 @@ $sessionLogin = new Container('credo');
 
                                     <div class="col-lg-6">
                                         <label for="Region">Province</label>
-                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value)">
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'practical')">
                                             <option value="">Please choose a Country</option>
                                         </select>                                                                    
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="District">Districts</label>
-                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)" onchange="showFacilities(this.value)">
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
                                             <option value="">Please Choose a District</option>
                                         </select>                                                                    
                                     </div>
                                     <input type="hidden" id="Exam" name="Exam" value="practical-exam">
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('practical-exam');">GET REPORT</a>
-                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                        <!-- <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button> -->
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
@@ -126,7 +125,7 @@ $sessionLogin = new Container('credo');
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
                                         <label for="Country">Country</label>
-                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value)">
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'written')">
                                             <option value="" selected>Please Choose a Country</option>
                                             <?php foreach($country as $crow) { ?>
                                                 <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
@@ -136,20 +135,20 @@ $sessionLogin = new Container('credo');
 
                                     <div class="col-lg-6">
                                         <label for="Region">Province</label>
-                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value)">
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'written')">
                                             <option value="">Please choose a Country</option>
                                         </select>                                                                    
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="District">Districts</label>
-                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)" onchange="showFacilities(this.value)">
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
                                             <option value="">Please Choose a District</option>
                                         </select>                                                                    
                                     </div>
                                     <input type="hidden" id="Exam" name="Exam" value="written-exam">
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('written-exam');">GET REPORT</a>
-                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                        <!-- <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button> -->
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
@@ -179,41 +178,70 @@ $sessionLogin = new Container('credo');
     <script>
     $(document).ready(function () {
         $("#Country").val(1);
-        showRegion(1);
+        showRegion(1,'online');
+        showRegion(1,'practical');
+        showRegion(1,'written');
     });
-    function showRegion(str) {
-            if (str == "") {
-               document.getElementById("Region").innerHTML = "<option value=''>Please Choose a Region</option>";
-               document.getElementById("District").innerHTML = "<option value=''>Please Choose a District</option>";
-              return false;
-            }else{
-                $.post("<?php echo $this->url('provider', array('action' => 'region')); ?>", {q: str},
-                function(data) {
-                   document.getElementById("Region").innerHTML = data;
-                   document.getElementById("District").innerHTML = "<option value=''>Please Choose a District</option>";
-                });
+    function showRegion(str,type) {
+        if (str == "") {
+            if(type == 'online'){
+                $(".region-online").html("<option value=''>Please Choose a Region</option>");
+                $(".district-online").html("<option value=''>Please Choose a Region</option>");
             }
+            if(type == 'practical'){
+                $(".region-practical").html("<option value=''>Please Choose a Region</option>");
+                $(".district-practical").html("<option value=''>Please Choose a Region</option>");
+            }
+            if(type == 'written'){
+                $(".region-written").html("<option value=''>Please Choose a Region</option>");
+                $(".district-written").html("<option value=''>Please Choose a Region</option>");
+            }
+
+            return false;
+        }else{
+            $.post("<?php echo $this->url('provider', array('action' => 'region')); ?>", {q: str},
+            function(data) {
+                if(type == 'online'){
+                    $(".region-online").html(data);
+                    $(".district-online").html("<option value=''>Please Choose a District</option>");
+                }
+                if(type == 'practical'){
+                    $(".region-practical").html(data);
+                    $(".district-practical").html("<option value=''>Please Choose a District</option>");
+                }
+                if(type == 'written'){
+                    $(".region-written").html(data);
+                    $(".district-written").html("<option value=''>Please Choose a District</option>");
+                }
+            });
+        }
     }
     
-    function showDistrict(str) {
+    function showDistrict(str,type) {
         if (str == "") {
-            document.getElementById("District").innerHTML = "Please Choose a Region First";
+            if(type == 'online'){
+                $(".district-online").html("Please Choose a Region First");
+            }
+            if(type == 'practical'){
+                $(".district-practical").html("Please Choose a Region First");
+            }
+            if(type == 'written'){
+                $(".district-written").html("Please Choose a Region First");
+            }
             return;
         } else {
-            if (window.XMLHttpRequest) {
-                // code for IE7+, Firefox, Chrome, Opera, Safari
-                xmlhttp = new XMLHttpRequest();
-            } else {
-                // code for IE6, IE5
-                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            xmlhttp.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("District").innerHTML = this.responseText;
+            $.post("<?php echo $this->url('provider', array('action' => 'district')); ?>", {q: str},
+            function(data) {
+                if(type == 'online'){
+                    $(".district-online").html(data);
                 }
-            };
-            xmlhttp.open("GET", "<?php echo $this->url('provider', array('action' => 'district')); ?>?q=" + str, true);
-            xmlhttp.send();
+                if(type == 'practical'){
+                    $(".district-practical").html(data);
+                }
+                if(type == 'written'){
+                    $(".district-written").html(data);
+                }
+            });
         }
     }
 
@@ -229,23 +257,6 @@ $sessionLogin = new Container('credo');
                 "aServerSide": true,
                 "aaSorting": [],
             });
-        });
-        $.unblockUI();
-    }
-
-    function exportExcel(exam){
-        // $('#'+exam).html('');
-        $.blockUI();
-        $.post("<?php echo $this->url('examination', array('action' => 'exportExcel')); ?>", {
-            Region: $('#Region').val(),District: $('#District').val(),Country: $('#Country').val(),Exam: exam
-        },function(data) {
-            console.log(data)
-            // $('#'+exam).html(data);
-            // var table = $('#'+exam+'-table').DataTable({
-            //     "aProcessing": true,
-            //     "aServerSide": true,
-            //     "aaSorting": [],
-            // });
         });
         $.unblockUI();
     }
