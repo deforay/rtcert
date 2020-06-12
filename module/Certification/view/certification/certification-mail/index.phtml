@@ -216,17 +216,15 @@ if(isset($provider_name)&& trim($provider_name)!= ''){
                                     ?>
                                 </form></div>
                                 <div style="margin-top: 50px">
-                                    <table id="certificationMail" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
+                                    <table id="certificationMail" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width: 100%;">
                                         <thead>
                                             <tr>
-                                                <th>Recipient</th>
-                                                <th>Cc</th>
-                                                <th>Bcc</th>
-                                                <th>Type</th>
-                                                <th>Date</th>
-
+                                                <th style="width: 30%;">Recipient</th>
+                                                <th style="width: 20%;">Cc</th>
+                                                <th style="width: 20%;">Bcc</th>
+                                                <th style="width: 30%;">Type</th>
+                                                <th style="width: 100%;">Date</th>
                                             </tr>
-
                                         </thead>
                                         <tbody>
                                             <?php foreach ($this->list as $list) : ?>

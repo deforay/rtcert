@@ -14,6 +14,7 @@ use \Application\Model\TestConfigTable;
 use \Application\Model\MailTemplateTable;
 use \Application\Service\CommonService;
 use Zend\Db\Sql\Ddl\Column\Datetime;
+use Zend\Debug\Debug;
 
 class ProviderTable extends AbstractTableGateway {
 
@@ -591,12 +592,14 @@ class ProviderTable extends AbstractTableGateway {
         $result = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         /* Cehck the tester token */
         foreach($result as $row){
-            
+            // Debug::dump($tester);
             $linkEncode = $row['link_token'] . $configResult["password"]["salt"];
+            // Debug::dump(hash('sha256', $linkEncode) .' -> '.$row['email']);
             if($tester == hash('sha256', $linkEncode)){
                 $checkedRow = $row;
             }
         }
+        // die;
         $testConfigDb = new TestConfigTable($dbAdapter);
         $linkExpire = $testConfigDb->fetchTestValue('link-expire');
         /* To cehck the config hour */
