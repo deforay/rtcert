@@ -902,3 +902,6 @@ INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from
 INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES (NULL, 'Test Name Title', 'test-name', 'Online RTCQI Test');
 -- Thana 11 Jun, 2020
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Examination', 'xls', 'Export Data');
+INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES (NULL, 'Test Name Title', 'test-name', 'Online RTCQI Test');
+-- Sivakumar  12 Jun, 2020
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'certification-expiry', 'Certification Expiry');

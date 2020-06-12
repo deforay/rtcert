@@ -604,6 +604,7 @@ return array(
             'index' => 'deny',
             'add' => 'deny',
             'approval' => 'deny',
+            'certification-expiry' => 'allow',
             'edit' => 'deny',
             'pdf' => 'deny',
             'xls' => 'deny',
@@ -620,6 +621,7 @@ return array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
+            'xls' => 'deny',
             'pending' => 'deny',
         ),
         'Application\\Controller\\Config' => array(
@@ -628,6 +630,11 @@ return array(
         ),
         'Application\\Controller\\Index' => array(
             'index' => 'deny',
+        ),
+        'Application\\Controller\\MailTemplate' => array(
+            'index' => 'deny',
+            'add' => 'deny',
+            'edit' => 'deny',
         ),
         'Application\\Controller\\Dashboard' => array(
             'index' => 'deny',
@@ -642,8 +649,8 @@ return array(
             'add' => 'deny',
             'edit' => 'deny',
             'export-facility' => 'deny',
-            'get-province-list' => 'deny',
             'map-province' => 'deny',
+            'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
         'Certification\\Controller\\Provider' => array(
@@ -717,8 +724,6 @@ return array(
             'add' => 'deny',
             'answer-key-one' => 'deny',
             'answer-key-two' => 'deny',
-            'change-status' => 'deny',
-            'edit' => 'deny',
             'examination' => 'deny',
             'print-pdf-question' => 'deny',
             'view-pdf-question' => 'deny',
