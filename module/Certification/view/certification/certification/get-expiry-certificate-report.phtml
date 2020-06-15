@@ -1,57 +1,9 @@
 <?php
 
 use Zend\Debug\Debug;
-if($this->params == 'remindersSent'){ ?>
-<table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-    <thead>
-    <tr>
-                <th style="width:10%;">Final Decision remindersSent</th>
-                <th style="width:10%;">Type HIV testing modality/point</th>
-                <th style="width:10%;">Current job title</th>
-                <th style="width:10%;">Region</th>
-                <th style="width:10%;">District</th>
-                <th style="width:10%;">Facility</th>
-            </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($this->result as $rows) { ?>
-            <tr>
-                <td><?php echo $rows['final_decision']; ?></td>
-                <td><?php echo $rows['type_vih_test']; ?></td>
-                <td><?php echo $rows['current_jod']; ?></td>
-                <td><?php echo $rows['region_name']; ?></td>
-                <td><?php echo $rows['district_name']; ?></td>
-                <td><?php echo $rows['facility_name']; ?></td>
-            </tr>
-        <?php } ?>
-    </tbody>
-</table>
-<?php } else if($this->params== 'didNotRecertify'){ ?>
-    <table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-    <thead>
-    <tr>
-                <th style="width:10%;">Final Decision didNotRecertify</th>
-                <th style="width:10%;">Type HIV testing modality/point</th>
-                <th style="width:10%;">Current job title</th>
-                <th style="width:10%;">Region</th>
-                <th style="width:10%;">District</th>
-                <th style="width:10%;">Facility</th>
-            </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($this->result as $rows) { ?>
-            <tr>
-                <td><?php echo $rows['final_decision']; ?></td>
-                <td><?php echo $rows['type_vih_test']; ?></td>
-                <td><?php echo $rows['current_jod']; ?></td>
-                <td><?php echo $rows['region_name']; ?></td>
-                <td><?php echo $rows['district_name']; ?></td>
-                <td><?php echo $rows['facility_name']; ?></td>
-            </tr>
-        <?php } ?>
-    </tbody>
-</table>
-<?php } else {?>
+
+if ($this->params== 'upForRecertification'){?>
+ 
     <table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
     <thead>
     <tr>
@@ -77,4 +29,58 @@ if($this->params == 'remindersSent'){ ?>
     </tbody>
 </table>
 
-<?php }?>
+<?php } ?>
+<?php if($this->params == 'remindersSent'){ ?>
+<table id="remindersSent-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+    <thead>
+    <tr>
+                <th style="width:10%;">Final Decision</th>
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
+                <th style="width:10%;">Region</th>
+                <th style="width:10%;">District</th>
+                <th style="width:10%;">Facility</th>
+            </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($this->result as $rows) { ?>
+            <tr>
+                <td><?php echo $rows['final_decision']; ?></td>
+                <td><?php echo $rows['type_vih_test']; ?></td>
+                <td><?php echo $rows['current_jod']; ?></td>
+                <td><?php echo $rows['region_name']; ?></td>
+                <td><?php echo $rows['district_name']; ?></td>
+                <td><?php echo $rows['facility_name']; ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+<?php } ?>
+
+<?php  if($this->params== 'didNotRecertify'){ ?>
+
+    <table id="didNotRecertify-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+    <thead>
+    <tr>
+                <th style="width:10%;">Final Decision</th>
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
+                <th style="width:10%;">Region</th>
+                <th style="width:10%;">District</th>
+                <th style="width:10%;">Facility</th>
+            </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($this->result as $rows) { ?>
+            <tr>
+                <td><?php echo $rows['final_decision']; ?></td>
+                <td><?php echo $rows['type_vih_test']; ?></td>
+                <td><?php echo $rows['current_jod']; ?></td>
+                <td><?php echo $rows['region_name']; ?></td>
+                <td><?php echo $rows['district_name']; ?></td>
+                <td><?php echo $rows['facility_name']; ?></td>
+            </tr>
+        <?php } ?>
+    </tbody>
+</table>
+<?php } ?>

@@ -152,31 +152,31 @@ class ExaminationController extends AbstractActionController {
             $ligne = 3;
             foreach ($examination as $examination) {
 
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $examination['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['middle_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($examination['country_name']))?$examination['country_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($examination['region_name']))?$examination['region_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($examination['district_name']))?$examination['district_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, $examination['phone']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $examination['email']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, $examination['facility_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['professional_reg_no']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['last_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['first_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['middle_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($examination['country_name']))?$examination['country_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($examination['regionName']))?$examination['regionName']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($examination['districtName']))?$examination['districtName']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, $examination['phone']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, $examination['email']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $examination['facility_name']);
                 if($params['Exam'] == 'online-exam'){
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['pretest_start_datetime']) && $examination['pretest_start_datetime'] != NULL)? date("d-m-Y", strtotime($examination['pretest_start_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, (isset($examination['pretest_end_datetime']) && $examination['pretest_end_datetime'] != NULL)? date("d-m-Y", strtotime($examination['pretest_end_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['pre_test_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, $examination['pre_test_status']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(15, $ligne, (isset($examination['posttest_start_datetime']) && $examination['posttest_start_datetime'] != NULL)? date("d-m-Y", strtotime($examination['posttest_start_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(16, $ligne, (isset($examination['posttest_end_datetime']) && $examination['posttest_end_datetime'] != NULL)? date("d-m-Y", strtotime($examination['posttest_end_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(17, $ligne, $examination['post_test_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(18, $ligne, $examination['post_test_status']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['pretest_start_datetime']) && $examination['pretest_start_datetime'] != NULL)? date("d-M-Y", strtotime($examination['pretest_start_datetime'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['pretest_end_datetime']) && $examination['pretest_end_datetime'] != NULL)? date("d-M-Y", strtotime($examination['pretest_end_datetime'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, $examination['pre_test_score']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['pre_test_status']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, (isset($examination['posttest_start_datetime']) && $examination['posttest_start_datetime'] != NULL)? date("d-M-Y", strtotime($examination['posttest_start_datetime'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(15, $ligne, (isset($examination['posttest_end_datetime']) && $examination['posttest_end_datetime'] != NULL)? date("d-M-Y", strtotime($examination['posttest_end_datetime'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(16, $ligne, $examination['post_test_score']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(17, $ligne, $examination['post_test_status']);
                 }
                 else{
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['practicalExamDate']) && $examination['practicalExamDate'] != NULL)? date("d-m-Y", strtotime($examination['practicalExamDate'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, $examination['practical_total_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, (isset($examination['writenExamDate']) && $examination['writenExamDate'] != NULL)? date("d-m-Y", strtotime($examination['writenExamDate'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, $examination['final_score']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['practicalExamDate']) && $examination['practicalExamDate'] != NULL)? date("d-M-Y", strtotime($examination['practicalExamDate'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $examination['practical_total_score']);
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, (isset($examination['writenExamDate']) && $examination['writenExamDate'] != NULL)? date("d-M-Y", strtotime($examination['writenExamDate'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['final_score']);
                 }
                 $ligne++;
             }
