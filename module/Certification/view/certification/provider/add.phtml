@@ -43,7 +43,7 @@ $acl = $this->layout()->acl;
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-body" >
-                            <form action="<?php $this->url('provider', array('action' => 'add')); ?>" name="form" method="post" onsubmit="return validateForm()">
+                            <form action="<?php $this->url('provider', array('action' => 'add')); ?>" name="form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
 
                                 <?php
                                 $form->prepare();
@@ -209,6 +209,11 @@ $acl = $this->layout()->acl;
                                     'id' => 'Facility Name',
                                     'onclick' => 'emptyInput(this)',
                                 ]);
+                                $form->get('profile_picture')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Upload Profile Picture',
+                                    'id' => 'Profile Picture',
+                                ]);
 
 
                                 $form->get('submit')->setAttributes([
@@ -231,6 +236,11 @@ $acl = $this->layout()->acl;
                                         <?= $this->formElementErrors($form->get('professional_reg_no')); ?>
                                     </div>
                                     <div class="form-group col-lg-4"> 
+                                        <?= $this->formLabel($form->get('profile_picture')); ?>
+                                        <?= $this->formFile($form->get('profile_picture')); ?>
+                                        <?= $this->formElementErrors($form->get('profile_picture')); ?>
+                                    </div>
+                                    <div class="form-group col-lg-4"> 
                                         <?= $this->formLabel($form->get('last_name')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('last_name')); ?>
                                         <?= $this->formElementErrors($form->get('last_name')); ?>
@@ -245,7 +255,7 @@ $acl = $this->layout()->acl;
                                         <?= $this->formElement($form->get('middle_name')); ?>
                                         <?= $this->formElementErrors($form->get('middle_name')); ?>
                                     </div>
-                                    <div class="form-group col-lg-4" style="display:none;">
+                                    <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('country')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('country')); ?>
                                         <?= $this->formElementErrors($form->get('country')); ?>
