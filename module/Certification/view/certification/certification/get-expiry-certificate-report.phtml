@@ -7,23 +7,25 @@ if ($this->params== 'upForRecertification'){?>
     <table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
     <thead>
     <tr>
+    <th style="width:10%;">Tester</th>
                 <th style="width:10%;">Final Decision</th>
-                <th style="width:10%;">Type HIV testing modality/point</th>
-                <th style="width:10%;">Current job title</th>
                 <th style="width:10%;">Region</th>
                 <th style="width:10%;">District</th>
                 <th style="width:10%;">Facility</th>
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
             </tr>
     </thead>
     <tbody>
-    <?php foreach ($this->result as $rows) { ?>
+    <?php foreach ($this->result as $provider) { ?>
             <tr>
-                <td><?php echo $rows['final_decision']; ?></td>
-                <td><?php echo $rows['type_vih_test']; ?></td>
-                <td><?php echo $rows['current_jod']; ?></td>
-                <td><?php echo $rows['region_name']; ?></td>
-                <td><?php echo $rows['district_name']; ?></td>
-                <td><?php echo $rows['facility_name']; ?></td>
+            <td><?php echo $this->escapeHtml($provider['first_name'] . ' ' . $provider['last_name ']); ?></td>
+                    <td><?php echo $provider['final_decision']; ?></td>
+                    <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
             </tr>
         <?php } ?>
     </tbody>
@@ -32,25 +34,27 @@ if ($this->params== 'upForRecertification'){?>
 <?php } ?>
 <?php if($this->params == 'remindersSent'){ ?>
 <table id="remindersSent-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-    <thead>
+<thead>
     <tr>
+    <th style="width:10%;">Tester</th>
                 <th style="width:10%;">Final Decision</th>
-                <th style="width:10%;">Type HIV testing modality/point</th>
-                <th style="width:10%;">Current job title</th>
                 <th style="width:10%;">Region</th>
                 <th style="width:10%;">District</th>
                 <th style="width:10%;">Facility</th>
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
             </tr>
     </thead>
     <tbody>
-    <?php foreach ($this->result as $rows) { ?>
+    <?php foreach ($this->result as $provider) { ?>
             <tr>
-                <td><?php echo $rows['final_decision']; ?></td>
-                <td><?php echo $rows['type_vih_test']; ?></td>
-                <td><?php echo $rows['current_jod']; ?></td>
-                <td><?php echo $rows['region_name']; ?></td>
-                <td><?php echo $rows['district_name']; ?></td>
-                <td><?php echo $rows['facility_name']; ?></td>
+            <td><?php echo $this->escapeHtml($provider['first_name'] . ' ' . $provider['last_name ']); ?></td>
+                    <td><?php echo $provider['final_decision']; ?></td>
+                    <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
             </tr>
         <?php } ?>
     </tbody>
@@ -59,26 +63,30 @@ if ($this->params== 'upForRecertification'){?>
 
 <?php  if($this->params== 'didNotRecertify'){ ?>
 
-    <table id="didNotRecertify-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+   
+
+<table id="didNotRecertify-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
     <thead>
     <tr>
+    <th style="width:10%;">Tester</th>
                 <th style="width:10%;">Final Decision</th>
-                <th style="width:10%;">Type HIV testing modality/point</th>
-                <th style="width:10%;">Current job title</th>
                 <th style="width:10%;">Region</th>
                 <th style="width:10%;">District</th>
                 <th style="width:10%;">Facility</th>
+                <th style="width:10%;">Type HIV testing modality/point</th>
+                <th style="width:10%;">Current job title</th>
             </tr>
     </thead>
     <tbody>
-    <?php foreach ($this->result as $rows) { ?>
+    <?php foreach ($this->result as $provider) { ?>
             <tr>
-                <td><?php echo $rows['final_decision']; ?></td>
-                <td><?php echo $rows['type_vih_test']; ?></td>
-                <td><?php echo $rows['current_jod']; ?></td>
-                <td><?php echo $rows['region_name']; ?></td>
-                <td><?php echo $rows['district_name']; ?></td>
-                <td><?php echo $rows['facility_name']; ?></td>
+            <td><?php echo $this->escapeHtml($provider['first_name'] . ' ' . $provider['last_name ']); ?></td>
+                    <td><?php echo $provider['final_decision']; ?></td>
+                    <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
+                    <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
             </tr>
         <?php } ?>
     </tbody>

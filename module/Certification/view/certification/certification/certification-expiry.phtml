@@ -38,15 +38,42 @@ $sessionLogin = new Container('credo');
                         <div class="col-sm-12">
                             <div class="panel panel-default">
                                 <div class="panel-body" >
+
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
-                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="upForRecertification">
-                                    
+                                    <div class="col-lg-6">
+                                        <label for="Country">Country</label>
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'online')">
+                                            <option value="" selected>Please Choose a Country</option>
+                                            <?php foreach($country as $crow) { ?>
+                                                <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
+                                            <?php } ?>
+                                        </select>                            
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="Region">Province</label>
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'online')">
+                                            <option value="">Please choose a Country</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="District">Districts</label>
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
+                                            <option value="">Please Choose a District</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <input type="hidden" id="Exam" name="Exam" value="online-exam">
+                                    <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
+                                    <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="upForRecertification">
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('upForRecertification');">GET REPORT</a>
                                         <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
-                                  
+                                        <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
+                                    </div>
                                 </form>
-                                </br>
-</br>
-</br>
+                                <div id="online-exam"></div>
+                                    </br>
+                                    </br>
+                                    </br>
                                     <div id="upForRecertificationData">
                                     </div>
                                 </div>
@@ -62,12 +89,39 @@ $sessionLogin = new Container('credo');
                         <div class="col-sm-12">
                             <div class="panel panel-default">
                                 <div class="panel-body" > 
+                         
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
-                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="remindersSent">
-                                  
-                                    <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
-                                  
-                                </form>  
+                                    <div class="col-lg-6">
+                                        <label for="Country">Country</label>
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'online')">
+                                            <option value="" selected>Please Choose a Country</option>
+                                            <?php foreach($country as $crow) { ?>
+                                                <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
+                                            <?php } ?>
+                                        </select>                            
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="Region">Province</label>
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'online')">
+                                            <option value="">Please choose a Country</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="District">Districts</label>
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
+                                            <option value="">Please Choose a District</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <input type="hidden" id="Exam" name="Exam" value="online-exam">
+                                    <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
+                                    <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="remindersSent">
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('remindersSent');">GET REPORT</a>
+                                        <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
+                                        <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
+                                    </div>
+                                </form>
+                                <div id="online-exam"></div>  
                                 </br>
 </br>
 </br>                                 
@@ -86,11 +140,38 @@ $sessionLogin = new Container('credo');
                             <div class="panel panel-default">
                                 <div class="panel-body" >
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
-                                      <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="didNotRecertify">
-                                   
+                                    <div class="col-lg-6">
+                                        <label for="Country">Country</label>
+                                        <select name="country" class="form-control" autocomplete="off" id="Country" onclick="emptyInput(this)" onchange="showRegion(this.value,'online')">
+                                            <option value="" selected>Please Choose a Country</option>
+                                            <?php foreach($country as $crow) { ?>
+                                                <option value="<?php echo $crow['country_id'];?>" <?php echo ($crow['country_id'] == 1)?"selected='selected'":'';?>><?php echo $crow['country_name'];?></option>
+                                            <?php } ?>
+                                        </select>                            
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="Region">Province</label>
+                                        <select name="region" class="form-control" autocomplete="off" id="Region" onclick="emptyInput(this)" onchange="showDistrict(this.value,'online')">
+                                            <option value="">Please choose a Country</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="District">Districts</label>
+                                        <select name="district" class="form-control" id="District" autocomplete="off" onclick="emptyInput(this)">
+                                            <option value="">Please Choose a District</option>
+                                        </select>                                                                    
+                                    </div>
+                                    <input type="hidden" id="Exam" name="Exam" value="online-exam">
+                                    <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
+                                    
+                                    <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="didNotRecertify">
+                                        <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('didNotRecertify');">GET REPORT</a>
                                         <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
-                                   
-                                </form> 
+                                        <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
+                                    </div>
+                                </form>
+                                <div id="online-exam"></div>
 </br>
 </br>
 </br>
@@ -200,12 +281,17 @@ $sessionLogin = new Container('credo');
             xmlhttp.send();
         }
     }
-
+    oTable = null;
     function getReportOnlineTest(expirycertification){
-        $('#'+expirycertification+'Data').html('');
+        oTable=$('#'+expirycertification+'Data').html('');
+
         $.blockUI();
         $.post("<?php echo $this->url('certification', array('action' => 'get-expiry-certificate-report')); ?>", {
+            region: $("[name=region]").val(),
+            district: $("[name=district]").val(),
+            country_id: $("[name=country]").val(),
             expirycertification: expirycertification
+
         },function(data) {
             $('#'+expirycertification+'Data').html(data);
             var table = $('#'+expirycertification+'-table').DataTable({
