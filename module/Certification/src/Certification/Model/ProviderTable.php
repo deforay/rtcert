@@ -15,6 +15,8 @@ use \Application\Model\MailTemplateTable;
 use \Application\Service\CommonService;
 use Zend\Db\Sql\Ddl\Column\Datetime;
 use Zend\Debug\Debug;
+use Zend\Db\Sql\Expression;
+use PHPExcel;
 
 class ProviderTable extends AbstractTableGateway {
 
@@ -695,5 +697,58 @@ class ProviderTable extends AbstractTableGateway {
             $id = $logincontainer->userId;
         }
         $this->tableGateway->update(array('test_mail_send' => 'yes'), array('id' => $id));
+    }
+
+
+
+    public function uploadTesterExcel($params)
+    {
+        $loginContainer    = new Container('credo');
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        
+        $allowedExtensions = array('xls', 'xlsx', 'csv');
+        $fileName          = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['tester_excel']['name']);
+        $fileName          = str_replace(" ", "-", $fileName);
+        $ranNumber         = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
+        $extension         = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileName          = $ranNumber.".".$extension;
+        echo PATHINFO_EXTENSION;
+        echo "test";
+        echo "<br>";
+        print_r($extension);
+        echo "<br>";
+        print_r($allowedExtensions);
+        echo UPLOAD_PATH;
+        if (in_array($extension, $allowedExtensions)) {
+            $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'tester';
+            if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
+                mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."tester");            
+            }
+            echo "test1"; 
+            echo $uploadPath; 
+
+            
+            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+                echo "test1"; 
+                
+                if (move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath.DIRECTORY_SEPARATOR. $fileName)) {
+                    
+                    echo "test2"; 
+                    $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    $count = count($sheetData);
+                    $common = new CommonService();
+                    for ($i = 1; $i <= $count; ++$i) 
+                    {
+                      echo "test3";
+                    } 
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $container = new Container('alert');
+                    $container->alertMsg = 'Tester details added successfully';
+                }
+            }
+        }
+        die;
     }
 }

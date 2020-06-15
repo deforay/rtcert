@@ -523,4 +523,31 @@ class ProviderController extends AbstractActionController {
             );
         }
     }
+
+    
+
+
+    public function importExcelAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toRoute("login");
+        }
+        
+        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+        $form = new ProviderForm($dbAdapter);
+        $form->get('submit')->setValue('SUBMIT');
+
+        
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $prvoiderTable = $this->getProviderTable();
+            $prvoiderTable->uploadTesterExcel($params);
+            return $this->redirect()->toRoute("provider");
+        }
+        return array('form' => $form,
+            'providers' => $this->getProviderTable()->fetchAll(),
+        );
+    }
+
 }
