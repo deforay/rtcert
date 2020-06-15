@@ -34,7 +34,9 @@ class ProviderForm extends Form {
         
         parent::__construct("provider");
        
-        $this->setAttributes(array('method' => 'post',
+        $this->setAttributes(array(
+            'method' => 'post',
+            'enctype' => 'multipart/form-data'
         ));
        
         $this->add(array(
@@ -270,19 +272,18 @@ class ProviderForm extends Form {
                 'disable_inarray_validator' => true,
                 'empty_option' => 'Please Choose a District first',
             ),
-        ));   
+        ));
+
         
         $this->add(array(
-            'name' => 'exclude_tester_name',
-            'type' => 'Zend\Form\Element\Select',
+            'name' => 'profile_picture',
+            'type' => 'Zend\Form\Element\File',
             'options' => array(
-                'label' => 'Exclude Tester Name',
-                'empty_option' => 'Please choose exclude tester name',
-                'value_options' => array(
-                    'yes'     => 'Yes',
-                    'no'  => 'No'
-                ),
+                 'label' => 'Upload Profile Picture'
             ),
+            'attributes' => array(
+                'class' => 'form-control',
+            )
         ));
 
         $this->add(array(

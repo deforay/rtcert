@@ -79,13 +79,7 @@ $sessionLogin = new Container('credo');
                                     'id' => 'Facility Name',
                                     'onclick' => 'emptyInput(this)',
                                 ]);
-                                $form->get('exclude_tester_name')->setAttributes([
-                                    'class' => 'form-control',
-                                    'placeholder' => 'Exclude Tester Name',
-                                    'id' => 'Exclude Tester Name',
-                                    'onclick' => 'emptyInput(this)',
-                                ]);
-
+                                
                                 $form->get('submit')->setAttributes([
                                 ]);
 
@@ -131,9 +125,11 @@ $sessionLogin = new Container('credo');
                                     <?= $this->formElementErrors($form->get('current_jod')); ?>
                                 </div>
                                 <div class="form-group col-lg-6">
-                                    <?= $this->formLabel($form->get('exclude_tester_name')); ?>
-                                    <?= $this->formElement($form->get('exclude_tester_name')); ?>
-                                    <?= $this->formElementErrors($form->get('exclude_tester_name')); ?>
+                                    <label>Exclude Tester Name</label>
+                                    <select name="exclude_tester_name" class="form-control" id="Exclude Tester Name" onclick="emptyInput(this)"><option value="">Please choose exclude tester name</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
                                 </div>
                                 <div class="form-group col-lg-12" style="margin-top: 30px;text-align:center;">
                                     <!-- <button type="button" class="btn  btn-space btn-primary" onclik="getReport()" >GET REPORT</button> -->

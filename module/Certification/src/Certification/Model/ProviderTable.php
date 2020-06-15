@@ -61,6 +61,7 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function saveProvider(\Certification\Model\Provider $provider) {
+        // Debug::dump($provider->profile_picture);die;
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
         $last_name = strtoupper($provider->last_name);
@@ -92,10 +93,7 @@ class ProviderTable extends AbstractTableGateway {
         } else {
             $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
         }
-
-
         $data = array(
-            'certification_reg_no' => $certification_reg_no,
             'professional_reg_no' => $provider->professional_reg_no,
             'last_name' => $last_name,
             'first_name' => $first_name,
@@ -118,49 +116,37 @@ class ProviderTable extends AbstractTableGateway {
             'facility_in_charge_email' => $provider->facility_in_charge_email,
             'facility_id' => $provider->facility_id
         );
-        $data2 = array(
-//            'certification_reg_no' => $certification_reg_no,
-            'professional_reg_no' => $provider->professional_reg_no,
-            'last_name' => $last_name,
-            'first_name' => $first_name,
-            'middle_name' => $middle_name,
-            'region' => $region,
-            'district' => $district,
-            'type_vih_test' => $provider->type_vih_test,
-            'phone' => $provider->phone,
-            'email' => $provider->email,
-            'prefered_contact_method' => $provider->prefered_contact_method,
-            'current_jod' => $provider->current_jod,
-            'time_worked' => $provider->time_worked,
-            'username' => $provider->username,
-            'password' => $password,
-            'test_site_in_charge_name' => $test_site_in_charge_name,
-            'test_site_in_charge_phone' => $provider->test_site_in_charge_phone,
-            'test_site_in_charge_email' => $provider->test_site_in_charge_email,
-            'facility_in_charge_name' => $facility_in_charge_name,
-            'facility_in_charge_phone' => $provider->facility_in_charge_phone,
-            'facility_in_charge_email' => $provider->facility_in_charge_email,
-            'facility_id' => $provider->facility_id
-        );
-
-//        print_r($data);
         $id = (int) $provider->id;
         $certification_id = $provider->certification_id;
 
         if ($id == 0 && !$certification_id) {
+            $data['certification_reg_no'] = $certification_reg_no;
             $data['added_on'] = $common->getDateTime();
             $data['added_by'] = $sessionLogin->userId;
             $data['last_updated_on'] = $common->getDateTime();
             $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
+            $id = $this->tableGateway->lastInsertValue;
         } else {
             if ($this->getProvider($id)) {
-                $data2['certification_id'] = $provider->certification_id;
-                $data2['last_updated_on'] = $common->getDateTime();
-                $data2['last_updated_by'] = $sessionLogin->userId;
-                $this->tableGateway->update($data2, array('id' => $id));
+                $data['certification_id'] = $provider->certification_id;
+                $data['last_updated_on'] = $common->getDateTime();
+                $data['last_updated_by'] = $sessionLogin->userId;
+                $this->tableGateway->update($data, array('id' => $id));
             } else {
                 throw new \Exception('Provider id does not exist');
+            }
+        }
+        if (isset($provider->profile_picture['name']) && $provider->profile_picture['name'] != '') {
+            $pathname = UPLOAD_PATH . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'pic';
+            if (!file_exists($pathname) && !is_dir($pathname)) {
+                mkdir($pathname, 0777, true);
+            }
+            $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $provider->profile_picture['name'], PATHINFO_EXTENSION));
+            $imageName = $common->generateRandomString(4, 'alphanum') . "." . $extension;
+
+            if (move_uploaded_file($provider->profile_picture['tmp_name'], $pathname . DIRECTORY_SEPARATOR . $imageName)) {
+                $this->tableGateway->update(array('profile_picture' => $imageName), "id=" . $id);
             }
         }
     }

@@ -905,3 +905,6 @@ INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUE
 INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES (NULL, 'Test Name Title', 'test-name', 'Online RTCQI Test');
 -- Sivakumar  12 Jun, 2020
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'certification-expiry', 'Certification Expiry');
+-- Thana 15 Jun, 2020
+ALTER TABLE `provider` ADD `profile_picture` VARCHAR(50) NULL DEFAULT NULL AFTER `test_mail_send`;
+ALTER TABLE `provider` CHANGE `link_send_count` `link_send_count` INT NULL DEFAULT NULL, CHANGE `link_send_on` `link_send_on` DATETIME NULL DEFAULT NULL, CHANGE `link_send_by` `link_send_by` INT NULL DEFAULT NULL, CHANGE `link_token` `link_token` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;

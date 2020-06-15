@@ -45,18 +45,17 @@ class ProviderController extends AbstractActionController {
 
         $request = $this->getRequest();
         if ($request->isPost()) {
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            ); 
             $provider = new Provider();
             $form->setInputFilter($provider->getInputFilter());
-            $form->setData($request->getPost());
+            $form->setData($post);
             $select_time = $request->getPost('select_time');
-
             if ($form->isValid()) {
                 $provider->exchangeArray($form->getData());
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
-                ?>
-                <pre> <?php // print_r($provider)                                 ?></pre>
-
-                <?php
                 $this->getProviderTable()->saveProvider($provider);
                 $container = new Container('alert');
                 $container->alertMsg = 'New tester added successfully';
