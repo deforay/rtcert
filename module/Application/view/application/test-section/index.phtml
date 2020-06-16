@@ -3,43 +3,46 @@ use Zend\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl=$this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\TestSection','edit')) {
+if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
   $colspan = true;
-  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
+  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
 }else{
   $colspan = false;
-  $editAction = '{"sClass":"center"},{"sClass":"center"}';
+  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 }
 ?>
 <div class="am-content">
     <div class="page-head">
         <div class="row">
 			<div class="col-sm-8">
-			<h2>Online Question Categories</h2>
+			<h2>Online Tests</h2>
 			</div>
 			<div class="col-sm-4">
-				<?php if ($acl->isAllowed($role, 'Application\Controller\TestSection','add')) { ?>
-					<a href="<?php echo $this->url('test-section',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Section</a>
+      <a href="<?php echo $this->url('test-question', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Questions</a>
+				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','add')) { ?>
+					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Question</a>
 				<?php } ?>
 			</div>
 		  </div>
-      
     </div>
     <div class="main-content">
         <div class="widget widget-fullwidth widget-small" style="padding:5px;width:100%;">
             <table id="testSection" class="table table-bordered table-striped table-hover table-fw-widget"  style="width:100%;">
               <thead>
                 <tr>
-                    <th style="width:80%;">Section Name</th>
-                    <th style="width:100%;">Status</th>
+                    <th style="width:10%;">Question Code</th>
+                    <th style="width:40%;">Question</th>
+                    <th style="width:20%;">Categories</th>
+                    <th style="width:100%;">Correct Answer</th>
+                    <th style="width:95%;">Status</th>
                     <?php if ($acl->isAllowed($role, 'Application\Controller\TestSection','edit')) { ?>
-                      <th style="width:100%;">Action</th>
+                      <th style="width:95%;">Action</th>
                     <?php }?>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                    <td colspan="<?php echo ($colspan)?3:2;?>" class="dataTables_empty">Loading data from server</td>
+                    <td colspan="<?php echo ($colspan)?6:5;?>" class="dataTables_empty">Loading data from server</td>
                 </tr>
               </tbody>
             </table>
@@ -55,8 +58,8 @@ if ($acl->isAllowed($role, 'Application\Controller\TestSection','edit')) {
         "bProcessing": true,
         "bServerSide": true,
          "aoColumns": [<?php echo $editAction; ?>],
-         "aaSorting": [[ 0, "desc" ]],
-         "sAjaxSource": "<?php echo $this->url('test-section',array('action' => 'index')); ?>",
+         "aaSorting": [[ 0, "ase" ]],
+         "sAjaxSource": "<?php echo $this->url('test-question',array('action' => 'index')); ?>",
          "fnServerData": function ( sSource, aoData, fnCallback ) {
 			$.ajax({
 				"dataType": 'json',
