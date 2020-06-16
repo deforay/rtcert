@@ -18,6 +18,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
 			<h2>Online Tests</h2>
 			</div>
 			<div class="col-sm-4">
+      <a href="<?php echo $this->url('test-question', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Questions</a>
 				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','add')) { ?>
 					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Question</a>
 				<?php } ?>

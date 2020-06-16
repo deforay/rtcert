@@ -53,4 +53,22 @@ class TestQuestionController extends AbstractActionController{
             ));
         }
     }
+
+
+
+    public function importExcelAction(){
+        $questionService = $this->getServiceLocator()->get('QuestionService');
+        if($this->getRequest()->isPost()){
+            $params=$this->getRequest()->getPost();
+            $questionService->uploadTestQuestion($params);
+            return $this->_redirect()->toRoute('test-question');
+        }
+        else {
+            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
+            $sectionResult = $testSectionService->getTestSectionAllList();
+            return new ViewModel(array(
+                'sectionResult' => $sectionResult,
+            ));
+        }
+    }
 }

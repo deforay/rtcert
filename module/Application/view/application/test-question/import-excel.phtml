@@ -1,0 +1,48 @@
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
+<div class="am-content">
+	<div class="page-head">
+		<h2>Upload Test question</h2>
+	</div>
+	<div class="main-content">
+		<div class="widget widget-fullwidth widget-small" style="padding:5px;">
+            <form name="importexcelQuestion" id="importexcelQuestion" method="post" enctype="multipart/form-data" action="<?php echo $this->url('test-question', array('action' => 'import-excel')); ?>" autocomplete="off" >
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group col-lg-6">
+                                    <label for="questionCode" class="col-sm-4 control-label">Upload Excel file<span class="mandatory">*</span></label>
+                                    <input class="form-control isRequired" type="file" name="question_excel"  title="Please Select File"/>
+                                </div>
+                                <div class="form-group col-lg-6" style="margin-top: 30px;">
+                                <button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit</button>
+                                <a href="<?php echo $this->url('test-question', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a> 
+                                </div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+            </form>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+    duplicateName = true;
+    var rowCount = 1;
+    var optionsList = [];
+    function validateNow() {
+		flag = deforayValidator.init({
+            formId: 'importexcelQuestion'
+		});
+		if (flag) {
+            if (duplicateName) {
+                document.getElementById('importexcelQuestion').submit();
+            }
+		}
+    }
+    
+    
+</script>

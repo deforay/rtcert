@@ -6,6 +6,9 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Adapter;
 use Zend\Session\Container;
+use \Application\Model\TestOptionsTable;
+use \Application\Model\TestSectionTable;
+
 
 class QuestionService {
 
@@ -212,4 +215,115 @@ class QuestionService {
         $acl = $this->sm->get('AppAcl');
        return $db->fetchUserTestList($params,$acl);
     }
+
+
+
+    public function uploadTestQuestion($fileName)
+    {
+        
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $loginContainer    = new Container('credo');
+        $QuestionDb        = $this->sm->get('QuestionTable');
+        $TestSectionDb        = new TestSectionTable($dbAdapter);
+        $TestOptionsDb        = new TestOptionsTable($dbAdapter);
+
+        
+        $allowedExtensions = array('xls', 'xlsx', 'csv');
+        $fileName          = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['question_excel']['name']);
+        $fileName          = str_replace(" ", "-", $fileName);
+        $ranNumber         = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
+        $extension         = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileName          = $ranNumber.".".$extension;
+
+         if (in_array($extension, $allowedExtensions)) {
+            $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'testquestion';
+            if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
+                mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."testquestion");            
+            }
+
+            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+                
+                if (move_uploaded_file($_FILES['question_excel']['tmp_name'], $uploadPath.DIRECTORY_SEPARATOR. $fileName)) {
+                    
+                    $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    $count = count($sheetData);
+                    $common = new CommonService();
+               
+                    for ($i = 2; $i <= $count; ++$i) 
+                    {
+                        $sectionName= $sheetData[$i]['C'];  
+                        $sectionVals= strtolower($sectionName);
+                        $sectionSlug = str_replace(" ", "-", $sectionVals);
+                        $testsectionVal=$TestSectionDb->select(array('section_slug' => $sectionSlug))->current();
+                        if(!$testsectionVal){
+                            $sectionData=array(
+                                'section_name' => $sectionName,
+                                'section_slug' => $sectionSlug,
+                                'section_description'  => '',  
+                                'status'  => 'active',  
+                            );
+                            $TestSectionDb->insert($sectionData);
+                            $sectionId= $TestSectionDb->lastInsertValue;
+                            
+                            $data = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question' => $sheetData[$i]['B'],
+                                'section'  => $sectionId,                         
+                                'status'   => 'active',
+                            );
+                                $QuestionDb->insert($data);
+                                $QuestionId= $QuestionDb->lastInsertValue;
+
+                                $correctOption=strtoupper($sheetData[$i]['D']);
+                                
+                                for ($j = 1; $j <= 4; ++$j) 
+                                {
+                                    if($j==1){
+                                        $option="A";
+                                        $optionVal="A. ".$sheetData[$i]['E'];
+                                    }
+                                    if($j==2){
+                                        $option="B";
+                                        $optionVal="B. ".$sheetData[$i]['F'];
+                                    }
+                                    if($j==3){
+                                        $option="C";
+                                        $optionVal="C. ".$sheetData[$i]['G'];
+                                    }
+                                    if($j==4){
+                                        $option="D";
+                                        $optionVal="D. ".$sheetData[$i]['H'];
+                                    }
+                                    $optiondata = array(
+                                        'question' => $QuestionId,
+                                        'option' => $optionVal,
+                                        'status'   => 'active',
+                                    );
+                                    $TestOptionsDb->insert($optiondata);
+                                    $OptionId= $TestOptionsDb->lastInsertValue;
+                                    if($option==$correctOption){
+                                        $QuestionDb->update(array(
+                                            'correct_option'          => $OptionId,
+                                            'correct_option_text'          => $optionVal
+                                        ),array("question_id"=>$QuestionId));
+                                    }
+                                    $msg='Question details added successfully';
+    
+                                }
+                                
+                        }else{
+                            $msg='Upload section name is already Exists';
+                        }
+                    } 
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $container = new Container('alert');
+                    $container->alertMsg = $msg;
+                }
+            }
+        }
+        
+    }
+
 }
