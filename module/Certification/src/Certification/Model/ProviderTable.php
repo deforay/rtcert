@@ -685,7 +685,21 @@ class ProviderTable extends AbstractTableGateway {
         $this->tableGateway->update(array('test_mail_send' => 'yes'), array('id' => $id));
     }
 
-
+    public function getFacilityByName($name){
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $query = $sql->select()->from('certification_facilities')->where(array('facility_name LIKE "%'.$name.'%"'));
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+    }
+    
+    public function getLocationByName($name){
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $query = $sql->select()->from('location_details')->where(array('location_name LIKE "%'.$name.'%"'));
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+    }
 
     public function uploadTesterExcel($params)
     {
@@ -699,42 +713,196 @@ class ProviderTable extends AbstractTableGateway {
         $ranNumber         = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
         $extension         = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         $fileName          = $ranNumber.".".$extension;
-        echo PATHINFO_EXTENSION;
-        echo "test";
-        echo "<br>";
-        print_r($extension);
-        echo "<br>";
-        print_r($allowedExtensions);
-        echo UPLOAD_PATH;
+
+        $fileName = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['tester_excel']['name']);
+        $fileName = str_replace(" ", "-", $fileName);
+        $ranNumber = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileName =$ranNumber.".".$extension;
+        $response = array();
         if (in_array($extension, $allowedExtensions)) {
             $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'tester';
             if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
                 mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."tester");            
             }
-            echo "test1"; 
-            echo $uploadPath; 
-
             
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-                echo "test1"; 
                 
                 if (move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath.DIRECTORY_SEPARATOR. $fileName)) {
                     
-                    echo "test2"; 
                     $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
                     $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    // Debug::dump($sheetData);die;
                     $count = count($sheetData);
                     $common = new CommonService();
-                    for ($i = 1; $i <= $count; ++$i) 
+                    for ($i = 2; $i <= $count; ++$i) 
                     {
-                      echo "test3";
+                        $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
+                        $facility = $this->getFacilityByName($sheetData[$i]['K']);
+
+                        if(!$rowset && $facility){
+                            $password = '';
+                            if(isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != ''){
+                                $config = new \Zend\Config\Reader\Ini();
+                                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                                $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
+                            }
+
+                            $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
+                            $statement = $dbAdapter->query($sql);
+                            $result = $statement->execute();
+                            foreach ($result as $res) {
+                                $max = $res['max'];
+                            }
+                            $array = explode("R", $max);
+                            $array2 = explode("-", $max);
+
+                            if (date('Y') > $array2[0]) {
+                                $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
+                            } else {
+                                $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
+                            }
+                            $region = $this->getLocationByName($sheetData[$i]['E']);
+                            $district = $this->getLocationByName($sheetData[$i]['F']);
+
+                            $data = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'middle_name'               => $sheetData[$i]['B'],
+                                'first_name'                => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => (isset($region['location_id']) && $region)?$region['location_id']:'',
+                                'district'                  => (isset($district['location_id']) && $district)?$district['location_id']:'',
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'prefered_contact_method'   => 'Phone',
+                                'current_jod'               => $sheetData[$i]['J'],
+                                'facility_id'               => $facility['id'],
+                                'time_worked'               => $sheetData[$i]['L'],
+                                'username'                  => $sheetData[$i]['M'],
+                                'password'                  => $password,
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
+                                'certification_reg_no'      => $certification_reg_no,
+                                'added_on'                  => $common->getDateTime(),
+                                'added_by'                  => $loginContainer->userId,
+                                'last_updated_on'           => $common->getDateTime(),
+                                'last_updated_by'           => $loginContainer->userId,
+                            );
+                            $this->tableGateway->insert($data);
+                            // $id = $this->tableGateway->lastInsertValue;
+                        }else{
+                            $response['data'][] = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => $sheetData[$i]['E'],
+                                'district'                  => $sheetData[$i]['F'],
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'current_jod'               => $sheetData[$i]['J'],
+                                'facility_id'               => $sheetData[$i]['K'],
+                                'time_worked'               => $sheetData[$i]['L'],
+                                'username'                  => $sheetData[$i]['M'],
+                                'password'                  => $sheetData[$i]['N'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
+                            );
+                        }
                     } 
-                    unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
-                    $container = new Container('alert');
-                    $container->alertMsg = 'Tester details added successfully';
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
                 }
             }
         }
-        die;
+        if(count($response['data']) > 0){
+            $container = new Container('alert');
+            $container->alertMsg = 'Some of the tester not imported. Please check if email dublicated or facility name is there!';
+            $response['status'] = false;
+            return $response;
+        }else{
+            $container = new Container('alert');
+            $container->alertMsg = 'Tester details imported successfully';
+            $response['status'] = true;
+            return $response;
+        }
+    }
+
+    public function importManuallyData($params)
+    {
+        $loginContainer    = new Container('credo');
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $common = new CommonService();
+        
+        $rowset = $this->tableGateway->select(array('email' => $params['email'], 'professional_reg_no' => $params['regNo']))->current();
+        $facility = $this->getFacilityByName($params['facility']);
+
+        if(!$rowset && $facility){
+            $password = '';
+            if(isset($params['password']) && $params['password'] != ''){
+                $config = new \Zend\Config\Reader\Ini();
+                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                $password = sha1($params['password'] . $configResult["password"]["salt"]);
+            }
+
+            $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
+            $statement = $dbAdapter->query($sql);
+            $result = $statement->execute();
+            foreach ($result as $res) {
+                $max = $res['max'];
+            }
+            $array = explode("R", $max);
+            $array2 = explode("-", $max);
+
+            if (date('Y') > $array2[0]) {
+                $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
+            } else {
+                $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
+            }
+            $region = $this->getLocationByName($params['region']);
+            $district = $this->getLocationByName($params['district']);
+
+            $data = array(
+                'professional_reg_no'       => $params['regNo'],
+                'middle_name'               => $params['middle'],
+                'first_name'                => $params['first'],
+                'last_name'                 => $params['last'],
+                'region'                    => (isset($region['location_id']) && $region)?$region['location_id']:'',
+                'district'                  => (isset($district['location_id']) && $district)?$district['location_id']:'',
+                'type_vih_test'             => strtoupper($params['vih']),
+                'phone'                     => $params['phone'],
+                'email'                     => $params['email'],
+                'prefered_contact_method'   => 'Phone',
+                'current_jod'               => $params['job'],
+                'facility_id'               => $facility['id'],
+                'time_worked'               => $params['time'],
+                'username'                  => $params['username'],
+                'password'                  => $password,
+                'test_site_in_charge_name'  => strtoupper($params['testName']),
+                'test_site_in_charge_phone' => $params['testPhone'],
+                'test_site_in_charge_email' => $params['testEmail'],
+                'facility_in_charge_name'   => strtoupper($params['facilityName']),
+                'facility_in_charge_phone'  => $params['facilityPhone'],
+                'facility_in_charge_email'  => $params['facilityEmail'],
+                'certification_reg_no'      => $certification_reg_no,
+                'added_on'                  => $common->getDateTime(),
+                'added_by'                  => $loginContainer->userId,
+                'last_updated_on'           => $common->getDateTime(),
+                'last_updated_by'           => $loginContainer->userId,
+            );
+            $this->tableGateway->insert($data);
+            return $this->tableGateway->lastInsertValue;
+        }
+        return false;
     }
 }

@@ -58,11 +58,11 @@ $acl = $this->layout()->acl;
                 <span class="text-success"></span> -->
             </div>
             <div class="col-sm-4">
-            <a href="<?php echo $this->url('provider', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Tester</a>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'add')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'import-excel')) {?>
+                    <a href="<?php echo $this->url('provider', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Tester</a>
+                <?php } if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'add')) { ?>
                     <a href="<?php echo $this->url('provider', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Tester</a>
                 <?php } ?>
-
             </div>
         </div>
     </div>
