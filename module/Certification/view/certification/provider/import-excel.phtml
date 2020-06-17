@@ -70,14 +70,17 @@ $acl = $this->layout()->acl;
         background: inherit;
         border: inherit;
     }
-    .nav-tabs {
-        background-color: #c0dcef;
-        border-bottom-width: 0;
-    }
-    li.nav-item:hover {
+/*     li.nav-item:hover {
         background: #d4e7f5;
         color: white !important;
-    }
+    } */
+    /* .nav-tabs > li a{
+        color: white;
+    } */
+    /* .nav-tabs > li a:hover {
+        background: transparent;
+        color: #ffffff;
+    } */
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -122,18 +125,21 @@ $acl = $this->layout()->acl;
                             </form>
                             <?php if((isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0) || (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0) || (isset($result['data']['imported']) && count($result['data']['imported']) > 0)){ ?>
                             <fieldset>
+                                <div class="alert alert-dismissable">
+                                    <div>Total number of records in the uploaded file : <?php echo (count($result['data']['mandatory'])+count($result['data']['duplicate'])+count($result['data']['imported']));?></div>
+                                </div>
                                 <ul class="nav nav-tabs" id="importTesterTab" role="tablist">
                                     <?php if(isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0){?>
-                                    <li class="nav-item active">
-                                        <a class="nav-link active" id="mandatory-tab" data-toggle="tab" href="#mandatory-tabpanel" role="tab" aria-controls="mandatory-tabpanel" aria-selected="false" >Not Imported - Mandatory Fields Missing</a>
+                                    <li class="nav-item active" style="background: #ff00004a;color:white;">
+                                        <a class="nav-link active" id="mandatory-tab" data-toggle="tab" href="#mandatory-tabpanel" role="tab" aria-controls="mandatory-tabpanel" aria-selected="false" >Not Imported - Mandatory Fields Missing (<?php echo count($result['data']['mandatory']);?>)</a>
                                     </li>
                                     <?php } if(isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0){ ?>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="duplicates-tab" data-toggle="tab" href="#duplicates-tabpanel" role="tab" aria-controls="duplicates-tabpanel" aria-selected="true" >Not Imported - Duplicates</a>
+                                    <li class="nav-item" style="background: #ff00004a;color:white;">
+                                        <a class="nav-link" id="duplicates-tab" data-toggle="tab" href="#duplicates-tabpanel" role="tab" aria-controls="duplicates-tabpanel" aria-selected="true" >Not Imported - Duplicates (<?php echo count($result['data']['duplicate']);?>)</a>
                                     </li>
                                     <?php } if(isset($result['data']['imported']) && count($result['data']['imported']) > 0){ ?>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="imported-tab" data-toggle="tab" href="#imported-tabpanel" role="tab" aria-controls="imported-tabpanel" aria-selected="false">Imported</a>
+                                    <li class="nav-item" style="background: #01ff0570;color:white;">
+                                        <a class="nav-link" id="imported-tab" data-toggle="tab" href="#imported-tabpanel" role="tab" aria-controls="imported-tabpanel" aria-selected="false">Imported (<?php echo count($result['data']['imported']);?>)</a>
                                     </li>
                                     <?php } ?>
                                 </ul>
@@ -158,7 +164,7 @@ $acl = $this->layout()->acl;
                                                         <th>FACILITY NAME</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="mandatory" style="color: red;">
+                                                <tbody>
                                                     <?php foreach($result['data']['mandatory'] as $key => $row){ ?>
                                                         <tr class="row<?php echo ($key+1);?>">
                                                             <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>
@@ -196,7 +202,7 @@ $acl = $this->layout()->acl;
                                                         <th>FACILITY NAME</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="duplicates" style="color: red;">
+                                                <tbody class="duplicates">
                                                     <?php foreach($result['data']['duplicate'] as $key => $row){ ?>
                                                         <tr class="row<?php echo ($key+1);?>">
                                                             <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>
@@ -234,7 +240,7 @@ $acl = $this->layout()->acl;
                                                         <th>FACILITY NAME</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="imported" style="color: green;">
+                                                <tbody class="imported">
                                                     <?php foreach($result['data']['imported'] as $key => $row){ ?>
                                                         <tr class="row<?php echo ($key+1);?>">
                                                             <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>

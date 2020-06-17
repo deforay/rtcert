@@ -735,6 +735,7 @@ class ProviderTable extends AbstractTableGateway {
                     // Debug::dump($sheetData);die;
                     $count = count($sheetData);
                     $common = new CommonService();
+                    $j=0;
                     for ($i = 2; $i <= $count; ++$i) 
                     {
                         $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
@@ -816,7 +817,10 @@ class ProviderTable extends AbstractTableGateway {
                                 'last_updated_on'           => $common->getDateTime(),
                                 'last_updated_by'           => $loginContainer->userId,
                             );
-                            $response['data']['imported'][] = $data;
+                            $response['data']['imported'][$j] = $data;
+                            $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                            $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                            $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
                             $this->tableGateway->insert($data);
                             $status = true;
                         } else{
@@ -843,6 +847,7 @@ class ProviderTable extends AbstractTableGateway {
                                 'facility_in_charge_email'  => $sheetData[$i]['T'],
                             );
                         }
+                        $j++;
                     } 
                     unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
                 }
