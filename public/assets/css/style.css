@@ -16368,7 +16368,7 @@ fieldset[disabled] .btn-social.btn-tumblr.active {
   [Tabs]
 */
 .nav-tabs {
-  background-color: #f5f5f5;
+  background-color: #dcdcdc;
   border-bottom-width: 0;
 }
 .nav-tabs > li {
@@ -16385,7 +16385,7 @@ fieldset[disabled] .btn-social.btn-tumblr.active {
 }
 .nav-tabs > li a:hover {
   background: transparent;
-  color: #3598DC;
+  color: #3f3f40;
 }
 .nav-tabs > li a:active {
   background-color: transparent;
@@ -16398,10 +16398,10 @@ fieldset[disabled] .btn-social.btn-tumblr.active {
 .nav-tabs > li.active a,
 .nav-tabs > li.active a:hover,
 .nav-tabs > li.active a:focus {
-  background-color: #ffffff;
+  background-color: #f5f5f5;
 }
 .tab-content {
-  background: #ffffff;
+  background: #f5f5f5;
   padding: 20px;
   margin-bottom: 40px;
 }
