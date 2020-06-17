@@ -227,7 +227,7 @@ class QuestionService {
         $QuestionDb        = $this->sm->get('QuestionTable');
         $TestSectionDb        = new TestSectionTable($dbAdapter);
         $TestOptionsDb        = new TestOptionsTable($dbAdapter);
-
+        $response = array();
         
         $allowedExtensions = array('xls', 'xlsx', 'csv');
         $fileName          = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['question_excel']['name']);
@@ -235,8 +235,9 @@ class QuestionService {
         $ranNumber         = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
         $extension         = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         $fileName          = $ranNumber.".".$extension;
+        $container = new Container('alert');
 
-         if (in_array($extension, $allowedExtensions)) {
+        if (in_array($extension, $allowedExtensions)) {
             $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'testquestion';
             if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
                 mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."testquestion");            
@@ -271,7 +272,14 @@ class QuestionService {
                         }
                                                     
                         $QuestionVAl=$QuestionDb->select(array('question' => $sheetData[$i]['B']))->current();
-                        if(!$QuestionVAl){
+                        if($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == ''){
+                            $response['data']['mandatory'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            $container->alertMsg = 'Some questions from the excel file were not imported. Please check the highlighted fields below to ensure the questions not duplicated.';
+                        }else if(!$QuestionVAl){
                             $data = array(
                             'question_code' => $sheetData[$i]['A'],
                             'question' => $sheetData[$i]['B'],
@@ -280,25 +288,30 @@ class QuestionService {
                             );
                             $QuestionDb->insert($data);
                             $QuestionId= $QuestionDb->lastInsertValue;
-                            $correctOption=strtoupper($sheetData[$i]['D']);                            
-                                for ($j = 1; $j <= 4; ++$j) 
-                                {
-                                    if($j==1){
-                                        $option="A";
-                                        $optionVal="A. ".$sheetData[$i]['E'];
-                                    }
-                                    if($j==2){
-                                        $option="B";
-                                        $optionVal="B. ".$sheetData[$i]['F'];
-                                    }
-                                    if($j==3){
-                                        $option="C";
-                                        $optionVal="C. ".$sheetData[$i]['G'];
-                                    }
-                                    if($j==4){
-                                        $option="D";
-                                        $optionVal="D. ".$sheetData[$i]['H'];
-                                    }
+                            $correctOption=strtoupper($sheetData[$i]['D']);
+                            $response['data']['imported'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            for ($j = 1; $j <= 4; ++$j) 
+                            {
+                                if($j==1){
+                                    $option="A";
+                                    $optionVal="A. ".$sheetData[$i]['E'];
+                                }
+                                if($j==2){
+                                    $option="B";
+                                    $optionVal="B. ".$sheetData[$i]['F'];
+                                }
+                                if($j==3){
+                                    $option="C";
+                                    $optionVal="C. ".$sheetData[$i]['G'];
+                                }
+                                if($j==4){
+                                    $option="D";
+                                    $optionVal="D. ".$sheetData[$i]['H'];
+                                }
                                     
                                 $TestOptionsVAl=$TestOptionsDb->select(array('option' => $optionVal))->current();
                                 if($TestOptionsVAl){
@@ -318,14 +331,21 @@ class QuestionService {
                                         'correct_option_text'          => $optionVal
                                     ),array("question_id"=>$QuestionId));
                                 }
-                            }                    
+                            }
+                            $container->alertMsg = 'Question details added successfully';                  
+                        } else {
+                            $response['data']['duplicate'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            $container->alertMsg = 'Some questions from the excel file were not imported. Please check the highlighted fields below to ensure the questions not duplicated.';
                         }
-                    }                    
+                    }
                     unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
-                    $container = new Container('alert');
-                    $container->alertMsg = 'Question details added successfully';
                 }
             }
         }
+        return $response;
     }
 }

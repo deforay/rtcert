@@ -1,9 +1,13 @@
 <?php
 use Zend\Debug\Debug;
 use Zend\Session\Container;
+// Debug::dump($result);die;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
+$mandatory = (isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0);
+$duplicate = (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0);
+$imported = (isset($result['data']['imported']) && count($result['data']['imported']) > 0);
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
@@ -18,14 +22,14 @@ $acl = $this->layout()->acl;
         font-size: 17px;
         font-weight: 600;
     }
-    .frezz th:last-child,
+    /* .frezz th:last-child,
     .frezz td:last-child {
         position: sticky !important;
         right: -1%;
         z-index: 1;
         background-color: white;
         padding: 18px !important;
-    }
+    } */
     .show-msg{
         display: block;
         color: rgb(255, 0, 0);
@@ -36,6 +40,50 @@ $acl = $this->layout()->acl;
         background: antiquewhite;
         border-radius: 10px;
     }
+    .alert {
+        padding-left: 30px;
+        margin-left: 15px;
+        position: relative;
+    }
+    .alert-info {
+        color: #31708f;
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+    }
+    .alert-dismissable {
+        padding-right: 35px;
+    }
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert > .fa, .alert > .glyphicon {
+        position: absolute;
+        left: -15px;
+        top: -15px;
+        width: 35px;
+        height: 35px;
+        -webkit-border-radius: 50%;
+        -moz-border-radius: 50%;
+        border-radius: 50%;
+        line-height: 35px;
+        text-align: center;
+        background: inherit;
+        border: inherit;
+    }
+/*     li.nav-item:hover {
+        background: #d4e7f5;
+        color: white !important;
+    } */
+    /* .nav-tabs > li a{
+        color: white;
+    } */
+    /* .nav-tabs > li a:hover {
+        background: transparent;
+        color: #ffffff;
+    } */
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -72,66 +120,164 @@ $acl = $this->layout()->acl;
                                             <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
                                             <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'index')); ?>">CANCEL</a> 
                                         </div>
-                                        <div class="form-group col-lg-4">
-                                            <span style="display: none;" class="show-msg"></span>
-                                        </div>
                                     </div>
                                 </fieldset>
-                                <fieldset>
-                                    <?php if(isset($result) && count($result) > 0){ ?>
-                                        <table id="resultTable" class="table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget dataTable no-footer">
-                                            <thead class="frezz">
-                                                <tr>
-                                                    <th>REG NO</th>
-                                                    <th>FIRST NAME</th>
-                                                    <th>LAST NAME</th>
-                                                    <th>PROVINCE</th>
-                                                    <th>DISTRICT</th>
-                                                    <th>TYPE OF HIV TEST MODALITY/POINT</th>
-                                                    <th>PHONE</th>
-                                                    <th>EMAIL</th>
-                                                    <th>CURRENT JOB TITLE</th>
-                                                    <th>FACILITY NAME</th>
-                                                    <?php $import = false; if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Provider", "import-manually")) { $import = true;?>
-                                                        <th>ACTION</th>
-                                                    <?php } ?>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="frezz">
-                                                <?php foreach($result['data'] as $key => $row){ ?>
-                                                    <tr class="row<?php echo ($key+1);?>">
-                                                        <td>
-                                                            <span name="rows[]" id="time<?php echo ($key+1);?>" style="display: none;"><?php echo $row['time_worked'];?></span>
-                                                            <span name="rows[]" id="username<?php echo ($key+1);?>" style="display: none;"><?php echo $row['username'];?></span>
-                                                            <span name="rows[]" id="password<?php echo ($key+1);?>" style="display: none;"><?php echo $row['password'];?></span>
-                                                            <span name="rows[]" id="testName<?php echo ($key+1);?>" style="display: none;"><?php echo $row['test_site_in_charge_name'];?></span>
-                                                            <span name="rows[]" id="testPhone<?php echo ($key+1);?>" style="display: none;"><?php echo $row['test_site_in_charge_phone'];?></span>
-                                                            <span name="rows[]" id="testEmail<?php echo ($key+1);?>" style="display: none;"><?php echo $row['test_site_in_charge_email'];?></span>
-                                                            <span name="rows[]" id="facilityName<?php echo ($key+1);?>" style="display: none;"><?php echo $row['facility_in_charge_name'];?></span>
-                                                            <span name="rows[]" id="facilityPhone<?php echo ($key+1);?>" style="display: none;"><?php echo $row['facility_in_charge_phone'];?></span>
-                                                            <span name="rows[]" id="facilityEmail<?php echo ($key+1);?>" style="display: none;"><?php echo $row['facility_in_charge_email'];?></span>
-                                                            <span name="rows[]" id="moddleName<?php echo ($key+1);?>" style="display: none;"><?php echo $row['middle_name'];?></span>
-                                                            <input type="text" name="rows[]" id="regNo<?php echo ($key+1);?>" value="<?php echo $row['professional_reg_no'];?>" class="form-control"/></span></td>
-                                                        <td><span name="rows[]" id="firstName<?php echo ($key+1);?>"><?php echo $row['first_name'];?></span></td>
-                                                        <td><span name="rows[]" id="lastName<?php echo ($key+1);?>"><?php echo $row['last_name'];?></span></td>
-                                                        <td><span name="rows[]" id="region<?php echo ($key+1);?>"><?php echo $row['region'];?></span></td>
-                                                        <td><span name="rows[]" id="district<?php echo ($key+1);?>"><?php echo $row['district'];?></span></td>
-                                                        <td><span name="rows[]" id="typeVihTest<?php echo ($key+1);?>"><?php echo $row['type_vih_test'];?></span></td>
-                                                        <td><span name="rows[]" id="phone<?php echo ($key+1);?>"><?php echo $row['phone'];?></span></td>
-                                                        <td><input name="rows[]" id="email<?php echo ($key+1);?>" type="text" class="form-control" value="<?php echo $row['email'];?>"/></td>
-                                                        <td><span name="rows[]" id="job<?php echo ($key+1);?>"><?php echo $row['current_jod'];?></span></td>
-                                                        <td><input name="rows[]" id="facility<?php echo ($key+1);?>" type="text" class="form-control" value="<?php echo $row['facility_id'];?>"/></td>
-                                                        <?php if($import){ ?>
-                                                            <td><a href="javascript:void(0);" data-check="true" onclick="insertManual(this,<?php echo ($key+1);?>)" class="btn btn-sm btn-space btn-danger"><i class="fa fa-plus"></i>&nbsp;Insert</a></td>
-                                                        <?php }?>
-                                                    </tr>
-                                                <?php }?>
-                                            </tbody>
-                                        </table>
-                                    <?php }?>
-                                </fieldset>
-                                <?php echo $this->form()->closeTag(); ?>
                             </form>
+                            <?php if((isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0) || (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0) || (isset($result['data']['imported']) && count($result['data']['imported']) > 0)){ ?>
+                            <fieldset>
+                                <div class="alert alert-dismissable">
+                                    <div>Total number of records in the uploaded file : <?php echo (count($result['data']['mandatory'])+count($result['data']['duplicate'])+count($result['data']['imported']));?></div>
+                                </div>
+                                <ul class="nav nav-tabs" id="importTesterTab" role="tablist">
+                                    <?php if(isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0){?>
+                                    <li class="nav-item active" style="background: #ff00004a;color:white;">
+                                        <a class="nav-link active" id="mandatory-tab" data-toggle="tab" href="#mandatory-tabpanel" role="tab" aria-controls="mandatory-tabpanel" aria-selected="false" >Not Imported - Mandatory Fields Missing (<?php echo count($result['data']['mandatory']);?>)</a>
+                                    </li>
+                                    <?php } if(isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0){ ?>
+                                    <li class="nav-item" style="background: #ff00004a;color:white;">
+                                        <a class="nav-link" id="duplicates-tab" data-toggle="tab" href="#duplicates-tabpanel" role="tab" aria-controls="duplicates-tabpanel" aria-selected="true" >Not Imported - Duplicates (<?php echo count($result['data']['duplicate']);?>)</a>
+                                    </li>
+                                    <?php } if(isset($result['data']['imported']) && count($result['data']['imported']) > 0){ ?>
+                                    <li class="nav-item" style="background: #01ff0570;color:white;">
+                                        <a class="nav-link" id="imported-tab" data-toggle="tab" href="#imported-tabpanel" role="tab" aria-controls="imported-tabpanel" aria-selected="false">Imported (<?php echo count($result['data']['imported']);?>)</a>
+                                    </li>
+                                    <?php } ?>
+                                </ul>
+                                <div class="tab-content" id="importTesterContent">
+                                    <?php if(isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0){ ?>
+                                        <div class="tab-pane <?php echo ($mandatory)?'active':'';?>" id="mandatory-tabpanel" role="tabpanel" aria-labelledby="mandatory-tab">
+                                            <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
+                                                <div>The following testers were NOT imported. Some key or Mandatory fields are missing in following testers. Please edit the excel and try again.</div>
+                                            </div>
+                                            <table id="mandatoryTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
+                                                <thead class="frezz">
+                                                    <tr>
+                                                        <th>REG NO</th>
+                                                        <th>FIRST NAME</th>
+                                                        <th>LAST NAME</th>
+                                                        <th>PROVINCE</th>
+                                                        <th>DISTRICT</th>
+                                                        <th>TYPE OF HIV TEST MODALITY/POINT</th>
+                                                        <th>PHONE</th>
+                                                        <th>EMAIL</th>
+                                                        <th>CURRENT JOB TITLE</th>
+                                                        <th>FACILITY NAME</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach($result['data']['mandatory'] as $key => $row){ ?>
+                                                        <tr class="row<?php echo ($key+1);?>">
+                                                            <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>
+                                                            <td><span name="rows[]" id="firstName<?php echo ($key+1);?>"><?php echo $row['first_name'];?></span></td>
+                                                            <td><span name="rows[]" id="lastName<?php echo ($key+1);?>"><?php echo $row['last_name'];?></span></td>
+                                                            <td><span name="rows[]" id="region<?php echo ($key+1);?>"><?php echo $row['region'];?></span></td>
+                                                            <td><span name="rows[]" id="district<?php echo ($key+1);?>"><?php echo $row['district'];?></span></td>
+                                                            <td><span name="rows[]" id="typeVihTest<?php echo ($key+1);?>"><?php echo $row['type_vih_test'];?></span></td>
+                                                            <td><span name="rows[]" id="phone<?php echo ($key+1);?>"><?php echo $row['phone'];?></span></td>
+                                                            <td><span name="rows[]" id="email<?php echo ($key+1);?>"><?php echo $row['email'];?></td>
+                                                            <td><span name="rows[]" id="job<?php echo ($key+1);?>"><?php echo $row['current_jod'];?></span></td>
+                                                            <td><span name="rows[]" id="facility<?php echo ($key+1);?>"><?php echo $row['facility_id'];?></td>
+                                                        </tr>
+                                                    <?php }?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php } if(isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0){ 
+                                        $active = '';
+                                        if(!$mandatory){
+                                            if(!$duplicate){
+                                                if($imported){
+                                                    $active = 'active';
+                                                }
+                                            }
+                                        }?>
+                                        <div class="tab-pane <?php echo $active;?>" id="duplicates-tabpanel" role="tabpanel" aria-labelledby="duplicates-tab">
+                                            <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
+                                                <div>The following testers were NOT imported. Some of the testers information is repeated. Please edit the excel and try again. You can ignore this list if you added these testers by mistake.</div>
+                                            </div>    
+                                            <table id="duplicatesTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
+                                                <thead class="frezz">
+                                                    <tr>
+                                                        <th>REG NO</th>
+                                                        <th>FIRST NAME</th>
+                                                        <th>LAST NAME</th>
+                                                        <th>PROVINCE</th>
+                                                        <th>DISTRICT</th>
+                                                        <th>TYPE OF HIV TEST MODALITY/POINT</th>
+                                                        <th>PHONE</th>
+                                                        <th>EMAIL</th>
+                                                        <th>CURRENT JOB TITLE</th>
+                                                        <th>FACILITY NAME</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="duplicates">
+                                                    <?php foreach($result['data']['duplicate'] as $key => $row){ ?>
+                                                        <tr class="row<?php echo ($key+1);?>">
+                                                            <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>
+                                                            <td><span name="rows[]" id="firstName<?php echo ($key+1);?>"><?php echo $row['first_name'];?></span></td>
+                                                            <td><span name="rows[]" id="lastName<?php echo ($key+1);?>"><?php echo $row['last_name'];?></span></td>
+                                                            <td><span name="rows[]" id="region<?php echo ($key+1);?>"><?php echo $row['region'];?></span></td>
+                                                            <td><span name="rows[]" id="district<?php echo ($key+1);?>"><?php echo $row['district'];?></span></td>
+                                                            <td><span name="rows[]" id="typeVihTest<?php echo ($key+1);?>"><?php echo $row['type_vih_test'];?></span></td>
+                                                            <td><span name="rows[]" id="phone<?php echo ($key+1);?>"><?php echo $row['phone'];?></span></td>
+                                                            <td><span name="rows[]" id="email<?php echo ($key+1);?>"><?php echo $row['email'];?></td>
+                                                            <td><span name="rows[]" id="job<?php echo ($key+1);?>"><?php echo $row['current_jod'];?></span></td>
+                                                            <td><span name="rows[]" id="facility<?php echo ($key+1);?>"><?php echo $row['facility_id'];?></td>
+                                                        </tr>
+                                                    <?php }?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php } if(isset($result['data']['imported']) && count($result['data']['imported']) > 0){ 
+                                        $active = '';
+                                        if(!$mandatory){
+                                            if(!$duplicate){
+                                                if($imported){
+                                                    $active = 'active';
+                                                }
+                                            }
+                                        }?>
+                                        <div class="tab-pane <?php echo $active;?>" id="imported-tabpanel" role="tabpanel" aria-labelledby="imported-tab">
+                                            <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
+                                                <div>Following testers were imported successfully.</div>
+                                            </div>    
+                                            <table id="importedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
+                                                <thead class="frezz">
+                                                    <tr>
+                                                        <th>REG NO</th>
+                                                        <th>FIRST NAME</th>
+                                                        <th>LAST NAME</th>
+                                                        <th>PROVINCE</th>
+                                                        <th>DISTRICT</th>
+                                                        <th>TYPE OF HIV TEST MODALITY/POINT</th>
+                                                        <th>PHONE</th>
+                                                        <th>EMAIL</th>
+                                                        <th>CURRENT JOB TITLE</th>
+                                                        <th>FACILITY NAME</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="imported">
+                                                    <?php foreach($result['data']['imported'] as $key => $row){ ?>
+                                                        <tr class="row<?php echo ($key+1);?>">
+                                                            <td><span name="rows[]" id="regNo<?php echo ($key+1);?>"><?php echo $row['professional_reg_no'];?></span>
+                                                            <td><span name="rows[]" id="firstName<?php echo ($key+1);?>"><?php echo $row['first_name'];?></span></td>
+                                                            <td><span name="rows[]" id="lastName<?php echo ($key+1);?>"><?php echo $row['last_name'];?></span></td>
+                                                            <td><span name="rows[]" id="region<?php echo ($key+1);?>"><?php echo $row['region'];?></span></td>
+                                                            <td><span name="rows[]" id="district<?php echo ($key+1);?>"><?php echo $row['district'];?></span></td>
+                                                            <td><span name="rows[]" id="typeVihTest<?php echo ($key+1);?>"><?php echo $row['type_vih_test'];?></span></td>
+                                                            <td><span name="rows[]" id="phone<?php echo ($key+1);?>"><?php echo $row['phone'];?></span></td>
+                                                            <td><span name="rows[]" id="email<?php echo ($key+1);?>"><?php echo $row['email'];?></td>
+                                                            <td><span name="rows[]" id="job<?php echo ($key+1);?>"><?php echo $row['current_jod'];?></span></td>
+                                                            <td><span name="rows[]" id="facility<?php echo ($key+1);?>"><?php echo $row['facility_id'];?></td>
+                                                        </tr>
+                                                    <?php }?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php }?>
+                                </div>
+                            </fieldset>
+                            <?php }?>
                         </div>
                     </div>
                 </div>
@@ -143,56 +289,10 @@ $acl = $this->layout()->acl;
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/dataTables.bootstrap.min.js'); ?>"></script>
 <script>
     $(document).ready(function () {
-        var table = $('#resultTable').DataTable({
+        /* var table = $('#mandatoryTable,#duplicatesTable,#importedTable').DataTable({
             "aProcessing": true,
             "aServerSide": true,
             "aaSorting": [],
-        });
+        }); */
     });
-
-    function insertManual(obj,no){
-        if($(obj).attr('data-check') != 'false'){
-
-            $.post("<?php echo $this->url('provider',array('action'=>'import-manually')); ?>",{
-                regNo:$('#regNo'+no).val(),
-                first:$('#firstName'+no).text(),
-                last:$('#lastName'+no).text(),
-                middle:$('#moddleName'+no).text(),
-                region:$('#region'+no).text(),
-                district:$('#district'+no).text(),
-                vih:$('#typeVihTest'+no).text(),
-                phone:$('#phone'+no).text(),
-                email:$('#email'+no).val(),
-                job:$('#job'+no).text(),
-                facility:$('#facility'+no).val(),
-                time:$('#time'+no).text(),
-                username:$('#username'+no).text(),
-                password:$('#password'+no).text(),
-                testName:$('#testName'+no).text(),
-                testPhone:$('#testPhone'+no).text(),
-                testEmail:$('#testEmail'+no).text(),
-                facilityName:$('#facilityName'+no).text(),
-                facilityPhone:$('#facilityPhone'+no).text(),
-                facilityEmail:$('#facilityEmail'+no).text()
-            },
-            function(data) {
-                if(data == '' || data == false || data == null){
-                    $(obj).attr('disabled',false);
-                    $('.show-msg').text('Dublicate record not imported');
-                    $('.show-msg').css('color','red');
-                    $('.show-msg').css('background','antiquewhite')
-                    $('.show-msg').show(500);
-                } else{
-                    $('.show-msg').text('Imported successfully');
-                    $('.show-msg').css('color','green');
-                    $('.show-msg').css('background','lightgreen')
-                    $('.row'+no).css('background-color','rgba(53, 220, 112, 0.25)')
-                    $(obj).attr('data-check','false');
-                    $(obj).removeClass('btn-danger');
-                    $(obj).addClass('btn-default');
-                    $(obj).attr('disabled',true);
-                }
-            });
-        }
-    }
 </script>
