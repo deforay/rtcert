@@ -54,13 +54,14 @@ class TestQuestionController extends AbstractActionController{
         }
     }
 
-
-
     public function importExcelAction(){
         $questionService = $this->getServiceLocator()->get('QuestionService');
         if($this->getRequest()->isPost()){
             $params=$this->getRequest()->getPost();
-            $questionService->uploadTestQuestion($params);
+            $result = $questionService->uploadTestQuestion($params);
+            return new ViewModel(array(
+                'result' => $result
+            ));
             return $this->_redirect()->toRoute('test-question');
         }
         else {
