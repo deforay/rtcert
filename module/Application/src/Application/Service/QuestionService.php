@@ -257,7 +257,9 @@ class QuestionService {
                         $sectionVals= strtolower($sectionName);
                         $sectionSlug = str_replace(" ", "-", $sectionVals);
                         $testsectionVal=$TestSectionDb->select(array('section_slug' => $sectionSlug))->current();
-                        if(!$testsectionVal){
+                        if($testsectionVal){
+                            $sectionId=$testsectionVal->section_id;   
+                        }else{
                             $sectionData=array(
                                 'section_name' => $sectionName,
                                 'section_slug' => $sectionSlug,
@@ -266,18 +268,20 @@ class QuestionService {
                             );
                             $TestSectionDb->insert($sectionData);
                             $sectionId= $TestSectionDb->lastInsertValue;
-                            
+                        }
+                                                    
+                        $QuestionVAl=$QuestionDb->select(array('question' => $sheetData[$i]['B']))->current();
+                        if(!$QuestionVAl){
                             $data = array(
-                                'question_code' => $sheetData[$i]['A'],
-                                'question' => $sheetData[$i]['B'],
-                                'section'  => $sectionId,                         
-                                'status'   => 'active',
+                            'question_code' => $sheetData[$i]['A'],
+                            'question' => $sheetData[$i]['B'],
+                            'section'  => $sectionId,                         
+                            'status'   => 'active',
                             );
-                                $QuestionDb->insert($data);
-                                $QuestionId= $QuestionDb->lastInsertValue;
-
-                                $correctOption=strtoupper($sheetData[$i]['D']);
-                                
+                            $QuestionDb->insert($data);
+                            $QuestionId= $QuestionDb->lastInsertValue;
+                            $correctOption=strtoupper($sheetData[$i]['D']);
+                            
                                 for ($j = 1; $j <= 4; ++$j) 
                                 {
                                     if($j==1){
@@ -296,6 +300,11 @@ class QuestionService {
                                         $option="D";
                                         $optionVal="D. ".$sheetData[$i]['H'];
                                     }
+                                    
+                                $TestOptionsVAl=$TestOptionsDb->select(array('option' => $optionVal))->current();
+                                if($TestOptionsVAl){
+                                    $OptionId= $TestOptionsVAl->correct_option;
+                                }else{
                                     $optiondata = array(
                                         'question' => $QuestionId,
                                         'option' => $optionVal,
@@ -303,27 +312,22 @@ class QuestionService {
                                     );
                                     $TestOptionsDb->insert($optiondata);
                                     $OptionId= $TestOptionsDb->lastInsertValue;
-                                    if($option==$correctOption){
-                                        $QuestionDb->update(array(
-                                            'correct_option'          => $OptionId,
-                                            'correct_option_text'          => $optionVal
-                                        ),array("question_id"=>$QuestionId));
-                                    }
-                                    $msg='Question details added successfully';
-    
                                 }
-                                
-                        }else{
-                            $msg='Upload section name is already Exists';
+                                if($option==$correctOption){
+                                    $QuestionDb->update(array(
+                                        'correct_option'          => $OptionId,
+                                        'correct_option_text'          => $optionVal
+                                    ),array("question_id"=>$QuestionId));
+                                }
+                            }                    
                         }
-                    } 
+                    }
+                    
                     unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
                     $container = new Container('alert');
-                    $container->alertMsg = $msg;
+                    $container->alertMsg = 'Question details added successfully';
                 }
             }
         }
-        
     }
-
 }

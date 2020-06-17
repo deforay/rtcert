@@ -1277,7 +1277,6 @@ class CertificationTable
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_type'];
             if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {
