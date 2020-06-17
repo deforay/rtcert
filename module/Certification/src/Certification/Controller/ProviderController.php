@@ -544,31 +544,12 @@ class ProviderController extends AbstractActionController {
                 $request->getFiles()->toArray()
             ); 
             $result = $this->getProviderTable()->uploadTesterExcel($post);
-            if($result['status']){
-                return $this->redirect()->toRoute("provider");
-            } else{
-                return array('form' => $form,
-                    'result' => $result,
-                );
-            }
+            return array('form' => $form,
+                'result' => $result,
+            );
         }
         return array('form' => $form,
             'providers' => $this->getProviderTable()->fetchAll(),
         );
     }
-
-    public function importManuallyAction()
-    {
-        $request = $this->getRequest();
-        if($request->isPost())
-        {
-            $parameters = $request->getPost();
-            $result = $this->getProviderTable()->importManuallyData($parameters);
-            $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result));
-            $viewModel->setTerminal(true);
-            return $viewModel;
-        }
-    }
-
 }

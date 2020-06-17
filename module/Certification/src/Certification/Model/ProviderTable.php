@@ -706,7 +706,7 @@ class ProviderTable extends AbstractTableGateway {
         $loginContainer    = new Container('credo');
         $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
         $sql               = new Sql($dbAdapter);
-        
+        $status = false;
         $allowedExtensions = array('xls', 'xlsx', 'csv');
         $fileName          = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['tester_excel']['name']);
         $fileName          = str_replace(" ", "-", $fileName);
@@ -738,9 +738,32 @@ class ProviderTable extends AbstractTableGateway {
                     for ($i = 2; $i <= $count; ++$i) 
                     {
                         $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
+                        $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
                         $facility = $this->getFacilityByName($sheetData[$i]['K']);
-
-                        if(!$rowset && $facility){
+                        if($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['K'] == ''){
+                            $response['data']['mandatory'][]  = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => $sheetData[$i]['E'],
+                                'district'                  => $sheetData[$i]['F'],
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'current_jod'               => $sheetData[$i]['J'],
+                                'facility_id'               => $sheetData[$i]['K'],
+                                'time_worked'               => $sheetData[$i]['L'],
+                                'username'                  => $sheetData[$i]['M'],
+                                'password'                  => $sheetData[$i]['N'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
+                            );
+                        } else if(!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['K'] != '')){
                             $password = '';
                             if(isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != ''){
                                 $config = new \Zend\Config\Reader\Ini();
@@ -767,8 +790,8 @@ class ProviderTable extends AbstractTableGateway {
 
                             $data = array(
                                 'professional_reg_no'       => $sheetData[$i]['A'],
-                                'middle_name'               => $sheetData[$i]['B'],
-                                'first_name'                => $sheetData[$i]['C'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
                                 'last_name'                 => $sheetData[$i]['D'],
                                 'region'                    => (isset($region['location_id']) && $region)?$region['location_id']:'',
                                 'district'                  => (isset($district['location_id']) && $district)?$district['location_id']:'',
@@ -793,10 +816,11 @@ class ProviderTable extends AbstractTableGateway {
                                 'last_updated_on'           => $common->getDateTime(),
                                 'last_updated_by'           => $loginContainer->userId,
                             );
+                            $response['data']['imported'][] = $data;
                             $this->tableGateway->insert($data);
-                            // $id = $this->tableGateway->lastInsertValue;
-                        }else{
-                            $response['data'][] = array(
+                            $status = true;
+                        } else{
+                            $response['data']['duplicate'][] = array(
                                 'professional_reg_no'       => $sheetData[$i]['A'],
                                 'first_name'                => $sheetData[$i]['B'],
                                 'middle_name'               => $sheetData[$i]['C'],
@@ -826,13 +850,11 @@ class ProviderTable extends AbstractTableGateway {
         }
         if(count($response['data']) > 0){
             $container = new Container('alert');
-            $container->alertMsg = 'Some of the tester not imported. Please check if email dublicated or facility name is there!';
-            $response['status'] = false;
+            $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields below to ensure the Tester Profession number is not duplicated.';
             return $response;
-        }else{
+        }else if($status){
             $container = new Container('alert');
             $container->alertMsg = 'Tester details imported successfully';
-            $response['status'] = true;
             return $response;
         }
     }
