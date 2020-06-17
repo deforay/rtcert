@@ -280,8 +280,7 @@ class QuestionService {
                             );
                             $QuestionDb->insert($data);
                             $QuestionId= $QuestionDb->lastInsertValue;
-                            $correctOption=strtoupper($sheetData[$i]['D']);
-                            
+                            $correctOption=strtoupper($sheetData[$i]['D']);                            
                                 for ($j = 1; $j <= 4; ++$j) 
                                 {
                                     if($j==1){
@@ -321,8 +320,7 @@ class QuestionService {
                                 }
                             }                    
                         }
-                    }
-                    
+                    }                    
                     unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
                     $container = new Container('alert');
                     $container->alertMsg = 'Question details added successfully';
