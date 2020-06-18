@@ -378,7 +378,8 @@ class CertificationController extends AbstractActionController {
         $district = $request->getPost('district');
         $excludeTesterName = $request->getPost('exclude_tester_name');
         $facility = $request->getPost('facility');
-        $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        // $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        $result = $this->getCertificationTable()->report($request);
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' =>$result));
         $viewModel->setTerminal(true);
@@ -669,5 +670,14 @@ class CertificationController extends AbstractActionController {
     }
 
     
+    public function getCertificateReportsAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->reportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
 
 }
