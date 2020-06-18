@@ -162,7 +162,7 @@ $sessionLogin = new Container('credo');
                                     <div class="form-group col-lg-12" style="margin-top: 30px">
                                         <a href="javascript:void(0)" onclick="getRecertificateReport();" class="btn btn-space btn-primary">GET REPORT</a>
                                         <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                        <a class="btn  btn-space btn-default" role="button"  href="<?php echo $this->url('recertification', array('action' => 'xls')); ?>" >CANCEL</a>
+                                        <a class="btn  btn-space btn-danger" role="button"  href="<?php echo $this->url('recertification', array('action' => 'xls')); ?>" >CLEAR</a>
                                     </div>
                                 </div>
                                 <?php echo $this->form()->closeTag();?>
