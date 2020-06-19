@@ -197,15 +197,22 @@ class ExaminationController extends AbstractActionController {
 
     public function getReportAction()
     {
+        // $request = $this->getRequest();
+        // if($request->isPost())
+        // {
+        //     $params = $request->getPost();
+        //     $result = $this->getExaminationTable()->report($params);
+        //     $viewModel = new ViewModel();
+        //     $viewModel->setVariables(array('result' =>$result, 'params' => $params));
+        //     $viewModel->setTerminal(true);
+        //     return $viewModel;
+        // }
+
         $request = $this->getRequest();
-        if($request->isPost())
-        {
-            $params = $request->getPost();
-            $result = $this->getExaminationTable()->report($params);
-            $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result, 'params' => $params));
-            $viewModel->setTerminal(true);
-            return $viewModel;
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getExaminationTable()->examReportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
