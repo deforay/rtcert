@@ -1126,7 +1126,7 @@ class ProviderTable extends AbstractTableGateway {
             if (trim($startDate) != '' && trim($endDate) != '') {
                 $certificationTime = $startDate . ' - ' . $endDate;
             }
-
+            $EditId = '';
             if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'edit')) {
                 $EditId = '<a href="/provider/edit/' . $providerID . '" class="btn btn-outline-primary btn-sm" title="Edit"><span class="glyphicon glyphicon-pencil">Edit</span</a>';
             }
@@ -1135,6 +1135,7 @@ class ProviderTable extends AbstractTableGateway {
                 return false;
             }
             ;";
+            $DeleteId = '';
             if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) {
                 if (!isset($aRow['examid'])) {
                     $DeleteId = '<a class="btn btn-primary"  onclick="'.$deleteconfirm.'" href="/provider/delete/' . $aRow['id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
@@ -1145,9 +1146,21 @@ class ProviderTable extends AbstractTableGateway {
             if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { 
                 if (isset($aRow['final_decision']) && $aRow['final_decision'] != null && trim($aRow['final_decision']) != '') {
                     if (strcasecmp($aRow['final_decision'], 'Certified') == 0) { 
-
-                    $arrayVal=$this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('id') => base64_encode($aRow['certid']), base64_encode('last') => base64_encode($aRow['last_name']), base64_encode('first') => base64_encode($aRow['first_name']), base64_encode('middle') => base64_encode($aRow['middle_name']), base64_encode('professional_reg_no') => base64_encode($aRow['professional_reg_no']), base64_encode('certification_id') => base64_encode($aRow['certification_id']), base64_encode('date_issued') => base64_encode($aRow['date_certificate_issued']))));
-                    $PDFId = '<a class="btn btn-primary" href="'.$arrayVal.'" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>';
+                    /* $val = array(
+                        base64_encode('id') => base64_encode($aRow['certid']), 
+                        base64_encode('last') => base64_encode($aRow['last_name']), 
+                        base64_encode('first') => base64_encode($aRow['first_name']), 
+                        base64_encode('middle') => base64_encode($aRow['middle_name']), 
+                        base64_encode('professional_reg_no') => base64_encode($aRow['professional_reg_no']), 
+                        base64_encode('certification_id') => base64_encode($aRow['certification_id']), 
+                        base64_encode('date_issued') => base64_encode($aRow['date_certificate_issued'])
+                    );
+                    $arrayVal=$this->url('certification', array('action' => 'pdf'), array(
+                        'query' => $val
+                        )
+                    ); */
+                    $val = base64_encode('id') .'='.base64_encode($aRow['certid']).'&'.base64_encode('last').'='.base64_encode($aRow['last_name']).'&'.base64_encode('first').'='.base64_encode($aRow['first_name']).'&'.base64_encode('middle').'='.base64_encode($aRow['middle_name']).'&'.base64_encode('professional_reg_no').'='.base64_encode($aRow['professional_reg_no']).'&'.base64_encode('certification_id').'='.base64_encode($aRow['certification_id']).'&'.base64_encode('date_issued').'='.base64_encode($aRow['date_certificate_issued']);
+                    $PDFId = '<a class="btn btn-primary" href="/certification/pdf?query='.$val.'" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>';
                     }
                 }
             }
