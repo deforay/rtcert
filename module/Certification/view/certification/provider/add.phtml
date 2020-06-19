@@ -3,6 +3,7 @@ use Zend\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
+$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
@@ -429,47 +430,7 @@ $acl = $this->layout()->acl;
 
                                     </thead>
                                     <tbody>
-                                        <?php
-                                        foreach ($this->providers as $provider) {
-                                            $certificationTime = '';
-                                            $startDate = '';
-                                            $endDate = '';
-                                            if(isset($provider->date_certificate_issued) && $provider->date_certificate_issued!= null && trim($provider->date_certificate_issued)!= '' && $provider->date_certificate_issued!= '0000-00-00' && $provider->date_certificate_issued!= '1970-01-01'){
-                                                $startDate = date('M Y',strtotime($provider->date_certificate_issued));
-                                            }
-                                            if(isset($provider->date_end_validity) && $provider->date_end_validity!= null && trim($provider->date_end_validity)!= '' && $provider->date_end_validity!= '0000-00-00' && $provider->date_end_validity!= '1970-01-01'){
-                                                $endDate = date('M Y',strtotime($provider->date_end_validity));
-                                            }
-                                            if(trim($startDate)!= '' && trim($endDate)!= ''){
-                                               $certificationTime = $startDate.' - '.$endDate;
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_reg_no); ?></div></td>
-                                                <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->professional_reg_no); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->certification_id); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $certificationTime; ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->last_name . ' ' . $provider->first_name . ' ' . $provider->middle_name); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->region_name); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->district_name); ?></div></td>
-                                                <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->type_vih_test); ?></div></td>
-                                                <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->phone); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->email); ?></div></td>
-                                                <td><div style="width:80px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->prefered_contact_method); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->current_jod); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->time_worked); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->username); ?></div></td>
-                                                <!-- <td><div style="width:120px;height:40px;overflow:auto;">< ?php echo $this->escapeHtml($provider->password); ?></div></td> -->
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_name); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_address); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_name); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_phone); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->test_site_in_charge_email); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_name); ?></div></td>
-                                                <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_phone); ?></div></td>
-                                                <td><div style="width:180px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($provider->facility_in_charge_email); ?></div></td>
-                                            </tr>
-                                            <?php } ?>
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -507,7 +468,7 @@ $acl = $this->layout()->acl;
 </script>
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/provider.js'); ?>"></script>
 <script>
-
+ oTable = null;
 $(document).ready(function () {
         /* 
             The below snippet dynamically list toggleable button.
@@ -522,11 +483,35 @@ $(document).ready(function () {
         $("#manageColumns").html(listOfColumns);
         /* Ends Here */
 
-       var table = $('#provider').DataTable({
-            "aProcessing": true,
-            "aServerSide": true,
-            "aaSorting": [],
+    //    var table = $('#provider').DataTable({
+    //         "aProcessing": true,
+    //         "aServerSide": true,
+    //         "aaSorting": [],
+    //     });
+
+    oTable = $('#provider').dataTable({
+            "bAutoWidth": false,
+            "bProcessing": true,
+            "bServerSide": true,
+            "bStateSave": true,
+            "aoColumns": [
+                <?php echo $editAction; ?>
+            ],
+            "aaSorting": [
+                [0, "asc"]
+            ],
+            "sAjaxSource": "<?php echo $this->url('provider', array('action' => 'get-provider-data')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
         });
+
 
         $('a.toggle-vis').on( 'click', function (e) {
             e.preventDefault(); 

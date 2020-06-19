@@ -35,7 +35,7 @@ class ProviderController extends AbstractActionController {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getProviderTable()->expiryReportData($parameters);
+            $result = $this->getProviderTable()->fetachProviderData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
@@ -566,4 +566,15 @@ class ProviderController extends AbstractActionController {
             'providers' => $this->getProviderTable()->fetchAll(),
         );
     }
+
+
+
+    public function getProviderDataAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $parameters['addproviders']="addproviders";
+            $result = $this->getProviderTable()->fetachProviderData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }}
 }

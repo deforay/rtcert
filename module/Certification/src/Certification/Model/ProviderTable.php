@@ -957,9 +957,9 @@ class ProviderTable extends AbstractTableGateway {
     }
 
 
-    public function expiryReportData($parameters)
+    public function fetachProviderData($parameters)
     {
-        // print_r($parameters); die;
+      
         $logincontainer = new Container('credo');
         $role = $logincontainer->roleCode;
         $roleCode = $logincontainer->roleCode;
@@ -1177,7 +1177,11 @@ class ProviderTable extends AbstractTableGateway {
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_id'];
             $row[] = $certificationTime;
+            if($parameters['addproviders']==''){
             $row[] = $link;
+            }else{
+            $row[] = $aRow['last_name']. ' '.$aRow['first_name']. ' '.$aRow['middle_name']; 
+            }
             $row[] = $aRow['region_name'];
             $row[] = $aRow['district_name'];
             $row[] = $aRow['type_vih_test'];
@@ -1186,6 +1190,9 @@ class ProviderTable extends AbstractTableGateway {
             $row[] = $aRow['prefered_contact_method'];
             $row[] = $aRow['current_jod'];
             $row[] = $aRow['time_worked'];
+            if($parameters['addproviders']!=''){
+            $row[] = $aRow['username'];
+            }
             $row[] = $aRow['facility_name'];
             $row[] = $aRow['facility_address'];
             $row[] = $aRow['test_site_in_charge_name'];
@@ -1194,14 +1201,15 @@ class ProviderTable extends AbstractTableGateway {
             $row[] = $aRow['facility_in_charge_name'];
             $row[] = $aRow['facility_in_charge_phone'];
             $row[] = $aRow['facility_in_charge_email'];
-            $row[] = $EditId;
-            $row[] = $DeleteId;
-            $row[] = $PDFId;
-            $row[] = $sendLink;
+            if($parameters['addproviders']==''){
+                $row[] = $EditId;
+                $row[] = $DeleteId;
+                $row[] = $PDFId;
+                $row[] = $sendLink;
+            }
             $output['aaData'][] = $row;
         }
         return $output;
     }
-    
     
 }
