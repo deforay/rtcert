@@ -932,4 +932,261 @@ class ProviderTable extends AbstractTableGateway {
         }
         return false;
     }
+
+    public function fetchAllData() {
+        $logincontainer = new Container('credo');
+        $sqlSelect = $this->tableGateway->getSql()->select();
+        $sqlSelect->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'));
+        $sqlSelect->join('certification_facilities', ' certification_facilities.id = provider.facility_id ', array('facility_name', 'facility_address'))
+                  ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = provider.region', array('region_name'=>'location_name'))
+                  ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = provider.district', array('district_name'=>'location_name'))
+                  ->join(array('e'=>'examination'), 'e.provider = provider.id ', array('examid'=>'id'), 'left')
+                  ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+                  //->group('e.provider');
+        $sqlSelect->order('provider.added_on desc')
+                  ->order('c.date_certificate_issued desc');
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $sqlSelect->where('provider.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $sqlSelect->where('provider.region IN('.implode(',',$logincontainer->region).')');
+        }else if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $sqlSelect->where('l_d_r.country IN('.implode(',',$logincontainer->country).')');
+        }
+        $resultSet = $this->tableGateway->selectWith($sqlSelect);
+        return $resultSet;
+    }
+
+
+    public function expiryReportData($parameters)
+    {
+        // print_r($parameters); die;
+        $logincontainer = new Container('credo');
+        $role = $logincontainer->roleCode;
+        $roleCode = $logincontainer->roleCode;
+        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+       
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('p' => 'provider'))
+        ->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'))
+        ->join('certification_facilities', ' certification_facilities.id = p.facility_id ', array('facility_name', 'facility_address'))
+        ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
+        ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
+        ->join(array('e'=>'examination'), 'e.provider = p.id ', array('examid'=>'id'), 'left')
+        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+
+        $sQuery->order('c.last_updated_on DESC');
+        $sQuery->order('c.date_certificate_issued desc');
+
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $sQuery->where('provider.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $sQuery->where('provider.region IN('.implode(',',$logincontainer->region).')');
+        }else if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $sQuery->where('l_d_r.country IN('.implode(',',$logincontainer->country).')');
+        }
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        } 
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr; die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery = $sql->select()->from(array('p' => 'provider'))
+        ->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'))
+        ->join('certification_facilities', ' certification_facilities.id = p.facility_id ', array('facility_name', 'facility_address'))
+        ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
+        ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
+        ->join(array('e'=>'examination'), 'e.provider = p.id ', array('examid'=>'id'), 'left')
+        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+
+        $tQuery->order('c.last_updated_on DESC');
+        $tQuery->order('c.date_certificate_issued desc');
+        if(isset($logincontainer->district) && count($logincontainer->district) > 0){
+            $tQuery->where('provider.district IN('.implode(',',$logincontainer->district).')');
+        }else if(isset($logincontainer->region) && count($logincontainer->region) > 0){
+            $tQuery->where('provider.region IN('.implode(',',$logincontainer->region).')');
+        }else if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+            $tQuery->where('l_d_r.country IN('.implode(',',$logincontainer->country).')');
+        }
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $providerID=base64_encode($aRow['id']);
+            $providerName=$aRow['last_name'] . ' ' . $aRow['first_name']. ' ' . $aRow['middle_name'];
+            $link='<a href="javascript:void(0);" style="cursor:pointer;text-decoration:underline;" onclick="getTestHistory('.$providerID.');">'.$providerName.'</a>';
+
+            $certificationTime = '';
+            $startDate = '';
+            $endDate = '';
+            if (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued'] != null && trim($aRow['date_certificate_issued']) != '' && $aRow['date_certificate_issued'] != '0000-00-00' && $aRow['date_certificate_issued'] != '1970-01-01') {
+                $startDate = date('M Y', strtotime($aRow['date_certificate_issued']));
+            }
+            if (isset($aRow['date_end_validity']) && $aRow['date_end_validity'] != null && trim($aRow['date_end_validity']) != '' && $aRow['date_end_validity'] != '0000-00-00' && $aRow['date_end_validity'] != '1970-01-01') {
+                $endDate = date('M Y', strtotime($aRow['date_end_validity']));
+            }
+            if (trim($startDate) != '' && trim($endDate) != '') {
+                $certificationTime = $startDate . ' - ' . $endDate;
+            }
+
+            if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'edit')) {
+                $EditId = '<a href="/provider/edit/' . $providerID . '" class="btn btn-outline-primary btn-sm" title="Edit"><span class="glyphicon glyphicon-pencil">Edit</span</a>';
+            }
+            $deleteconfirm="if(!confirm('Do you really want to remove ' + '.$providerName.' + ' ?')) {
+                alert('Canceled!');
+                return false;
+            }
+            ;";
+            if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) {
+                if (!isset($aRow['examid'])) {
+                    $DeleteId = '<a class="btn btn-primary"  onclick="'.$deleteconfirm.'" href="/provider/delete/' . $aRow['id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
+
+                }
+                
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { 
+                if (isset($aRow['final_decision']) && $aRow['final_decision'] != null && trim($aRow['final_decision']) != '') {
+                    if (strcasecmp($aRow['final_decision'], 'Certified') == 0) { 
+
+                    $arrayVal=$this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('id') => base64_encode($aRow['certid']), base64_encode('last') => base64_encode($aRow['last_name']), base64_encode('first') => base64_encode($aRow['first_name']), base64_encode('middle') => base64_encode($aRow['middle_name']), base64_encode('professional_reg_no') => base64_encode($aRow['professional_reg_no']), base64_encode('certification_id') => base64_encode($aRow['certification_id']), base64_encode('date_issued') => base64_encode($aRow['date_certificate_issued']))));
+                    $PDFId = '<a class="btn btn-primary" href="'.$arrayVal.'" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>';
+                    }
+                }
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { 
+                $link_send_count=(isset($aRow['link_send_count']) && $aRow['link_send_count'] > 0) ? $aRow['link_send_count'] : 0;
+                $sendLink='<a href="javascript:void(0);" class="btn btn-primary" onclick="sendTestLink('.base64_encode($aRow['id']).','.$aRow['email'].');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link('.$link_send_count.';)</a>';
+            }
+
+            $row = array();
+            
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $row[] = $certificationTime;
+            $row[] = $link;
+            $row[] = $aRow['region_name'];
+            $row[] = $aRow['district_name'];
+            $row[] = $aRow['type_vih_test'];
+            $row[] = $aRow['phone'];
+            $row[] = $aRow['email'];
+            $row[] = $aRow['prefered_contact_method'];
+            $row[] = $aRow['current_jod'];
+            $row[] = $aRow['time_worked'];
+            $row[] = $aRow['facility_name'];
+            $row[] = $aRow['facility_address'];
+            $row[] = $aRow['test_site_in_charge_name'];
+            $row[] = $aRow['test_site_in_charge_phone'];
+            $row[] = $aRow['test_site_in_charge_email'];
+            $row[] = $aRow['facility_in_charge_name'];
+            $row[] = $aRow['facility_in_charge_phone'];
+            $row[] = $aRow['facility_in_charge_email'];
+            $row[] = $EditId;
+            $row[] = $DeleteId;
+            $row[] = $PDFId;
+            $row[] = $sendLink;
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+    
+    
 }

@@ -193,6 +193,14 @@ class CertificationController extends AbstractActionController {
             $excludeTesterName = $request->getPost('exclude_tester_name');
             $facility = $request->getPost('facility');
             $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+
+            // $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+            // $sql = new Sql($dbAdapter);
+            // $queryContainer = new Container('query');
+           
+            // $queryStr = $sql->getSqlStringForSqlObject($queryContainer->exportAllEvents);
+            // $sResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+
             $objPHPExcel = new \PHPExcel();
             $styleArray = array(
                 'font' => array(
@@ -378,8 +386,8 @@ class CertificationController extends AbstractActionController {
         $district = $request->getPost('district');
         $excludeTesterName = $request->getPost('exclude_tester_name');
         $facility = $request->getPost('facility');
-        // $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
-        $result = $this->getCertificationTable()->report($request);
+        $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        // $result = $this->getCertificationTable()->report($request);
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' =>$result));
         $viewModel->setTerminal(true);
@@ -679,5 +687,17 @@ class CertificationController extends AbstractActionController {
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
+    
+    public function getExpiryCertificateReportsAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->expiryReportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+
 
 }

@@ -48,13 +48,13 @@ if ($this->params== 'upForRecertification'){?>
     <tbody>
     <?php foreach ($this->result as $provider) { ?>
             <tr>
-            <td><?php echo $this->escapeHtml($provider['first_name'] . ' ' . $provider['last_name ']); ?></td>
-                    <td><?php echo $provider['final_decision']; ?></td>
-                    <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
-                    <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
-                    <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
-                    <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
-                    <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
+                <td><?php echo $this->escapeHtml($provider['first_name'] . ' ' . $provider['last_name ']); ?></td>
+                <td><?php echo $provider['final_decision']; ?></td>
+                <td><?php echo $this->escapeHtml($provider['region_name']); ?></td>
+                <td><?php echo $this->escapeHtml($provider['district_name']); ?></td>
+                <td><?php echo $this->escapeHtml($provider['facility_name']); ?></td>
+                <td><?php echo $this->escapeHtml($provider['type_vih_test']); ?></td>
+                <td><?php echo $this->escapeHtml($provider['current_jod']); ?></td>
             </tr>
         <?php } ?>
     </tbody>
@@ -62,9 +62,6 @@ if ($this->params== 'upForRecertification'){?>
 <?php } ?>
 
 <?php  if($this->params== 'didNotRecertify'){ ?>
-
-   
-
 <table id="didNotRecertify-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
     <thead>
     <tr>

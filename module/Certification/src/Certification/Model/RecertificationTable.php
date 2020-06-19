@@ -6,13 +6,20 @@ use Zend\Session\Container;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\Sql\Sql;
+use Zend\Db\TableGateway\AbstractTableGateway;
 
 class RecertificationTable {
 
     protected $tableGateway;
+    public $sm = null;
 
-    public function __construct(TableGateway $tableGateway) {
+    public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm = null)
+    {
         $this->tableGateway = $tableGateway;
+        $this->adapter = $adapter;
+        $this->sm = $sm;
     }
 
     public function fetchAll() {
@@ -119,6 +126,7 @@ class RecertificationTable {
     }
 
     public function report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2) {
+        // echo "test"; die;
         $logincontainer = new Container('credo');
         $roleCode = $logincontainer->roleCode;
 
@@ -210,5 +218,294 @@ class RecertificationTable {
 //        die(print_r($selectData));
         return $selectData;
     }
+
+
+    public function reportData($parameters)
+    {
+        
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $roleCode = $sessionLogin->roleCode;
+
+        $decision = $parameters['decision'];
+        $typeHiv = $parameters['typeHIV'];
+        $jobTitle = $parameters['jobTitle'];
+        $country = $parameters['country'];
+        $region = $parameters['region'];
+        $district = $parameters['district'];
+        $facility = $parameters['facility'];
+        $due_date = $parameters['due_date'];
+        $excludeTesterName = $parameters['exclude_tester_name'];
+        if (!empty($due_date)) {
+            $array = explode(" ", $due_date);
+            $startDate = date("Y-m-d", strtotime($array[0]));
+            $endDate = date("Y-m-d", strtotime($array[2]));
+        } else {
+//                
+            $startDate = "";
+            $endDate = "";
+        }
+        $reminder_type = $parameters['reminder_type'];
+        $reminder_sent_to = $parameters['reminder_sent_to'];
+        $date_reminder_sent = $parameters['date_reminder_sent'];
+        if (!empty($date_reminder_sent)) {
+            $array2 = explode(" ", $date_reminder_sent);
+            $startDate2 = date("Y-m-d", strtotime($array2[0]));
+            $endDate2 = date("Y-m-d", strtotime($array2[2]));
+        } else {
+//                
+            $startDate2 = "";
+            $endDate2 = "";
+        }
+
+        
+        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+       
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+
+               */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c' => 'certification'))
+            ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
+            ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
+            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
+            ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
+            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'))
+
+            ->join(array('rc' => 'recertification'), 'p.id =rc.provider_id ', array('reminder_type','reminder_sent_to','name_of_recipient','date_reminder_sent'))
+            ->join(array('cert' => 'certification'), 'rc.due_date=cert.date_end_validity', array('date_end_validity'))
+            
+            ;
+
+        if (!empty($startDate) && !empty($endDate)) {
+            $sQuery->where('rc.due_date >="' . $startDate . '" and rc.due_date <="' . $endDate . '"');
+        }
+        if (!empty($decision)) {
+            $sQuery->where(array('c.final_decision'=>$decision));
+        }
+        if (!empty($typeHiv)) {
+            $sQuery->where(array('p.type_vih_test'=>$typeHiv));
+        }
+        if (!empty($jobTitle)) {
+            $sQuery->where(array('p.current_jod'=>$jobTitle));
+        }
+        if (!empty($facility)) {
+            $sQuery->where(array('cf.id'=>$facility));
+        }
+        if (!empty($reminder_sent_to)) {
+            $sQuery->where(array('rc.reminder_sent_to'=>$reminder_sent_to));
+        }
+        if (!empty($reminder_type)) {
+            $sQuery->where(array('rc.reminder_type'=>$reminder_type));
+        }
+        if (!empty($country)) {
+            $sQuery->where(array('c.country_id'=>$country));
+        }else{
+            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+                    $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($region)) {
+            $sQuery->where(array('l_d_r.location_id'=>$region));
+        }else{
+            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+                    $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($district)) {
+            $sQuery->where(array('l_d_d.location_id'=>$district));
+        }else{
+            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+                    $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+            }
+        }
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        } else {
+            $sQuery->order('c.last_updated_on DESC');
+        }
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr; die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('c' => 'certification'))
+        ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
+        ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
+        ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
+        ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
+        ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
+        ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
+        ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
+        ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
+        ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'))
+        
+        ->join(array('rc' => 'recertification'), 'p.id =rc.provider_id ', array('reminder_type','reminder_sent_to','name_of_recipient','date_reminder_sent'))
+        ->join(array('cert' => 'certification'), 'rc.due_date=cert.date_end_validity', array('date_end_validity'));
+
+    if (!empty($startDate) && !empty($endDate)) {
+        $sQuery->where('rc.due_date >="' . $startDate . '" and rc.due_date <="' . $endDate . '"');
+    }
+    if (!empty($decision)) {
+        $tQuery->where(array('c.final_decision'=>$decision));
+    }
+    if (!empty($typeHiv)) {
+        $tQuery->where(array('p.type_vih_test'=>$typeHiv));
+    }
+    if (!empty($jobTitle)) {
+        $tQuery->where(array('p.current_jod'=>$jobTitle));
+    }
+    if (!empty($facility)) {
+        $tQuery->where(array('cf.id'=>$facility));
+    }
+    if (!empty($reminder_sent_to)) {
+        $sQuery->where(array('rc.reminder_sent_to'=>$reminder_sent_to));
+    }
+    if (!empty($reminder_type)) {
+        $sQuery->where(array('rc.reminder_type'=>$reminder_type));
+    }
+    if (!empty($country)) {
+        $tQuery->where(array('c.country_id'=>$country));
+    }else{
+        if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+        }
+    }
+    if (!empty($region)) {
+        $tQuery->where(array('l_d_r.location_id'=>$region));
+    }else{
+        if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+        }
+    }
+    if (!empty($district)) {
+        $tQuery->where(array('l_d_d.location_id'=>$district));
+    }else{
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+        }
+    }
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the 
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['region_name'];
+            $row[] = $aRow['district_name'];
+            $row[] = $aRow['facility_name'];
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['type_vih_test'];
+            $row[] = $aRow['current_jod'];
+            $row[] = $aRow['reminder_type'];
+            $row[] = $aRow['reminder_sent_to'];
+            $row[] = date("d-m-Y", strtotime($aRow['date_reminder_sent']));
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
+
 
 }

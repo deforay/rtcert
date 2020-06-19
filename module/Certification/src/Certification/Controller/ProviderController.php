@@ -23,14 +23,21 @@ class ProviderController extends AbstractActionController {
     }
 
     public function indexAction() {
-        $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
-            return $this->redirect()->toRoute("login");
-        }
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        return new ViewModel(array(
-            'providers' => $this->getProviderTable()->fetchAll(),
-        ));
+        // $logincontainer = new Container('credo');
+        // if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        //     return $this->redirect()->toRoute("login");
+        // }
+        // $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+        // return new ViewModel(array(
+        //     'providers' => $this->getProviderTable()->fetchAll(),
+        // ));
+
+        $request = $this->getRequest();
+        $parameters = $request->getPost();
+        $result = $this->getProviderTable()->expiryReportData($parameters);
+        // print_r($result); die;
+        return $this->getResponse()->setContent(Json::encode($result));
+        
     }
 
     public function addAction() {
