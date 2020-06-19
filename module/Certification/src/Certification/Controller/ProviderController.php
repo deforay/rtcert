@@ -109,9 +109,13 @@ class ProviderController extends AbstractActionController {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $select_time = $request->getPost('select_time');
-
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            );
+            // Debug::dump($post);die;
             $form->setInputFilter($provider->getInputFilter());
-            $form->setData($request->getPost());
+            $form->setData($post);
 
             if ($form->isValid()) {
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
@@ -119,6 +123,8 @@ class ProviderController extends AbstractActionController {
                 $container = new Container('alert');
                 $container->alertMsg = 'Tester updated successfully';
                 return $this->redirect()->toRoute('provider');
+            } else{
+                Debug::dump($form->getMessages());die;
             }
         }
         $location = $this->getProviderTable()->getCountryIdbyRegion($provider->region);
@@ -129,6 +135,7 @@ class ProviderController extends AbstractActionController {
             'region_id' => $provider->region,
             'district_id' => $provider->district,
             'facility_id' => $provider->facility_id,
+            'profile_picture' => $provider->profile_picture,
             'time2' => $time2,
         );
     }

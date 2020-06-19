@@ -63,7 +63,7 @@ class ProviderTable extends AbstractTableGateway {
     }
 
     public function saveProvider(\Certification\Model\Provider $provider) {
-        // Debug::dump($provider->profile_picture);die;
+        // Debug::dump($provider);die;
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
         $last_name = strtoupper($provider->last_name);
@@ -1143,6 +1143,7 @@ class ProviderTable extends AbstractTableGateway {
                 }
                 
             }
+            $PDFId = '';
             if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { 
                 if (isset($aRow['final_decision']) && $aRow['final_decision'] != null && trim($aRow['final_decision']) != '') {
                     if (strcasecmp($aRow['final_decision'], 'Certified') == 0) { 
@@ -1164,6 +1165,7 @@ class ProviderTable extends AbstractTableGateway {
                     }
                 }
             }
+            $sendLink = '';
             if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { 
                 $link_send_count=(isset($aRow['link_send_count']) && $aRow['link_send_count'] > 0) ? $aRow['link_send_count'] : 0;
                 $sendLink='<a href="javascript:void(0);" class="btn btn-primary" onclick="sendTestLink('.base64_encode($aRow['id']).','.$aRow['email'].');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link('.$link_send_count.';)</a>';

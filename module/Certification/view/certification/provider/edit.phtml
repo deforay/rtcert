@@ -3,7 +3,10 @@
 use Zend\Debug\Debug;
 use Zend\Session\Container;
 $sessionLogin = new Container('credo');
-Debug::dump($provider);die;
+// Debug::dump($provider);die;
+$config = new \Zend\Config\Reader\Ini();
+$configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+$pathname = $configResult['domain'].'/uploads' . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $this->id . DIRECTORY_SEPARATOR . 'pic'
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
@@ -24,7 +27,7 @@ Debug::dump($provider);die;
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-body" >
-                            <form action="<?php $this->url('provider', array('action' => 'edit', 'id' => $this->id)); ?>" name="form" method="post" onsubmit="return validateForm()">
+                            <form action="<?php $this->url('provider', array('action' => 'edit', 'id' => $this->id)); ?>" name="form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
                                 <?php
                                 $form->prepare();
                                 $form->get('professional_reg_no')->setAttributes([
@@ -186,6 +189,11 @@ Debug::dump($provider);die;
                                     'onclick' => 'emptyInput(this)',
                                     //'options' => [$this->facility_id => $this->facility_name]
                                 ]);
+                                $form->get('profile_picture')->setAttributes([
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Upload Profile Picture',
+                                    'id' => 'Profile Picture',
+                                ]);
 
 
                                 $form->get('submit')->setAttributes([
@@ -202,6 +210,15 @@ Debug::dump($provider);die;
                                         <?= $this->formLabel($form->get('professional_reg_no')); ?>
                                         <?= $this->formElement($form->get('professional_reg_no')); ?>
                                         <?= $this->formElementErrors($form->get('professional_reg_no')); ?>
+                                    </div>
+                                    <div class="form-group col-lg-4"> 
+                                        <img src="<?php echo $pathname.DIRECTORY_SEPARATOR.$this->profile_picture;?>" class="rounded float-left hide-img" alt="Profile picture" width="70" style=" background: lightgray; padding: 10px; border-radius: 15px; "/>
+                                        <span class="mandatory hide-img" onclick="showFile();" style=" padding: 0px 5px;background: antiquewhite;border-radius: 50%;cursor: pointer;position: absolute;left: 69px; ">x</span>
+                                        <div class="show-file" style="display: none;">
+                                            <?= $this->formLabel($form->get('profile_picture')); ?>
+                                            <?= $this->formFile($form->get('profile_picture')); ?>
+                                            <?= $this->formElementErrors($form->get('profile_picture')); ?>
+                                        </div>
                                     </div>
                                     <div class="form-group col-lg-4"> 
                                         <?= $this->formLabel($form->get('last_name')); ?><span class="mandatory">*</span>
@@ -523,5 +540,10 @@ Debug::dump($provider);die;
                 }
             });
         }
+    }
+
+    function showFile(){
+        $('.hide-img').hide();
+        $('.show-file').show();
     }
 </script>
