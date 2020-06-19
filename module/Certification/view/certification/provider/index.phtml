@@ -147,31 +147,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 <script type="text/javascript" language="javascript">
     oTable = null;
     $(document).ready(function() {
-        /* 
-            The below snippet dynamically list toggleable button.
-            It can show/hide columns
-        */
-        var listOfColumns = '';
-        $('tr.allproviders').each(function() {
-            $(this).find('th').each(function(index) {
-                listOfColumns += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
-            });
-        });
-        $("#manageColumns").html(listOfColumns);
-        /* Ends Here */
-
-        $('a.toggle-vis').on('click', function(e) {
-            e.preventDefault();
-            var column = table.column($(this).attr('data-column'));
-            column.visible(!column.visible());
-            $("#provider_wrapper").css("overflow-x", "scroll");
-        });
-        $("#manageColumns").hide();
-        $("#shBtnManageColumns").click(function() {
-            $("#manageColumns").toggle('fast', 'linear');
-        });
-
-        oTable = $('#providertable').dataTable({
+        oTable = $('#providertable').DataTable({
             "bAutoWidth": false,
             "bProcessing": true,
             "bServerSide": true,
@@ -192,6 +168,29 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                     "success": fnCallback
                 });
             }
+        });
+        /* 
+            The below snippet dynamically list toggleable button.
+            It can show/hide columns
+        */
+        var listOfColumns = '';
+        $('tr.allproviders').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfColumns += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
+            });
+        });
+        $("#manageColumns").html(listOfColumns);
+        /* Ends Here */
+
+        $('a.toggle-vis').on('click', function(e) {
+            e.preventDefault();
+            var column = oTable.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
+        });
+        $("#manageColumns").hide();
+        $("#shBtnManageColumns").click(function() {
+            $("#manageColumns").toggle('fast', 'linear');
         });
 
     });

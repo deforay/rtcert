@@ -123,9 +123,10 @@ class ProviderController extends AbstractActionController {
                 $container = new Container('alert');
                 $container->alertMsg = 'Tester updated successfully';
                 return $this->redirect()->toRoute('provider');
-            } else{
+            } 
+            /* else{
                 Debug::dump($form->getMessages());die;
-            }
+            } */
         }
         $location = $this->getProviderTable()->getCountryIdbyRegion($provider->region);
         return array(
