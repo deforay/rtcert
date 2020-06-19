@@ -238,9 +238,9 @@ class QuestionService {
         $container = new Container('alert');
 
         if (in_array($extension, $allowedExtensions)) {
-            $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'testquestion';
+            $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'test-questions';
             if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
-                mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."testquestion");            
+                mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."test-questions");            
             }
 
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {

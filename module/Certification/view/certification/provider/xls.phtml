@@ -135,7 +135,7 @@ $sessionLogin = new Container('credo');
                                     <!-- <button type="button" class="btn  btn-space btn-primary" onclik="getReport()" >GET REPORT</button> -->
                                     <a href="javascript:void(0)" onclick="getTestReport();" value="Filter" class="btn  btn-space btn-primary">GET REPORT</a>
                                     <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                    <a class="btn  btn-space btn-default" role="button"  href="<?php echo $this->url('provider', array('action' => 'xls')); ?>" >CANCEL</a>
+                                    <a class="btn  btn-space btn-danger" role="button"  href="<?php echo $this->url('provider', array('action' => 'xls')); ?>" >CLEAR</a>
                                 </div>
                                 <?php echo $this->form()->closeTag();
                                 ?>
