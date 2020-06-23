@@ -13,6 +13,14 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
+
+<style>
+    #shBtnManageColumnstab1{
+        font-size: 17px;
+        font-weight: 600;
+    }
+  
+</style>
 <div class="am-content">
     <!-- Content Header (Page header) -->
     <div class="page-head">
@@ -43,9 +51,16 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
     </div>
     <div class="main-content">
         <div class="widget-fullwidth widget-small" style="padding:5px;width:100%;">
+            <div class="well container">
+                <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnstab1">Show/hide</a></h3> 
+                </div>
+                <div id="manageColumnstab1">
+                </div>
+            </div>
             <table id="userDataTable" class="table table-bordered table-striped table-hover table-fw-widget">
                 <thead>
-                    <tr>
+                <tr class="allColumnsTab1">
                         <th style="width:40%;">Provider Name</th>
                         <th style="width:20%;">Start Time</th>
                         <th style="width:30%;">End Time</th>
@@ -81,7 +96,19 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
     /* Table initialisation */
     oTable = null;
     $(document).ready(function() {
-        oTable = $('#userDataTable').dataTable( {
+
+        var listOfColumnsTab1 = '';
+        $('tr.allColumnsTab1').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab1+='<a class="toggle-vis-allColumnsTab1 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab1(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnstab1").html(listOfColumnsTab1);
+
+       
+		
+
+        oTable = $('#userDataTable').DataTable( {
             "bProcessing": true,
             "bServerSide": true,
             "aoColumns": [
@@ -100,6 +127,19 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 });
             }
         } );
+
+        $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = oTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnstab1").hide();
+        $("#shBtnManageColumnstab1").click(function(){
+            $("#manageColumnstab1").toggle('fast','linear');
+        });
 
         var date=new Date();
         var year=date.getFullYear();
@@ -169,4 +209,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         $("#postTestDateRange").val(''); 
         oTable.fnDraw();
     });
+
+    /* Toggles Color of button */
+    function toggleBtnClassTab1(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
 </script>

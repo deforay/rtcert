@@ -13,7 +13,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
-
+<style>
+    #shBtnManageColumns{
+        font-size: 17px;
+        font-weight: 600;
+    }
+   
+</style>
 <div class="am-content">
     <div class="page-head">
         <div class="row">
@@ -122,9 +128,16 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     </div>
                             </form>
                             <div id="certificateReport">
+                            <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumns">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumns">
+                                    </div>
+                                    </div>
                             <table id="certificateReportTable" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                 <thead class="frezz">
-                                    <tr class="allproviders">
+                                <tr class="allrecertifications">
                                         <th style="width:10%;">Tester</th>
                                         <th style="width:10%;">Professional Registration No.</th>
                                         <th style="width:10%;">Region</th>
@@ -166,7 +179,16 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
     $(document).ready(function () {
         $("#Country").val(1);
         showRegion(1);
-        oTable=$('#certificateReportTable').dataTable({
+
+        var listOfColumns = '';
+        $('tr.allrecertifications').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumns+='<a class="toggle-vis-allrecertifications btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumns").html(listOfColumns);
+
+        oTable=$('#certificateReportTable').DataTable({
 	"bAutoWidth": false,
         "bProcessing": true,
         "bServerSide": true,
@@ -194,6 +216,22 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 });
             }
        });
+
+
+       $('a.toggle-vis-allrecertifications').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = oTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumns").hide();
+        $("#shBtnManageColumns").click(function(){
+            $("#manageColumns").toggle('fast','linear');
+        });
+
+
     });
     $('#dateRange').daterangepicker({
         format: 'DD-MM-YYYY',
@@ -275,6 +313,12 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         oTable.fnDraw();
     }
 
-
+       /* Toggles Color of button */
+       function toggleBtnClass(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
     </script>
 

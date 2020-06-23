@@ -10,13 +10,19 @@ use Zend\Db\Sql\Select;
 use Zend\Paginator\Adapter\DbSelect;
 use Zend\Paginator\Paginator;
 use Zend\Session\Container;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\Sql\Sql;
 
 class TrainingTable extends AbstractTableGateway {
 
-    private $tableGateway;
+    protected $tableGateway;
+    public $sm = null;
 
-    public function __construct(TableGateway $tableGateway) {
+    public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm = null)
+    {
         $this->tableGateway = $tableGateway;
+        $this->adapter = $adapter;
+        $this->sm = $sm;
     }
 
     public function fetchAll() {
@@ -189,4 +195,205 @@ class TrainingTable extends AbstractTableGateway {
 //        die(print_r($selectData));
         return $selectData;
     }
+
+
+
+
+    public function fetchAllTraining($parameters){
+
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $acl = $this->sm->get('AppAcl');
+
+        // echo "test"; die;
+        
+        /* Array of database columns which should be read and sent back to DataTables. Use a space where
+        * you want to insert a non-database field (for example a counter or static image)
+        */
+	
+        $aColumns = array('certification_reg_no','professional_reg_no','certification_id','last_name','type_of_competency','type_of_training','length_of_training','training_organization_name','type_organization','facilitator');
+        $orderColumns = array('certification_reg_no','professional_reg_no','certification_id','last_name','type_of_competency','type_of_training','length_of_training','training_organization_name','type_organization','facilitator');
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+ 
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('training'=>'training'))
+                    ->columns(array('training_id', 'Provider_id', 'type_of_competency', 'last_training_date', 'type_of_training', 'length_of_training', 'training_organization_id', 'facilitator', 'training_certificate', 'date_certificate_issued', 'Comments'))
+                    ->join('provider', 'provider.id = training.Provider_id', array('last_name', 'first_name', 'middle_name', 'professional_reg_no', 'certification_id', 'certification_reg_no'), 'left')
+                    ->join('training_organization', 'training_organization.training_organization_id = training.training_organization_id ', array('training_organization_name', 'type_organization'), 'left');
+        
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+ 
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }else{
+            $sQuery->order('training_id desc');
+        }
+ 
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery = $sql->select()->from(array('training'=>'training'))
+                ->columns(array('training_id', 'Provider_id', 'type_of_competency', 'last_training_date', 'type_of_training', 'length_of_training', 'training_organization_id', 'facilitator', 'training_certificate', 'date_certificate_issued', 'Comments'))
+                ->join('provider', 'provider.id = training.Provider_id', array('last_name', 'first_name', 'middle_name', 'professional_reg_no', 'certification_id', 'certification_reg_no'), 'left')
+                ->join('training_organization', 'training_organization.training_organization_id = training.training_organization_id ', array('training_organization_name', 'type_organization'), 'left');
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+           "sEcho" => intval($parameters['sEcho']),
+           "iTotalRecords" => $iTotal,
+           "iTotalDisplayRecords" => $iFilteredTotal,
+           "aaData" => array()
+        );
+        
+        $loginContainer = new Container('credo');
+        $role = $loginContainer->roleCode;
+     
+        
+        foreach ($rResult as $aRow) {
+        
+                
+        $trainingCertificate='';
+
+        if (strcasecmp($aRow['training_certificate'], 'yes') == 0) {
+            $trainingCertificate="<span style='color: green;' class='glyphicon glyphicon glyphicon-ok' >Yes</span>";
+        } else if (strcasecmp($aRow['training_certificate'], 'no') == 0) {
+            $trainingCertificate="<span style='color: red' class='glyphicon glyphicon glyphicon-remove'>No</span>";
+        } else {
+            $trainingCertificate='';
+        }
+        if (isset($aRow['date_certificate_issued'])) {
+            $date_certificate_issued="<div style='width:100px;height:40px;overflow:auto;'>".date("d-m-Y", strtotime($aRow['date_certificate_issued']))." </div>";
+        } else {
+            
+            $date_certificate_issued="<div style='width:100px;height:40px;overflow:auto;'>".$aRow['date_certificate_issued']." </div>";
+        }
+
+      
+    $editVal="<a href='/training/edit/" . base64_encode($aRow['training_id']) . "'><span class='glyphicon glyphicon-pencil'>Edit</span></a>";
+
+    $deleteconfirm="if('!confirm('Do you really want to remove this training?')) {training_id
+        alert('Canceled!');
+        return false;
+    }
+    ;";
+
+    $DeleteId = '';
+    if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) {
+            $DeleteId = '<a class="btn btn-primary"  onclick="'.$deleteconfirm.'" href="/training/delete/' . $aRow['training_id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
+    }
+
+          $row = array();
+          $row[] = $aRow['certification_reg_no'];
+          $row[] = $aRow['professional_reg_no'];
+          $row[] = $aRow['certification_id'];
+          $row[] = $aRow['last_name'].' '.$aRow['first_name'].' '.$aRow['middle_name'];
+          $row[] = $aRow['type_of_competency'];
+          $row[] = $aRow['type_of_training'];
+          $row[] =  date("d-m-Y", strtotime($aRow['last_training_date']));
+          $row[] = $aRow['length_of_training'];
+          $row[] = $aRow['training_organization_name'];
+          $row[] = $aRow['type_organization'];
+          $row[] = $aRow['facilitator'];
+          $row[] = $trainingCertificate;
+          $row[] = $date_certificate_issued;
+          
+          if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit')) {
+              $row[] = $editVal;
+            }
+            if ($acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) {
+            $row[] = $DeleteId;
+            }
+
+         $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+    
+
 }

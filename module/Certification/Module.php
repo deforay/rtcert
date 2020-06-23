@@ -36,8 +36,9 @@ class Module implements ConfigProviderInterface {
                     return new TableGateway('training_organization', $dbAdapter, null, $resultSetPrototype);
                 },
                 'Certification\Model\TrainingTable' => function($sm) {
-                    $tableGateway = $sm->get('TrainingTableGateway');
-                    $table = new \Certification\Model\TrainingTable($tableGateway);
+                    $tableGateway = $sm->get('ProviderTableGateway');
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new \Certification\Model\TrainingTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'TrainingTableGateway' => function ($sm) {
