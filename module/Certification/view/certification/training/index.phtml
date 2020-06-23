@@ -6,7 +6,24 @@ $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 
-$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+
+if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit') && $acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) { 
+    
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+    
+}else if ($acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) {
+    
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+    
+}else if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit')) {
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+
+}else{
+
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+}
+
+
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
@@ -25,6 +42,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         font-size: 17px;
         font-weight: 600;
     }
+    .well{ width: 100%;}
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -109,7 +127,7 @@ oTable=null;
     var listOfColumns = '';
         $('tr.alltraining').each(function(){  
             $(this).find('th').each(function(index){
-                listOfColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+                listOfColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" style="margin-top: 5px;" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
             });
         }); 
         $("#manageColumns").html(listOfColumns);
