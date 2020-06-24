@@ -190,9 +190,17 @@ class CertificationController extends AbstractActionController {
             $country = $request->getPost('country');
             $region = $request->getPost('region');
             $district = $request->getPost('district');
-            $facility = $request->getPost('facility');
             $excludeTesterName = $request->getPost('exclude_tester_name');
+            $facility = $request->getPost('facility');
             $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+
+            // $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+            // $sql = new Sql($dbAdapter);
+            // $queryContainer = new Container('query');
+           
+            // $queryStr = $sql->getSqlStringForSqlObject($queryContainer->exportAllEvents);
+            // $sResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+
             $objPHPExcel = new \PHPExcel();
             $styleArray = array(
                 'font' => array(
@@ -325,8 +333,8 @@ class CertificationController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(31, $ligne, $result['qa_point']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(32, $ligne, $result['rt_point']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(33, $ligne, $result['safety_point']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(34, $ligne, $result['specimen_point']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(35, $ligne, $result['testing_algo_point']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(34, $ligne, $result['specimen_point']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(36, $ligne, $result['report_keeping_point']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(37, $ligne, $result['EQA_PT_points']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(38, $ligne, $result['ethics_point']);
@@ -345,8 +353,8 @@ class CertificationController extends AbstractActionController {
 
             $objPHPExcel->getActiveSheet()->getStyle('A2:AV2')->getAlignment()->setWrapText(true); // make a new line in cell
             $objPHPExcel->getActiveSheet()->getStyle($objPHPExcel->getActiveSheet()->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //center column contain
-            $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
             header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_Certification_report.xlsx"');
             header('Cache-Control: max-age=0');
             $objWriter->save('php://output');
@@ -356,8 +364,8 @@ class CertificationController extends AbstractActionController {
         return array(
             'countries' => $countries,
         );
+        
     }
-
     public function getCertificateReportAction()
     {
         $request = $this->getRequest();
@@ -376,9 +384,10 @@ class CertificationController extends AbstractActionController {
         $country = $request->getPost('country');
         $region = $request->getPost('region');
         $district = $request->getPost('district');
-        $facility = $request->getPost('facility');
         $excludeTesterName = $request->getPost('exclude_tester_name');
+        $facility = $request->getPost('facility');
         $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        // $result = $this->getCertificationTable()->report($request);
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' =>$result));
         $viewModel->setTerminal(true);
@@ -584,10 +593,72 @@ class CertificationController extends AbstractActionController {
 
 
     public function certificationExpiryAction() {
-        $countries = $this->getCertificationTable()->getAllActiveCountries();
-        return array(
-            'countries' => $countries,
-        );
+        
+        // $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $expirydata = $request->getPost('certificationExpiryVal');
+            $country = $request->getPost('country_id');
+            $region = $request->getPost('region');
+            $district = $request->getPost('district');
+            $examination =$this->getCertificationTable()->expiryReport($expirydata,$country, $region, $district);        
+            
+            $objPHPExcel = new \PHPExcel();
+            $objPHPExcel->setActiveSheetIndex(0);
+            $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:F1'); //merge some column
+
+            $objPHPExcel->getActiveSheet()->setCellValue('A1', 'Certification Expiry');
+
+            $styleArray = array(
+                'font' => array(
+                    'bold' => true,
+                    'size' => 11,
+                    'name' => 'Verdana',
+            ));
+            $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->applyFromArray($styleArray); //apply style from array style array
+            $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
+
+            $objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(17); // row dimension
+            $objPHPExcel->getActiveSheet()->getRowDimension(2)->setRowHeight(30);
+
+            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
+
+            $objPHPExcel->getActiveSheet()->getStyle('A1:F2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
+          
+  
+            $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Tester');
+            $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Final Decision');
+            $objPHPExcel->getActiveSheet()->SetCellValue('C2', 'Region');
+            $objPHPExcel->getActiveSheet()->SetCellValue('D2', 'District');
+            $objPHPExcel->getActiveSheet()->SetCellValue('E2', 'Facility');
+            $objPHPExcel->getActiveSheet()->SetCellValue('F2', 'Type HIV testing modality/point');
+            $objPHPExcel->getActiveSheet()->SetCellValue('G2', 'Current job title');
+            $ligne = 3;
+            foreach ($examination as $examination) {
+                
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['first_name'].' '.$examination['last_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $examination['final_decision']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $examination['region_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $examination['district_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, $examination['facility_name']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, $examination['type_vih_test']);
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, $examination['current_jod']);
+                $ligne++;
+            }
+            $objPHPExcel->getActiveSheet()->getStyle('A2:U2')->getAlignment()->setWrapText(true); // make a new line in cell
+            $objPHPExcel->getActiveSheet()->getStyle($objPHPExcel->getActiveSheet()->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //center column contain
+
+            $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_list of all '.$expirydata.'.xlsx"');
+            header('Cache-Control: max-age=0');
+            $objWriter->save('php://output');
+            exit;
+        }
+        $common = $this->getServiceLocator()->get('CommonService');
+        return array('country' => $common->getAllActiveCountries());
     }
 
 
@@ -595,19 +666,38 @@ class CertificationController extends AbstractActionController {
     {
         $request = $this->getRequest();
         $expirydata = $request->getPost('expirycertification');
-        $result = $this->getCertificationTable()->expiryReport($expirydata);
+        $country = $request->getPost('country_id');
+        $region = $request->getPost('region');
+        $district = $request->getPost('district');
+        $result = $this->getCertificationTable()->expiryReport($expirydata,$country, $region, $district);        
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' =>$result, 'params' => $expirydata));
         $viewModel->setTerminal(true);
         return $viewModel;
 
-
-        // $params = $request->getPost();
-        // $result = $this->getExaminationTable()->report($params);
-        // $viewModel = new ViewModel();
-        // $viewModel->setVariables(array('result' =>$result, 'params' => $params));
-        // $viewModel->setTerminal(true);
-        // return $viewModel;
     }
+
+    
+    public function getCertificateReportsAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->reportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+    public function getExpiryCertificateReportsAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getCertificationTable()->expiryReportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+    
+
 
 }

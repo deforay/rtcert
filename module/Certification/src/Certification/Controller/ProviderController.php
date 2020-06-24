@@ -28,9 +28,16 @@ class ProviderController extends AbstractActionController {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        return new ViewModel(array(
-            'providers' => $this->getProviderTable()->fetchAll(),
-        ));
+        // return new ViewModel(array(
+        //     'providers' => $this->getProviderTable()->fetchAll(),
+        // ));
+
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getProviderTable()->fetachProviderData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
     }
 
     public function addAction() {
@@ -45,18 +52,17 @@ class ProviderController extends AbstractActionController {
 
         $request = $this->getRequest();
         if ($request->isPost()) {
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            ); 
             $provider = new Provider();
             $form->setInputFilter($provider->getInputFilter());
-            $form->setData($request->getPost());
+            $form->setData($post);
             $select_time = $request->getPost('select_time');
-
             if ($form->isValid()) {
                 $provider->exchangeArray($form->getData());
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
-                ?>
-                <pre> <?php // print_r($provider)                                 ?></pre>
-
-                <?php
                 $this->getProviderTable()->saveProvider($provider);
                 $container = new Container('alert');
                 $container->alertMsg = 'New tester added successfully';
@@ -103,9 +109,13 @@ class ProviderController extends AbstractActionController {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $select_time = $request->getPost('select_time');
-
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            );
+            // Debug::dump($post);die;
             $form->setInputFilter($provider->getInputFilter());
-            $form->setData($request->getPost());
+            $form->setData($post);
 
             if ($form->isValid()) {
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
@@ -113,7 +123,10 @@ class ProviderController extends AbstractActionController {
                 $container = new Container('alert');
                 $container->alertMsg = 'Tester updated successfully';
                 return $this->redirect()->toRoute('provider');
-            }
+            } 
+            /* else{
+                Debug::dump($form->getMessages());die;
+            } */
         }
         $location = $this->getProviderTable()->getCountryIdbyRegion($provider->region);
         return array(
@@ -123,6 +136,7 @@ class ProviderController extends AbstractActionController {
             'region_id' => $provider->region,
             'district_id' => $provider->district,
             'facility_id' => $provider->facility_id,
+            'profile_picture' => $provider->profile_picture,
             'time2' => $time2,
         );
     }
@@ -523,4 +537,45 @@ class ProviderController extends AbstractActionController {
             );
         }
     }
+
+    
+
+
+    public function importExcelAction() {
+        $logincontainer = new Container('credo');
+        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+            return $this->redirect()->toRoute("login");
+        }
+        
+        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+        $form = new ProviderForm($dbAdapter);
+        $form->get('submit')->setValue('SUBMIT');
+
+        
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            ); 
+            $result = $this->getProviderTable()->uploadTesterExcel($post);
+            return array('form' => $form,
+                'result' => $result,
+            );
+        }
+        return array('form' => $form,
+            'providers' => $this->getProviderTable()->fetchAll(),
+        );
+    }
+
+
+
+    public function getProviderDataAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $parameters['addproviders']="addproviders";
+            $result = $this->getProviderTable()->fetachProviderData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }}
 }

@@ -6,6 +6,9 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Adapter\Adapter;
 use Zend\Session\Container;
+use \Application\Model\TestOptionsTable;
+use \Application\Model\TestSectionTable;
+
 
 class QuestionService {
 
@@ -211,5 +214,138 @@ class QuestionService {
         $db = $this->sm->get('TestsTable');
         $acl = $this->sm->get('AppAcl');
        return $db->fetchUserTestList($params,$acl);
+    }
+
+
+
+    public function uploadTestQuestion($fileName)
+    {
+        
+        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $loginContainer    = new Container('credo');
+        $QuestionDb        = $this->sm->get('QuestionTable');
+        $TestSectionDb        = new TestSectionTable($dbAdapter);
+        $TestOptionsDb        = new TestOptionsTable($dbAdapter);
+        $response = array();
+        
+        $allowedExtensions = array('xls', 'xlsx', 'csv');
+        $fileName          = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['question_excel']['name']);
+        $fileName          = str_replace(" ", "-", $fileName);
+        $ranNumber         = str_pad(rand(0, pow(10, 6)-1), 6, '0', STR_PAD_LEFT);
+        $extension         = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileName          = $ranNumber.".".$extension;
+        $container = new Container('alert');
+
+        if (in_array($extension, $allowedExtensions)) {
+            $uploadPath=UPLOAD_PATH . DIRECTORY_SEPARATOR .'test-questions';
+            if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
+                mkdir(UPLOAD_PATH.DIRECTORY_SEPARATOR ."test-questions");            
+            }
+
+            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+                
+                if (move_uploaded_file($_FILES['question_excel']['tmp_name'], $uploadPath.DIRECTORY_SEPARATOR. $fileName)) {
+                    
+                    $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    $count = count($sheetData);
+                    $common = new CommonService();
+               
+                    for ($i = 2; $i <= $count; ++$i) 
+                    {
+                        $sectionName= $sheetData[$i]['C'];  
+                        $sectionVals= strtolower($sectionName);
+                        $sectionSlug = str_replace(" ", "-", $sectionVals);
+                        $testsectionVal=$TestSectionDb->select(array('section_slug' => $sectionSlug))->current();
+                        if($testsectionVal){
+                            $sectionId=$testsectionVal->section_id;   
+                        }else{
+                            $sectionData=array(
+                                'section_name' => $sectionName,
+                                'section_slug' => $sectionSlug,
+                                'section_description'  => '',  
+                                'status'  => 'active',  
+                            );
+                            $TestSectionDb->insert($sectionData);
+                            $sectionId= $TestSectionDb->lastInsertValue;
+                        }
+                                                    
+                        $QuestionVAl=$QuestionDb->select(array('question' => $sheetData[$i]['B']))->current();
+                        if($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == ''){
+                            $response['data']['mandatory'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            $container->alertMsg = 'Some questions from the excel file were not imported. Please check the highlighted fields below to ensure the questions not duplicated.';
+                        }else if(!$QuestionVAl){
+                            $data = array(
+                            'question_code' => $sheetData[$i]['A'],
+                            'question' => $sheetData[$i]['B'],
+                            'section'  => $sectionId,                         
+                            'status'   => 'active',
+                            );
+                            $QuestionDb->insert($data);
+                            $QuestionId= $QuestionDb->lastInsertValue;
+                            $correctOption=strtoupper($sheetData[$i]['D']);
+                            $response['data']['imported'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            for ($j = 1; $j <= 4; ++$j) 
+                            {
+                                if($j==1){
+                                    $option="A";
+                                    $optionVal="A. ".$sheetData[$i]['E'];
+                                }
+                                if($j==2){
+                                    $option="B";
+                                    $optionVal="B. ".$sheetData[$i]['F'];
+                                }
+                                if($j==3){
+                                    $option="C";
+                                    $optionVal="C. ".$sheetData[$i]['G'];
+                                }
+                                if($j==4){
+                                    $option="D";
+                                    $optionVal="D. ".$sheetData[$i]['H'];
+                                }
+                                    
+                                $TestOptionsVAl=$TestOptionsDb->select(array('option' => $optionVal))->current();
+                                if($TestOptionsVAl){
+                                    $OptionId= $TestOptionsVAl->correct_option;
+                                }else{
+                                    $optiondata = array(
+                                        'question' => $QuestionId,
+                                        'option' => $optionVal,
+                                        'status'   => 'active',
+                                    );
+                                    $TestOptionsDb->insert($optiondata);
+                                    $OptionId= $TestOptionsDb->lastInsertValue;
+                                }
+                                if($option==$correctOption){
+                                    $QuestionDb->update(array(
+                                        'correct_option'          => $OptionId,
+                                        'correct_option_text'          => $optionVal
+                                    ),array("question_id"=>$QuestionId));
+                                }
+                            }
+                            $container->alertMsg = 'Question details added successfully';                  
+                        } else {
+                            $response['data']['duplicate'][] = array(
+                                'question_code' => $sheetData[$i]['A'],
+                                'question'      => $sheetData[$i]['B'],
+                                'section'       => $sheetData[$i]['C']
+                            );
+                            $container->alertMsg = 'Some questions from the excel file were not imported. Please check the highlighted fields below to ensure the questions not duplicated.';
+                        }
+                    }
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                }
+            }
+        }
+        return $response;
     }
 }

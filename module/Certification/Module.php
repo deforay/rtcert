@@ -36,8 +36,9 @@ class Module implements ConfigProviderInterface {
                     return new TableGateway('training_organization', $dbAdapter, null, $resultSetPrototype);
                 },
                 'Certification\Model\TrainingTable' => function($sm) {
-                    $tableGateway = $sm->get('TrainingTableGateway');
-                    $table = new \Certification\Model\TrainingTable($tableGateway);
+                    $tableGateway = $sm->get('ProviderTableGateway');
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new \Certification\Model\TrainingTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'TrainingTableGateway' => function ($sm) {
@@ -83,8 +84,9 @@ class Module implements ConfigProviderInterface {
                     return new TableGateway('certification', $dbAdapter, null, $resultSetPrototype);
                 },
                 'Certification\Model\RecertificationTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $tableGateway = $sm->get('RecertificationTableGateway');
-                    $table = new \Certification\Model\RecertificationTable($tableGateway);
+                    $table = new \Certification\Model\RecertificationTable($tableGateway,$dbAdapter,$sm);
                     return $table;
                 },
                 'RecertificationTableGateway' => function ($sm) {

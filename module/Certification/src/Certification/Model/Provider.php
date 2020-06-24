@@ -41,6 +41,7 @@ class Provider {
     public $link_send_on;
     public $link_send_by;
     public $link_token;
+    public $profile_picture;
     
     protected $inputFilter;
 
@@ -84,6 +85,7 @@ class Provider {
         $this->link_send_on = (!empty($data['link_send_on'])) ? $data['link_send_on'] : null;
         $this->link_send_by = (!empty($data['link_send_by'])) ? $data['link_send_by'] : null;
         $this->link_token = (!empty($data['link_token'])) ? $data['link_token'] : null;
+        $this->profile_picture = (!empty($data['profile_picture'])) ? $data['profile_picture'] : null;
     }
 
     public function getArrayCopy() {

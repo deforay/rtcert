@@ -7,6 +7,7 @@ use Zend\View\Model\ViewModel;
 use Certification\Model\Recertification;
 use Certification\Form\RecertificationForm;
 use Zend\Session\Container;
+use Zend\Json\Json;
 
 class RecertificationController extends AbstractActionController {
 
@@ -367,5 +368,18 @@ class RecertificationController extends AbstractActionController {
         $viewModel->setTerminal(true);
         return $viewModel;
     }
+
+
+    public function getRecertificateReportsAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getRecertificationTable()->reportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+
+    
 
 }
