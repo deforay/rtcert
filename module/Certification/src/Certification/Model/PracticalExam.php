@@ -17,6 +17,7 @@ class PracticalExam implements InputFilterAwareInterface {
     public $direct_observation_score;
     public $practical_total_score;
     public $date;
+    public $training_id;
     protected $inputFilter;
 
     public function exchangeArray($data) {
@@ -36,6 +37,7 @@ class PracticalExam implements InputFilterAwareInterface {
         $this->admin_last_name = (!empty($data['admin_last_name'])) ? $data['admin_last_name'] : null;
         $this->admin_first_name = (!empty($data['admin_first_name'])) ? $data['admin_first_name'] : null;
         $this->admin_middle_name = (!empty($data['admin_middle_name'])) ? $data['admin_middle_name'] : null;
+        $this->training_id = (!empty($data['training_id'])) ? $data['training_id'] : null;
     }
 
     public function getArrayCopy() {
@@ -133,6 +135,14 @@ class PracticalExam implements InputFilterAwareInterface {
                 ),
             ));
 
+            $inputFilter->add(array(
+                'name' => 'training_id',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                )                
+            ));
 
             $this->inputFilter = $inputFilter;
         }

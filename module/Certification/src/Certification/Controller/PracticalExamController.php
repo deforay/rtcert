@@ -107,12 +107,14 @@ class PracticalExamController extends AbstractActionController {
 
         try {
             $practicalExam = $this->getPracticalExamTable()->getPracticalExam($practice_exam_id);
+            
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('practical-exam', array(
                         'action' => 'index'
             ));
         }
         $provider = $this->getPracticalExamTable()->getProviderName2($practice_exam_id);
+        $training = $this->getPracticalExamTable()->getTrainingName($practice_exam_id);
         $practicalExam->date = date("d-m-Y", strtotime($practicalExam->date));
         $form = new \Certification\Form\PracticalExamForm($dbAdapter);
         $form->bind($practicalExam);
@@ -138,6 +140,8 @@ class PracticalExamController extends AbstractActionController {
             'attemptNumber' => $attemptNumber,
             'provider_id' => $provider['id'],
             'provider_name' => $provider['name'],
+            'training_id' => $training['id'],
+            'training_name' => $training['name'],
         );
     }
 

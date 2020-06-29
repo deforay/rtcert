@@ -351,7 +351,7 @@ class ProviderController extends AbstractActionController {
         return array('form' => $form);
     }
 
-    public function getTesterReportAction()
+    public function getReportAction()
     {
         $request = $this->getRequest();
         $country = $request->getPost('country');
@@ -577,5 +577,16 @@ class ProviderController extends AbstractActionController {
             $parameters['addproviders']="addproviders";
             $result = $this->getProviderTable()->fetachProviderData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
-        }}
+        }
+    }
+
+    public function getTesterReportAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $parameters['addproviders']="addproviders";
+            $result = $this->getProviderTable()->reportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
 }

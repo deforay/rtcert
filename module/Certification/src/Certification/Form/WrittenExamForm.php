@@ -5,6 +5,7 @@ namespace Certification\Form;
 use Zend\Form\Form;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Adapter\Adapter;
+use Zend\Debug\Debug;
 
 class WrittenExamForm extends Form {
 
@@ -38,6 +39,7 @@ class WrittenExamForm extends Form {
                 'value_options' => $this->getListProvider(),
             ),
         ));
+
         $this->add(array(
             'name' => 'exam_admin',
             'type' => 'text',
@@ -123,7 +125,23 @@ class WrittenExamForm extends Form {
                 'label' => '9.Inventory (points)',
             ),
         ));
+        // $this->add(array(
+        //     'name' => 'training_id',
+        //     'type' => 'Zend\Form\Element\Select',
+        //     'options' => array(
+        //         'label' => 'Training',
+        //         'empty_option' => 'Please choose a Training',
+        //         'value_options' => $this->getListTraining(),
+        //     ),
+        // ));
 
+        $this->add(array(
+            'name' => 'training_id',
+            'type' => 'text',
+            'options' => array(
+                'label' => 'Training',
+                ),
+            ));
 
         $this->add(array(
             'name' => 'submit',
@@ -188,6 +206,54 @@ class WrittenExamForm extends Form {
             }
             $selectData[$res['id']] = $name;
         }
+        return $selectData;
+    }
+
+    public function getListTraining() {
+        $dbAdapter = $this->adapter;
+        $sql ='SELECT 
+                training_id,
+                Provider_id,
+                type_of_competency,
+                last_training_date,
+                type_of_training,
+                length_of_training,
+                facilitator,
+                training_certificate,
+                date_certificate_issued,
+                Comments,
+                last_name,
+                first_name,
+                middle_name, 
+                professional_reg_no, 
+                certification_id, 
+                certification_reg_no,
+                training_organization_name,
+                type_organization
+                FROM training,provider,training_organization  WHERE training.Provider_id= provider.id and training_organization.training_organization_id=training.training_organization_id
+                order by training_id asc';
+
+        $statement = $dbAdapter->query($sql);
+        $result = $statement->execute();
+        
+        $selectData = array();
+        
+        
+        foreach ($result as $res) {
+            
+            $name = $res['type_of_competency'];
+            
+            if(trim($res['training_organization_name']) !=""){
+                $name.=  ' - '.$res['training_organization_name'];
+            }
+            
+            if(trim($res['type_organization'])!=""){
+                $name.=  ' - '.$res['type_organization'];
+            }
+            
+            $selectData[$res['training_id']] = $name;
+        }
+
         return $selectData;
     }
 

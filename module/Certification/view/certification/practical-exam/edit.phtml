@@ -78,6 +78,21 @@ $sessionLogin = new Container('credo');
                                         'onclick' => 'emptyInput(this)',
                                     ]);
 
+                                    // $form->get('training_id')->setAttributes([
+                                    //     'class' => 'form-control',
+                                    //     'id' => 'TrainingId',
+                                    //     'onclick' => 'emptyInput(this)',
+                                    //     'options'=>[$this->training_id => $this->training_name],
+                                    // ]);
+                                    
+
+                                    $form->get('training_id')->setAttributes([
+                                        'class' => 'form-control',
+                                        'id' => 'TrainingId',
+                                        'onclick' => 'emptyInput(this)',
+                                    ]);
+
+
                                     $form->get('written')->setAttributes([
                                         'value' => $this->written,
                                     ]);
@@ -119,9 +134,14 @@ $sessionLogin = new Container('credo');
                                         <?= $this->formElement($form->get('date')); ?>
                                         <?= $this->formElementErrors($form->get('date')); ?>
                                     </div>
+                                    <div class="form-group col-lg-6">
+                                    <?= $this->formLabel($form->get('training_id')); ?>
+                                    <?= $this->formElement($form->get('training_id')); ?>
+                                    <?= $this->formElementErrors($form->get('training_id')); ?>
+                                </div>
                                     <?php echo $this->formRow($form->get('written')) ?>
 
-                                    <div class="row" style="margin-left: 18px;"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
+                                    <div class="row col-sm-3" style="margin-top: 30px; margin-left: 5px"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
                                         <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('practical-exam', array('action' => 'index')); ?>" >CANCEL</a> </div>
 
                                     <?php echo $this->form()->closeTag();
