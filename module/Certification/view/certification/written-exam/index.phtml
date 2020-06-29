@@ -108,7 +108,7 @@ $acl = $this->layout()->acl;
                     <td><?php echo $this->escapeHtml($written->ethics_point); ?></td>
                     <td><?php echo $this->escapeHtml($written->inventory_point); ?></td>
                     <td><?php echo $this->escapeHtml($written->total_points); ?></td>
-                    <td><?php echo $this->escapeHtml($written->final_score . ' %'); ?></td>
+                    <td><?php echo $this->escapeHtml(round($written->final_score) . ' %'); ?></td>
                    <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExam', 'edit')) {  ?>
                 <td>
                         <a href="<?php echo $this->url('written-exam', array('action' => 'edit', 'id_written_exam' => base64_encode($written->id_written_exam))); ?>"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
