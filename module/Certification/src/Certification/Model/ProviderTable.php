@@ -1044,7 +1044,8 @@ class ProviderTable extends AbstractTableGateway {
         ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
         ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
         ->join(array('e'=>'examination'), 'e.provider = p.id ', array('examid'=>'id'), 'left')
-        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left')
+        ->group('p.id');
 
         $sQuery->order('c.last_updated_on DESC');
         $sQuery->order('c.date_certificate_issued desc');
@@ -1088,7 +1089,8 @@ class ProviderTable extends AbstractTableGateway {
         ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
         ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
         ->join(array('e'=>'examination'), 'e.provider = p.id ', array('examid'=>'id'), 'left')
-        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left');
+        ->join(array('c'=>'certification'), 'c.examination = e.id', array('certid'=>'id','final_decision','date_certificate_issued','date_end_validity'),'left')
+        ->group('p.id');
 
         $tQuery->order('c.last_updated_on DESC');
         $tQuery->order('c.date_certificate_issued desc');
