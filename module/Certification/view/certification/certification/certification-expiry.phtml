@@ -1,7 +1,9 @@
 <?php
 use Zend\Session\Container;
 $sessionLogin = new Container('credo');
-$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab1 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab2 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
@@ -12,7 +14,22 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
-
+<style>
+    #shBtnManageColumnstab1{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    #shBtnManageColumnsTab2{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    #shBtnManageColumnstab3{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    
+   
+</style>
 <div class="am-content">
     <div class="page-head">
         <div class="row">
@@ -22,13 +39,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
     <div class="main-content">
     <ul class="nav nav-tabs" id="examinationTab" role="tablist">
             <li class="nav-item active">
-                <a class="nav-link active" id="upForRecertification-tab" data-toggle="tab" href="#upForRecertification" role="tab" aria-controls="upForRecertification" aria-selected="false" onclick="getReportOnlineTest('upForRecertification');">Up for Recertification</a>
+                <a class="nav-link active" id="upForRecertification-tab" data-toggle="tab" href="#upForRecertification" role="tab" aria-controls="upForRecertification" aria-selected="false">Up for Recertification</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="remindersSent-tab" data-toggle="tab" href="#remindersSent" role="tab" aria-controls="remindersSent" aria-selected="true" onclick="getReportOnlineTest('remindersSent');">Reminders Sent</a>
+                <a class="nav-link" id="remindersSent-tab" data-toggle="tab" href="#remindersSent" role="tab" aria-controls="remindersSent" aria-selected="true" >Reminders Sent</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="didNotRecertify-tab" data-toggle="tab" href="#didNotRecertify" role="tab" aria-controls="didNotRecertify" aria-selected="false" onclick="getReportOnlineTest('didNotRecertify');">Did not recertify</a>
+                <a class="nav-link" id="didNotRecertify-tab" data-toggle="tab" href="#didNotRecertify" role="tab" aria-controls="didNotRecertify" aria-selected="false">Did not recertify</a>
             </li>
         </ul>
         <div class="tab-content" id="examinationContent">
@@ -37,6 +54,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="panel panel-default">
+                            <div class="well container">
+                                            <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                            <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnstab1">Show/hide</a></h3> 
+                                            </div>
+                                            <div id="manageColumnstab1">
+                                            </div>
+                                        </div>
                                 <div class="panel-body" >
 
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
@@ -65,20 +89,22 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     <input type="hidden" id="Exam" name="Exam" value="online-exam">
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                     <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="upForRecertification">
-                                        <!-- <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('upForRecertification');">GET REPORT</a> -->
+                                        
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);"  onclick="searchAllOrderData();">GET REPORT</a>
                                         <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
                                     </div>
                                 </form>
+
                                 <div id="online-exam"></div>
                                     </br>
+
                                     </br>
                                     </br>
                                     <div id="upForRecertificationData">
                                     <table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                         <thead>
-                                            <tr>
+                                        <tr class="allColumnsTab1">
                                             <th style="width:10%;">Tester</th>
                                                         <th style="width:10%;">Final Decision</th>
                                                         <th style="width:10%;">Region</th>
@@ -105,6 +131,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="panel panel-default">
+                                 <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnsTab2">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumnsTab2">
+                                    </div>
+                                 </div>
                                 <div class="panel-body" > 
                          
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
@@ -133,7 +166,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                     <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="remindersSent">
-                                        <!-- <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('remindersSent');">GET REPORT</a> -->
+                                        
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);"  onclick="searchAllOrderData();">GET REPORT</a>
                                         <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
@@ -147,8 +180,8 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 
                                     <table id="remindersSent-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                         <thead>
-                                        <tr>
-                                        <th style="width:10%;">Tester</th>
+                                        <tr class="allColumnsTab2">
+                                                    <th style="width:10%;">Tester</th>
                                                     <th style="width:10%;">Final Decision</th>
                                                     <th style="width:10%;">Region</th>
                                                     <th style="width:10%;">District</th>
@@ -173,7 +206,14 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="panel panel-default">
-                                <div class="panel-body" >
+                            <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnsTab3">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumnsTab3">
+                                    </div>
+                                 </div>
+                              <div class="panel-body" >
                                 <form action="<?php $this->url('certification', array('action' => 'certification-expiry')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
                                         <label for="Country">Country</label>
@@ -201,7 +241,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     <div class="col-lg-12" style="margin-top: 30px;text-align:center;">
                                     
                                     <input type="hidden" id="certificationExpiryVal" name="certificationExpiryVal" value="didNotRecertify">
-                                        <!-- <a class="btn btn-space btn-primary" href="javascript:void(0);" onclick="getReportOnlineTest('didNotRecertify');">GET REPORT</a> -->
+                                        
                                         <a class="btn btn-space btn-primary" href="javascript:void(0);"  onclick="searchAllOrderData();">GET REPORT</a>
                                         <button type="submit" class="btn btn-space btn-primary">DOWNLOAD REPORT</button>
                                         <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('examination', array('action' => 'xls')); ?>" >CANCEL</a>
@@ -215,7 +255,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 
                                         <table id="didNotRecertify-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                             <thead>
-                                            <tr>
+                                            <tr class="allColumnsTab3">
                                             <th style="width:10%;">Tester</th>
                                                         <th style="width:10%;">Final Decision</th>
                                                         <th style="width:10%;">Region</th>
@@ -226,7 +266,6 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                                     </tr>
                                             </thead>
                                             <tbody>
-                                  
                                             </tbody>
                                         </table>
                                     </div>
@@ -266,14 +305,23 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         showRegion(1);
         showRegion2(1);
         showRegion3(1);
-        // getReportOnlineTest('upForRecertification');
-        aTable =$('#upForRecertification-table').dataTable({
+        
+
+        var listOfColumnsTab1 = '';
+        $('tr.allColumnsTab1').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab1+='<a class="toggle-vis-allColumnsTab1 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab1(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnstab1").html(listOfColumnsTab1);
+
+        aTable =$('#upForRecertification-table').DataTable({
                 "bAutoWidth": false,
                     "bProcessing": true,
                     "bServerSide": true,
                     "bStateSave": true,
                     "aoColumns": [
-                    <?php echo $editAction;?>
+                    <?php echo $editActionTab1;?>
                         ],
                 "aaSorting": [[0, "asc" ]],
                     "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'get-expiry-certificate-reports')); ?>",
@@ -292,13 +340,37 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                         }
                 });
 
-		bTable = $('#remindersSent-table').dataTable({
+
+        $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = aTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnstab1").hide();
+        $("#shBtnManageColumnstab1").click(function(){
+            $("#manageColumnstab1").toggle('fast','linear');
+        });
+
+
+
+        var listOfColumnsTab2 = '';
+        $('tr.allColumnsTab2').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab2+='<a class="toggle-vis-allColumnsTab2 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab2(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnsTab2").html(listOfColumnsTab2);
+
+		bTable = $('#remindersSent-table').DataTable({
                 "bAutoWidth": false,
                     "bProcessing": true,
                     "bServerSide": true,
                     "bStateSave": true,
                     "aoColumns": [
-                    <?php echo $editAction;?>
+                    <?php echo $editActionTab2;?>
                         ],
                 "aaSorting": [[0, "asc" ]],
                     "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'get-expiry-certificate-reports')); ?>",
@@ -316,14 +388,39 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                             });
                         }
                 });
+         
+        
 
-		cTable = $('#didNotRecertify-table').dataTable({
+        $('a.toggle-vis-allColumnsTab2').on( 'click', function (e) {
+        e.preventDefault(); 
+        // Get the column API object
+        var columnTab2 = bTable.column( $(this).attr('data-column') ); 
+        // Toggle the visibility
+        columnTab2.visible( ! columnTab2.visible() );
+        $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnsTab2").hide();
+        $("#shBtnManageColumnsTab2").click(function(){
+            $("#manageColumnsTab2").toggle('fast','linear');
+        });
+        
+
+
+        var listOfColumnsTab3 = '';
+        $('tr.allColumnsTab3').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab3+='<a class="toggle-vis-allColumnsTab3 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab3(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnsTab3").html(listOfColumnsTab3);
+
+		cTable = $('#didNotRecertify-table').DataTable({
                 "bAutoWidth": false,
                     "bProcessing": true,
                     "bServerSide": true,
                     "bStateSave": true,
                     "aoColumns": [
-                    <?php echo $editAction;?>
+                    <?php echo $editActionTab3;?>
                         ],
                 "aaSorting": [[0, "asc" ]],
                     "sAjaxSource": "<?php echo $this->url('certification',array('action' => 'get-expiry-certificate-reports')); ?>",
@@ -341,6 +438,20 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                             });
                         }
                 });
+
+        $('a.toggle-vis-allColumnsTab3').on( 'click', function (e) {
+        e.preventDefault(); 
+        // Get the column API object
+        var columnTab3 = cTable.column( $(this).attr('data-column') ); 
+        // Toggle the visibility
+        columnTab3.visible( ! columnTab3.visible() );
+        $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnsTab3").hide();
+        $("#shBtnManageColumnsTab3").click(function(){
+            $("#manageColumnsTab3").toggle('fast','linear');
+        });
+        
 
 	} );
     $('#dateRange').daterangepicker({
@@ -447,36 +558,39 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
             xmlhttp.send();
         }
     }
-    // oTable = null;
-    // function getReportOnlineTest(expirycertification){
-    //     oTable=$('#'+expirycertification+'Data').html('');
-    //     $.blockUI();
-    //     $.post("< ?php echo $this->url('certification', array('action' => 'get-expiry-certificate-reports')); ?>", {
-    //         region: $("[name=region]").val(),
-    //         district: $("[name=district]").val(),
-    //         country_id: $("[name=country]").val(),
-    //         expirycertification: expirycertification
-
-    //     },function(data) {
-    //         $('#'+expirycertification+'Data').html(data);
-    //         var table = $('#'+expirycertification+'-table').DataTable({
-    //         // var table = $('#remindersSent-table').DataTable({
-    //             "aProcessing": true,
-    //             "aServerSide": true,
-    //             "aaSorting": [],
-    //         });
-    //     });
-    //     $.unblockUI();
-    // }
 
 
+        function searchAllOrderData(){
+            $.blockUI();
+            aTable.fnDraw();
+            bTable.fnDraw();
+            cTable.fnDraw();
+            $.unblockUI();
+        }
 
-function searchAllOrderData(){
-     $.blockUI();
-     aTable.fnDraw();
-     bTable.fnDraw();
-     cTable.fnDraw();
-      $.unblockUI();
-}
+           /* Toggles Color of button */
+    function toggleBtnClassTab1(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+           /* Toggles Color of button */
+    function toggleBtnClassTab2(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+           /* Toggles Color of button */
+    function toggleBtnClassTab3(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
     </script>
 

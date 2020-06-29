@@ -5,8 +5,9 @@ use Zend\Session\Container;
 $sessionLogin = new Container('credo');
 // Debug::dump($country);die;
 
-$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
-$editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab1 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab2 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+$editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
@@ -17,7 +18,22 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
-
+<style>
+    #shBtnManageColumnstab1{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    #shBtnManageColumnsTab2{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    #shBtnManageColumnstab3{
+        font-size: 17px;
+        font-weight: 600;
+    }
+    
+   .well{width: 100%;}
+</style>
 <div class="am-content">
 
     <div class="page-head">
@@ -42,6 +58,13 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                 <div class="widget widget-small">
                     <div class="row">
                         <div class="col-sm-12">
+                                <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnstab1">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumnstab1">
+                                    </div>
+                                </div>
                             <div class="panel panel-default">
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
@@ -78,14 +101,14 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                                 <div id="online-exam">
                                 <table id="online-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                     <thead>
-                                        <tr>
-                                            <th style="width: 20%;">Test Started Date time</th>
-                                            <th style="width: 20%;">Tester Name</th>
-                                            <th style="width: 20%;">Professional No</th>
-                                            <th style="width: 20%;">Phone</th>
-                                            <th style="width: 20%;">Email</th>
-                                            <th style="width: 20%;">Region</th>
-                                            <th style="width: 20%;">District</th>
+                                    <tr class="allColumnsTab1">
+                                            <th style="width: 10%;">Test Started Date time</th>
+                                            <th style="width: 10%;">Tester Name</th>
+                                            <th style="width: 10%;">Professional No</th>
+                                            <th style="width: 10%;">Phone</th>
+                                            <th style="width: 10%;">Email</th>
+                                            <th style="width: 10%;">Region</th>
+                                            <th style="width: 10%;">District</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -102,6 +125,14 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                 <div class="widget widget-small">
                     <div class="row">
                         <div class="col-sm-12">
+
+                        <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnsTab2">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumnsTab2">
+                                    </div>
+                                 </div>
                             <div class="panel panel-default">
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
@@ -137,14 +168,14 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                                 <div id="practical-exam">
                                 <table id="practical-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                     <thead>
-                                        <tr>
-                                            <th style="width: 20%;">Tester Name</th>
-                                            <th style="width: 20%;">Professional No</th>
-                                            <th style="width: 20%;">Phone</th>
-                                            <th style="width: 20%;">Email</th>
-                                            <th style="width: 20%;">Region</th>
-                                            <th style="width: 20%;">District</th>
-                                        </tr>
+                                    <tr class="allColumnsTab2">
+                                            <th style="width: 10%;">Tester Name</th>
+                                            <th style="width: 10%;">Professional No</th>
+                                            <th style="width: 10%;">Phone</th>
+                                            <th style="width: 10%;">Email</th>
+                                            <th style="width: 10%;">Region</th>
+                                            <th style="width: 10%;">District</th>
+                                            </tr>
                                     </thead>
                                     <tbody>
                                        
@@ -161,6 +192,14 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                 <div class="widget widget-small">
                     <div class="row">
                         <div class="col-sm-12">
+
+                        <div class="well container">
+                                    <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                                    <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumnsTab3">Show/hide</a></h3> 
+                                    </div>
+                                    <div id="manageColumnsTab3">
+                                    </div>
+                                 </div>
                             <div class="panel panel-default">
                                 <form action="<?php $this->url('examination', array('action' => 'xls')); ?>" name="form" method="post" >
                                     <div class="col-lg-6">
@@ -197,13 +236,13 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
 
                                 <table id="written-exam-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
                                     <thead>
-                                        <tr>
-                                            <th style="width: 20%;">Tester Name</th>
-                                            <th style="width: 20%;">Professional No</th>
-                                            <th style="width: 20%;">Phone</th>
-                                            <th style="width: 20%;">Email</th>
-                                            <th style="width: 20%;">Region</th>
-                                            <th style="width: 20%;">District</th>
+                                    <tr class="allColumnsTab3">
+                                            <th style="width: 10%;">Tester Name</th>
+                                            <th style="width: 10%;">Professional No</th>
+                                            <th style="width: 10%;">Phone</th>
+                                            <th style="width: 10%;">Email</th>
+                                            <th style="width: 10%;">Region</th>
+                                            <th style="width: 10%;">District</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -244,13 +283,73 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
         showRegion(1,'online');
         showRegion(1,'practical');
         showRegion(1,'written');
-        aTable =$('#practical-exam-table').dataTable({
+        
+
+        var listOfColumnsTab1 = '';
+        $('tr.allColumnsTab1').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab1+='<a class="toggle-vis-allColumnsTab1 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab1(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnstab1").html(listOfColumnsTab1);
+
+       
+		aTable = $('#online-exam-table').DataTable({
                 "bAutoWidth": false,
                     "bProcessing": true,
                     "bServerSide": true,
                     "bStateSave": true,
                     "aoColumns": [
-                    <?php echo $editAction;?>
+                    <?php echo $editActionTab1;?>
+                        ],
+                "aaSorting": [[0, "asc" ]],
+                    "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'get-report')); ?>",
+                    "fnServerData": function ( sSource, aoData, fnCallback ) {
+                        aoData.push({ "name": "Region", "value":  $("[name=regiontab3]").val() });
+                            aoData.push({ "name": "District", "value": $("[name=districttab3]").val() });
+                            aoData.push({ "name": "Country", "value":$("[name=countrytab3]").val() });
+                            aoData.push({ "name": "Exam", "value": 'online-exam' });
+                            $.ajax({
+                                "dataType": 'json',
+                                "type": "POST",
+                                "url": sSource,
+                                "data": aoData,
+                                "success": fnCallback
+                            });
+                        }
+                });
+
+                $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = aTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnstab1").hide();
+        $("#shBtnManageColumnstab1").click(function(){
+            $("#manageColumnstab1").toggle('fast','linear');
+        });
+
+
+
+        var listOfColumnsTab2 = '';
+        $('tr.allColumnsTab2').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab2+='<a class="toggle-vis-allColumnsTab2 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab2(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnsTab2").html(listOfColumnsTab2);
+
+		                
+        bTable =$('#practical-exam-table').DataTable({
+                "bAutoWidth": false,
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "bStateSave": true,
+                    "aoColumns": [
+                    <?php echo $editActionTab2;?>
                         ],
                 "aaSorting": [[0, "asc" ]],
                     "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'get-report')); ?>",
@@ -268,14 +367,40 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                             });
                         }
                 });
+         
+        
 
-		bTable = $('#written-exam-table').dataTable({
+                $('a.toggle-vis-allColumnsTab2').on( 'click', function (e) {
+        e.preventDefault(); 
+        // Get the column API object
+        var columnTab2 = bTable.column( $(this).attr('data-column') ); 
+        // Toggle the visibility
+        columnTab2.visible( ! columnTab2.visible() );
+        $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnsTab2").hide();
+        $("#shBtnManageColumnsTab2").click(function(){
+            $("#manageColumnsTab2").toggle('fast','linear');
+        });
+        
+
+
+        var listOfColumnsTab3 = '';
+        $('tr.allColumnsTab3').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab3+='<a class="toggle-vis-allColumnsTab3 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab3(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnsTab3").html(listOfColumnsTab3);
+
+		
+		cTable = $('#written-exam-table').DataTable({
                 "bAutoWidth": false,
                     "bProcessing": true,
                     "bServerSide": true,
                     "bStateSave": true,
                     "aoColumns": [
-                    <?php echo $editAction;?>
+                    <?php echo $editActionTab3;?>
                         ],
                 "aaSorting": [[0, "asc" ]],
                     "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'get-report')); ?>",
@@ -294,30 +419,20 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
                         }
                 });
 
-		cTable = $('#online-exam-table').dataTable({
-                "bAutoWidth": false,
-                    "bProcessing": true,
-                    "bServerSide": true,
-                    "bStateSave": true,
-                    "aoColumns": [
-                    <?php echo $editActionVal;?>
-                        ],
-                "aaSorting": [[0, "asc" ]],
-                    "sAjaxSource": "<?php echo $this->url('examination',array('action' => 'get-report')); ?>",
-                    "fnServerData": function ( sSource, aoData, fnCallback ) {
-                        aoData.push({ "name": "Region", "value":  $("[name=regiontab3]").val() });
-                            aoData.push({ "name": "District", "value": $("[name=districttab3]").val() });
-                            aoData.push({ "name": "Country", "value":$("[name=countrytab3]").val() });
-                            aoData.push({ "name": "Exam", "value": 'online-exam' });
-                            $.ajax({
-                                "dataType": 'json',
-                                "type": "POST",
-                                "url": sSource,
-                                "data": aoData,
-                                "success": fnCallback
-                            });
-                        }
-                });
+
+        $('a.toggle-vis-allColumnsTab3').on( 'click', function (e) {
+        e.preventDefault(); 
+        // Get the column API object
+        var columnTab3 = cTable.column( $(this).attr('data-column') ); 
+        // Toggle the visibility
+        columnTab3.visible( ! columnTab3.visible() );
+        $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnsTab3").hide();
+        $("#shBtnManageColumnsTab3").click(function(){
+            $("#manageColumnsTab3").toggle('fast','linear');
+        });
+
     });
     function showRegion(str,type) {
         if (str == "") {
@@ -406,4 +521,31 @@ $editActionVal = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"
      cTable.fnDraw();
       $.unblockUI();
 }
+
+
+
+           /* Toggles Color of button */
+           function toggleBtnClassTab1(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+           /* Toggles Color of button */
+    function toggleBtnClassTab2(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+           /* Toggles Color of button */
+    function toggleBtnClassTab3(btnObj){
+        $(btnObj).toggleClass("btn-default");
+        var children = btnObj.childNodes;
+        var iconTag = children[1].firstChild;
+        $(iconTag).toggleClass("glyphicon-remove");
+    }
+
     </script>

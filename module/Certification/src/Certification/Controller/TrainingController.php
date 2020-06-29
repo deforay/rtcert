@@ -7,7 +7,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Certification\Model\Training;
 use Certification\Form\TrainingForm;
-
+use Zend\Json\Json;
 class TrainingController extends AbstractActionController {
 
     protected $TrainingTable;
@@ -23,9 +23,16 @@ class TrainingController extends AbstractActionController {
     public function indexAction() {
 
         $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        return new ViewModel(array(
-            'trainings' => $this->getTrainingTable()->fetchAll(),
-        ));
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->getTrainingTable()->fetchAllTraining($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+        // return new ViewModel(array(
+        //     'trainings' => $this->getTrainingTable()->fetchAllTraining(),
+        // ));
+
     }
 
     public function addAction() {
