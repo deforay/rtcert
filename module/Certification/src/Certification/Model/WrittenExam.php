@@ -26,6 +26,7 @@ class WrittenExam implements InputFilterAwareInterface {
     public $inventory_point;
     public $total_points;
     public $final_score;
+    public $training_id;
     protected $inputFilter;
 
     public function exchangeArray($data) {
@@ -54,6 +55,7 @@ class WrittenExam implements InputFilterAwareInterface {
         $this->admin_middle_name = (!empty($data['admin_middle_name'])) ? $data['admin_middle_name'] : null;
         $this->total_points = (!empty($data['total_points'])) ? $data['total_points'] : 0;
         $this->final_score = (!empty($data['final_score'])) ? $data['final_score'] : 0;
+        $this->training_id = (!empty($data['training_id'])) ? $data['training_id'] : null;
     }
 
     public function getArrayCopy() {
@@ -109,6 +111,7 @@ class WrittenExam implements InputFilterAwareInterface {
                     ),
                 ),
             ));
+         
             $inputFilter->add(array(
                 'name' => 'exam_admin',
                 'required' => true,
@@ -175,6 +178,31 @@ class WrittenExam implements InputFilterAwareInterface {
                 ),
             ));
 
+            // $inputFilter->add(array(
+            //     'name' => 'training_id',
+            //     'required' => true,
+            //     'filters' => array(
+            //         array('name' => 'StripTags'),
+            //         array('name' => 'StringTrim'),
+            //     ),
+            //     'validators' => array(
+            //         array(
+            //             'name' => 'StringLength',
+            //             'options' => array(
+            //                 'encoding' => 'UTF-8',
+            //             ),
+            //         ),
+            //     ),
+            // ));
+
+            $inputFilter->add(array(
+                'name' => 'training_id',
+                'required' => true,
+                'filters' => array(
+                    array('name' => 'StripTags'),
+                    array('name' => 'StringTrim'),
+                )                
+            ));
 
             $this->inputFilter = $inputFilter;
         }

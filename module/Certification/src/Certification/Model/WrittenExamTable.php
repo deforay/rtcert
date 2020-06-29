@@ -59,6 +59,7 @@ class WrittenExamTable extends AbstractTableGateway {
     }
 
     public function saveWrittenExam(WrittenExam $written_exam) {
+        
         $sessionLogin = new Container('credo');
         $common = new CommonService($this->sm);
         $date = $written_exam->date;
@@ -81,7 +82,9 @@ class WrittenExamTable extends AbstractTableGateway {
             'ethics_point' => $written_exam->ethics_point,
             'inventory_point' => $written_exam->inventory_point,
             'total_points' => $written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point,
-            'final_score' => (($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / 25
+            'final_score' => (($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / 25,
+            'training_id' => $written_exam->training_id,
+            
         );
 
         $id_written_exam = (int) $written_exam->id_written_exam;
@@ -129,7 +132,8 @@ class WrittenExamTable extends AbstractTableGateway {
             'ethics_point' => $written_exam->ethics_point,
             'inventory_point' => $written_exam->inventory_point,
             'total_points' => $written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point,
-            'final_score' => ((($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / $noOfQuestion)
+            'final_score' => ((($written_exam->qa_point + $written_exam->rt_point + $written_exam->safety_point + $written_exam->specimen_point + $written_exam->testing_algo_point + $written_exam->report_keeping_point + $written_exam->EQA_PT_points + $written_exam->ethics_point + $written_exam->inventory_point) * 100) / $noOfQuestion),
+            'training_id' => $written_exam->training_id,
         );
         $id_written_exam = (int) $written_exam->id_written_exam;
         if ($id_written_exam == 0) {
@@ -426,5 +430,45 @@ public function examToValidate($provider){
             $examResultsScores = '0,0,0,0,0,0,0,0,0';
         }
         return $examResultsScores;
+    }
+
+
+
+
+    public function getTrainingName($written) {
+        $db = $this->tableGateway->getAdapter();
+      
+        $sql1 = 'SELECT 
+        id_written_exam,
+        training.training_id,
+        training.Provider_id,
+        type_of_competency,
+        last_training_date,
+        type_of_training,
+        length_of_training,
+        facilitator,
+        training_certificate,
+        date_certificate_issued,
+        Comments,
+        last_name,
+        first_name,
+        middle_name, 
+        professional_reg_no, 
+        certification_id, 
+        certification_reg_no,
+        training_organization_name,
+        type_organization
+        FROM written_exam,training,provider,training_organization WHERE  written_exam.training_id=training.training_id and training.Provider_id= provider.id and training_organization.training_organization_id=training.training_organization_id and written_exam.id_written_exam=' . $written;
+        
+        $statement = $db->query($sql1);
+        $result = $statement->execute();
+        $selectData = array();
+
+        foreach ($result as $res) {
+            $selectData['name'] = $res['type_of_competency'] . ' ' . $res['training_organization_name'] . ' ' . $res['type_organization'];
+            $selectData['id'] = $res['training_id'];
+        }
+        return $selectData;
+        
     }
 }

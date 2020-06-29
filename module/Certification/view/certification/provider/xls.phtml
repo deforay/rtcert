@@ -1,6 +1,7 @@
 <?php
 use Zend\Session\Container;
 $sessionLogin = new Container('credo');
+$editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 ?>
 
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
@@ -160,6 +161,28 @@ $sessionLogin = new Container('credo');
                             </div>
                             
                             <div id="testReport">
+                            <table id="testReportTable" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
+                                        <thead class="frezz">
+                                        <tr class="allrecertifications">
+                                                <th style="width:10%;">Tester</th>
+                                                <th style="width:10%;">Professional Registration No.</th>
+                                                <th style="width:10%;">Region</th>
+                                                <th style="width:10%;">District</th>
+                                                <th style="width:10%;">Facility</th>
+                                                <th style="width:10%;">Phone</th>
+                                                <th style="width:10%;">E-mail</th>
+                                                <th style="width:10%;">Type HIV testing modality/point</th>
+                                                <th style="width:10%;">Certification Registration No.</th>
+                                                <th style="width:10%;">Certification ID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="10" class="dataTables_empty">Loading data from server</td>
+                                            </tr>
+                                        </tbody>
+
+                                    </table>
                             </div>
                         </div>
                     </div>
@@ -183,10 +206,61 @@ $sessionLogin = new Container('credo');
     <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery.blockUI.min.js'); ?>"></script>
     <script type="text/javascript" src="<?php echo $this->basePath('assets/js/personnel_certification/certification.js'); ?>"></script>
     <script>
+        oTable=null;
     $(document).ready(function () {
         $("#Country").val(1);
         showRegion(1);
-        getTestReport();
+        // getTestReport();
+
+        var listOfColumnsTab1 = '';
+        $('tr.allColumnsTab1').each(function(){  
+            $(this).find('th').each(function(index){
+                listOfColumnsTab1+='<a class="toggle-vis-allColumnsTab1 btn btn-primary btn-sm" data-column="'+index+'" onclick="toggleBtnClassTab1(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+            });
+        }); 
+        $("#manageColumnstab1").html(listOfColumnsTab1);
+
+
+
+        oTable = $('#testReportTable').DataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "aoColumns": [
+                <?php echo $editAction; ?>
+            ],
+            "sAjaxSource": "<?php echo $this->url('provider',array('action' => 'get-tester-report')); ?>",
+            "fnServerData": function ( sSource, aoData, fnCallback ) {
+                aoData.push({ "name": "region", "value":  $("[name=region]").val() });
+                aoData.push({ "name": "district", "value":  $("[name=district]").val() });
+                aoData.push({ "name": "facility_id", "value":  $("[name=facility_id]").val() });
+                aoData.push({ "name": "type_vih_test", "value":  $("[name=type_vih_test]").val() });
+                aoData.push({ "name": "prefered_contact_method", "value":  $("[name=prefered_contact_method]").val() });
+                aoData.push({ "name": "current_jod", "value":  $("[name=current_jod]").val() });
+                aoData.push({ "name": "exclude_tester_name", "value":  $("[name=exclude_tester_name]").val() });
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": aoData,
+                    "success": fnCallback
+                });
+            }
+        } );
+
+        $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
+            e.preventDefault(); 
+            // Get the column API object
+            var column = oTable.column( $(this).attr('data-column') ); 
+            // Toggle the visibility
+            column.visible( ! column.visible() );
+            $("#provider_wrapper").css("overflow-x","scroll");
+        });
+        $("#manageColumnstab1").hide();
+        $("#shBtnManageColumnstab1").click(function(){
+            $("#manageColumnstab1").toggle('fast','linear');
+        });
+
+
     });
     function showRegion(str) {
             if (str == "") {
@@ -249,62 +323,17 @@ $sessionLogin = new Container('credo');
         }
     }
 
-    function getTestReport(){
-        $('#testReport').html('');
-        $.blockUI();
-        $.post("<?php echo $this->url('provider', array('action' => 'get-tester-report')); ?>", 
-        {
-            region: $("[name=region]").val(),
-            district: $("[name=district]").val(),
-            facility_id: $("[name=facility_id]").val(),
-            type_vih_test: $("[name=type_vih_test]").val(),
-            prefered_contact_method: $("[name=prefered_contact_method]").val(),
-            current_jod: $("[name=current_jod]").val(),
-            exclude_tester_name: $("[name=exclude_tester_name]").val(),
-        },
-        function(data) {
-            $('#testReport').html(data);
-
-            var listOfColumnsTab1 = '';
-        $('tr.allrecertifications').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfColumnsTab1+='<a class="toggle-vis-allColumnsTab1 btn btn-primary btn-sm" data-column="'+index+'" style="margin-top: 5px;" onclick="toggleBtnClassTab1(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
-            });
-        }); 
-        $("#manageColumnstab1").html(listOfColumnsTab1);
-
-            var table = $('#testReportTable').DataTable({
-                "aProcessing": true,
-                "aServerSide": true,
-                "aaSorting": [],
-            });
-
-
-
-        $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
-                e.preventDefault(); 
-                // Get the column API object
-                var column = table.column( $(this).attr('data-column') ); 
-                // Toggle the visibility
-                column.visible( ! column.visible() );
-                $("#provider_wrapper").css("overflow-x","scroll");
-            });
-            $("#manageColumnstab1").hide();
-            $("#shBtnManageColumnstab1").click(function(){
-                $("#manageColumnstab1").toggle('fast','linear');
-            });
-
-        });
-        $.unblockUI();
-    }
-
-
-        /* Toggles Color of button */
+          /* Toggles Color of button */
     function toggleBtnClassTab1(btnObj){
     $(btnObj).toggleClass("btn-default");
     var children = btnObj.childNodes;
     var iconTag = children[1].firstChild;
     $(iconTag).toggleClass("glyphicon-remove");
+    }
+
+
+    function reDraw(){
+        oTable.fnDraw();
     }
 
     </script>

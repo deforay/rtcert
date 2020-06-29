@@ -88,7 +88,7 @@ class WrittenExamController extends AbstractActionController {
         if (isset($provider['id'])) {
             $nombre = $this->getWrittenExamTable()->attemptNumber($provider['id']);
         }
-        //\Zend\Debug\Debug::dump($this->getWrittenExamTable()->fetchAll());die;
+        // \Zend\Debug\Debug::dump($form);die;
         return new ViewModel(array('form' => $form,
             'practical' => $practical,
             'nombre' => $nombre,
@@ -116,7 +116,7 @@ class WrittenExamController extends AbstractActionController {
             ));
         }
         $provider = $this->getWrittenExamTable()->getProviderName2($id_written_exam);
-//        die(print_r($provider));
+        $training = $this->getWrittenExamTable()->getTrainingName($id_written_exam);
 
         $writtenExam->date = date("d-m-Y", strtotime($writtenExam->date));
         $form = new WrittenExamForm($dbAdapter);
@@ -143,6 +143,8 @@ class WrittenExamController extends AbstractActionController {
             'attemptNumber' => $attemptNumber,
             'provider_id' => $provider['id'],
             'provider_name' => $provider['name'],
+            'training_id' => $training['id'],
+            'training_name' => $training['name'],
         );
     }
 

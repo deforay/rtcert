@@ -73,7 +73,8 @@ class PracticalExamTable extends AbstractTableGateway
 			'Sample_testing_score' => $practicalExam->Sample_testing_score,
 			'direct_observation_score' => $practicalExam->direct_observation_score,
 			'practical_total_score' => ($practicalExam->direct_observation_score + $practicalExam->Sample_testing_score) / 2,
-			'date' => $newsdate
+			'date' => $newsdate,
+			'training_id' => $practicalExam->training_id
 		);
 		//        print_r($data);
 		$practice_exam_id = (int)$practicalExam->practice_exam_id;
@@ -434,4 +435,43 @@ class PracticalExamTable extends AbstractTableGateway
 		}
 		return $result;
 	}
+
+
+
+    public function getTrainingName($written) {
+        $db = $this->tableGateway->getAdapter();
+      
+        $sql1 = 'SELECT 
+        practice_exam_id,
+        training.training_id,
+        training.Provider_id,
+        type_of_competency,
+        last_training_date,
+        type_of_training,
+        length_of_training,
+        facilitator,
+        training_certificate,
+        date_certificate_issued,
+        Comments,
+        last_name,
+        first_name,
+        middle_name, 
+        professional_reg_no, 
+        certification_id, 
+        certification_reg_no,
+        training_organization_name,
+        type_organization
+        FROM practical_exam,training,provider,training_organization WHERE  practical_exam.training_id=training.training_id and training.Provider_id= provider.id and training_organization.training_organization_id=training.training_organization_id and practical_exam.practice_exam_id=' . $written;
+        
+        $statement = $db->query($sql1);
+        $result = $statement->execute();
+        $selectData = array();
+
+        foreach ($result as $res) {
+            $selectData['name'] = $res['type_of_competency'] . ' ' . $res['training_organization_name'] . ' ' . $res['type_organization'];
+            $selectData['id'] = $res['training_id'];
+        }
+        return $selectData;
+        
+    }
 }

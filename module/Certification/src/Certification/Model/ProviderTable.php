@@ -1213,5 +1213,247 @@ class ProviderTable extends AbstractTableGateway {
         }
         return $output;
     }
+
+
+
+    public function reportData($parameters)
+    {
+    //   print_r($parameters); die;
+        $logincontainer = new Container('credo');
+        $role = $logincontainer->roleCode;
+        $roleCode = $logincontainer->roleCode;
+        $aColumns = array('first_name', 'middle_name', 'professional_reg_no','phone','email','type_vih_test','current_jod','certification_reg_no','certification_id', 'facility_name','l_d_r.location_name','l_d_d.location_name');
+     
+         
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod','facility_name','phone','email');
+
+
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('p' => 'provider'))
+        ->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'))
+        ->join('certification_facilities', ' certification_facilities.id = p.facility_id ', array('facility_name', 'facility_address'))
+        ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
+        ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
+        ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left');
+
+
+        if (!empty($country)) {
+            $sQuery->where(array('c.country_id'=>$country));
+
+        }else{
+            if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
+            $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
+            }
+        }
+        
+        if (!empty($region)) {
+             $sQuery->where(array('l_d_r.location_id'=>$region));
+            }else{
+                if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
+                    
+                    $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
+                }
+            }
+            
+        if (!empty($district)) {
+                
+                $sQuery->where(array('l_d_d.location_id'=>$district));
+            }else{
+                if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
+                    $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
+                }
+            }
+            
+            
+        if (!empty($facility)) {
+                $sQuery->where(array('certification_facilities.id'=>$facility));
+            }
+            
+        if (!empty($typeHiv)) {
+                $sQuery->where(array('p.type_vih_test'=>$typeHiv));
+            }
+            
+        if (!empty($contact_method)) {
+                $sQuery->where(array('p.prefered_contact_method'=>$contact_method));
+            }
+            
+        if (!empty($jobTitle)) {
+                $sQuery->where(array('p.current_jod'=>$jobTitle));
+        }
+
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        } 
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        // echo $sQueryStr; die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('p' => 'provider'))
+        ->columns(array('id', 'certification_reg_no', 'certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'region', 'district', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'username', 'password', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email', 'facility_id','link_send_count'))
+        ->join('certification_facilities', ' certification_facilities.id = p.facility_id ', array('facility_name', 'facility_address'))
+        ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
+        ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
+        ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left');
+
+
+        if (!empty($country)) {
+            $tQuery->where(array('c.country_id'=>$country));
+
+        }else{
+            if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
+                $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
+            }
+        }
+        
+        if (!empty($region)) {
+            $tQuery->where(array('l_d_r.location_id'=>$region));
+            }else{
+                if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
+                    
+                    $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
+                }
+            }
+            
+        if (!empty($district)) {
+                
+            $tQuery->where(array('l_d_d.location_id'=>$district));
+            }else{
+                if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
+                    $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
+                }
+            }
+            
+            
+        if (!empty($facility)) {
+            $tQuery->where(array('certification_facilities.id'=>$facility));
+            }
+            
+        if (!empty($typeHiv)) {
+            $tQuery->where(array('p.type_vih_test'=>$typeHiv));
+            }
+            
+        if (!empty($contact_method)) {
+            $tQuery->where(array('p.prefered_contact_method'=>$contact_method));
+            }
+            
+        if (!empty($jobTitle)) {
+            $tQuery->where(array('p.current_jod'=>$jobTitle));
+        }
+
+        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+        $acl = $this->sm->get('AppAcl');
+        foreach ($rResult as $aRow) {
+            $row = array();            
+            $row[] = $aRow['first_name']. ' '.$aRow['middle_name']; 
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['region_name'];
+            $row[] = $aRow['district_name'];
+            $row[] = $aRow['facility_name'];
+            $row[] = $aRow['phone'];
+            $row[] = $aRow['email'];
+            $row[] = $aRow['type_vih_test'];
+            $row[] = $aRow['current_jod'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
     
 }
