@@ -917,4 +917,5 @@ ALTER TABLE `practical_exam` ADD `training_id` INT(11) NULL DEFAULT NULL AFTER `
 ALTER TABLE `written_exam` CHANGE `training_id` `training_id` VARCHAR(255) NULL DEFAULT NULL;
 ALTER TABLE `practical_exam` CHANGE `training_id` `training_id` VARCHAR(255) NULL DEFAULT NULL;
 
-
+-- Sivakumar 29 Jun, 2020
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Feedback send mailid', 'feedback-send-mailid', 'thanaseelan@deforay.com')

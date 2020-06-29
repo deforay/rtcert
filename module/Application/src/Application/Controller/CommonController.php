@@ -79,5 +79,16 @@ class CommonController extends AbstractActionController {
         return $viewModel;
     }
 
+    public function sendMailAction() {
+        
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $common = $this->getServiceLocator()->get('CommonService');
+            $result = $common->sendContactMail($params);
+            return $result;
+        }
+    }
+
 }
 
