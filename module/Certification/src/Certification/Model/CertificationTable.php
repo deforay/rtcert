@@ -1447,9 +1447,9 @@ class CertificationTable
         $excludeTesterName = $parameters['exclude_tester_name'];
         $facility = $parameters['facility'];
 
-        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $aColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
        
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $orderColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
 
 
         /*
@@ -1532,7 +1532,8 @@ class CertificationTable
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
             ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
-            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
+            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'))
+            ->group('p.id');
 
         if (!empty($startDate) && !empty($endDate)) {
             $sQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
@@ -1933,9 +1934,9 @@ class CertificationTable
         $district = $parameters['district'];
         $expirydata = $parameters['expirycertification'];
 
-        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $aColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
        
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $orderColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
 
 
         /*

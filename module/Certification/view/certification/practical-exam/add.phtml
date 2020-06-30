@@ -194,15 +194,14 @@ if($nombre!= null){
         <br>
         <div class="widget widget-fullwidth widget-small" style="padding:10px;padding-top:20px; ">
 
-        <h1>Practical Exams </h1>
+        <h1>List of Practical Exams </h1>
 <table id="practicalExamsTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">Date</th>
-                        <th style="width: 10%;">Type of Exam</th>
-                        <th style="width: 10%;">Exam Administrator</th>
-                        <th style="width: 10%;">Tester ID </th>
                         <th style="width: 10%;">Tester </th>
+                        <th style="width: 10%;">Date</th>
+                        <th style="width: 10%;">No. of Attempts</th>
+                        <th style="width: 05%;">Exam Administrator</th>
                         <th style="width: 10%;">Location Name </th>
                         <th style="width: 10%;">Direct Observation Score (≥90%) </th>
                         <th style="width: 10%;">Sample Testing Score (=100%)</th>
@@ -220,11 +219,10 @@ if($nombre!= null){
                 <tbody>
                     <?php foreach ($practicals as $exam) : ?>
                         <tr>
+                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
                             <td><div style="width:100px;height:40px;overflow:auto;"><?php echo date("d-M-Y", strtotime($this->escapeHtml($exam->date))); ?></div></td>
                             <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_type); ?></div></td>
                             <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_admin); ?></div></td>
-                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->provider_id); ?></div></td>
-                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->location_name); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->direct_observation_score . ' %'); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->Sample_testing_score . ' %'); ?></div></td>
@@ -238,7 +236,7 @@ if($nombre!= null){
                                 if ($exam->direct_observation_score < 90 || $exam->Sample_testing_score < 100 || strcasecmp($exam->exam_type, '3rd attempt') == 0) {
                                     echo "<td><div style='width:120px;height:40px;overflow:auto;'><p><span class='glyphicon glyphicon-repeat'></span> Add written exam </div></td>";
                                 } else {
-                                    echo "<td><div style='width:120px;height:40px;overflow:auto;'><p><a href=" . $this->url('written-exam', array('action' => 'add'), array('query' => array(base64_encode('practice_exam_id') => base64_encode($exam->practice_exam_id)))) . "><span class='glyphicon glyphicon-repeat'></span> Add written exam</a> </div></td>";
+                                    echo "<td><div style='width:140px;height:40px;overflow:auto;'><p><a href=" . $this->url('written-exam', array('action' => 'add'), array('query' => array(base64_encode('practice_exam_id') => base64_encode($exam->practice_exam_id)))) . "><span class='glyphicon glyphicon-repeat'></span> Add written exam</a> </div></td>";
                                 }
                                 ?>
                             <?php } ?>

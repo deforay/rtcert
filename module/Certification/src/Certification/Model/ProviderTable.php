@@ -1222,10 +1222,10 @@ class ProviderTable extends AbstractTableGateway {
         $logincontainer = new Container('credo');
         $role = $logincontainer->roleCode;
         $roleCode = $logincontainer->roleCode;
-        $aColumns = array('first_name', 'middle_name', 'professional_reg_no','phone','email','type_vih_test','current_jod','certification_reg_no','certification_id', 'facility_name','l_d_r.location_name','l_d_d.location_name');
+        $aColumns = array('first_name', 'professional_reg_no','l_d_r.location_name','l_d_d.location_name', 'facility_name','phone','email', 'type_vih_test','certification_reg_no','certification_id');
      
          
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod','facility_name','phone','email');
+        $orderColumns = array('first_name', 'professional_reg_no','l_d_r.location_name','l_d_d.location_name', 'facility_name','phone','email', 'type_vih_test','certification_reg_no','certification_id');
 
 
         /*
@@ -1303,7 +1303,8 @@ class ProviderTable extends AbstractTableGateway {
         ->join('certification_facilities', ' certification_facilities.id = p.facility_id ', array('facility_name', 'facility_address'))
         ->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
         ->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'))
-        ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left');
+        ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left')
+        ->group('p.id');
 
 
         if (!empty($parameters['country'])) {
@@ -1439,7 +1440,7 @@ class ProviderTable extends AbstractTableGateway {
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();            
-            $row[] = $aRow['first_name']. ' '.$aRow['middle_name']; 
+            $row[] = $aRow['last_name']. ' ' .$aRow['first_name']. ' '.$aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['region_name'];
             $row[] = $aRow['district_name'];

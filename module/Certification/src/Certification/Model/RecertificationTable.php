@@ -259,9 +259,9 @@ class RecertificationTable {
         }
 
         
-        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $aColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod', 'reminder_type', 'reminder_sent_to' ,'date_reminder_sent');
        
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $orderColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod', 'reminder_type', 'reminder_sent_to' ,'date_reminder_sent');
 
 
         /*
@@ -492,13 +492,13 @@ class RecertificationTable {
             $row = array();
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
-            $row[] = $aRow['region_name'];
-            $row[] = $aRow['district_name'];
-            $row[] = $aRow['facility_name'];
-            $row[] = $aRow['final_decision'];
+            $row[] = ucwords($aRow['region_name']);
+            $row[] = ucwords($aRow['district_name']);
+            $row[] = ucwords($aRow['facility_name']);
+            $row[] = ucwords($aRow['final_decision']);
             $row[] = $aRow['type_vih_test'];
             $row[] = $aRow['current_jod'];
-            $row[] = $aRow['reminder_type'];
+            $row[] = ucwords($aRow['reminder_type']);
             $row[] = $aRow['reminder_sent_to'];
             $row[] = date("d-m-Y", strtotime($aRow['date_reminder_sent']));
             $output['aaData'][] = $row;
