@@ -121,7 +121,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     </div>
                                     <div class="row" style="text-align:center;">
                                         <div class="form-group col-lg-12" style="margin-top: 30px">
-                                            <a href="javascript:void(0)"  onclick="reDraw();" class="btn btn-primary">GET REPORT</a>
+                                            <a href="javascript:void(0)"  onclick="searchAllOrderData();" class="btn btn-primary">GET REPORT</a>
                                             <button class="btn btn-primary" type="submit">DOWNLOAD REPORT</button> 
                                             <a class="btn  btn-space btn-danger" role="button" style="margin-top: 5px" href="<?php echo $this->url('certification', array('action' => 'xls')); ?>" >CLEAR</a>
                                         </div>
@@ -188,7 +188,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         }); 
         $("#manageColumns").html(listOfColumns);
 
-        oTable=$('#certificateReportTable').DataTable({
+        oTable=$('#certificateReportTable').dataTable({
 	"bAutoWidth": false,
         "bProcessing": true,
         "bServerSide": true,
@@ -247,6 +247,12 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
             'Last Month': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
         },
     });
+
+    function searchAllOrderData(){
+        $.blockUI();
+        oTable.fnDraw();
+        $.unblockUI();
+    }
 
     function showRegion(str) {
             if (str == "") {
@@ -309,9 +315,6 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
     }
 
     
-    function reDraw(){
-        oTable.fnDraw();
-    }
 
        /* Toggles Color of button */
        function toggleBtnClass(btnObj){

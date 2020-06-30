@@ -1433,7 +1433,7 @@ class CertificationTable
         $typeHiv = $parameters['typeHIV'];
         $jobTitle = $parameters['jobTitle'];
         $dateRange = $parameters['dateRange'];
-        if (!empty($dateRange)) {
+         if (!empty($dateRange)) {
             $array = explode(" ", $dateRange);
             $startDate = date("Y-m-d", strtotime($array[0]));
             $endDate = date("Y-m-d", strtotime($array[2]));
@@ -1924,7 +1924,7 @@ class CertificationTable
 
     public function expiryReportData($parameters)
     {
-        // print_r($parameters); die;
+        
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $roleCode = $sessionLogin->roleCode;
@@ -2044,22 +2044,22 @@ class CertificationTable
                 $sQuery->where('c.date_end_validity<="'.$endDate.'"');
             }
           
-        if (!empty($country)) {
-            $sQuery->where(array('country.country_id'=>$country));
+        if (!empty($parameters['country'])) {
+            $sQuery->where(array('country.country_id'=>$parameters['country']));
         }else{
             if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
                     $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
-        if (!empty($region)) {
-            $sQuery->where(array('l_d_r.location_id'=>$region));
+        if (!empty($parameters['region'])) {
+            $sQuery->where(array('l_d_r.location_id'=>$parameters['region']));
         }else{
             if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
                     $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
-        if (!empty($district)) {
-            $sQuery->where(array('l_d_d.location_id'=>$district));
+        if (!empty($parameters['district'])) {
+            $sQuery->where(array('l_d_d.location_id'=>$parameters['district']));
         }else{
             if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
                     $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
@@ -2120,27 +2120,27 @@ class CertificationTable
             $endDate= $syearmonth.'-'.date('d');
             $tQuery->where('c.date_end_validity<="'.$endDate.'"');
         }
-    if (!empty($country)) {
-        $tQuery->where(array('country.country_id'=>$country));
-    }else{
-        if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($parameters['country'])) {
+            $tQuery->where(array('country.country_id'=>$parameters['country']));
+        }else{
+            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
         }
-    }
-    if (!empty($region)) {
-        $tQuery->where(array('l_d_r.location_id'=>$region));
-    }else{
-        if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($parameters['region'])) {
+            $tQuery->where(array('l_d_r.location_id'=>$parameters['region']));
+        }else{
+            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
         }
-    }
-    if (!empty($district)) {
-        $tQuery->where(array('l_d_d.location_id'=>$district));
-    }else{
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+        if (!empty($parameters['district'])) {
+            $tQuery->where(array('l_d_d.location_id'=>$parameters['district']));
+        }else{
+            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+            }
         }
-    }
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
