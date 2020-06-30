@@ -919,3 +919,12 @@ ALTER TABLE `practical_exam` CHANGE `training_id` `training_id` VARCHAR(255) NUL
 
 -- Sivakumar 29 Jun, 2020
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Feedback send mailid', 'feedback-send-mailid', 'thanaseelan@deforay.com')
+CREATE TABLE `feedback_mail` (
+ `feedback_id` int(11) NOT NULL AUTO_INCREMENT,
+ `feedback_name` varchar(255) NOT NULL,
+ `feedback_email` varchar(255) NOT NULL,
+ `feedback_subject` varchar(255) NOT NULL,
+ `feedback_message` longtext NOT NULL,
+ `added_on` datetime NOT NULL,
+ PRIMARY KEY (`feedback_id`)
+);
