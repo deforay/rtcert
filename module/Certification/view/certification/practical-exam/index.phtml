@@ -40,10 +40,10 @@ $acl = $this->layout()->acl;
             <table id="practicalExamsTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" >
                 <thead>
                     <tr>
+                        <th style="width: 10%;">Tester </th>
                         <th style="width: 10%;">Date</th>
                         <th style="width: 10%;">No. of Attempts</th>
-                        <th style="width: 10%;">Exam Administrator</th>
-                        <th style="width: 10%;">Tester </th>
+                        <th style="width: 05%;">Exam Administrator</th>
                         <th style="width: 10%;">Direct Observation Score (≥90%) </th>
                         <th style="width: 10%;">Sample Testing Score (=100%)</th>
                         <th style="width: 10%;">Practical Total Score</th>
@@ -60,10 +60,10 @@ $acl = $this->layout()->acl;
                 <tbody>
                     <?php foreach ($practicals as $exam) : ?>
                         <tr>
+                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
                             <td><div style="width:100px;height:40px;overflow:auto;"><?php echo date("d-M-Y", strtotime($this->escapeHtml($exam->date))); ?></div></td>
                             <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_type); ?></div></td>
                             <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_admin); ?></div></td>
-                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->direct_observation_score . ' %'); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->Sample_testing_score . ' %'); ?></div></td>
                             <td><div style="width:70px;height:40px;overflow:auto; font-weight: bold"><?php echo $this->escapeHtml($exam->practical_total_score . ' %'); ?></div></td>
