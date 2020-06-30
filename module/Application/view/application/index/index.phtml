@@ -278,7 +278,6 @@ $container = new Container('alert');
 					<p>Questions or Feedback? Please reach out to us.</p>
 				</div>
 
-
 				<div class="row mt-5 justify-content-center">
 					<div class="col-lg-10">
 						<form action="#" name="feedbackform" id="feedbackform"  method="post" role="form" class="php-email-form">
@@ -395,8 +394,11 @@ $container = new Container('alert');
 	<script>
 
 $(document).ready(function() {
+	$("#submit").attr("disabled", false);
+
 	$('#submit').click(function(e) {
-	
+		$('#submit').text('Sending …');
+		$("#submit").attr("disabled", true);
 		var	fname= $("[name=name]").val();
 		var	femail= $("[name=email]").val();
 		var	fsubject = $("[name=subject]").val();
@@ -406,24 +408,32 @@ $(document).ready(function() {
 			alert('Enter the Name');
 			$("#name").focus();
 			$('#name').css('border-color', 'red');
+			$("#submit").attr("disabled", false);
+			$('#submit').text('Send Message');
 			return false;
 		}
 		if(femail==''){
 			alert('Enter the Email id');
 			$("#email").css('border-color', 'red');
 			$("#email").focus();
+			$("#submit").attr("disabled", false);
+			$('#submit').text('Send Message');
 			return  false;
 		}
 		if(fsubject==''){
 			alert('Enter the subject');
 			$("#subject").css('border-color', 'red');
 			$("#subject").focus();
+			$("#submit").attr("disabled", false);
+			$('#submit').text('Send Message');
 			return false;
 		}
 		if(fmessage==''){
 			alert('Enter the message');
 			$("#message").css('border-color', 'red');
 			$("#message").focus();
+			$("#submit").attr("disabled", false);
+			$('#submit').text('Send Message');
 			return false;
 		}
 
@@ -445,6 +455,9 @@ $(document).ready(function() {
 							$("[name=email]").val("");
 							$("[name=subject]").val("");
 							$("[name=message]").val("");
+							$("#submit").attr("disabled", false);
+							$('#submit').text('Send Message');
+							
 					}
 				});
 			
