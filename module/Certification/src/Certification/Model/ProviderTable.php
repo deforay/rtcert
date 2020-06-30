@@ -1306,17 +1306,17 @@ class ProviderTable extends AbstractTableGateway {
         ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left');
 
 
-        if (!empty($country)) {
-            $sQuery->where(array('c.country_id'=>$country));
+        if (!empty($parameters['country'])) {
+            $sQuery->where(array('c.country_id'=>$parameters['country']));
 
         }else{
             if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
-            $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
+                $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
             }
         }
         
-        if (!empty($region)) {
-             $sQuery->where(array('l_d_r.location_id'=>$region));
+        if (!empty($parameters['region'])) {
+            $sQuery->where(array('l_d_r.location_id'=>$parameters['region']));
             }else{
                 if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
                     
@@ -1324,9 +1324,9 @@ class ProviderTable extends AbstractTableGateway {
                 }
             }
             
-        if (!empty($district)) {
+        if (!empty($parameters['district'])) {
                 
-                $sQuery->where(array('l_d_d.location_id'=>$district));
+            $sQuery->where(array('l_d_d.location_id'=>$parameters['district']));
             }else{
                 if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
                     $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
@@ -1334,20 +1334,20 @@ class ProviderTable extends AbstractTableGateway {
             }
             
             
-        if (!empty($facility)) {
-                $sQuery->where(array('certification_facilities.id'=>$facility));
+        if (!empty($parameters['facility'])) {
+            $sQuery->where(array('certification_facilities.id'=>$parameters['facility']));
             }
             
-        if (!empty($typeHiv)) {
-                $sQuery->where(array('p.type_vih_test'=>$typeHiv));
+        if (!empty($parameters['typeHiv'])) {
+            $sQuery->where(array('p.type_vih_test'=>$parameters['typeHiv']));
             }
             
-        if (!empty($contact_method)) {
-                $sQuery->where(array('p.prefered_contact_method'=>$contact_method));
+        if (!empty($parameters['contact_method'])) {
+            $sQuery->where(array('p.prefered_contact_method'=>$parameters['contact_method']));
             }
             
-        if (!empty($jobTitle)) {
-                $sQuery->where(array('p.current_jod'=>$jobTitle));
+        if (!empty($parameters['jobTitle'])) {
+            $sQuery->where(array('p.current_jod'=>$parameters['jobTitle']));
         }
 
         if (isset($sWhere) && $sWhere != "") {
@@ -1383,8 +1383,8 @@ class ProviderTable extends AbstractTableGateway {
         ->join(array('c'=>'country'), 'l_d_r.country = c.country_id ', array('country_name'), 'left');
 
 
-        if (!empty($country)) {
-            $tQuery->where(array('c.country_id'=>$country));
+        if (!empty($parameters['country'])) {
+            $tQuery->where(array('c.country_id'=>$parameters['country']));
 
         }else{
             if(isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode!='AD'){
@@ -1392,8 +1392,8 @@ class ProviderTable extends AbstractTableGateway {
             }
         }
         
-        if (!empty($region)) {
-            $tQuery->where(array('l_d_r.location_id'=>$region));
+        if (!empty($parameters['region'])) {
+            $tQuery->where(array('l_d_r.location_id'=>$parameters['region']));
             }else{
                 if(isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode!='AD'){
                     
@@ -1401,9 +1401,9 @@ class ProviderTable extends AbstractTableGateway {
                 }
             }
             
-        if (!empty($district)) {
+        if (!empty($parameters['district'])) {
                 
-            $tQuery->where(array('l_d_d.location_id'=>$district));
+            $tQuery->where(array('l_d_d.location_id'=>$parameters['district']));
             }else{
                 if(isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode!='AD'){
                     $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
@@ -1411,20 +1411,20 @@ class ProviderTable extends AbstractTableGateway {
             }
             
             
-        if (!empty($facility)) {
-            $tQuery->where(array('certification_facilities.id'=>$facility));
+        if (!empty($parameters['facility'])) {
+            $tQuery->where(array('certification_facilities.id'=>$parameters['facility']));
             }
             
-        if (!empty($typeHiv)) {
-            $tQuery->where(array('p.type_vih_test'=>$typeHiv));
+        if (!empty($parameters['typeHiv'])) {
+            $tQuery->where(array('p.type_vih_test'=>$parameters['typeHiv']));
             }
             
-        if (!empty($contact_method)) {
-            $tQuery->where(array('p.prefered_contact_method'=>$contact_method));
+        if (!empty($parameters['contact_method'])) {
+            $tQuery->where(array('p.prefered_contact_method'=>$parameters['contact_method']));
             }
             
-        if (!empty($jobTitle)) {
-            $tQuery->where(array('p.current_jod'=>$jobTitle));
+        if (!empty($parameters['jobTitle'])) {
+            $tQuery->where(array('p.current_jod'=>$parameters['jobTitle']));
         }
 
         $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance

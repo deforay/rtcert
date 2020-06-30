@@ -275,7 +275,7 @@ class TrainingController extends AbstractActionController {
 //    }
     }
 
-    public function getTrainingReportAction()
+    public function getTrainingReportsAction()
     {
         $request = $this->getRequest();
         $type_of_competency = $request->getPost('type_of_competency');
@@ -294,6 +294,16 @@ class TrainingController extends AbstractActionController {
         $viewModel->setVariables(array('result' =>$training));
         $viewModel->setTerminal(true);
         return $viewModel;
+    }
+
+    public function getTrainingReportAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $parameters['addproviders']="addproviders";
+            $result = $this->getTrainingTable()->reportData($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
     }
 
 }
