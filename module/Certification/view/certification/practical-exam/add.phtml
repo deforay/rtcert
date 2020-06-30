@@ -198,17 +198,17 @@ if($nombre!= null){
 <table id="practicalExamsTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
                     <tr>
-                        <th style="width: 10%;">Tester </th>
-                        <th style="width: 10%;">Date</th>
-                        <th style="width: 10%;">No. of Attempts</th>
-                        <th style="width: 05%;">Exam Administrator</th>
-                        <th style="width: 10%;">Location Name </th>
-                        <th style="width: 10%;">Direct Observation Score (≥90%) </th>
-                        <th style="width: 10%;">Sample Testing Score (=100%)</th>
-                        <th style="width: 10%;">Practical Total Score</th>
+                        <th style="width: 200px;">Tester </th>
+                        <th style="width: 70px;">Date</th>
+                        <th>No. of Attempts</th>
+                        <th>Exam Administrator</th>
+                        <th>Location Name </th>
+                        <th>Direct Observation Score (≥90%) </th>
+                        <th>Sample Testing Score (=100%)</th>
+                        <th>Practical Total Score</th>
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'edit')) { ?>
                             <th>Edit</th>
-                            <th>Another Attempt</th>
+                            <th style="width: 140px;">Another Attempt</th>
                         <?php } ?>
                         <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'delete')) { ?>
                             <th>Delete</th>
@@ -219,24 +219,24 @@ if($nombre!= null){
                 <tbody>
                     <?php foreach ($practicals as $exam) : ?>
                         <tr>
-                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto;"><?php echo date("d-M-Y", strtotime($this->escapeHtml($exam->date))); ?></div></td>
-                            <td><div style="width:100px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_type); ?></div></td>
-                            <td><div style="width:200px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->exam_admin); ?></div></td>
-                            <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->location_name); ?></div></td>
-                            <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->direct_observation_score . ' %'); ?></div></td>
-                            <td><div style="width:70px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($exam->Sample_testing_score . ' %'); ?></div></td>
-                            <td><div style="width:70px;height:40px;overflow:auto; font-weight: bold"><?php echo $this->escapeHtml($exam->practical_total_score . ' %'); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div></td>
+                            <td><div><?php echo date("d-M-Y", strtotime($this->escapeHtml($exam->date))); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->exam_type); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->exam_admin); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->location_name); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->direct_observation_score . ' %'); ?></div></td>
+                            <td><div><?php echo $this->escapeHtml($exam->Sample_testing_score . ' %'); ?></div></td>
+                            <td><div style="font-weight: bold"><?php echo $this->escapeHtml($exam->practical_total_score . ' %'); ?></div></td>
                             <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'edit')) { ?>
                                 <td>
-                                    <div style="width:80px;height:40px;overflow:auto;"><a href="<?php echo $this->url('practical-exam', array('action' => 'edit', 'practice_exam_id' => base64_encode($exam->practice_exam_id))); ?>"><span class="glyphicon glyphicon-pencil"></span> Edit</a> </div>
+                                    <div><a href="<?php echo $this->url('practical-exam', array('action' => 'edit', 'practice_exam_id' => base64_encode($exam->practice_exam_id))); ?>"><span class="glyphicon glyphicon-pencil"></span> Edit</a> </div>
                                 </td>
 
                                 <?php
                                 if ($exam->direct_observation_score < 90 || $exam->Sample_testing_score < 100 || strcasecmp($exam->exam_type, '3rd attempt') == 0) {
-                                    echo "<td><div style='width:120px;height:40px;overflow:auto;'><p><span class='glyphicon glyphicon-repeat'></span> Add written exam </div></td>";
+                                    echo "<td><div><p><span class='glyphicon glyphicon-repeat'></span> Add written exam </div></td>";
                                 } else {
-                                    echo "<td><div style='width:140px;height:40px;overflow:auto;'><p><a href=" . $this->url('written-exam', array('action' => 'add'), array('query' => array(base64_encode('practice_exam_id') => base64_encode($exam->practice_exam_id)))) . "><span class='glyphicon glyphicon-repeat'></span> Add written exam</a> </div></td>";
+                                    echo "<td><div><p><a href=" . $this->url('written-exam', array('action' => 'add'), array('query' => array(base64_encode('practice_exam_id') => base64_encode($exam->practice_exam_id)))) . "><span class='glyphicon glyphicon-repeat'></span> Add written exam</a> </div></td>";
                                 }
                                 ?>
                             <?php } ?>
