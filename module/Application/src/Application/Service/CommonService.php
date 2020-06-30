@@ -854,6 +854,9 @@ class CommonService {
                 }
             }
             
+            $feedbackmailDb = $this->sm->get('FeedbackMailTable');
+            $feedbackmailDb->insertFeedbackMailDetails( $params['name'],  $params['email'],  $params['subject'],  $params['message']);
+
             $alertMail->setBody($body);
             
             if($transport->send($alertMail)){

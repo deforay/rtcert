@@ -37,6 +37,7 @@ use Application\Model\TestsTable;
 use Application\Model\PrintTestPdfTable;
 use Application\Model\PrintTestPdfDetailsTable;
 use Application\Model\MailTemplateTable;
+use Application\Model\FeedbackMailTable;
 
 use Application\Service\DashboardService;
 use Application\Service\UserService;
@@ -285,6 +286,11 @@ class Module
                 'MailTemplateTable' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new MailTemplateTable($dbAdapter);
+                    return $table;
+                },
+                'FeedbackMailTable' => function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new FeedbackMailTable($dbAdapter);
                     return $table;
                 },
 
