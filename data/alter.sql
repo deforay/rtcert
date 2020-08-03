@@ -928,3 +928,5 @@ CREATE TABLE `feedback_mail` (
  `added_on` datetime NOT NULL,
  PRIMARY KEY (`feedback_id`)
 );
+-- Thana 3-Aug-2020
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Show Tester Photo In Certificate', 'show-tester-photo-in-certificate', 'no');

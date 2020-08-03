@@ -6,6 +6,7 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Sql\Sql;
 use Application\Service\CommonService;
+use Zend\Debug\Debug;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -167,6 +168,7 @@ class GlobalTable extends AbstractTableGateway {
     }
     
     public function updateConfigDetails($params) {
+        // Debug::dump($params);die;
         $result = 0;
         $common=new CommonService();
         if(isset($_POST['removedLogoImage']) && trim($_POST['removedLogoImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage'])){

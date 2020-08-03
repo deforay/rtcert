@@ -17,7 +17,7 @@ $pdf->SetKeywords('RTCQI, HIV, Certificate, HIV Testing, RT CERTIFICATE');
 
 
 // set margins
-$pdf->SetMargins(5, 5, 5);
+$pdf->SetMargins(10, 20, 10, true);
 $pdf->SetHeaderMargin(0);
 $pdf->SetFooterMargin(0);
 
@@ -37,14 +37,13 @@ if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
 
 // ---------------------------------------------------------
 // set font
-$pdf->SetFont('times', '', 20);
+$pdf->SetFont('Helvetica', '', 20);
 $pdf->setFontSubsetting(false);
 // remove default header
 $pdf->setPrintHeader(false);
-$pdf->SetMargins(10, 20, 10, true);
+
 // add a page
 $pdf->AddPage('L', 'A4');
-
 
 // -- set new background ---
 $pdf->SetAutoPageBreak(false, 0);
@@ -54,42 +53,74 @@ $pdf->Image($img_file, 0, 0, 295, 209, '', '', '', false, 300, '', false, false,
 // set the starting point for the page content
 $pdf->setPageMark();
 
-$signatureText = ((isset($config_info['translate-register-title'])) && trim($config_info['translate-register-title'])!="")?$config_info['translate-register-title']:'Signature of Registrar';
+$signatureText = ((isset($config_info['translate-register-title'])) && trim($config_info['translate-register-title'])!="")?$config_info['translate-register-title']:'Registrar';
 
 $header_text = '<div style="text-align:center;font-size:'.$this->header_text_font_size.'px"><span>' . $this->header_text . '</span></div>';
 
-$certificate_title = '<div style="width=10px; height=10px; text-align:center;"><span style="font-size:200%; line-height: 0.0">Certificate of Competency</span><br>
- <span style="line-height: 0.0">is issued to</span></div>';
-
-$tester='<div style="color:#4B77BE; font-size:170%; text-align:center;">&nbsp;&nbsp;'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'&nbsp;&nbsp;</div>';
- 
-$text_content='<div style="font-size:85%;text-align:center;">For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council<br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
- <br><span style="font-size:65%; font-style: normal;"> Note : This certificate is <span style="Font-Weight: Bold">only </span>issued for HIV Rapid Testing and does not allow to perform any other test.</span>   
-
- <br><br>
-Professional Registration Number : <span style=" color:#4B77BE;">'.$professional_reg_no.'</span>
-<br>
-Certification Number : <span style=" color:#4B77BE; ">'.$certification_id.'</span>
-<br>
-<span style="font-size:90%; font-style: normal;">Validity : <span> '.date("d-M-Y", strtotime($date_end_validity ." -{$config_info['month-valid']} month")).' to '.date("d-M-Y", strtotime($date_end_validity)) .'</span>
-<br><br><br><br><br>
-<table style="width:900px;">
-<tr>
-<td style="text-align:left;">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>'.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].'
-<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registrar Name and Title
-</td>
-<td style="text-align:right;">'.ucwords($signatureText).'</td>
-</tr>
-</table>
-
+$certificate_title = 
+'<div style="width=10px; font-size:62%; height=10px; text-align:center;">
+        THE UNITED REPUBLIC OF TANZANIA
+        <br>
+        MINISTRY OF HEAL COMMUNITY DEVELOPMENT, GENDER, ELDERLY AND CHILDREN
+        <br>
+        HEALTH LABORATORY PRACTITIONERS COUNCIL
+        <br>
+    The Health Laboratory Practitioners Act, 2007
+    <br>
+    (CAP 48 2007)
 </div>';
 
+// $tester='<div style="color:#4B77BE; font-size:70%; text-align:center;">&nbsp;&nbsp;'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'&nbsp;&nbsp;</div>';
+$text_content='
+<div style="font-size:75%;text-align:left;">
+    <i>
+        <b>
+        <br>
+            Hereby Certifies That
+            <br>
+            <u style="font-face:Kaushan Script;">'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'</u>
+            <br>
+            Having Successfully Fulfilled the Requirements of the Health Laboratory Practitioners" 
+            <br> 
+            Council 
+            <br> 
+            Is Certified to be Competent in the Area of 
+            <br>
+        </b>
+    </i>
+    <br>
+    <u style=" color:orange;font-size:35px;text-align:center;">HIV Rapid Testing</u>
+    <br>
+    <i>
+        <b>
+            <span style="text-align:left;">
+                <br>
+                    Valid :
+                    <u><span style=" color:#4B77BE;"> '.date("d-M-Y", strtotime($date_end_validity ." -{$config_info['month-valid']} month")).'</span> </u>
+                        through 
+                    <u><span style=" color:#4B77BE;">'.date("d-M-Y", strtotime($date_end_validity)) .'</span></u>
+                    <br>
+                        Professional Registration Number : <u><span style=" color:#4B77BE;">'.$professional_reg_no.'</span></u>
+                    <br>
+                    License No : 
+                    <u>
+                        <span style=" color:#4B77BE; ">'.$certification_id.'</span>
+                    </u>
+            </span>
+        </b>
+    </i>
+    <br><br>
+    ...............
+    <br>
+    '.ucwords($signatureText).'
+    </div>';
+    
+// '.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].' 
 // set different text position
-$pdf->writeHTMLCell(0, 0, 10, 30, $header_text, 0, 0, 0, true, 'J', true);
-$pdf->writeHTMLCell(0, 0, 05, 45, $certificate_title, 0, 0, 0, true, 'J', true);
-$pdf->writeHTMLCell(0, 0, 05, 68, $tester, 0, 0, 0, true, 'J', true);
-$pdf->writeHTMLCell(0, 0, 10, 88, $text_content, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 10, 28, $header_text, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 15, 35, $certificate_title, 0, 0, 0, true, 'J', true);
+// $pdf->writeHTMLCell(0, 0, 05, 68, $tester, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 40, 75, $text_content, 0, 0, 0, true, 'J', true);
 
 $img_file = $img_file2 = $signature = "";
 if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert1.png')){
@@ -105,9 +136,9 @@ if(file_exists(dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_
     $signature = dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'];
 }
 //echo $signature;die;
-$pdf->Image($img_file, 20, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
+$pdf->Image($img_file, 30, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
 
-$pdf->Image($img_file2, 225, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
+$pdf->Image($img_file2, 245, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
 
 $pdf->Image($signature, 215, 132, 50, 37, '', '', '', false, 300, '', false, false, 0);
 

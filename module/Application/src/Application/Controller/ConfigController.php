@@ -4,6 +4,7 @@ namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Zend\Session\Container;
 use Zend\Json\Json;
 
 class ConfigController extends AbstractActionController
@@ -19,9 +20,11 @@ class ConfigController extends AbstractActionController
         }
         $commonService = $this->getServiceLocator()->get('CommonService');
         $result = $commonService->getHeaderText();
+        // $result['show_tester_photo_in_certificate'] = $commonService->getGlobalValue('show_tester_photo_in_certificate');
         return new ViewModel(array(
-            'header_text'               => $result['textHeader'],
-            'header_text_font_size'     => $result['HeaderTextFont']
+            'header_text'                       => $result['textHeader'],
+            'header_text_font_size'             => $result['HeaderTextFont'],
+            // 'show_tester_photo_in_certificate'  => $result['show_tester_photo_in_certificate']
         ));
     }
     
@@ -37,6 +40,104 @@ class ConfigController extends AbstractActionController
             return new ViewModel(array(
                 'config' => $configResult,
             ));
+        }
+    }
+
+    function pdfSettingAction() {
+        $sm = $this->getServiceLocator();
+        $certifyTable = $sm->get('Certification\Model\CertificationTable');
+        
+        $request = $this->getRequest();
+
+        //$nb = $this->getCertificationTable()->countCertificate();
+        //$nb2 = $this->getCertificationTable()->countReminder();
+        //$this->layout()->setVariable('nb', $nb);
+        //$this->layout()->setVariable('nb2', $nb2);
+
+        if ($request->isPost()) {
+            //\Zend\Debug\Debug::dump($_FILES);die;
+            $image_left = $request->getPost('logo_left', null);
+            //Stores the filename as it was on the client computer.
+            $imagename_left = $_FILES['logo_left']['name'];
+            //Stores the filetype e.g image/jpeg
+            $imagetype_left = $_FILES['logo_left']['type'];
+            //Stores any error codes from the upload.
+            $imageerror_left = $_FILES['logo_left']['error'];
+            //Stores the tempname as it is given by the host when uploaded.
+            $imagetemp_left = $_FILES['logo_left']['tmp_name'];
+
+            $image_right = $request->getPost('logo_right', null);
+            $imagename_right = $_FILES['logo_right']['name'];
+            $imagetype_right = $_FILES['logo_right']['type'];
+            $imageerror_right = $_FILES['logo_right']['error'];
+            $imagetemp_right = $_FILES['logo_right']['tmp_name'];
+
+            $msg_logo_left = '';
+            $msg_logo_right = '';
+            $msg_header_text = '';
+
+            //The path you wish to upload the image to
+            //$imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
+            
+            if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
+            }
+
+            $imagePath = UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo";
+            // echo $imagePath;die;
+            if (is_uploaded_file($imagetemp_left)) {
+                $array_type = explode('/', $imagetype_left);
+                list($width, $height, $type, $attr) = getimagesize($imagetemp_left);
+
+                if (strcasecmp($array_type[1], 'png') != 0) {
+                    $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
+                } elseif ($width > 425 || $height > 352) {
+                    $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
+                } elseif (move_uploaded_file($imagetemp_left, $imagePath .DIRECTORY_SEPARATOR. 'logo_cert1.png')) {
+                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';                    
+                } else {
+                    $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
+                }
+            }
+
+            if (is_uploaded_file($imagetemp_right)) {
+                $array_type = explode('/', $imagetype_right);
+                list($width, $height, $type, $attr) = getimagesize($imagetemp_right);
+
+                if (strcasecmp($array_type[1], 'png') != 0) {
+                    $msg_logo_right = 'You must load an image in PNG format for LOGO RIGHT.';
+                } elseif ($width > 425 || $height > 352) {
+                    $msg_logo_right = 'the size of your image LOGO RIGHT should not exceed: 425x352.';
+                } elseif (move_uploaded_file($imagetemp_right, $imagePath.DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
+                    $msg_logo_right = 'image LOGO RIGHT loaded successfully';
+//                    
+                } else {
+                    $msg_logo_right = "Failure to save the image : LOGO RIGHT. Try Again";
+                }
+            }
+
+            $header_text = $request->getPost('header_text', null);
+            $header_text_size = $request->getPost('header_text_font_size', null);
+            //echo $header_text_size;die;
+
+            if (trim($header_text) != '' || trim($header_text_size)!= '') {
+                $header_text = addslashes(trim($header_text));
+                $stringWithoutBR = str_replace("\r\n", "<br />", $header_text);
+                $certifyTable->insertTextHeader($stringWithoutBR,$header_text_size);
+                $msg_header_text = "PDF Settings Saved Successfully.";
+            }
+            $container = new Container('alert');
+            $container->alertMsg = "PDF Settings Saved Successfully.";
+            return $this->redirect()->toRoute('config');
+            
+            $headerText = $this->headerTextAction();
+            $header_text_font_size = $certifyTable->SelectHeaderTextFontSize();
+            return array('msg_logo_left' => $msg_logo_left,
+                'msg_logo_right' => $msg_logo_right,
+                'msg_header_text' => $msg_header_text,
+                'header_text' => $headerText['header_text'],
+                'header_text_font_size' => $header_text_font_size
+            );
         }
     }
 
