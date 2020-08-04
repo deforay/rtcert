@@ -145,6 +145,8 @@ class CertificationController extends AbstractActionController {
     }
 
     public function pdfAction() {
+        $common = $this->getServiceLocator()->get('CommonService');
+        $showProfile =  $common->getGlobalValue('show-tester-photo-in-certificate');
         $header_text = $this->getCertificationTable()->SelectTexteHeader();
         $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
         $globalConfigDetails = $this->getCertificationTable()->fetchCertificationConfig();
@@ -156,17 +158,22 @@ class CertificationController extends AbstractActionController {
         $professional_reg_no = base64_decode($this->params()->fromQuery(base64_encode('professional_reg_no')));
         $date_issued = base64_decode($this->params()->fromQuery(base64_encode('date_issued')));
         $date_end_validity = $this->getCertificationTable()->getCertificationValiditydate($id);
+
+        $provider = $this->getCertificationTable()->getProviderDetailsByCertifyId($id);
+        // Debug::dump($provider['profile_picture']);die;
         return array(
-            'last' => $last,
-            'first' => $first,
-            'middle' => $middle,
-            'professional_reg_no' => $professional_reg_no,
-            'certification_id' => $certification_id,
-            'date_issued' => $date_issued,
-            'date_end_validity'=>$date_end_validity,
-            'header_text' => $header_text,
+            'last'                  => $last,
+            'first'                 => $first,
+            'middle'                => $middle,
+            'professional_reg_no'   => $professional_reg_no,
+            'certification_id'      => $certification_id,
+            'date_issued'           => $date_issued,
+            'date_end_validity'     => $date_end_validity,
+            'header_text'           => $header_text,
             'header_text_font_size' => $header_text_font_size,
-            'config_info' =>$globalConfigDetails
+            'config_info'           => $globalConfigDetails,
+            'provider'              => $provider,
+            'showProfile'           => $showProfile
         );
     }
 

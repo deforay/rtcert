@@ -2164,5 +2164,19 @@ class CertificationTable
         }
         return $output;
     }
-    
+
+    public function getProviderDetailsByCertifyId($id)
+    {
+        $common = new CommonService($this->sm);
+        $dbAdapter = $this->tableGateway->getAdapter();
+        $sql = new Sql($dbAdapter);
+        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('certifyId'=>'id','date_certificate_issued','date_end_validity'))
+        ->join(array('e' => 'examination'),'c.examination=e.id',array('add_to_certification'))
+        ->join(array('p' => 'provider'),'e.provider=p.id',array('providerId'=>'id','first_name','middle_name','last_name','email','test_link_send', 'link_send_count','certification_id','profile_picture'))
+        ->where(array('c.id' =>$id))
+        ->group('p.id');
+        $queryStr = $sql->getSqlStringForSqlObject($query);
+        // die($queryStr);
+        return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+    }
 }

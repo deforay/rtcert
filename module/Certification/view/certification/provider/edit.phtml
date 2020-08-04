@@ -222,6 +222,7 @@ $pathname = $configResult['domain'].'/uploads' . DIRECTORY_SEPARATOR . "tester-p
                                             <?= $this->formLabel($form->get('profile_picture')); ?>
                                             <?= $this->formFile($form->get('profile_picture')); ?>
                                             <?= $this->formElementErrors($form->get('profile_picture')); ?>
+                                            <div class="box-body"> <code>!</code>Please make sure profile image size of:  <code>600x600.</code> </div>
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-4"> 

@@ -1,5 +1,8 @@
 <?php
 
+use Zend\Debug\Debug;
+// Debug::dump($provider);die;
+
 // Extend the TCPDF class to create custom Header and Footer
 class MYPDF extends TCPDF {
     
@@ -55,31 +58,20 @@ $pdf->setPageMark();
 
 $signatureText = ((isset($config_info['translate-register-title'])) && trim($config_info['translate-register-title'])!="")?$config_info['translate-register-title']:'Registrar';
 
-$header_text = '<div style="text-align:center;font-size:'.$this->header_text_font_size.'px"><span>' . $this->header_text . '</span></div>';
+$header_text = '<div style="color:#555555;text-align:center;font-size:'.$this->header_text_font_size.'px"><span>' . $this->header_text . '</span></div>';
 
-$certificate_title = 
-'<div style="width=10px; font-size:62%; height=10px; text-align:center;">
-        THE UNITED REPUBLIC OF TANZANIA
-        <br>
-        MINISTRY OF HEAL COMMUNITY DEVELOPMENT, GENDER, ELDERLY AND CHILDREN
-        <br>
-        HEALTH LABORATORY PRACTITIONERS COUNCIL
-        <br>
-    The Health Laboratory Practitioners Act, 2007
-    <br>
-    (CAP 48 2007)
-</div>';
+$certificate_title = '';
 
 // $tester='<div style="color:#4B77BE; font-size:70%; text-align:center;">&nbsp;&nbsp;'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'&nbsp;&nbsp;</div>';
 $text_content='
 <div style="font-size:75%;text-align:left;">
+    <b>
+    <br>
+    Hereby Certifies That</b>
     <i>
-        <b>
-        <br>
-            Hereby Certifies That
             <br>
-            <u style="font-face:Kaushan Script;">'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'</u>
-            <br>
+            <u>'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'</u>
+            <br><b>
             Having Successfully Fulfilled the Requirements of the Health Laboratory Practitioners" 
             <br> 
             Council 
@@ -89,7 +81,10 @@ $text_content='
         </b>
     </i>
     <br>
-    <u style=" color:orange;font-size:35px;text-align:center;">HIV Rapid Testing</u>
+    <span style="text-align:center;" align="center">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <u style=" color:#EC7C30;font-size:25px;text-align:center;font-weight:800;"><b>HIV Rapid Testing</b></u>
+    </span>
     <br>
     <i>
         <b>
@@ -109,39 +104,55 @@ $text_content='
             </span>
         </b>
     </i>
-    <br><br>
-    ...............
+    <br><br><br>
+    .......................
     <br>
-    '.ucwords($signatureText).'
+    <span style=" font-size:15px; ">'.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].'</span>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code><span style=" font-size:17px; ">'.ucwords($signatureText).'</span></code></li>
     </div>';
     
-// '.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].' 
 // set different text position
 $pdf->writeHTMLCell(0, 0, 10, 28, $header_text, 0, 0, 0, true, 'J', true);
 $pdf->writeHTMLCell(0, 0, 15, 35, $certificate_title, 0, 0, 0, true, 'J', true);
 // $pdf->writeHTMLCell(0, 0, 05, 68, $tester, 0, 0, 0, true, 'J', true);
-$pdf->writeHTMLCell(0, 0, 40, 75, $text_content, 0, 0, 0, true, 'J', true);
+$pdf->writeHTMLCell(0, 0, 40, 60, $text_content, 0, 0, 0, true, 'J', true);
 
 $img_file = $img_file2 = $signature = "";
-if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert1.png')){
+
+if(file_exists(dirname(__CLASS__) . 'public/uploads/logo/logo_cert1.png')){
+    $img_file = dirname(__CLASS__) . 'public/uploads/logo/logo_cert1.png';
+
+} else if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert1.png')){
     $img_file = dirname(__CLASS__) . 'public/assets/img/logo_cert1.png';
 }
 
+if(file_exists(dirname(__CLASS__) . 'public/uploads/logo/logo_cert2.png')){
+    $img_file2 = dirname(__CLASS__) . 'public/uploads/logo/logo_cert2.png';
 
-if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert2.png')){
+}else if(file_exists(dirname(__CLASS__) . 'public/assets/img/logo_cert2.png')){
     $img_file2 = dirname(__CLASS__) . 'public/assets/img/logo_cert2.png';
 }
 
 if(file_exists(dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'])){
     $signature = dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'];
 }
-//echo $signature;die;
+
+$pathname = dirname(__CLASS__) . 'public/uploads' . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $provider['providerId'] . DIRECTORY_SEPARATOR . 'pic';
+
+if(isset($showProfile) && $showProfile == 'yes'){
+    $pic = $pathname.DIRECTORY_SEPARATOR.$provider['profile_picture'];
+    
+    if(file_exists($pic)){
+        $pdf->Image($pic, 237, 140, 40, 40, '', '', '', false, 300, '', false, false, 14);
+    }   
+}
+
 $pdf->Image($img_file, 30, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
 
 $pdf->Image($img_file2, 245, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
 
-$pdf->Image($signature, 215, 132, 50, 37, '', '', '', false, 300, '', false, false, 0);
-
+$pdf->Image($signature, 45, 147, 33, 18, '', '', '', false, 300, '', false, false, 0);
+$pdf->SetAlpha(1);
 ///---------------------------------------------------------
 //Close and output PDF document
 $pdf->Output(ucfirst($last) . '' . ucfirst($first) . '' . ucfirst($middle) . '_HIVRT_Certification_' . date('Y') . '.pdf', 'I');
