@@ -180,20 +180,6 @@ class CommonService
         }
     }
 
-    public function humanDateFormat($date)
-    {
-        if ($date == null || $date == "" || $date == "0000-00-00" || $date == "0000-00-00 00:00:00") {
-            return "";
-        } else {
-            $dateArray = explode('-', $date);
-            $newDate = $dateArray[2] . "-";
-
-            $monthsArray = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-            $mon = $monthsArray[$dateArray[1] - 1];
-
-            return $newDate .= $mon . "-" . $dateArray[0];
-        }
-    }
 
     public function viewDateFormat($date)
     {

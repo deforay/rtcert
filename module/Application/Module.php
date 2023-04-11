@@ -478,7 +478,7 @@ class Module
                         return new \Application\View\Helper\GlobalConfig($globalTable);
                     }
                 },
-                'humanDateFormat'         => new class
+                'humanReadableDateFormat'         => new class
                 {
                     public function __invoke($diContainer)
                     {

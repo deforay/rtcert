@@ -201,7 +201,7 @@ class PracticalExamTable extends AbstractTableGateway
 				$date_after = date("Y-m-d", strtotime($date_end_validity . '- ' . $monthPriortoCertification . ' month'));
 				$monthFlexLimit = $globalDb->getGlobalValue('month-flex-limit');
 				$date_before = date("Y-m-d", strtotime($date_end_validity . '+ ' . $monthFlexLimit . ' month'));
-				return '##' . $certification_id . '##' . $common->humanDateFormat($date_certificate_issued) . '##' . $common->humanDateFormat($date_after) . '##' . $common->humanDateFormat($date_before);
+				return '##' . $certification_id . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_certificate_issued) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_after) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_before);
 			}
 		}
 		$sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, 
@@ -401,7 +401,7 @@ class PracticalExamTable extends AbstractTableGateway
 		$week_array = $common->getCurrentWeekStartAndEndDate();
 		$start_date = $week_array['weekStart'];
 		$end_date = $week_array['weekEnd'];
-		$dateSet = $common->humanDateFormat($start_date) . ' to ' . $common->humanDateFormat($end_date);
+		$dateSet = \Application\Service\CommonService::humanReadableDateFormat($start_date) . ' to ' . \Application\Service\CommonService::humanReadableDateFormat($end_date);
 
 		$pquery = $sql->select()->from('practical_exam')
 			->columns(array(

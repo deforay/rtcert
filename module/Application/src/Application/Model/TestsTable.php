@@ -173,11 +173,11 @@ class TestsTable extends AbstractTableGateway {
             $preStartDate = '';$preEndDate = '';$postStartDate = '';$postEndDate = '';
             if($aRow['pretest_start_datetime']!=NULL && $aRow['pretest_start_datetime']!='0000-00-00 00:00:00' && $aRow['pretest_start_datetime']!=''){
                 $preStartAry = explode(" ",$aRow['pretest_start_datetime']);
-                $preStartDate = $common->humanDateFormat($preStartAry[0])." ".$preStartAry[1];
+                $preStartDate = \Application\Service\CommonService::humanReadableDateFormat($preStartAry[0])." ".$preStartAry[1];
             }
             if($aRow['pretest_end_datetime']!=NULL && $aRow['pretest_end_datetime']!='0000-00-00 00:00:00' && $aRow['pretest_end_datetime']!=''){
                 $preEndAry = explode(" ",$aRow['pretest_end_datetime']);
-                $preEndDate = $common->humanDateFormat($preEndAry[0])." ".$preEndAry[1];
+                $preEndDate = \Application\Service\CommonService::humanReadableDateFormat($preEndAry[0])." ".$preEndAry[1];
             }
             $score = ($aRow['pre_test_score'] / $maxQuestion);
             $row = array();
