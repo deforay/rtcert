@@ -2,15 +2,17 @@
 
 namespace Certification\Form;
 
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Form\Form;
 
-class CertificationForm extends Form {
+class CertificationForm extends Form
+{
 
     protected $adapter;
 
-    public function __construct(AdapterInterface $dbAdapter) {
+    public function __construct(AdapterInterface $dbAdapter)
+    {
         $this->adapter = $dbAdapter;
         // we want to ignore the name passed
         parent::__construct('certification');
@@ -74,7 +76,7 @@ class CertificationForm extends Form {
                 'label' => 'Type of Certificate',
             ),
         ));
-                
+
         $this->add(array(
             'name' => 'submit',
             'type' => 'Submit',
@@ -84,5 +86,4 @@ class CertificationForm extends Form {
             ),
         ));
     }
-
-   }
+}

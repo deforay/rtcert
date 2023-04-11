@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\Adapter\Adapter;
 
 class RecertificationForm extends Form {
 
@@ -31,7 +31,7 @@ class RecertificationForm extends Form {
         ));
         $this->add(array(
         'name' => 'provider_id',
-        'type' => 'Zend\Form\Element\Select',
+        'type' => 'Laminas\Form\Element\Select',
         'options' => array(
         'label' => 'Tester',
         'empty_option' => 'Please choose a tester',
@@ -39,7 +39,7 @@ class RecertificationForm extends Form {
         ),));
         $this->add(array(
             'name' => 'reminder_type',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Type of Reminder',
                 'empty_option' => 'Please choose a Type',
@@ -51,7 +51,7 @@ class RecertificationForm extends Form {
         ));
         $this->add(array(
             'name' => 'reminder_sent_to',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Reminder Sent To',
                 'empty_option' => 'Please choose Reminder sent to',

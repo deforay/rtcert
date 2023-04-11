@@ -2,51 +2,60 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Session\Container;
-use Zend\Json\Json;
+
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Session\Container;
+use Laminas\Json\Json;
 
 class ConfigController extends AbstractActionController
 {
+    public \Application\Service\CommonService $commonService;
+    public \Certification\Model\CertificationTable $certificationTable;
+
+    public function __construct($commonService, $certificationTable)
+    {
+        $this->commonService = $commonService;
+        $this->certificationTable = $certificationTable;
+    }
+
     public function indexAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $commonService = $this->getServiceLocator()->get('CommonService');
-            $result = $commonService->getAllConfig($params);
+            $result = $this->commonService->getAllConfig($params);
             return $this->getResponse()->setContent(Json::encode($result));
         }
-        $commonService = $this->getServiceLocator()->get('CommonService');
-        $result = $commonService->getHeaderText();
-        // $result['show_tester_photo_in_certificate'] = $commonService->getGlobalValue('show_tester_photo_in_certificate');
+        $result = $this->commonService->getHeaderText();
+        // $result['show_tester_photo_in_certificate'] = $this->commonService->getGlobalValue('show_tester_photo_in_certificate');
         return new ViewModel(array(
             'header_text'                       => $result['textHeader'],
             'header_text_font_size'             => $result['HeaderTextFont'],
             // 'show_tester_photo_in_certificate'  => $result['show_tester_photo_in_certificate']
         ));
     }
-    
-    public function editGlobalAction(){
-        $commonService = $this->getServiceLocator()->get('CommonService');
-       $request = $this->getRequest();
+
+    public function editGlobalAction()
+    {
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $commonService->updateConfig($params);
+            $this->commonService->updateConfig($params);
             return $this->redirect()->toRoute('config');
-        }else{
-            $configResult=$commonService->getGlobalConfigDetails();
+        } else {
+            $configResult = $this->commonService->getGlobalConfigDetails();
             return new ViewModel(array(
                 'config' => $configResult,
             ));
         }
     }
 
-    function pdfSettingAction() {
-        $sm = $this->getServiceLocator();
-        $certifyTable = $sm->get('Certification\Model\CertificationTable');
-        
+    function pdfSettingAction()
+    {
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
 
         //$nb = $this->getCertificationTable()->countCertificate();
@@ -78,8 +87,8 @@ class ConfigController extends AbstractActionController
 
             //The path you wish to upload the image to
             //$imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
-            
-            if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
+
+            if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
                 mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
             }
 
@@ -93,8 +102,8 @@ class ConfigController extends AbstractActionController
                     $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_left, $imagePath .DIRECTORY_SEPARATOR. 'logo_cert1.png')) {
-                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';                    
+                } elseif (move_uploaded_file($imagetemp_left, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert1.png')) {
+                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';
                 } else {
                     $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
                 }
@@ -108,9 +117,9 @@ class ConfigController extends AbstractActionController
                     $msg_logo_right = 'You must load an image in PNG format for LOGO RIGHT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_right = 'the size of your image LOGO RIGHT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_right, $imagePath.DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
+                } elseif (move_uploaded_file($imagetemp_right, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
                     $msg_logo_right = 'image LOGO RIGHT loaded successfully';
-//                    
+                    //                    
                 } else {
                     $msg_logo_right = "Failure to save the image : LOGO RIGHT. Try Again";
                 }
@@ -120,19 +129,20 @@ class ConfigController extends AbstractActionController
             $header_text_size = $request->getPost('header_text_font_size', null);
             //echo $header_text_size;die;
 
-            if (trim($header_text) != '' || trim($header_text_size)!= '') {
+            if (trim($header_text) != '' || trim($header_text_size) != '') {
                 $header_text = addslashes(trim($header_text));
                 $stringWithoutBR = str_replace("\r\n", "<br />", $header_text);
-                $certifyTable->insertTextHeader($stringWithoutBR,$header_text_size);
+                $this->certificationTable->insertTextHeader($stringWithoutBR, $header_text_size);
                 $msg_header_text = "PDF Settings Saved Successfully.";
             }
             $container = new Container('alert');
             $container->alertMsg = "PDF Settings Saved Successfully.";
             return $this->redirect()->toRoute('config');
-            
+
             $headerText = $this->headerTextAction();
-            $header_text_font_size = $certifyTable->SelectHeaderTextFontSize();
-            return array('msg_logo_left' => $msg_logo_left,
+            $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
+            return array(
+                'msg_logo_left' => $msg_logo_left,
                 'msg_logo_right' => $msg_logo_right,
                 'msg_header_text' => $msg_header_text,
                 'header_text' => $headerText['header_text'],
@@ -140,5 +150,4 @@ class ConfigController extends AbstractActionController
             );
         }
     }
-
 }

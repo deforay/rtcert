@@ -1,6 +1,6 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -61,10 +61,10 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 <span class="text-success"></span> -->
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'import-excel')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'import-excel')) { ?>
                     <a href="<?php echo $this->url('provider', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Tester</a>
                 <?php }
-                if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'add')) { ?>
+                if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'add')) { ?>
                     <a href="<?php echo $this->url('provider', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Tester</a>
                 <?php } ?>
             </div>
@@ -110,14 +110,14 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                         <th>Facility In charge Phone</th>
                         <th>Facility In charge Email</th>
 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'edit')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'edit')) { ?>
                             <th style="width:5%;">Edit</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'delete')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'delete')) { ?>
                             <th>Delete</th><?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                             <th>PDF</th><?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Provider', 'send-test-link')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'send-test-link')) { ?>
                             <th>Send Test Link</th><?php } ?>
                     </tr>
 

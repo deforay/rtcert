@@ -2,74 +2,123 @@
 
 namespace Application\Service;
 
-use Zend\Session\Container;
+use DateTimeImmutable;
+use Laminas\Session\Container;
 use Exception;
-use Zend\Db\Sql\Sql;
-use Zend\Mail\Transport\Smtp as SmtpTransport;
-use Zend\Mail\Transport\SmtpOptions;
-use Zend\Mail;
-use Zend\Mime\Message as MimeMessage;
-use Zend\Mime\Part as MimePart;
-use Zend\Mime\Mime;
-use Zend\Mail\Transport\Sendmail;
-use Zend\Db\Sql\Expression;
+use Laminas\Db\Sql\Sql;
+use Laminas\Mail\Transport\Smtp as SmtpTransport;
+use Laminas\Mail\Transport\SmtpOptions;
+use Laminas\Mail;
+use Laminas\Mime\Message as MimeMessage;
+use Laminas\Mime\Part as MimePart;
+use Laminas\Mime\Mime;
+use Laminas\Mail\Transport\Sendmail;
+use Laminas\Db\Sql\Expression;
 
-class CommonService {
+class CommonService
+{
 
     public $sm = null;
 
-    public function __construct($sm = null) {
+    public function __construct($sm = null)
+    {
         $this->sm = $sm;
     }
 
-    public function getServiceManager() {
+    public function getServiceManager()
+    {
         return $this->sm;
     }
 
-    public function getCurrentWeekStartAndEndDate() {
+    public function getCurrentWeekStartAndEndDate()
+    {
         $cDate = date('Y-m-d');
-		$date = new \DateTime($cDate);
+        $date = new \DateTime($cDate);
         $week = $date->format("W");
         $year = date('Y');
-		$dto = new \DateTime();
-		$dto->setISODate($year, $week);
-		$ret['weekStart'] = $dto->format('Y-m-d');
-		$dto->modify('+6 days');
-		$ret['weekEnd'] = $dto->format('Y-m-d');
-		return $ret;
-	}
-
-    public static function generateRandomString($length = 8, $seeds = 'alphanum') {
-        // Possible seeds
-        $seedings['alpha'] = 'abcdefghijklmnopqrstuvwqyz';
-        $seedings['numeric'] = '0123456789';
-        $seedings['alphanum'] = 'abcdefghijklmnopqrstuvwqyz0123456789';
-        $seedings['hexidec'] = '0123456789abcdef';
-
-        // Choose seed
-        if (isset($seedings[$seeds])) {
-            $seeds = $seedings[$seeds];
-        }
-
-        // Seed generator
-        list($usec, $sec) = explode(' ', microtime());
-        $seed = (float) $sec + ((float) $usec * 100000);
-        mt_srand($seed);
-
-        // Generate
-        $str = '';
-        $seeds_count = strlen($seeds);
-
-        for ($i = 0; $length > $i; $i++) {
-            $str .= $seeds{mt_rand(0, $seeds_count - 1)};
-        }
-
-        return $str;
+        $dto = new \DateTime();
+        $dto->setISODate($year, $week);
+        $ret['weekStart'] = $dto->format('Y-m-d');
+        $dto->modify('+6 days');
+        $ret['weekEnd'] = $dto->format('Y-m-d');
+        return $ret;
     }
 
-    public function checkFieldValidations($params) {
+    public static function generateRandomString($length = 8)
+    {
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $number = random_int(0, 36);
+            $character = base_convert($number, 10, 36);
+            $randomString .= $character;
+        }
+        return $randomString;
+    }
 
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public static function verifyIfDateValid($date): bool
+    {
+        $date = trim($date);
+        $response = false;
+
+        if (empty($date) || 'undefined' === $date || 'null' === $date) {
+            $response = false;
+        } else {
+            try {
+                $dateTime = new DateTimeImmutable($date);
+                $errors = DateTimeImmutable::getLastErrors();
+                if (empty($dateTime) || $dateTime === false || !empty($errors['warning_count']) || !empty($errors['error_count'])) {
+                    //error_log("Invalid date :: $date");
+                    $response = false;
+                } else {
+                    $response = true;
+                }
+            } catch (Exception $e) {
+                //error_log("Invalid date :: $date :: " . $e->getMessage());
+                $response = false;
+            }
+        }
+
+        return $response;
+    }
+
+    // Returns the given date in Y-m-d format
+    public static function isoDateFormat($date, $includeTime = false)
+    {
+        $date = trim($date);
+        if (false === self::verifyIfDateValid($date)) {
+            return null;
+        } else {
+            $format = "Y-m-d";
+            if ($includeTime === true) {
+                $format = $format . " H:i:s";
+            }
+            return (new DateTimeImmutable($date))->format($format);
+        }
+    }
+
+
+    // Returns the given date in d-M-Y format
+    // (with or without time depending on the $includeTime parameter)
+    public static function humanReadableDateFormat($date, $includeTime = false, $format = "d-M-Y")
+    {
+        $date = trim($date);
+        if (false === self::verifyIfDateValid($date)) {
+            return null;
+        } else {
+
+            if ($includeTime === true) {
+                $format = $format . " H:i";
+            }
+
+            return (new DateTimeImmutable($date))->format($format);
+        }
+    }
+
+    public function checkFieldValidations($params)
+    {
+
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $tableName = $params['tableName'];
         $fieldName = $params['fieldName'];
         $value = trim($params['value']);
@@ -86,7 +135,7 @@ class CommonService {
                 $table = explode("##", $fnct);
                 if ($fieldName == 'password') {
                     //Password encrypted
-                    $config = new \Zend\Config\Reader\Ini();
+                    $config = new \Laminas\Config\Reader\Ini();
                     $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
                     $password = sha1($value . $configResult["password"]["salt"]);
                     $select = $sql->select()->from($tableName)->where(array($fieldName => $password, $table[0] => $table[1]));
@@ -109,7 +158,8 @@ class CommonService {
         }
     }
 
-    public function dateFormat($date) {
+    public function dateFormat($date)
+    {
         if (!isset($date) || $date == null || $date == "" || $date == "0000-00-00") {
             return "0000-00-00";
         } else {
@@ -130,7 +180,8 @@ class CommonService {
         }
     }
 
-    public function humanDateFormat($date) {
+    public function humanDateFormat($date)
+    {
         if ($date == null || $date == "" || $date == "0000-00-00" || $date == "0000-00-00 00:00:00") {
             return "";
         } else {
@@ -144,7 +195,8 @@ class CommonService {
         }
     }
 
-    public function viewDateFormat($date) {
+    public function viewDateFormat($date)
+    {
 
         if ($date == null || $date == "" || $date == "0000-00-00") {
             return "";
@@ -159,17 +211,19 @@ class CommonService {
         }
     }
 
-    public function insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc) {
+    public function insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc)
+    {
         $tempmailDb = $this->sm->get('TempMailTable');
         return $tempmailDb->insertTempMailDetails($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
     }
 
-    public function sendTempMail() {
+    public function sendTempMail()
+    {
         try {
             $tempMailDb = $this->sm->get('TempMailTable');
-            $config = new \Zend\Config\Reader\Ini();
+            $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-            $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+            $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
 
             // Setup SMTP transport using LOGIN authentication
@@ -187,22 +241,22 @@ class CommonService {
             $transport->setOptions($options);
             $limit = '10';
             $mailQuery = $sql->select()->from(array('tm' => 'temp_mail'))->where("status='pending'")->limit($limit);
-            $mailQueryStr = $sql->getSqlStringForSqlObject($mailQuery);
+            $mailQueryStr = $sql->buildSqlString($mailQuery);
             $mailResult = $dbAdapter->query($mailQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             if (count($mailResult) > 0) {
                 foreach ($mailResult as $result) {
                     $alertMail = new Mail\Message();
                     $id = $result['temp_id'];
                     $tempMailDb->updateTempMailStatus($id);
-                
+
                     $fromEmail = $result['from_mail'];
                     $fromFullName = $result['from_full_name'];
                     $subject = $result['subject'];
-                    
+
                     $alertMail->addFrom($fromEmail, $fromFullName);
                     $alertMail->addReplyTo($fromEmail, $fromFullName);
                     $alertMail->addTo($result['to_email']);
-                    
+
                     if (isset($result['cc']) && trim($result['cc']) != "") {
                         $alertMail->addCc($result['cc']);
                     }
@@ -212,19 +266,19 @@ class CommonService {
                     }
 
                     $alertMail->setSubject($subject);
-                    
+
                     $html = new MimePart($result['message']);
                     $html->type = "text/html";
 
                     $body = new MimeMessage();
                     $body->setParts(array($html));
-                    
-                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email". DIRECTORY_SEPARATOR . $id;
-                    if(is_dir($dirPath)) {
-                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email". DIRECTORY_SEPARATOR . $id);
+
+                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id;
+                    if (is_dir($dirPath)) {
+                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id);
                         while (($filename = readdir($dh)) !== false) {
                             if ($filename != "." && $filename != "..") {
-                                $fileContent = fopen($dirPath. DIRECTORY_SEPARATOR. $filename, 'r');
+                                $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
                                 $attachment = new MimePart($fileContent);
                                 $attachment->filename    = $filename;
                                 $attachment->type        = Mime::TYPE_OCTETSTREAM;
@@ -236,9 +290,9 @@ class CommonService {
                         closedir($dh);
                         $this->removeDirectory($dirPath);
                     }
-                    
+
                     $alertMail->setBody($body);
-                    
+
                     $transport->send($alertMail);
                     $tempMailDb->deleteTempMail($id);
                 }
@@ -250,12 +304,13 @@ class CommonService {
         }
     }
 
-    public function sendAuditMail() {
+    public function sendAuditMail()
+    {
         try {
             $auditMailDb = $this->sm->get('AuditMailTable');
-            $config = new \Zend\Config\Reader\Ini();
+            $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-            $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+            $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
 
             // Setup SMTP transport using LOGIN authentication
@@ -273,22 +328,22 @@ class CommonService {
             $transport->setOptions($options);
             $limit = '10';
             $mailQuery = $sql->select()->from(array('a_mail' => 'audit_mails'))->where("status='pending'")->limit($limit);
-            $mailQueryStr = $sql->getSqlStringForSqlObject($mailQuery);
+            $mailQueryStr = $sql->buildSqlString($mailQuery);
             $mailResult = $dbAdapter->query($mailQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             if (count($mailResult) > 0) {
                 foreach ($mailResult as $result) {
                     $alertMail = new Mail\Message();
                     $id = $result['mail_id'];
                     $auditMailDb->updateInitialAuditMailStatus($id);
-                    
+
                     $fromEmail = $result['from_mail'];
                     $fromFullName = $result['from_full_name'];
                     $subject = $result['subject'];
-                    
+
                     $alertMail->addFrom($fromEmail, $fromFullName);
                     $alertMail->addReplyTo($fromEmail, $fromFullName);
                     $alertMail->addTo($result['to_email']);
-                    
+
                     if (isset($result['cc']) && trim($result['cc']) != "") {
                         $alertMail->addCc($result['cc']);
                     }
@@ -298,19 +353,19 @@ class CommonService {
                     }
 
                     $alertMail->setSubject($subject);
-                    
+
                     $html = new MimePart($result['message']);
                     $html->type = "text/html";
 
                     $body = new MimeMessage();
                     $body->setParts(array($html));
-                    
-                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email". DIRECTORY_SEPARATOR . $id;
-                    if(is_dir($dirPath)) {
-                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email". DIRECTORY_SEPARATOR . $id);
+
+                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email" . DIRECTORY_SEPARATOR . $id;
+                    if (is_dir($dirPath)) {
+                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email" . DIRECTORY_SEPARATOR . $id);
                         while (($filename = readdir($dh)) !== false) {
                             if ($filename != "." && $filename != "..") {
-                                $fileContent = fopen($dirPath. DIRECTORY_SEPARATOR. $filename, 'r');
+                                $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
                                 $attachment = new MimePart($fileContent);
                                 $attachment->filename    = $filename;
                                 $attachment->type        = Mime::TYPE_OCTETSTREAM;
@@ -322,11 +377,11 @@ class CommonService {
                         closedir($dh);
                         $this->removeDirectory($dirPath);
                     }
-                    
+
                     $alertMail->setBody($body);
-                    
-                    if($transport->send($alertMail)){
-                       $auditMailDb->updateAuditMailStatus($id);
+
+                    if ($transport->send($alertMail)) {
+                        $auditMailDb->updateAuditMailStatus($id);
                     }
                 }
             }
@@ -336,24 +391,28 @@ class CommonService {
             error_log('whoops! Something went wrong in send-audit-mail.');
         }
     }
-    
-    public static function getDate($timezone = 'Asia/Calcutta') {
+
+    public static function getDate($timezone = 'Asia/Calcutta')
+    {
         $date = new \DateTime(date('Y-m-d'), new \DateTimeZone($timezone));
         return $date->format('Y-m-d');
     }
 
-    public static function getDateTime($timezone = 'Asia/Calcutta') {
+    public static function getDateTime($timezone = 'Asia/Calcutta')
+    {
         $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone($timezone));
         return $date->format('Y-m-d H:i:s');
     }
 
-    public static function getCurrentTime($timezone = 'Asia/Calcutta') {
+    public static function getCurrentTime($timezone = 'Asia/Calcutta')
+    {
         $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone($timezone));
         return $date->format('H:i');
     }
 
-    public function checkMultipleFieldValidations($params) {
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+    public function checkMultipleFieldValidations($params)
+    {
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $jsonData = $params['json_data'];
         $tableName = $jsonData['tableName'];
         $sql = new Sql($adapter);
@@ -372,24 +431,28 @@ class CommonService {
         $data = count($result);
         return $data;
     }
-    
-    public function getAllConfig($parameters){
+
+    public function getAllConfig($parameters)
+    {
         $configDb = $this->sm->get('GlobalTable');
         return $configDb->fetchAllConfig($parameters);
     }
-    public function getGlobalConfigDetails(){
+    public function getGlobalConfigDetails()
+    {
         $globalDb = $this->sm->get('GlobalTable');
-        return $globalDb->getGlobalConfig();        
+        return $globalDb->getGlobalConfig();
     }
-    
-    public function getGlobalValue($globalName){
+
+    public function getGlobalValue($globalName)
+    {
         $globalDb = $this->sm->get('GlobalTable');
-        return $globalDb->getGlobalValue($globalName);        
+        return $globalDb->getGlobalValue($globalName);
     }
-    
-    public function updateConfig($params) {
+
+    public function updateConfig($params)
+    {
         $container = new Container('alert');
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $globalDb = $this->sm->get('GlobalTable');
@@ -401,14 +464,15 @@ class CommonService {
             $eventLogDb = $this->sm->get('EventLogTable');
             $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
             $adapter->commit();
-            $container->alertMsg ="Global Config Updated Successfully.";
-        }catch (Exception $exc) {
+            $container->alertMsg = "Global Config Updated Successfully.";
+        } catch (Exception $exc) {
             error_log($exc->getMessage());
             error_log($exc->getTraceAsString());
         }
     }
-    
-    public function dbBackup() {
+
+    public function dbBackup()
+    {
         try {
             $configResult = include(CONFIG_PATH . '/autoload/local.php');
             $dbUsername = $configResult["db"]["username"];
@@ -421,7 +485,7 @@ class CommonService {
                 mkdir($folderPath);
             }
             $currentDate = date("d-m-Y-H-i-s");
-            $file = $folderPath . 'odkdash-dbdump-' . $currentDate . '.sql';
+            $file = $folderPath . 'rtcert-' . $currentDate . '.sql';
             $command = sprintf("mysqldump -h %s -u %s --password='%s' -d %s --skip-no-data > %s", $dbHost, $dbUsername, $dbPassword, $dbName, $file);
             exec($command);
 
@@ -445,8 +509,9 @@ class CommonService {
             error_log('whoops! Something went wrong in cron/dbBackup');
         }
     }
-    
-    function removeDirectory($dirname) {
+
+    function removeDirectory($dirname)
+    {
         // Sanity check
         if (!file_exists($dirname)) {
             return false;
@@ -473,165 +538,175 @@ class CommonService {
         $dir->close();
         return rmdir($dirname);
     }
-    
-    public function getAllActiveCountries(){
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public function getAllActiveCountries()
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         $countryQuery = $sql->select()->from(array('c' => 'country'))->where("c.country_status='active'");
-        $countryQueryStr = $sql->getSqlStringForSqlObject($countryQuery);
+        $countryQueryStr = $sql->buildSqlString($countryQuery);
         return $dbAdapter->query($countryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
-    
-    public function getAllProvinces($selectedCountries){
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public function getAllProvinces($selectedCountries = [])
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         $provinceQuery = $sql->select()->from(array('l_d' => 'location_details'))
-                                       ->join(array('c'=>'country'),'c.country_id=l_d.country',array('country_name'))
-                                       ->where("l_d.parent_location='0'");
-        if(isset($selectedCountries) && !empty($selectedCountries)){
-            $provinceQuery = $provinceQuery->where('l_d.country IN (' . implode(',',$selectedCountries) . ')');
+            ->join(array('c' => 'country'), 'c.country_id=l_d.country', array('country_name'))
+            ->where("l_d.parent_location='0'");
+        if (isset($selectedCountries) && !empty($selectedCountries)) {
+            $provinceQuery = $provinceQuery->where('l_d.country IN (' . implode(',', $selectedCountries) . ')');
         }
-        $provinceQueryStr = $sql->getSqlStringForSqlObject($provinceQuery);
+        $provinceQueryStr = $sql->buildSqlString($provinceQuery);
         return $dbAdapter->query($provinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
-    
-    public function getAllDistricts($selectedProvinces){
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public function getAllDistricts($selectedProvinces = [])
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         $districtQuery = $sql->select()->from(array('l_d' => 'location_details'))
-                                       ->join(array('l_d_r'=>'location_details'),'l_d_r.location_id=l_d.parent_location',array('region_name'=>'location_name'))
-                                       ->where("l_d.parent_location !='0'");
-        if(isset($selectedProvinces) && !empty($selectedProvinces)){
-            $districtQuery = $districtQuery->where('l_d.parent_location IN (' . implode(',',$selectedProvinces) . ')');
+            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=l_d.parent_location', array('region_name' => 'location_name'))
+            ->where("l_d.parent_location !='0'");
+        if (isset($selectedProvinces) && !empty($selectedProvinces)) {
+            $districtQuery = $districtQuery->where('l_d.parent_location IN (' . implode(',', $selectedProvinces) . ')');
         }
-        $districtQueryStr = $sql->getSqlStringForSqlObject($districtQuery);
+        $districtQueryStr = $sql->buildSqlString($districtQuery);
         return $dbAdapter->query($districtQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
-    
-    public function getCountryLocations($params){
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public function getCountryLocations($params)
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         $countryLocations = array();
         $provinceQuery = $sql->select()->from(array('l_d' => 'location_details'))->where("l_d.parent_location ='0'");
-        if(isset($params['country']) && !empty($params['country'])){
-            $provinceQuery = $provinceQuery->where('l_d.country IN (' . implode(',',$params['country']) . ')');
+        if (isset($params['country']) && !empty($params['country'])) {
+            $provinceQuery = $provinceQuery->where('l_d.country IN (' . implode(',', $params['country']) . ')');
         }
-        $provinceQueryStr = $sql->getSqlStringForSqlObject($provinceQuery);
+        $provinceQueryStr = $sql->buildSqlString($provinceQuery);
         $countryLocations['province'] = $dbAdapter->query($provinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        
+
         $districtQuery = $sql->select()->from(array('l_d' => 'location_details'))->where("l_d.parent_location !='0'");
-        if(isset($params['country']) && !empty($params['country'])){
-            $districtQuery = $districtQuery->where('l_d.country IN (' . implode(',',$params['country']) . ')');
+        if (isset($params['country']) && !empty($params['country'])) {
+            $districtQuery = $districtQuery->where('l_d.country IN (' . implode(',', $params['country']) . ')');
         }
-        $districtQueryStr = $sql->getSqlStringForSqlObject($districtQuery);
+        $districtQueryStr = $sql->buildSqlString($districtQuery);
         $countryLocations['district'] = $dbAdapter->query($districtQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-      return $countryLocations;
+        return $countryLocations;
     }
-    
-    public function getProvinceDistricts($params){
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+
+    public function getProvinceDistricts($params)
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         $districtQuery = $sql->select()->from(array('l_d' => 'location_details'))->where("l_d.parent_location !='0'");
-        if(isset($params['province']) && !empty($params['province'])){
-            $districtQuery = $districtQuery->where('l_d.parent_location IN (' . implode(',',$params['province']) . ')');
+        if (isset($params['province']) && !empty($params['province'])) {
+            $districtQuery = $districtQuery->where('l_d.parent_location IN (' . implode(',', $params['province']) . ')');
         }
-        $districtQueryStr = $sql->getSqlStringForSqlObject($districtQuery);
+        $districtQueryStr = $sql->buildSqlString($districtQuery);
         return $dbAdapter->query($districtQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
-    
-    public function saveRegion($region){
+
+    public function saveRegion($region)
+    {
         $container = new Container('alert');
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $locationDetailsDb = $this->sm->get('LocationDetailsTable');
             $globalDb = $this->sm->get('GlobalTable');
             $response = $locationDetailsDb->saveRegion($region);
             $labelVal = $globalDb->getGlobalValue('region');
-            $regionLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'Region';
+            $regionLabel = (isset($labelVal) && trim($labelVal) != '') ? ucwords($labelVal) : 'Region';
             if ($response > 0) {
                 $adapter->commit();
                 //<-- Event log
                 $id = (int) $region->location_id;
-                if($id == 0){
+                if ($id == 0) {
                     $subject = $response;
                     $eventType = 'region-add';
-                    $action = 'added a new region '.$region->location_name;
+                    $action = 'added a new region ' . $region->location_name;
                     $resourceName = 'Region';
                     $eventLogDb = $this->sm->get('EventLogTable');
-                    $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = $regionLabel.' added successfully';
-                }else{
+                    $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                    $container->alertMsg = $regionLabel . ' added successfully';
+                } else {
                     $subject = $response;
                     $eventType = 'region-update';
-                    $action = 'updates a region '.$region->location_name;
+                    $action = 'updates a region ' . $region->location_name;
                     $resourceName = 'Region';
                     $eventLogDb = $this->sm->get('EventLogTable');
-                    $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = $regionLabel.' updated successfully'; 
+                    $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                    $container->alertMsg = $regionLabel . ' updated successfully';
                 }
-            }else{
-               $container->alertMsg = 'Oops..';
+            } else {
+                $container->alertMsg = 'Oops..';
             }
         } catch (Exception $exc) {
             error_log($exc->getMessage());
             error_log($exc->getTraceAsString());
         }
     }
-    
-    public function saveDistrict($district){
-       $container = new Container('alert');
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+
+    public function saveDistrict($district)
+    {
+        $container = new Container('alert');
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $locationDetailsDb = $this->sm->get('LocationDetailsTable');
             $globalDb = $this->sm->get('GlobalTable');
             $response = $locationDetailsDb->saveDistrict($district);
             $labelVal = $globalDb->getGlobalValue('districts');
-            $districtLabel = (isset($labelVal) && trim($labelVal)!= '')?ucwords($labelVal):'District';
+            $districtLabel = (isset($labelVal) && trim($labelVal) != '') ? ucwords($labelVal) : 'District';
             if ($response > 0) {
                 $adapter->commit();
                 //<-- Event log
                 $id = (int) $district->location_id;
-                if($id == 0){
+                if ($id == 0) {
                     $subject = $response;
                     $eventType = 'district-add';
-                    $action = 'added a new district '.$district->location_name;
+                    $action = 'added a new district ' . $district->location_name;
                     $resourceName = 'District';
                     $eventLogDb = $this->sm->get('EventLogTable');
-                    $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = $districtLabel.' added successfully';
-                }else{
+                    $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                    $container->alertMsg = $districtLabel . ' added successfully';
+                } else {
                     $subject = $response;
                     $eventType = 'district-update';
-                    $action = 'updates a district '.$district->location_name;
+                    $action = 'updates a district ' . $district->location_name;
                     $resourceName = 'District';
                     $eventLogDb = $this->sm->get('EventLogTable');
-                    $eventLogDb->addEventLog($subject,$eventType,$action,$resourceName);
-                    $container->alertMsg = $districtLabel.' updated successfully'; 
+                    $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                    $container->alertMsg = $districtLabel . ' updated successfully';
                 }
-            }else{
-               $container->alertMsg = 'Oops..';
+            } else {
+                $container->alertMsg = 'Oops..';
             }
         } catch (Exception $exc) {
             error_log($exc->getMessage());
             error_log($exc->getTraceAsString());
         }
     }
-    
-    public function getLocation($id){
+
+    public function getLocation($id)
+    {
         $locationDetailsDb = $this->sm->get('LocationDetailsTable');
         return $locationDetailsDb->getLocation($id);
     }
-    
-    public function deleteLocation($id){
+
+    public function deleteLocation($id)
+    {
         $locationDetailsDb = $this->sm->get('LocationDetailsTable');
-        return $locationDetailsDb->delete(array('location_id'=>$id));
+        return $locationDetailsDb->delete(array('location_id' => $id));
     }
-    
-    public function sendCertificateMail($params) {
+
+    public function sendCertificateMail($params)
+    {
         try {
-            $config = new \Zend\Config\Reader\Ini();
+            $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
 
             // Setup SMTP transport using LOGIN authentication
@@ -648,18 +723,18 @@ class CommonService {
             ));
             $transport->setOptions($options);
             $alertMail = new Mail\Message();
-            
+
             $fromEmail = 'rtqiicertification@gmail.com';
             $fromFullName = 'RTQII PERSONNEL CERTIFICATION PROGRAM';
             $subject = $params['subject'];
             $alertMail->addFrom($fromEmail, $fromFullName);
             $alertMail->addReplyTo($fromEmail, $fromFullName);
-            
-            $toArray = explode(",",$params['to_email']);
-            for($e=0; $e<count($toArray); $e++) {
-               $alertMail->addTo($toArray[$e]);
+
+            $toArray = explode(",", $params['to_email']);
+            for ($e = 0; $e < count($toArray); $e++) {
+                $alertMail->addTo($toArray[$e]);
             }
-            
+
             if (isset($params['cc']) && trim($params['cc']) != "") {
                 $alertMail->addCc($params['cc']);
             }
@@ -669,21 +744,21 @@ class CommonService {
             }
 
             $alertMail->setSubject($subject);
-            
+
             $html = new MimePart($params['message']);
             $html->type = "text/html";
 
             $body = new MimeMessage();
             $body->setParts(array($html));
-            
-            if (isset($params['attachedfile']) && trim($params['attachedfile'])!= '') {
-                $fileArray = explode('##',$params['attachedfile']);
+
+            if (isset($params['attachedfile']) && trim($params['attachedfile']) != '') {
+                $fileArray = explode('##', $params['attachedfile']);
                 $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
-                if(is_dir($dirPath)) {
+                if (is_dir($dirPath)) {
                     $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
                     while (($filename = readdir($dh)) !== false) {
                         if ($filename != "." && $filename != "..") {
-                            $fileContent = fopen($dirPath. DIRECTORY_SEPARATOR. $fileArray[1], 'r');
+                            $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $fileArray[1], 'r');
                             $attachment = new MimePart($fileContent);
                             $attachment->filename    = $filename;
                             $attachment->type        = Mime::TYPE_OCTETSTREAM;
@@ -696,13 +771,13 @@ class CommonService {
                     //$this->removeDirectory($dirPath);
                 }
             }
-            
+
             $alertMail->setBody($body);
-            
-            if($transport->send($alertMail)){
-               return true;
-            }else{
-              return false;
+
+            if ($transport->send($alertMail)) {
+                return true;
+            } else {
+                return false;
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -711,19 +786,21 @@ class CommonService {
         }
     }
 
-    public function getTestConfig($parameters){
+    public function getTestConfig($parameters)
+    {
         $configDb = $this->sm->get('TestConfigTable');
-        return $configDb->fetchTestConfig($parameters);      
+        return $configDb->fetchTestConfig($parameters);
     }
 
-    public function updateTestConfig($params) {
+    public function updateTestConfig($params)
+    {
         $container = new Container('alert');
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $testConfigDb = $this->sm->get('TestConfigTable');
             $updateRes = $testConfigDb->updateTestConfigDetails($params);
-            if($updateRes){
+            if ($updateRes) {
                 $subject = '';
                 $eventType = 'test-config-update';
                 $action = 'updated test config details';
@@ -731,56 +808,63 @@ class CommonService {
                 $eventLogDb = $this->sm->get('EventLogTable');
                 $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
                 $adapter->commit();
-                $container->alertMsg ="Test Config Updated Successfully.";
+                $container->alertMsg = "Test Config Updated Successfully.";
             }
-        }catch (Exception $exc) {
+        } catch (Exception $exc) {
             error_log($exc->getMessage());
             error_log($exc->getTraceAsString());
         }
     }
 
-    public function getTestConfigDetails(){
+    public function getTestConfigDetails()
+    {
         $testConfigDb = $this->sm->get('TestConfigTable');
-        return $testConfigDb->fetchTestConfigDetails();        
-    }
-    
-    public function getTestConfigEditDetails(){
-        $testConfigDb = $this->sm->get('TestConfigTable');
-        return $testConfigDb->fetchTestConfigEdit();        
+        return $testConfigDb->fetchTestConfigDetails();
     }
 
-    public function getTestValue($globalName){
+    public function getTestConfigEditDetails()
+    {
         $testConfigDb = $this->sm->get('TestConfigTable');
-        return $testConfigDb->fetchTestValue($globalName);        
+        return $testConfigDb->fetchTestConfigEdit();
     }
-    
-    public function getMailTemplateByPurpose($purpose){
+
+    public function getTestValue($globalName)
+    {
+        $testConfigDb = $this->sm->get('TestConfigTable');
+        return $testConfigDb->fetchTestValue($globalName);
+    }
+
+    public function getMailTemplateByPurpose($purpose)
+    {
         $mailTemplateDb = $this->sm->get('MailTemplateTable');
-        return $mailTemplateDb->fetchMailTemplateByPurpose($purpose);        
-    }
-    
-    public function getHeaderText(){
-        $configDb = $this->sm->get('GlobalTable');
-        return $configDb->fetchHeaderText();     
+        return $mailTemplateDb->fetchMailTemplateByPurpose($purpose);
     }
 
-    public function getRandomArray($min,$max){
+    public function getHeaderText()
+    {
+        $configDb = $this->sm->get('GlobalTable');
+        return $configDb->fetchHeaderText();
+    }
+
+    public function getRandomArray($min, $max)
+    {
         $valArray = array();
-        foreach(range($min,$max) as $val){
+        foreach (range($min, $max) as $val) {
             $indexVal = $min;
             do {
-                $indexVal = rand($min,$max);
-            } while (in_array($indexVal,$valArray));
+                $indexVal = rand($min, $max);
+            } while (in_array($indexVal, $valArray));
             $valArray[] = $indexVal;
         }
         return $valArray;
     }
 
-    public function sendContactMail($params) {
-        $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+    public function sendContactMail($params)
+    {
+        $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql = new Sql($dbAdapter);
         try {
-            $config = new \Zend\Config\Reader\Ini();
+            $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
 
             // Setup SMTP transport using LOGIN authentication
@@ -795,29 +879,29 @@ class CommonService {
                     'ssl' => $configResult["email"]["config"]["ssl"]
                 ),
             ));
-                  
+
             $sQuery = $sql->select()->from('global_config')->where(array('global_name' => 'feedback-send-mailid'));
-            $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+            $sQueryStr = $sql->buildSqlString($sQuery);
             $configValues = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-            if($configValues){
-                $sendmail=$configValues['global_value'];
-            }else{
-                $sendmail= $configResult["email"]["config"]["toMail"];
-           }
+            if ($configValues) {
+                $sendmail = $configValues['global_value'];
+            } else {
+                $sendmail = $configResult["email"]["config"]["toMail"];
+            }
             $transport->setOptions($options);
             $alertMail = new Mail\Message();
-            
+
             $fromEmail = $params['email'];
             $fromFullName = $params['name'];
             $subject = $params['subject'];
             $alertMail->addFrom($fromEmail, $fromFullName);
             $alertMail->addReplyTo($fromEmail, $fromFullName);
-            
-            $toArray = explode(",",$sendmail);
-            for($e=0; $e<count($toArray); $e++) {
-               $alertMail->addTo($toArray[$e]);
+
+            $toArray = explode(",", $sendmail);
+            for ($e = 0; $e < count($toArray); $e++) {
+                $alertMail->addTo($toArray[$e]);
             }
-            
+
             if (isset($params['cc']) && trim($params['cc']) != "") {
                 $alertMail->addCc($params['cc']);
             }
@@ -827,21 +911,21 @@ class CommonService {
             }
 
             $alertMail->setSubject($subject);
-            
+
             $html = new MimePart($params['message']);
             $html->type = "text/html";
 
             $body = new MimeMessage();
             $body->setParts(array($html));
-            
-            if (isset($params['attachedfile']) && trim($params['attachedfile'])!= '') {
-                $fileArray = explode('##',$params['attachedfile']);
+
+            if (isset($params['attachedfile']) && trim($params['attachedfile']) != '') {
+                $fileArray = explode('##', $params['attachedfile']);
                 $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
-                if(is_dir($dirPath)) {
+                if (is_dir($dirPath)) {
                     $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
                     while (($filename = readdir($dh)) !== false) {
                         if ($filename != "." && $filename != "..") {
-                            $fileContent = fopen($dirPath. DIRECTORY_SEPARATOR. $fileArray[1], 'r');
+                            $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $fileArray[1], 'r');
                             $attachment = new MimePart($fileContent);
                             $attachment->filename    = $filename;
                             $attachment->type        = Mime::TYPE_OCTETSTREAM;
@@ -853,16 +937,16 @@ class CommonService {
                     closedir($dh);
                 }
             }
-            
+
             $feedbackmailDb = $this->sm->get('FeedbackMailTable');
-            $feedbackmailDb->insertFeedbackMailDetails( $params['name'],  $params['email'],  $params['subject'],  $params['message']);
+            $feedbackmailDb->insertFeedbackMailDetails($params['name'],  $params['email'],  $params['subject'],  $params['message']);
 
             $alertMail->setBody($body);
-            
-            if($transport->send($alertMail)){
-               return true;
-            }else{
-              return false;
+
+            if ($transport->send($alertMail)) {
+                return true;
+            } else {
+                return false;
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -871,4 +955,3 @@ class CommonService {
         }
     }
 }
-?>

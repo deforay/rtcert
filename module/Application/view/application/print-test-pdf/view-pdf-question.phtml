@@ -1,10 +1,10 @@
 <?php
 // \Zend\Debug\Debug::dump($ptpResult);die;
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) {
+if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'view-pdf-question')) {
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center inline","bSortable":false}';
 }else{
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
@@ -36,7 +36,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             </div>
             <div class="col-sm-4" style=" margin-top: 10px; ">
                 <a href="<?php echo $this->url('print-test-pdf',array('action' => 'index')); ?>" class="btn btn-default pull-right action-btn"><i class="fa fa-arrow-left" aria-hidden="true"> Back to Print Written Test</i></a>
-                <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'examination')) {?>
+                <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'examination')) {?>
                     <a href="<?php echo $this->url('print-test-pdf',array('action' => 'examination','id'=>$ptpId)); ?>" class="btn btn-success pull-right action-btn" target="_blank"><i class="fa fa-print" aria-hidden="true"> Examination Sheet</i></a>
                 <?php }?>
             </div>
@@ -53,7 +53,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                         <th style="width:10%">Variant No</th>
                         <th style="width:100%">Test Created By</th>
                         <th style="width:100%">Created On</th>
-                        <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'print-pdf-question')) { ?>
                         <th style="width:10%;display: table-cell;">Action</th>
                         <?php } ?>
                     </tr>

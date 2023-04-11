@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Session\Container;
-use Zend\Db\Adapter\AdapterInterface;
+use Laminas\Form\Form;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\AdapterInterface;
 use Application\Model\GlobalTable;
 
 class ProviderForm extends Form {
@@ -123,7 +123,7 @@ class ProviderForm extends Form {
 
         $this->add(array(
             'name' => 'type_vih_test',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Type of HIV Test Modality/Point',
                 'empty_option' => 'Please Choose a Type',
@@ -158,7 +158,7 @@ class ProviderForm extends Form {
         ));
         $this->add(array(
             'name' => 'prefered_contact_method',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Prefered Contact Method',
                 'empty_option' => 'Please Choose a Method',
@@ -170,7 +170,7 @@ class ProviderForm extends Form {
         ));
         $this->add(array(
             'name' => 'current_jod',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Current Job Title',
                 'empty_option' => 'Please Choose a Job Title',
@@ -266,7 +266,7 @@ class ProviderForm extends Form {
 
         $this->add(array(
             'name' => 'facility_id',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Facility Name',
                 'disable_inarray_validator' => true,
@@ -277,7 +277,7 @@ class ProviderForm extends Form {
         
         $this->add(array(
             'name' => 'profile_picture',
-            'type' => 'Zend\Form\Element\File',
+            'type' => 'Laminas\Form\Element\File',
             'options' => array(
                  'label' => 'Upload Profile Picture'
             ),

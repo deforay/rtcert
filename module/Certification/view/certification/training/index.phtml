@@ -1,21 +1,21 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 
 
-if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit') && $acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) { 
+if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit') && $acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) { 
     
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
     
-}else if ($acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) {
+}else if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) {
     
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
     
-}else if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit')) {
+}else if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) {
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
 
 }else{
@@ -52,7 +52,7 @@ if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit') && $acl-
                 <h2>List of Trainings</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Training', 'add')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'add')) { ?>
                     <a href="<?php echo $this->url('training', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Training</a>
                 <?php } ?>
 
@@ -86,10 +86,10 @@ if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit') && $acl-
                         <th  >Date certificate issued (if available)</th>
 
 <!--<th style="width: 10%;" >Comments</th>-->
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Training', 'edit')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) { ?>
                             <th >Edit</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Training', 'delete')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) { ?>
                             <th>Delete</th>
                         <?php } ?>
                     </tr>

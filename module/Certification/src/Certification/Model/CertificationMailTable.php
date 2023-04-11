@@ -2,18 +2,26 @@
 
 namespace Certification\Model;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\TableGateway\AbstractTableGateway;
 
-class CertificationMailTable {
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\TableGateway;
+
+class CertificationMailTable extends AbstractTableGateway {
 
     protected $tableGateway;
+    protected $adapter;
+    protected $table = 'certification_mail';
 
-    public function __construct(TableGateway $tableGateway, Adapter $adapter) {
-        $this->tableGateway = $tableGateway;
+    public function __construct(Adapter $adapter) {
+        
         $this->adapter = $adapter;
+
+        $resultSetPrototype = new ResultSet();
+        $resultSetPrototype->setArrayObjectPrototype(new CertificationMail());
+        $this->tableGateway =  new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);        
     }
 
     public function getCertificationMail($mail_id) {
@@ -52,7 +60,7 @@ class CertificationMailTable {
      * @param type $certification_id
      */
     public function dateCertificateSent($certification_id) {
-        $db = $this->tableGateway->getAdapter();
+        $db = $this->adapter;
 
         $sql = "UPDATE certification SET date_certificate_sent='" . date('Y-m-d') . "', certificate_sent='yes' WHERE id=" . $certification_id;
 //        die($sql);
@@ -60,7 +68,7 @@ class CertificationMailTable {
     }
     
     public function reminderSent($certification_id) {
-        $db = $this->tableGateway->getAdapter();
+        $db = $this->adapter;
 
         $sql = "UPDATE certification SET  reminder_sent='yes' WHERE id=" . $certification_id;
 //        die($sql);
@@ -77,13 +85,13 @@ class CertificationMailTable {
     }
 
     public function insertRecertification($due_date,$provider_id, $reminder_type, $reminder_sent_to, $name_reminder,$date_reminder_sent) {
-        $db = $this->tableGateway->getAdapter();
+        $db = $this->adapter;
         $sql = "INSERT INTO recertification(due_date, provider_id, reminder_type, reminder_sent_to, name_of_recipient, date_reminder_sent) VALUES ('".$due_date."',".$provider_id.",'".$reminder_type."','".$reminder_sent_to."','".$name_reminder."','".$date_reminder_sent."')";
         $db->getDriver()->getConnection()->execute($sql);
     }
     
     public function SelectTexteHeader() {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT id, header_texte FROM pdf_header_texte';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();

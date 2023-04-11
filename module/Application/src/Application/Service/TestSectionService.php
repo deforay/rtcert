@@ -1,9 +1,9 @@
 <?php
 namespace Application\Service;
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Session\Container;
 
 class TestSectionService {
 
@@ -18,7 +18,7 @@ class TestSectionService {
     }
 
     public function addTestSectionData($params){
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $testSectionDb = $this->sm->get('TestSectionTable');
@@ -59,7 +59,7 @@ class TestSectionService {
     }
 
     public function updateTestSectionDetails($params){
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
        try {
             $testSectionDb = $this->sm->get('TestSectionTable');

@@ -1,9 +1,9 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl=$this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) {
+if ($acl->isAllowed($role, 'Application\Controller\MailTemplateController','edit')) {
   $colspan = true;
   $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
 }else{
@@ -18,7 +18,7 @@ if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) {
 			<h2>Mail Templates Configurations</h2>
 			</div>
 			<div class="col-sm-4">
-				<?php if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','add')) { ?>
+				<?php if ($acl->isAllowed($role, 'Application\Controller\MailTemplateController','add')) { ?>
 					<a href="<?php echo $this->url('mail-template',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Mail Template</a>
 				<?php } ?>
 			</div>
@@ -34,7 +34,7 @@ if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) {
                     <th style="width: 20%;">From Mail</th>
                     <th style="width: 25%;">Subject</th>
                     <th style="width: 5%;">Status</th>
-                    <?php if ($acl->isAllowed($role, 'Application\Controller\MailTemplate','edit')) { ?>
+                    <?php if ($acl->isAllowed($role, 'Application\Controller\MailTemplateController','edit')) { ?>
                       <th style="width: 5%;">Action</th>
                     <?php }?>
                 </tr>

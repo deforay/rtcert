@@ -2,12 +2,12 @@
 
 namespace Application\Model;
 
-use Zend\Db\Sql\Sql;
-use Zend\Session\Container;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Session\Container;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Adapter\Adapter;
 use Application\Service\CommonService;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 /*
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
@@ -228,14 +228,14 @@ class QuestionTable extends AbstractTableGateway
 			$sQuery->offset($sOffset);
 		}
 
-		$sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance
+		$sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
 		// echo $sQueryStr;die;
 		$rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
 		/* Data set length after filtering */
 		$sQuery->reset('limit');
 		$sQuery->reset('offset');
-		$fQuery = $sql->getSqlStringForSqlObject($sQuery);
+		$fQuery = $sql->buildSqlString($sQuery);
 		$aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$iFilteredTotal = count($aResultFilterTotal);
 
@@ -257,7 +257,7 @@ class QuestionTable extends AbstractTableGateway
 			$row[] = ucwords($aRow['section_name']);
 			$row[] = ucwords($aRow['correct_option_text']);
 			$row[] = ucwords($aRow['status']);
-			if ($acl->isAllowed($role, 'Application\Controller\TestQuestion', 'edit')) {
+			if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController', 'edit')) {
 				$row[] = '<a href="/test-question/edit/' . base64_encode($aRow['question_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil">Edit</i></a>';
 			} else {
 				$row[] = "";
@@ -274,7 +274,7 @@ class QuestionTable extends AbstractTableGateway
 		$sQuery = $sql->select()->from(array('q' => $this->table))
 			->join(array('s' => 'test_sections'), 'q.section = s.section_id', array('section_name'))
 			->where(array('q.question_id' => $questionId));
-		$sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+		$sQueryStr = $sql->buildSqlString($sQuery);
 		// die($sQueryStr);
 		return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 	}
@@ -286,7 +286,7 @@ class QuestionTable extends AbstractTableGateway
 		$sQuery = $sql->select()->from(array('o' => 'test_options'), array('question', 'option', 'status'))
 			->join(array('q' => $this->table), 'o.question = q.question_id', array('question_id'))
 			->where(array('q.question_id' => $questionId));
-		$sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+		$sQueryStr = $sql->buildSqlString($sQuery);
 		// echo $sQueryStr;die;
 		return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 	}
@@ -297,7 +297,7 @@ class QuestionTable extends AbstractTableGateway
 		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
 		$tcQuery = $sql->select()->from('test_config');
-		$tcQueryStr = $sql->getSqlStringForSqlObject($tcQuery);
+		$tcQueryStr = $sql->buildSqlString($tcQuery);
 		$testConfigResult = $dbAdapter->query($tcQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		return $testConfigResult;
 	}
@@ -345,8 +345,8 @@ class QuestionTable extends AbstractTableGateway
 		if (!$testResult['testStatus']) {
 			$result = $this->insertQuestion();
 		} else if (isset($testResult['testStatus']['pre_test_status']) && $testResult['testStatus']['pre_test_status'] == 'completed' && $testConfigResult[2]['test_config_value'] == 'yes') {
-			$qQuery = $sql->select()->from('tests')->columns(array('total' => new \Zend\Db\Sql\Expression('COUNT(*)')))->where(array('user_id'=>$logincontainer->userId));
-			$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+			$qQuery = $sql->select()->from('tests')->columns(array('total' => new \Laminas\Db\Sql\Expression('COUNT(*)')))->where(array('user_id'=>$logincontainer->userId));
+			$qQueryStr = $sql->buildSqlString($qQuery);
 			$testCountResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 			if($testCountResult){
 				$container = new Container('alert');
@@ -395,7 +395,7 @@ class QuestionTable extends AbstractTableGateway
 							->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
 							->order('pq.' . $primary . ' ASC');
 					}
-					$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+					$qQueryStr = $sql->buildSqlString($qQuery);
 					// die($qQueryStr);
 					$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 					foreach($questions as $key=>$q){
@@ -426,7 +426,7 @@ class QuestionTable extends AbstractTableGateway
 						->where(array('pq.test_id' => $testId))
 						->order('pq.' . $primary . ' ASC');
 				}
-				$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+				$qQueryStr = $sql->buildSqlString($qQuery);
 				$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 				foreach($questions as $key=>$q){
 					$questionResult[] = array(
@@ -455,7 +455,7 @@ class QuestionTable extends AbstractTableGateway
 					->where(array('pq.test_id' => $testId))
 					->order('pq.' . $primary . ' ASC');
 			}
-			$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+			$qQueryStr = $sql->buildSqlString($qQuery);
 			$questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		}
 		return $questionResult;
@@ -468,7 +468,7 @@ class QuestionTable extends AbstractTableGateway
 			->join(array('pq' => $tableName), 'pq.question_id=o.question', array($primary, 'test_id', 'question_id', 'response_id'))
 			->where(array('o.status' => 'active'))
 			->where(array('pq.test_id' => $testId));
-		$oQueryStr = $sql->getSqlStringForSqlObject($oQuery);
+		$oQueryStr = $sql->buildSqlString($oQuery);
 		$result = $dbAdapter->query($oQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		return $result;
 	}
@@ -580,13 +580,13 @@ class QuestionTable extends AbstractTableGateway
 			$sQuery->limit($sLimit);
 			$sQuery->offset($sOffset);
 		}
-		$sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+		$sQueryStr = $sql->buildSqlString($sQuery);
 		$rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 		/* Data set length after filtering */
 		$sQuery->reset('limit');
 		$sQuery->reset('offset');
 
-		$fQuery = $sql->getSqlStringForSqlObject($sQuery);
+		$fQuery = $sql->buildSqlString($sQuery);
 		$aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$iFilteredTotal = count($aResultFilterTotal);
 
@@ -603,7 +603,7 @@ class QuestionTable extends AbstractTableGateway
 			$preEndDate = date('Y-m-d', strtotime($preDate[1]));
 			$iQuery = $iQuery->where(array("DATE(t.pretest_start_datetime) >='" . $preStartDate . "'", "DATE(t.pretest_start_datetime) <='" . $preEndDate . "'"));
 		}
-		$iQuery = $sql->getSqlStringForSqlObject($iQuery);
+		$iQuery = $sql->buildSqlString($iQuery);
 		$iTotal = $dbAdapter->query($iQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$output = array(
 			"sEcho" => intval($parameters['sEcho']),

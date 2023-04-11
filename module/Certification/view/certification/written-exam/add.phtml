@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -70,7 +70,7 @@ if($nombre!= null){
                     <h1>Written Exam</h1>
                 </div>
                 <div class="col-sm-4 ">
-                    <?php // if ($acl->isAllowed($role, 'Application\Controller\Facility', 'add')) {  ?>
+                    <?php // if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {  ?>
                     <a href="<?php echo $this->url('written-exam', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Writtens Exams</a>
                     <?php // }  ?>
 
@@ -327,11 +327,11 @@ if($nombre!= null){
                 <th style="width:10%;">Final Score (≥80%)</th>
 
 
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExam', 'edit')) {  ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'edit')) {  ?>
                 <th>Edit</th>
                 <th>Another Attempt</th>
                 <?php }  ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExam', 'delete')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'delete')) { ?>
                     <th>Delete</th>
                 <?php } ?>
 
@@ -360,7 +360,7 @@ if($nombre!= null){
                     <td><?php echo $this->escapeHtml($written->inventory_point); ?></td>
                     <td><?php echo $this->escapeHtml($written->total_points); ?></td>
                     <td><?php echo $this->escapeHtml(round($written->final_score) . ' %'); ?></td>
-                   <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExam', 'edit')) {  ?>
+                   <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'edit')) {  ?>
                 <td>
                         <a href="<?php echo $this->url('written-exam', array('action' => 'edit', 'id_written_exam' => base64_encode($written->id_written_exam))); ?>"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
                     </td>
@@ -374,7 +374,7 @@ if($nombre!= null){
                     ?>
                 <?php }  ?>
                     
-                    <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExam', 'delete')) { ?>
+                    <?php if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'delete')) { ?>
                         <td>
                                  <a onclick="if (!confirm('Do you really want to remove this written exam?')) {
                                             alert('Canceled!');

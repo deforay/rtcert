@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -70,7 +70,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                         <th>End Time(Post Test)</th>
                         <th>Score(Post Test)</th>
                         <th>Completion Status(Post Test)</th> -->
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'certificate-pdf')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'certificate-pdf')) { ?>
                         <th style="width:10%;">Certificate</th>
                         <?php } ?>
                     </tr>

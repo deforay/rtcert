@@ -1,86 +1,96 @@
 <?php
+
 namespace Application\Controller;
 
-use Zend\Session\Container;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Session\Container;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
-class TestController extends AbstractActionController{
+class TestController extends AbstractActionController
+{
 
-    public function indexAction(){
+
+    public \Application\Service\TestService $testService;
+    public \Application\Service\CommonService $commonService;
+    public \Application\Service\QuestionService $questionService;
+    public \Certification\Model\ProviderTable $providerTable;
+
+    public function __construct($commonService, $testService, $questionService, $providerTable)
+    {
+        $this->testService = $testService;
+        $this->commonService = $commonService;
+        $this->questionService = $questionService;
+        $this->providerTable = $providerTable;
+    }
+
+    public function indexAction()
+    {
         $container = new Container('alert');
-        if($this->getRequest()->isPost()){
+        if ($this->getRequest()->isPost()) {
             $params = $this->getRequest()->getPost();
-            $testService = $this->getServiceLocator()->get('TestService');
-            $testService->addPreTestData($params);
+            $this->testService->addPreTestData($params);
             return $this->redirect()->toUrl('home');
-        }else{
-            $questionService = $this->getServiceLocator()->get('QuestionService');
-            $questionResult = $questionService->getQuestionAllList();
-            $testService = $this->getServiceLocator()->get('TestService');
-            $redirect = $testService->getPostTestCompleteDetails();
+        } else {
+            $questionResult = $this->questionService->getQuestionAllList();
+            $redirect = $this->testService->getPostTestCompleteDetails();
 
-            if(isset($questionResult['posttest-page'])){
-                if(((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) && (($questionResult['testResultStatus']['testStatus']['post_test_status']==NULL) || ($questionResult['testResultStatus']['testStatus']['post_test_status']== ""))){
-                    $container->alertMsg ="Your test was completed already.";
+            if (isset($questionResult['posttest-page'])) {
+                if (((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) && (($questionResult['testResultStatus']['testStatus']['post_test_status'] == NULL) || ($questionResult['testResultStatus']['testStatus']['post_test_status'] == ""))) {
+                    $container->alertMsg = "Your test was completed already.";
                     return $this->redirect()->toUrl('/test/result');
-                }else if((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')){
-                    $container->alertMsg ="Your test was completed already. Retest not activated.";
+                } else if ((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) {
+                    $container->alertMsg = "Your test was completed already. Retest not activated.";
                     return $this->redirect()->toUrl('/test/result');
                 }
-            }else if(isset($questionResult['home-page'])){
-                $container->alertMsg ="Your test not started we'll announce to you once activated.";
+            } else if (isset($questionResult['home-page'])) {
+                $container->alertMsg = "Your test not started we'll announce to you once activated.";
                 return $this->redirect()->toUrl('/');
             }
-            $sm = $this->getServiceLocator();
-            $providerTable = $sm->get('Certification\Model\ProviderTable');
-            $providerTable->updateTestMailSendStatus();
+            $this->providerTable->updateTestMailSendStatus();
             return new ViewModel(array(
-                'questionResult'=>$questionResult
+                'questionResult' => $questionResult
             ));
         }
     }
 
-    public function questionAction(){
+    public function questionAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $testService = $this->getServiceLocator()->get('TestService');
-            $result = $testService->addPreTestData($params);
+            $result = $this->testService->addPreTestData($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))->setTerminal(true);
             return $viewModel;
         }
     }
 
-    public function resultAction(){
-        $testService = $this->getServiceLocator()->get('TestService');
-        $preResult = $testService->getPreResultDetails();
-        if($preResult['test_mail_send'] != 'yes'){
-            $sm = $this->getServiceLocator();
-            $providerTable = $sm->get('Certification\Model\ProviderTable');
-            $providerTable->updateTestMailSendStatus($preResult['id']);
+    public function resultAction()
+    {
+        $preResult = $this->testService->getPreResultDetails();
+        if ($preResult['test_mail_send'] != 'yes') {
+            $this->providerTable->updateTestMailSendStatus($preResult['id']);
         }
-        $redirect = $testService->getPostTestCompleteDetails();
-        $commonService = $this->getServiceLocator()->get('CommonService');
-        $configResult = $commonService->getTestConfigDetails();
-        if((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')){
+        $redirect = $this->testService->getPostTestCompleteDetails();
+        $configResult = $this->commonService->getTestConfigDetails();
+        if ((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) {
             return new ViewModel(array(
-                'preResult'=>$preResult,
-                'configResult'=>$configResult
+                'preResult' => $preResult,
+                'configResult' => $configResult
             ));
-        }else{
-            return $this->redirect()->toUrl('/'); 
+        } else {
+            return $this->redirect()->toUrl('/');
         }
     }
 
-    public function introAction(){
+    public function introAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toUrl("/provider/login");
         }
-        $commonService = $this->getServiceLocator()->get('CommonService');
-        return new ViewModel(array('name'=>$commonService->getGlobalValue('country-name')));
+        return new ViewModel(array('name' => $this->commonService->getGlobalValue('country-name')));
     }
 }

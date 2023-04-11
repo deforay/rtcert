@@ -2,57 +2,61 @@
 
 namespace Certification\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\TrainingOrganization;
-use Certification\Form\TrainingOrganizationForm;
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
-class TrainingOrganizationController extends AbstractActionController {
+class TrainingOrganizationController extends AbstractActionController
+{
 
-    protected $TrainingOrganizationTable;
+    public \Certification\Model\TrainingOrganizationTable $trainingOrganizationTable;
+    public \Certification\Form\TrainingOrganizationForm $trainingOrganizationForm;
 
-    public function getTrainingOrganizationTable() {
-        if (!$this->TrainingOrganizationTable) {
-            $sm = $this->getServiceLocator();
-            $this->TrainingOrganizationTable = $sm->get('Certification\Model\TrainingOrganizationTable');
-        }
-        return $this->TrainingOrganizationTable;
+    public function __construct($trainingOrganizationForm, $trainingOrganizationTable)
+    {
+        $this->trainingOrganizationTable = $trainingOrganizationTable;
+        $this->trainingOrganizationForm = $trainingOrganizationForm;
     }
 
-    public function indexAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $paginator = $this->getTrainingOrganizationTable()->fetchAll();
+
+    public function indexAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $paginator = $this->trainingOrganizationTable->fetchAll();
         return new ViewModel(array(
             'paginator' => $paginator,
         ));
     }
 
-    public function addAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $form = new TrainingOrganizationForm();
-        $form->get('submit')->setValue('SUBMIT');
+    public function addAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
+        $this->trainingOrganizationTable->get('submit')->setValue('SUBMIT');
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $training_organization = new TrainingOrganization();
-            $form->setInputFilter($training_organization->getInputFilter());
-            $form->setData($request->getPost());
+            $this->trainingOrganizationTable->setInputFilter($training_organization->getInputFilter());
+            $this->trainingOrganizationTable->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $training_organization->exchangeArray($form->getData());
-                $this->getTrainingOrganizationTable()->saveTraining_Organization($training_organization);
+            if ($this->trainingOrganizationTable->isValid()) {
+                $training_organization->exchangeArray($this->trainingOrganizationTable->getData());
+                $this->trainingOrganizationTable->saveTraining_Organization($training_organization);
                 $container = new Container('alert');
                 $container->alertMsg = 'Training Organization added successfully';
 
                 return $this->redirect()->toRoute('training-organization');
             }
         }
-        return array('form' => $form);
+        return array('form' => $this->trainingOrganizationTable);
     }
 
-    public function editAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    public function editAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $training_organization_id = (int) base64_decode($this->params()->fromRoute('training_organization_id', 0));
 
         if (!$training_organization_id) {
@@ -60,22 +64,23 @@ class TrainingOrganizationController extends AbstractActionController {
         }
 
         try {
-            $training_organization = $this->getTrainingOrganizationTable()->getTraining_organization($training_organization_id);
+            $training_organization = $this->trainingOrganizationTable->getTraining_organization($training_organization_id);
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('training-organization', array('action' => 'index'));
         }
 
-        $form = new TrainingOrganizationForm();
-        $form->bind($training_organization);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
 
+        $this->trainingOrganizationTable->bind($training_organization);
+        $this->trainingOrganizationTable->get('submit')->setAttribute('value', 'UPDATE');
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $form->setInputFilter($training_organization->getInputFilter());
-            $form->setData($request->getPost());
+            $this->trainingOrganizationTable->setInputFilter($training_organization->getInputFilter());
+            $this->trainingOrganizationTable->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $this->getTrainingOrganizationTable()->saveTraining_Organization($training_organization);
+            if ($this->trainingOrganizationTable->isValid()) {
+                $this->trainingOrganizationTable->saveTraining_Organization($training_organization);
                 $container = new Container('alert');
                 $container->alertMsg = 'Training Organization updated successfully';
                 return $this->redirect()->toRoute('training-organization');
@@ -84,19 +89,20 @@ class TrainingOrganizationController extends AbstractActionController {
 
         return array(
             'training_organization_id' => $training_organization_id,
-            'form' => $form,
+            'form' => $this->trainingOrganizationTable,
         );
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $training_organization_id = (int) $this->params()->fromRoute('training_organization_id', 0);
 
         if (!$training_organization_id) {
             return $this->redirect()->toRoute('training-organization');
         } else {
-            $forein_key = $this->getTrainingOrganizationTable()->foreigne_key($training_organization_id);
+            $forein_key = $this->trainingOrganizationTable->foreigne_key($training_organization_id);
             if ($forein_key == 0) {
-                $this->getTrainingOrganizationTable()->deleteOrganization($training_organization_id);
+                $this->trainingOrganizationTable->deleteOrganization($training_organization_id);
                 $container = new Container('alert');
                 $container->alertMsg = 'Deleted successfully';
                 return $this->redirect()->toRoute('training-organization');
@@ -107,7 +113,4 @@ class TrainingOrganizationController extends AbstractActionController {
             }
         }
     }
-
-    
-
 }

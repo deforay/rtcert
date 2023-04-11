@@ -1,11 +1,11 @@
 <?php
 namespace Application\Model;
 
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Sql\Expression;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Sql\Expression;
 use Application\Service\CommonService;
 
 class TestsTable extends AbstractTableGateway {
@@ -24,7 +24,7 @@ class TestsTable extends AbstractTableGateway {
                                 ->where(array('t.user_id' => $userId))
                                 ->order('test_id DESC')
                                 ->limit(1);
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sQueryStr = $sql->buildSqlString($sQuery);
         $preTestStatus = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         return array('testStatus'=>$preTestStatus);
     }
@@ -142,7 +142,7 @@ class TestsTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
         $querycontainer->testQueryStr =  $sQueryStr;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
@@ -150,7 +150,7 @@ class TestsTable extends AbstractTableGateway {
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -187,7 +187,7 @@ class TestsTable extends AbstractTableGateway {
             $row[] = round($score * 100).' %';
             $row[] = ucwords($aRow['pre_test_status']);
             
-            /* if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\Certification', 'certificate-pdf')){
+            /* if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\CertificationController', 'certificate-pdf')){
                 $row[] = '<a href="/provider/certificate-pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>'; */
             if($aRow['user_test_status']=='pass'){
                 $row[] = "Pass";
@@ -213,7 +213,7 @@ class TestsTable extends AbstractTableGateway {
                                 ->where(array('t.test_id' => $testId))
                                 // ->order('test_id DESC')
                                 ->limit(1);
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sQueryStr = $sql->buildSqlString($sQuery);
         // echo $sQueryStr;die;
         $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 
@@ -233,7 +233,7 @@ class TestsTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from('tests')->columns(array('test_id','pretest_end_datetime','pre_test_score','posttest_end_datetime','post_test_score','certificate_no','user_test_status'))
                                 ->where(array('user_id' => $logincontainer->userId));
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sQueryStr = $sql->buildSqlString($sQuery);
         $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $certificateField;
     }

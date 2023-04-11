@@ -2,163 +2,254 @@
 
 namespace Certification;
 
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Laminas\ModuleManager\Feature\ConfigProviderInterface;
 
-class Module implements ConfigProviderInterface {
-    
-      public function getServiceConfig() {
+class Module implements ConfigProviderInterface
+{
+
+    public function getServiceConfig()
+    {
         return array(
             'factories' => array(
-                'Certification\Model\ProviderTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('ProviderTableGateway');
-                    $table = new \Certification\Model\ProviderTable($tableGateway,$dbAdapter,$sm);
-                    return $table;
+                'Certification\Model\ProviderTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\ProviderTable($dbAdapter, $diContainer);
+                    }
                 },
-                'ProviderTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Provider());
-                    return new TableGateway('provider', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\TrainingOrganizationTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\TrainingOrganizationTable($dbAdapter, $diContainer);
+                    }
                 },
-                'Certification\Model\TrainingOrganizationTable' => function($sm) {
-                    $tableGateway = $sm->get('TrainingOrganizationTableGateway');
-                    $table = new \Certification\Model\TrainingOrganizationTable($tableGateway);
-                    return $table;
+                'Certification\Model\TrainingTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\TrainingTable($dbAdapter, $diContainer);
+                    }
                 },
-                'TrainingOrganizationTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\TrainingOrganization());
-                    return new TableGateway('training_organization', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\WrittenExamTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\WrittenExamTable($dbAdapter);
+                    }
                 },
-                'Certification\Model\TrainingTable' => function($sm) {
-                    $tableGateway = $sm->get('ProviderTableGateway');
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new \Certification\Model\TrainingTable($tableGateway,$dbAdapter,$sm);
-                    return $table;
+                'Certification\Model\PracticalExamTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\PracticalExamTable($dbAdapter, $diContainer);
+                    }
                 },
-                'TrainingTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Training());
-                    return new TableGateway('training', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\CertificationTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\CertificationTable($dbAdapter, $diContainer);
+                    }
                 },
-                'Certification\Model\WrittenExamTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('WrittenExamTableGateway');
-                    $table = new \Certification\Model\WrittenExamTable($tableGateway,$dbAdapter);
-                    return $table;
+                'Certification\Model\RecertificationTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\RecertificationTable($dbAdapter, $diContainer);
+                    }
                 },
-                'WrittenExamTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\WrittenExam());
-                    return new TableGateway('written_exam', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\ExaminationTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\ExaminationTable($dbAdapter, $diContainer);
+                    }
                 },
-                'Certification\Model\PracticalExamTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('PracticalExamTableGateway');
-                    $table = new \Certification\Model\PracticalExamTable($tableGateway,$dbAdapter);
-                    return $table;
+                'Certification\Model\CertificationMailTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\CertificationMailTable($dbAdapter);
+                    }
                 },
-                'PracticalExamTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\PracticalExam());
-                    return new TableGateway('practical_exam', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\RegionTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\RegionTable($dbAdapter, $diContainer);
+                    }
                 },
-                'Certification\Model\CertificationTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('CertificationTableGateway');
-                    $table = new \Certification\Model\CertificationTable($tableGateway,$dbAdapter,$sm);
-                    return $table;
+                'Certification\Model\DistrictTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\DistrictTable($dbAdapter, $diContainer);
+                    }
                 },
-                'CertificationTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Certification());
-                    return new TableGateway('certification', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\RecertificationTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('RecertificationTableGateway');
-                    $table = new \Certification\Model\RecertificationTable($tableGateway,$dbAdapter,$sm);
-                    return $table;
-                },
-                'RecertificationTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Recertification());
-                    return new TableGateway('recertification', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\ExaminationTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('ExaminationTableGateway');
-                    $table = new \Certification\Model\ExaminationTable($tableGateway,$dbAdapter,$sm);
-                    return $table;
-                },
-                'ExaminationTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Examination());
-                    return new TableGateway('examination', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\CertificationMailTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $tableGateway = $sm->get('CertificationMailTableGateway');
-                    $table = new \Certification\Model\CertificationMailTable($tableGateway,$dbAdapter);
-                    return $table;
-                },
-                'CertificationMailTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\CertificationMail());
-                    return new TableGateway('certification_mail', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\RegionTable' => function($sm) {
-                    $tableGateway = $sm->get('RegionTableGateway');
-                    $table = new \Certification\Model\RegionTable($tableGateway);
-                    return $table;
-                },
-                'RegionTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Region());
-                    return new TableGateway('certification_regions', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\DistrictTable' => function($sm) {
-                    $tableGateway = $sm->get('DistrictTableGateway');
-                    $table = new \Certification\Model\DistrictTable($tableGateway);
-                    return $table;
-                },
-                'DistrictTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\District());
-                    return new TableGateway('certification_districts', $dbAdapter, null, $resultSetPrototype);
-                },
-                'Certification\Model\FacilityTable' => function($sm) {
-                    $tableGateway = $sm->get('FacilityTableGateway');
-                    $table = new \Certification\Model\FacilityTable($tableGateway);
-                    return $table;
-                },
-                'FacilityTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Model\Facility());
-                    return new TableGateway('certification_facilities', $dbAdapter, null, $resultSetPrototype);
+                'Certification\Model\FacilityTable'  => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new \Certification\Model\FacilityTable($dbAdapter, $diContainer);
+                    }
                 },
             ),
         );
     }
 
-    public function getAutoloaderConfig() {
+    public function getControllerConfig()
+    {
         return array(
-            'Zend\Loader\StandardAutoloader' => array(
+            'factories' => array(
+                'Certification\Controller\CertificationController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $certificationTable = $diContainer->get('Certification\Model\CertificationTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $certificationForm = new \Certification\Form\CertificationForm($dbAdapter);
+                        return new \Certification\Controller\CertificationController($commonService, $certificationTable, $certificationForm);
+                    }
+                },
+                'Certification\Controller\PracticalExamController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $practicalExamTable = $diContainer->get('Certification\Model\PracticalExamTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $practicalExamForm = new \Certification\Form\PracticalExamForm($dbAdapter);
+                        return new \Certification\Controller\PracticalExamController($practicalExamTable, $practicalExamForm);
+                    }
+                },
+                'Certification\Controller\ProviderController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $testService = $diContainer->get('TestService');
+                        $commonService = $diContainer->get('CommonService');
+                        $questionService = $diContainer->get('QuestionService');
+                        $providerTable = $diContainer->get('Certification\Model\ProviderTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $providerForm = new \Certification\Form\ProviderForm($dbAdapter);
+                        return new \Certification\Controller\ProviderController($commonService, $questionService, $testService, $providerForm, $providerTable);
+                    }
+                },
+                'Certification\Controller\RecertificationController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $recertificationTable = $diContainer->get('Certification\Model\RecertificationTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $recertificationForm = new \Certification\Form\RecertificationForm($dbAdapter);
+                        return new \Certification\Controller\RecertificationController($recertificationForm, $recertificationTable);
+                    }
+                },
+                'Certification\Controller\TrainingController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $trainingTable = $diContainer->get('Certification\Model\TrainingTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $trainingForm = new \Certification\Form\TrainingForm($dbAdapter);
+                        return new \Certification\Controller\TrainingController($trainingTable, $trainingForm);
+                    }
+                },
+                'Certification\Controller\TrainingOrganizationController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $trainingOrganizationTable = $diContainer->get('Certification\Model\TrainingOrganizationTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $trainingOrganizationForm = new \Certification\Form\TrainingOrganizationForm($dbAdapter);
+                        return new \Certification\Controller\TrainingOrganizationController($trainingOrganizationForm, $trainingOrganizationTable);
+                    }
+                },
+                'Certification\Controller\WrittenExamController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $writtenExamTable = $diContainer->get('Certification\Model\WrittenExamTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $writtenExamform = new \Certification\Form\WrittenExamForm($dbAdapter);
+                        return new \Certification\Controller\WrittenExamController($writtenExamform, $writtenExamTable);
+                    }
+                },
+                'Certification\Controller\CertificationMailController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $certificationMailTable = $diContainer->get('Certification\Model\CertificationMailTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $certificationMailForm = new \Certification\Form\CertificationMailForm($dbAdapter);
+                        return new \Certification\Controller\CertificationMailController($commonService, $certificationMailTable, $certificationMailForm);
+                    }
+                },
+                'Certification\Controller\ExaminationController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $examinationTable = $diContainer->get('Certification\Model\ExaminationTable');
+                        return new \Certification\Controller\ExaminationController($commonService, $examinationTable);
+                    }
+                },
+                'Certification\Controller\FacilityController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $facilityTable = $diContainer->get('Certification\Model\FacilityTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $facilityForm = new \Certification\Form\FacilityForm($dbAdapter);
+                        return new \Certification\Controller\FacilityController($commonService, $facilityTable, $facilityForm);
+                    }
+                },
+                'Certification\Controller\RegionController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $regionTable = $diContainer->get('Certification\Model\RegionTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $regionForm = new \Certification\Form\RegionForm($dbAdapter);
+                        return new \Certification\Controller\RegionController($commonService, $regionTable, $regionForm);
+                    }
+                },
+                'Certification\Controller\DistrictController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $districtTable = $diContainer->get('Certification\Model\DistrictTable');
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $districtForm = new \Certification\Form\DistrictForm($dbAdapter);
+                        return new \Certification\Controller\DistrictController($commonService, $districtTable, $districtForm);
+                    }
+                },
+            ),
+        );
+    }
+
+    public function getAutoloaderConfig()
+    {
+        return array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
@@ -166,8 +257,8 @@ class Module implements ConfigProviderInterface {
         );
     }
 
-    public function getConfig() {
+    public function getConfig()
+    {
         return include __DIR__ . '/config/module.config.php';
     }
-
 }

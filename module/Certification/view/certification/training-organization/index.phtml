@@ -1,6 +1,6 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -25,7 +25,7 @@ $acl = $this->layout()->acl;
                 <h2>Training Organizations</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganization', 'add')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganizationController', 'add')) { ?>
                     <a href="<?php echo $this->url('training-organization', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Training Organization</a>
                 <?php } ?>
 
@@ -45,10 +45,10 @@ $acl = $this->layout()->acl;
                         <th style="width:20%;">Type of Organization </th>
                         <th style="width:50%;">Address & Contact Information </th>
                         <th style="width:30%;">Phone Number </th>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganization', 'edit')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganizationController', 'edit')) { ?>
                             <th>Edit</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganization', 'delete')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganizationController', 'delete')) { ?>
                             <th>Delete</th>
                         <?php } ?>
                     </tr>
@@ -73,14 +73,14 @@ $acl = $this->layout()->acl;
                             <td>
                                 <div style="overflow:auto;"><?php echo $this->escapeHtml($organization->phone); ?></div>
                             </td>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganization', 'edit')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganizationController', 'edit')) { ?>
                                 <td>
                                     <div style="width:60px;overflow:auto;">
                                         <a href="<?php echo $this->url('training-organization', array('action' => 'edit', 'training_organization_id' => base64_encode($organization->training_organization_id))); ?>"> <span class="glyphicon glyphicon-pencil">&nbsp;Edit</span></a>
                                     </div>
                                 </td>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganization', 'delete')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingOrganizationController', 'delete')) { ?>
                                 <td>
                                     <div style="overflow:auto;">
                                         <a onclick="if (!confirm('Do you really want to remove ' + '<?php echo $this->escapeHtml($organization->training_organization_name); ?>' + ' ?')) {

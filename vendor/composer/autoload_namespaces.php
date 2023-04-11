@@ -6,7 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ZFTool\\' => array($vendorDir . '/zendframework/zftool/src'),
-    'TCPDFModule' => array($vendorDir . '/vladmeh/zf2-tcpdf/src'),
     'PHPExcel' => array($vendorDir . '/phpoffice/phpexcel/Classes'),
 );

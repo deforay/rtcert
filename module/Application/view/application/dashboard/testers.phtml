@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -37,7 +37,7 @@ if(isset($frmSrc) && trim($frmSrc)!= ''){
                         <th  style="width:10%;">Date Certificate Issued</th>
                         <th style="width:5%;">Date Certificate Sent</th>
                         <th style="width:5%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                             <th style="width:10%;"> E-Mail</th>
                         <?php } ?>
                     </tr>
@@ -72,7 +72,7 @@ if(isset($frmSrc) && trim($frmSrc)!= ''){
                 {"sClass":"center noWrap"},
                 {"sClass":"center noWrap"},
                 {"sClass":"center noWrap"},
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                  {"sClass":"center noWrap","bSortable":false}
                 <?php } ?>
             ],

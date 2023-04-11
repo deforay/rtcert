@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Session\Container;
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
+use Laminas\Session\Container;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
 use Application\Model\GlobalTable;
 
 class FacilityForm extends Form {

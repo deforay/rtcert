@@ -1,104 +1,109 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
 class DashboardController extends AbstractActionController
 {
-    public function indexAction(){
-        $dashService = $this->getServiceLocator()->get('DashboardService');
-        $quickStats = $dashService->getQuickStats();
+    public \Application\Service\DashboardService $dashboardService;
+
+    public function __construct($dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
+    public function indexAction()
+    {
+        $quickStats = $this->dashboardService->getQuickStats();
         return new ViewModel(array(
             'quickStats' => $quickStats,
         ));
     }
-    
-    public function getCertificationPieChartDetailsAction(){
+
+    public function getCertificationPieChartDetailsAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getCertificationPieChartResults($params);
+            $result = $this->dashboardService->getCertificationPieChartResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+                ->setTerminal(true);
             return $viewModel;
         }
     }
-    public function getCertifiedProvinceChartDetailsAction(){
-        
+    public function getCertifiedProvinceChartDetailsAction()
+    {
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getCertifiedProvinceChartResults($params);
+            $result = $this->dashboardService->getCertifiedProvinceChartResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
-                        // \Zend\Debug\Debug::dump($result);die;
+                ->setTerminal(true);
+            // \Zend\Debug\Debug::dump($result);die;
             return $viewModel;
         }
     }
-    public function getCertifiedDistrictChartDetailsAction(){
-    
+    public function getCertifiedDistrictChartDetailsAction()
+    {
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getCertifiedDistrictChartResults($params);
+            $result = $this->dashboardService->getCertifiedDistrictChartResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
-                         // \Zend\Debug\Debug::dump($result);die;
+                ->setTerminal(true);
+            // \Zend\Debug\Debug::dump($result);die;
             return $viewModel;
         }
-        
     }
-    
-    public function getCertificationBarChartDetailsAction(){
+
+    public function getCertificationBarChartDetailsAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getCertificationBarChartResults($params);
+            $result = $this->dashboardService->getCertificationBarChartResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+                ->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function getCertificationMapDetailsAction(){
+
+    public function getCertificationMapDetailsAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getCertificationMapResults($params);
+            $result = $this->dashboardService->getCertificationMapResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+                ->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function testersAction(){
+
+    public function testersAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getTesters($parameters);
+            $result = $this->dashboardService->getTesters($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
-        }else{
+        } else {
             $frmSrc = $this->params()->fromRoute('id');
             return new ViewModel(array(
                 'frmSrc' => $frmSrc
@@ -106,44 +111,43 @@ class DashboardController extends AbstractActionController
         }
     }
 
-    public function getWrittenExamAverageAction(){
+    public function getWrittenExamAverageAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getWrittenExamAverageRadarResults($params);
-            //\Zend\Debug\Debug::dump($result);die;
+            $result = $this->dashboardService->getWrittenExamAverageRadarResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+                ->setTerminal(true);
             return $viewModel;
         }
     }
 
-    public function getPracticalExamAverageAction(){
+    public function getPracticalExamAverageAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getPracticalExamAverageBarResults($params);
-            //\Zend\Debug\Debug::dump($result);die;
+            $result = $this->dashboardService->getPracticalExamAverageBarResults($params);
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+                ->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function getVolumesPracticalWrittenDetailsAction(){
+
+    public function getVolumesPracticalWrittenDetailsAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $dashService = $this->getServiceLocator()->get('DashboardService');
-            $result = $dashService->getPracticalWrittenCountResults($params);
-            // \Zend\Debug\Debug::dump($result);die;
+            $result = $this->dashboardService->getPracticalWrittenCountResults($params);
             $viewModel = new ViewModel();
             return $viewModel->setVariables(array('result' => $result))->setTerminal(true);
         }
     }
-    
 }

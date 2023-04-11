@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Session\Container;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Session\Container;
 use Application\Model\GlobalTable;
 
 class DistrictForm extends Form {

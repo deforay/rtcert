@@ -2,30 +2,37 @@
 
 namespace Certification\Model;
 
-use Zend\Session\Container;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Paginator\Adapter\DbSelect;
-use Zend\Paginator\Paginator;
+use Laminas\Session\Container;
+
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Paginator\Adapter\DbSelect;
+use Laminas\Paginator\Paginator;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
+use Laminas\Db\TableGateway\TableGateway;
 
 class PracticalExamTable extends AbstractTableGateway
 {
 
 	private $tableGateway;
 	public $sm = null;
+	public $adapter = null;
+	public $table = 'practical_exam';
 
-	public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm = null)
+	public function __construct(Adapter $adapter, $sm = null)
 	{
 		$this->tableGateway = $tableGateway;
 		$this->adapter = $adapter;
 		$this->sm = $sm;
+
+		$resultSetPrototype = new ResultSet();
+		$resultSetPrototype->setArrayObjectPrototype(new PracticalExam());
+		$this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
 	}
 
 	public function fetchAll()
@@ -111,7 +118,7 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function insertToExamination($last_id)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 
 		$sql1 = 'select provider_id from practical_exam where practice_exam_id=' . $last_id;
 		$statement1 = $db->query($sql1);
@@ -145,7 +152,7 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function examination($written, $last_id)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'select provider_id from practical_exam where practice_exam_id=' . $last_id;
 		$statement = $db->query($sql1);
 		$result = $statement->execute();
@@ -165,7 +172,7 @@ class PracticalExamTable extends AbstractTableGateway
 	public function attemptNumber($provider)
 	{
 		$common = new CommonService($this->sm);
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'select date_certificate_issued, date_end_validity, certification_id from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and approval_status="approved" and final_decision="certified" and provider=' . $provider . ' ORDER BY date_certificate_issued DESC LIMIT 1';
 		$statement1 = $db->query($sql1);
 		$result1 = $statement1->execute();
@@ -212,7 +219,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function getProviderName($written)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'select id, last_name, first_name, middle_name from provider , written_exam where provider.id=written_exam.provider_id and id_written_exam=' . $written;
 		$statement = $db->query($sql1);
 		$result = $statement->execute();
@@ -227,7 +234,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function counPractical($provider)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql = 'SELECT count(*) as nombre FROM examination WHERE practical_exam_id is not null and id_written_exam is null and  provider=' . $provider . ' and add_to_certification="no"';
 		$statement = $db->query($sql);
 		$result = $statement->execute();
@@ -244,7 +251,7 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function countWritten2($written)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is  null and id_written_exam=' . $written . ' and add_to_certification="no"';
 		//        die($sql);
 		$statement = $db->query($sql);
@@ -263,7 +270,7 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function numberOfDays($provider)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql = 'SELECT DATEDIFF(now(),MAX(date_certificate_issued)) as nb_days from (SELECT provider, final_decision, date_certificate_issued, written_exam.id_written_exam , practical_exam.practice_exam_id ,last_name, first_name, middle_name, provider.id from examination, certification, written_exam,practical_exam, provider WHERE examination.id= certification.examination and examination.id_written_exam=written_exam.id_written_exam and practical_exam.practice_exam_id=examination.practical_exam_id and practical_exam.provider_id=provider.id and final_decision in ("pending","failed") and provider.id=' . $provider . ') as tab';
 		$statement = $db->query($sql);
 		$result = $statement->execute();
@@ -275,7 +282,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function getExamType($practical)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql = 'SELECT exam_type  from practical_exam WHERE practice_exam_id=' . $practical;
 		$statement = $db->query($sql);
 		$result = $statement->execute();
@@ -287,7 +294,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function getProviderName2($practical)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'select id, last_name, first_name, middle_name from provider , practical_exam where provider.id=practical_exam.provider_id and practice_exam_id=' . $practical;
 		$statement = $db->query($sql1);
 		$result = $statement->execute();
@@ -302,7 +309,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function CountPractical($practical_exam_id)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'SELECT count(practical_exam_id) as nombre FROM examination WHERE  practical_exam_id=' . $practical_exam_id;
 		//        die($sql1);
 		$statement = $db->query($sql1);
@@ -315,7 +322,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function deletePractical($practical_exam_id)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql1 = 'SELECT max(id) as examination FROM  examination where practical_exam_id=' . $practical_exam_id;
 		$statement = $db->query($sql1);
 		$result = $statement->execute();
@@ -342,7 +349,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function examToValidate($provider)
 	{
-		$db = $this->tableGateway->getAdapter();
+		$db = $this->adapter;
 		$sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is not null and add_to_certification="no" and provider=' . $provider;
 		//        die($sql);
 		$statement = $db->query($sql);
@@ -356,7 +363,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function fetchPracticalExamAverageBarResults()
 	{
-		$dbAdapter = $this->tableGateway->getAdapter();
+		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
 
 		$query = $sql->select()->from(array('pe' => 'practical_exam'))
@@ -365,7 +372,7 @@ class PracticalExamTable extends AbstractTableGateway
 				"direct_observation_score_avg" => new Expression('AVG(direct_observation_score)'),
 				"practical_total_score_avg" => new Expression('AVG(practical_total_score)')
 			));
-		$queryStr = $sql->getSqlStringForSqlObject($query);
+		$queryStr = $sql->buildSqlString($query);
 
 		$examResults = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 
@@ -385,45 +392,47 @@ class PracticalExamTable extends AbstractTableGateway
 		return $examResultsScores;
 	}
 
-	public function fecthPracticalWrittenCountResults($params = nul){
+	public function fecthPracticalWrittenCountResults($params = nul)
+	{
 		$common = new CommonService($this->sm);
-		$dbAdapter = $this->tableGateway->getAdapter();
+		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
 		/* Current Week */
 		$week_array = $common->getCurrentWeekStartAndEndDate();
 		$start_date = $week_array['weekStart'];
 		$end_date = $week_array['weekEnd'];
-		$dateSet = $common->humanDateFormat($start_date).' to '.$common->humanDateFormat($end_date);
+		$dateSet = $common->humanDateFormat($start_date) . ' to ' . $common->humanDateFormat($end_date);
 
 		$pquery = $sql->select()->from('practical_exam')
 			->columns(array(
 				"total" => new Expression('count(*)')
 			))
-			->where('date >= "'.$start_date.'" AND date <= "'.$end_date.'"');
-		$pqueryStr = $sql->getSqlStringForSqlObject($pquery);
+			->where('date >= "' . $start_date . '" AND date <= "' . $end_date . '"');
+		$pqueryStr = $sql->buildSqlString($pquery);
 		$pResult = $dbAdapter->query($pqueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 		$examCountResults['practical'][$dateSet] = $pResult['total'];
-		
+
 		$wquery = $sql->select()->from('written_exam')
 			->columns(array(
 				"total" => new Expression('count(*)')
 			))
-			->where('date >= "'.$start_date.'" AND date <= "'.$end_date.'"');
-		$wqueryStr = $sql->getSqlStringForSqlObject($wquery);
-		$wResult= $dbAdapter->query($wqueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+			->where('date >= "' . $start_date . '" AND date <= "' . $end_date . '"');
+		$wqueryStr = $sql->buildSqlString($wquery);
+		$wResult = $dbAdapter->query($wqueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 		$examCountResults['written'][$dateSet] = $wResult['total'];
-		
+
 		return $examCountResults;
 	}
 
-	public function getDiff($start_date,$end_date){
+	public function getDiff($start_date, $end_date)
+	{
 		$result = array();
 		$date1 = new \DateTime($start_date);
 		$date2 = new \DateTime($end_date);
 		$interval = $date1->diff($date2);
 		$weeks = floor(($interval->days) / 7);
-		
-		for($i = 1; $i <= $weeks; $i++){    
+
+		for ($i = 1; $i <= $weeks; $i++) {
 			$week = $date1->format("W");
 			$date1->add(new \DateInterval('P6D'));
 			// $dates = $week." = ".$start_date." - ".$date1->format('Y-m-d')."<br/>";
@@ -438,10 +447,11 @@ class PracticalExamTable extends AbstractTableGateway
 
 
 
-    public function getTrainingName($written) {
-        $db = $this->tableGateway->getAdapter();
-      
-        $sql1 = 'SELECT 
+	public function getTrainingName($written)
+	{
+		$db = $this->adapter;
+
+		$sql1 = 'SELECT 
         practice_exam_id,
         training.training_id,
         training.Provider_id,
@@ -462,16 +472,15 @@ class PracticalExamTable extends AbstractTableGateway
         training_organization_name,
         type_organization
         FROM practical_exam,training,provider,training_organization WHERE  practical_exam.training_id=training.training_id and training.Provider_id= provider.id and training_organization.training_organization_id=training.training_organization_id and practical_exam.practice_exam_id=' . $written;
-        
-        $statement = $db->query($sql1);
-        $result = $statement->execute();
-        $selectData = array();
 
-        foreach ($result as $res) {
-            $selectData['name'] = $res['type_of_competency'] . ' ' . $res['training_organization_name'] . ' ' . $res['type_organization'];
-            $selectData['id'] = $res['training_id'];
-        }
-        return $selectData;
-        
-    }
+		$statement = $db->query($sql1);
+		$result = $statement->execute();
+		$selectData = array();
+
+		foreach ($result as $res) {
+			$selectData['name'] = $res['type_of_competency'] . ' ' . $res['training_organization_name'] . ' ' . $res['type_organization'];
+			$selectData['id'] = $res['training_id'];
+		}
+		return $selectData;
+	}
 }

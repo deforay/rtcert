@@ -2,10 +2,10 @@
 namespace Application\Service;
 
 use PHPExcel;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Adapter;
-use Zend\Session\Container;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Session\Container;
 use \Application\Model\TestOptionsTable;
 use \Application\Model\TestSectionTable;
 
@@ -24,7 +24,7 @@ class QuestionService {
 
     public function addQuestionData($params){
 
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
        try {
            $QuestionDb = $this->sm->get('QuestionTable');
@@ -66,7 +66,7 @@ class QuestionService {
     }
 
     public function updateQuestionDetails($params){        
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
        try {
             $QuestionDb = $this->sm->get('QuestionTable');
@@ -116,9 +116,9 @@ class QuestionService {
             \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
             $output = array();
             $sheet = $excel->getActiveSheet();
-            $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+            $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
-            $sQueryStr = $sql->getSqlStringForSqlObject($querycontainer->questionPreQueryStr);
+            $sQueryStr = $sql->buildSqlString($querycontainer->questionPreQueryStr);
             $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             
             $output= array();
@@ -221,7 +221,7 @@ class QuestionService {
     public function uploadTestQuestion($fileName)
     {
         
-        $dbAdapter         = $this->sm->get('Zend\Db\Adapter\Adapter');
+        $dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql               = new Sql($dbAdapter);
         $loginContainer    = new Container('credo');
         $QuestionDb        = $this->sm->get('QuestionTable');

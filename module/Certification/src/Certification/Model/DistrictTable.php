@@ -2,14 +2,29 @@
 
 namespace Certification\Model;
 
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\TableGateway;
 
-class DistrictTable {
+class DistrictTable extends AbstractTableGateway
+{
 
     protected $tableGateway;
+    protected $adapter;
+    protected $table = 'certification_districts';
+    public $sm = null;
 
-    public function __construct(TableGateway $tableGateway) {
-        $this->tableGateway = $tableGateway;
+
+    public function __construct(Adapter $adapter, $sm = null)
+    {
+        $this->adapter = $adapter;
+        $this->sm = $sm;
+
+
+        $resultSetPrototype = new ResultSet();
+        $resultSetPrototype->setArrayObjectPrototype(new District());
+        $this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
     //public function fetchAll() {
@@ -54,9 +69,10 @@ class DistrictTable {
     //    $this->tableGateway->delete(array('id' => (int) $id));
     //}
 
-    public function foreigne_key($district) {
-        $db = $this->tableGateway->getAdapter();
-        $sql = 'SELECT COUNT(district) as nombre from certification_facilities  WHERE district=' .$district;
+    public function foreigne_key($district)
+    {
+        $db = $this->adapter;
+        $sql = 'SELECT COUNT(district) as nombre from certification_facilities  WHERE district=' . $district;
         $statement = $db->query($sql);
         $result = $statement->execute();
         foreach ($result as $res) {
@@ -64,5 +80,4 @@ class DistrictTable {
         }
         return $nombre;
     }
-
 }

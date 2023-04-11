@@ -1,6 +1,6 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -8,14 +8,14 @@ $acl = $this->layout()->acl;
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/jasny-bootstrap.min.css'); ?>" />
 <div class="am-content">
-	<?php if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) { ?>
+	<?php if (isset($acl) && $acl->isAllowed($role, "Application\Controller\ConfigController", "index")) { ?>
 		<div class="page-head">
 			<div class="row">
 				<div class="col-sm-8">
 					<h2>Global Config</h2>
 				</div>
 				<div class="col-sm-4">
-					<?php if ($acl->isAllowed($role, 'Application\Controller\Config', 'edit-global')) { ?>
+					<?php if ($acl->isAllowed($role, 'Application\Controller\ConfigController', 'edit-global')) { ?>
 						<a href="<?php echo $this->url('config', array('action' => 'edit-global')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Edit Global Config</a>
 					<?php } ?>
 				</div>
@@ -41,14 +41,14 @@ $acl = $this->layout()->acl;
 		</div>
 </div>
 <?php }
-	if (isset($acl) && $acl->isAllowed($role, "Application\Controller\Config", "index")) { ?>
+	if (isset($acl) && $acl->isAllowed($role, "Application\Controller\ConfigController", "index")) { ?>
 	<div class="page-head">
 		<div class="row">
 			<div class="col-sm-8">
 				<h2>PDF Settings</h2>
 			</div>
 			<div class="col-sm-4">
-				<?php if ($acl->isAllowed($role, 'Application\Controller\Config', 'edit-global')) { ?>
+				<?php if ($acl->isAllowed($role, 'Application\Controller\ConfigController', 'edit-global')) { ?>
 					<a href="<?php echo $this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('last') => base64_encode('SARRI'), base64_encode('first') => base64_encode('HUBERT'), base64_encode('middle') => base64_encode('JASSIE JAMES'), base64_encode('professional_reg_no') => base64_encode('Ab-37-eg'), base64_encode('certification_id') => base64_encode(date('Y') . '-C000'), base64_encode('date_issued') => base64_encode(date('Y-m-d'))))); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Test a PDF</a>
 				<?php } ?>
 

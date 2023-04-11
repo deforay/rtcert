@@ -2,85 +2,94 @@
 
 namespace Certification\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Session\Container;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Session\Container;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\Provider;
 use Certification\Form\ProviderForm;
-use Zend\Debug\Debug;
-use Zend\Json\Json;
+use Laminas\Json\Json;
 
-class ProviderController extends AbstractActionController {
+class ProviderController extends AbstractActionController
+{
 
-    protected $providerTable;
+    public \Application\Service\CommonService $commonService;
+    public \Application\Service\TestService $testService;
+    public \Application\Service\QuestionService $questionService;
+    public \Certification\Model\ProviderTable $providerTable;
+    public \Certification\Form\ProviderForm $providerForm;
 
-    public function getProviderTable() {
-        if (!$this->providerTable) {
-            $sm = $this->getServiceLocator();
-            $this->providerTable = $sm->get('Certification\Model\ProviderTable');
-        }
-        return $this->providerTable;
+    public function __construct($commonService, $questionService, $testService, $providerForm, $providerTable)
+    {
+        $this->commonService = $commonService;
+        $this->questionService = $questionService;
+        $this->testService = $testService;
+        $this->providerTable = $providerTable;
+        $this->providerForm = $providerForm;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         // return new ViewModel(array(
-        //     'providers' => $this->getProviderTable()->fetchAll(),
+        //     'providers' => $this->providerTable->fetchAll(),
         // ));
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getProviderTable()->fetachProviderData($parameters);
+            $result = $this->providerTable->fetchProviderData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new ProviderForm($dbAdapter);
-        $form->get('submit')->setValue('SUBMIT');
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
+        $this->providerForm->get('submit')->setValue('SUBMIT');
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $post = array_merge_recursive(
                 $request->getPost()->toArray(),
                 $request->getFiles()->toArray()
-            ); 
+            );
             $provider = new Provider();
-            $form->setInputFilter($provider->getInputFilter());
-            $form->setData($post);
+            $this->providerForm->setInputFilter($provider->getInputFilter());
+            $this->providerForm->setData($post);
             $select_time = $request->getPost('select_time');
-            if ($form->isValid()) {
-                $provider->exchangeArray($form->getData());
+            if ($this->providerForm->isValid()) {
+                $provider->exchangeArray($this->providerForm->getData());
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
-                $this->getProviderTable()->saveProvider($provider);
+                $this->providerTable->saveProvider($provider);
                 $container = new Container('alert');
                 $container->alertMsg = 'New tester added successfully';
                 return $this->redirect()->toRoute('provider', array('action' => 'add'));
             }
         }
-        return array('form' => $form,
-            'providers' => $this->getProviderTable()->fetchAll(),
+        return array(
+            'form' => $this->providerForm,
+            'providers' => $this->providerTable->fetchAll(),
         );
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
 
@@ -89,23 +98,23 @@ class ProviderController extends AbstractActionController {
         }
 
         try {
-            $provider = $this->getProviderTable()->getProvider($id);
-//            die(print_r($provider));
+            $provider = $this->providerTable->getProvider($id);
+            //            die(print_r($provider));
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('provider', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
 
-        $form = new ProviderForm($dbAdapter);
         $time_array = explode(' ', $provider->time_worked);
         $time1 = $time_array[0];
         $time2 = $time_array[1];
 
         $provider->time_worked = $time1;
-        $form->bind($provider);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
+        $this->providerForm->bind($provider);
+        $this->providerForm->get('submit')->setAttribute('value', 'UPDATE');
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $select_time = $request->getPost('select_time');
@@ -114,24 +123,24 @@ class ProviderController extends AbstractActionController {
                 $request->getFiles()->toArray()
             );
             // Debug::dump($post);die;
-            $form->setInputFilter($provider->getInputFilter());
-            $form->setData($post);
+            $this->providerForm->setInputFilter($provider->getInputFilter());
+            $this->providerForm->setData($post);
 
-            if ($form->isValid()) {
+            if ($this->providerForm->isValid()) {
                 $provider->time_worked = $provider->time_worked . ' ' . $select_time;
-                $this->getProviderTable()->saveProvider($provider);
+                $this->providerTable->saveProvider($provider);
                 $container = new Container('alert');
                 $container->alertMsg = 'Tester updated successfully';
                 return $this->redirect()->toRoute('provider');
-            } 
+            }
             /* else{
-                Debug::dump($form->getMessages());die;
+                Debug::dump($this->providerForm->getMessages());die;
             } */
         }
-        $location = $this->getProviderTable()->getCountryIdbyRegion($provider->region);
+        $location = $this->providerTable->getCountryIdbyRegion($provider->region);
         return array(
             'id' => $id,
-            'form' => $form,
+            'form' => $this->providerForm,
             'country_id' => $location['country_id'],
             'region_id' => $provider->region,
             'district_id' => $provider->district,
@@ -141,76 +150,83 @@ class ProviderController extends AbstractActionController {
         );
     }
 
-    public function regionAction() {
-        $request = $this->getRequest();                
+    public function regionAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $result = $this->getProviderTable()->getRegion($params);
+            $result = $this->providerTable->getRegion($params);
             $viewModel = new ViewModel(array(
                 'result' => $result,
-                'params'=>$params
-                ));
+                'params' => $params
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
         //$q = (int) $_GET['q'];
         //$id = (isset($_GET['id']))?(int) $_GET['id']:'';
-        //$result = $this->getProviderTable()->getRegion($q);
+        //$result = $this->providerTable->getRegion($q);
         //return array(
         //    'result' => $result,
         //    'id'=>$id
         //);
     }
-    
-    public function districtAction() {
+
+    public function districtAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
-        $id = (isset($_GET['id']))?(int) $_GET['id']:'';
-        $result = $this->getProviderTable()->getDistrict($q);
+        $id = (isset($_GET['id'])) ? (int) $_GET['id'] : '';
+        $result = $this->providerTable->getDistrict($q);
         return array(
             'result' => $result,
-            'id'=>$id
+            'id' => $id
         );
     }
 
-    public function facilityAction() {
+    public function facilityAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
-        $id = (isset($_GET['id']))?(int) $_GET['id']:'';
-        $result = $this->getProviderTable()->getFacility($q);
+        $id = (isset($_GET['id'])) ? (int) $_GET['id'] : '';
+        $result = $this->providerTable->getFacility($q);
         return array(
             'result' => $result,
-            'id'=>$id
+            'id' => $id
         );
     }
 
-    public function setCountrySelectionAction() {
-        $request = $this->getRequest();                
+    public function setCountrySelectionAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $result = $this->getProviderTable()->getAllActiveCountries();
+            $result = $this->providerTable->getAllActiveCountries();
             $viewModel = new ViewModel(array(
                 'result' => $result,
-                'params'=>$params
-                ));
+                'params' => $params
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
         //$id = (int) $_GET['id'];
-        //$result = $this->getProviderTable()->getAllActiveCountries();
+        //$result = $this->providerTable->getAllActiveCountries();
         //return array(
         //    'id'=>$id,
         //    'result' => $result,
         //);
     }
-    
-    public function deleteAction() {
+
+    public function deleteAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
@@ -220,12 +236,12 @@ class ProviderController extends AbstractActionController {
         if (!$id) {
             return $this->redirect()->toRoute('provider');
         } else {
-            $keys = $this->getProviderTable()->foreigne_key($id);
+            $keys = $this->providerTable->foreigne_key($id);
             $key1 = $keys['nombre'];
             $key2 = $keys['nombre2'];
             $key3 = $keys['nombre3'];
             if ($key1 == 0 && $key2 == 0 && $key3 == 0) {
-                $this->getProviderTable()->deleteProvider($id);
+                $this->providerTable->deleteProvider($id);
                 $container = new Container('alert');
                 $container->alertMsg = 'Deleted successfully';
                 return $this->redirect()->toRoute('provider');
@@ -237,12 +253,12 @@ class ProviderController extends AbstractActionController {
         }
     }
 
-    public function xlsAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new ProviderForm($dbAdapter);
-        $form->get('submit')->setValue('DOWNLOAD REPORT');
-        // $form->get('getreport')->setValue('GET REPORT');
+    public function xlsAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $this->providerForm->get('submit')->setValue('DOWNLOAD REPORT');
+        // $this->providerForm->get('getreport')->setValue('GET REPORT');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $country = $request->getPost('country');
@@ -253,7 +269,7 @@ class ProviderController extends AbstractActionController {
             $contact_method = $request->getPost('prefered_contact_method');
             $jobTitle = $request->getPost('current_jod');
             $excludeTesterName = $request->getPost('exclude_tester_name');
-            $provider = $this->getProviderTable()->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
+            $provider = $this->providerTable->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
             $objPHPExcel = new \PHPExcel();
             $objPHPExcel->setActiveSheetIndex(0);
             $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:F1'); //merge some column
@@ -271,7 +287,8 @@ class ProviderController extends AbstractActionController {
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
+                )
+            );
             $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->applyFromArray($styleArray); //apply style from array style array
             $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
 
@@ -316,12 +333,12 @@ class ProviderController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $provider['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $provider['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $provider['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$provider['middle_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($provider['country_name']))?$provider['country_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($provider['region_name']))?$provider['region_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($provider['district_name']))?$provider['district_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $provider['last_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $provider['first_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $provider['middle_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($provider['country_name'])) ? $provider['country_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($provider['region_name'])) ? $provider['region_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($provider['district_name'])) ? $provider['district_name'] : '');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $provider['type_vih_test']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, $provider['phone']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $provider['email']);
@@ -348,11 +365,12 @@ class ProviderController extends AbstractActionController {
             $objWriter->save('php://output');
             exit;
         }
-        return array('form' => $form);
+        return array('form' => $this->providerForm);
     }
 
     public function getReportAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         $country = $request->getPost('country');
         $region = $request->getPost('region');
@@ -362,22 +380,23 @@ class ProviderController extends AbstractActionController {
         $contact_method = $request->getPost('prefered_contact_method');
         $jobTitle = $request->getPost('current_jod');
         $excludeTesterName = $request->getPost('exclude_tester_name');
-        $provider = $this->getProviderTable()->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
+        $provider = $this->providerTable->report($country, $region, $district, $facility, $typeHiv, $contact_method, $jobTitle);
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' =>$provider));
+        $viewModel->setVariables(array('result' => $provider));
         $viewModel->setTerminal(true);
         return $viewModel;
     }
-    
-    public function testHistoryAction() {
+
+    public function testHistoryAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $tester = base64_decode($this->params()->fromQuery('tester', null));
-        $result = $this->getProviderTable()->getTesterTestHistoryDetails($tester);
+        $result = $this->providerTable->getTesterTestHistoryDetails($tester);
         $viewModel = new ViewModel(array(
-            'result'=>$result
+            'result' => $result
         ));
         $this->layout('layout/modal');
         return $viewModel;
@@ -385,19 +404,20 @@ class ProviderController extends AbstractActionController {
 
     public function loginAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $route = $this->getProviderTable()->loginProviderDetails($params);
+            $route = $this->providerTable->loginProviderDetails($params);
             return $this->redirect()->toUrl($route);
         }
         $tester = $this->params()->fromQuery('u', null);
-        if($tester){
-            $params = $this->getProviderTable()->getProviderByToken($tester);
-            if(!$params){
+        if ($tester) {
+            $params = $this->providerTable->getProviderByToken($tester);
+            if (!$params) {
                 $container = new Container('alert');
                 $container->alertMsg = "Your link expired. Kindly request a link to RT Certification admin";
-            }else{
+            } else {
                 $logincontainer = new Container('credo');
                 $logincontainer->roleName = 'RT Providers';
                 $logincontainer->userId = $params['id'];
@@ -406,59 +426,60 @@ class ProviderController extends AbstractActionController {
                 $logincontainer->roleCode = 'provider';
                 return $this->redirect()->toUrl('/test/intro');
             }
-        }else{
+        } else {
             return $this->redirect()->toUrl('/');
         }
     }
 
-    public function logoutAction() {
+    public function logoutAction()
+    {
         $sessionLogin = new Container('credo');
         $sessionLogin->getManager()->getStorage()->clear();
         return $this->redirect()->toUrl("/");
     }
 
-    public function sendTestLinkAction() {
+    public function sendTestLinkAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $provider = $this->getProviderTable()->saveLinkSend($params);
-            if(isset($provider['provider']->email) && $provider['provider']->email != '' && $provider['provider']->email != null){
+            $provider = $this->providerTable->saveLinkSend($params);
+            if (isset($provider['provider']->email) && $provider['provider']->email != '' && $provider['provider']->email != null) {
                 /* Mail services start */
-                $commonService = $this->getServiceLocator()->get('CommonService');
-                $mailTemplates = $commonService->getMailTemplateByPurpose('send-online-test-link');
-                $config = new \Zend\Config\Reader\Ini();
+                $mailTemplates = $this->commonService->getMailTemplateByPurpose('send-online-test-link');
+                $config = new \Laminas\Config\Reader\Ini();
                 $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
                 $to = $provider['provider']->email;
-                
-                $mailSearch = array('##USER##', '##URL##', '##URLWITHOUTLINK##' ,'##COUNTRY##');
-                
+
+                $mailSearch = array('##USER##', '##URL##', '##URLWITHOUTLINK##', '##COUNTRY##');
+
                 $linkEncode = $provider['provider']->link_token . $configResult["password"]["salt"];
                 $key = hash('sha256', $linkEncode);
-                
+
                 $mailReplace = array(
-                    $provider['provider']->first_name.' '.$provider['provider']->last_name,
-                    "<a href='".$configResult['domain']."/provider/login?u=".$key."'>click here</a>",
-                    "".$configResult['domain']."/provider/login?u=".$key."",
+                    $provider['provider']->first_name . ' ' . $provider['provider']->last_name,
+                    "<a href='" . $configResult['domain'] . "/provider/login?u=" . $key . "'>click here</a>",
+                    "" . $configResult['domain'] . "/provider/login?u=" . $key . "",
                     $provider['countryName']
                 );
-                
+
                 $message = str_replace($mailSearch, $mailReplace, $mailTemplates['mail_content']);
                 $message = str_replace("&nbsp;", "", strval($message));
                 $message = str_replace("&amp;nbsp;", "", strval($message));
                 $message = html_entity_decode($message . $mailTemplates['mail_footer'], ENT_QUOTES, 'UTF-8');
-                
+
                 $fromMail = $mailTemplates['mail_from'];
                 $fromName = $mailTemplates['from_name'];
                 $subject = $mailTemplates['mail_subject'];
                 $cc = $configResult['provider']['to']['cc'];
                 $bcc = "";
                 /* Mail services end */
-                $commonService = $this->getServiceLocator()->get('CommonService');
-                $mail = $commonService->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
+                $mail = $this->commonService->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
                 $viewModel = new ViewModel(array('result' => $mail));
                 $viewModel->setTerminal(true);
                 return $viewModel;
-            }else{
+            } else {
                 $viewModel = new ViewModel(array('result' => 0));
                 $viewModel->setTerminal(true);
                 return $viewModel;
@@ -468,37 +489,35 @@ class ProviderController extends AbstractActionController {
 
     public function testFrequencyAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            // \Zend\Debug\Debug::dump($parameters);die;
-            $questionService = $this->getServiceLocator()->get('QuestionService');
-            $result = $questionService->getUserTestList($parameters);
+            $result = $this->questionService->getUserTestList($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
     public function frequencyQuestionAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $questionService = $this->getServiceLocator()->get('QuestionService');
-            $result = $questionService->getFrequencyQuestionList($parameters);
+            $result = $this->questionService->getFrequencyQuestionList($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
     public function exportTestDetailsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if($request->isPost())
-        {
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $testService = $this->getServiceLocator()->get('TestService');
-            $result=$testService->exportTestDetails($parameters);
+            $result = $this->testService->exportTestDetails($parameters);
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
@@ -506,86 +525,89 @@ class ProviderController extends AbstractActionController {
 
     public function exportQuestionDetailsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if($request->isPost())
-        {
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $questionService = $this->getServiceLocator()->get('QuestionService');
-            $result=$questionService->exportQuestionDetails($parameters);
+            $result = $this->questionService->exportQuestionDetails($parameters);
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
 
-    public function certificatePdfAction() {
-        if($this->params()->fromRoute('id') != ''){
-            $testId=base64_decode($this->params()->fromRoute('id'));
-            $testService = $this->getServiceLocator()->get('TestService');
-            $result = $testService->getCertificateFieldDetails($testId);
+    public function certificatePdfAction()
+    {
+        if ($this->params()->fromRoute('id') != '') {
+            $testId = base64_decode($this->params()->fromRoute('id'));
+            $result = $this->testService->getCertificateFieldDetails($testId);
             return array(
-                'result'=>$result
+                'result' => $result
             );
-        }else if ($this->getRequest()->isGet()) {
+        } else if ($this->getRequest()->isGet()) {
             $testId = base64_decode($this->getRequest()->getQuery('testId'));
-            // \Zend\Debug\Debug::dump($testId);die;
-            $testService = $this->getServiceLocator()->get('TestService');
-            $result = $testService->getCertificateFieldDetails($testId);
+            $result = $this->testService->getCertificateFieldDetails($testId);
             return array(
-                'result'=>$result
+                'result' => $result
             );
         }
     }
 
-    
 
 
-    public function importExcelAction() {
+
+    public function importExcelAction()
+    {
         $logincontainer = new Container('credo');
         if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
-        
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new ProviderForm($dbAdapter);
-        $form->get('submit')->setValue('SUBMIT');
 
-        
+        $this->providerForm->get('submit')->setValue('SUBMIT');
+
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $post = array_merge_recursive(
                 $request->getPost()->toArray(),
                 $request->getFiles()->toArray()
-            ); 
-            $result = $this->getProviderTable()->uploadTesterExcel($post);
-            return array('form' => $form,
+            );
+            $result = $this->providerTable->uploadTesterExcel($post);
+            return array(
+                'form' => $this->providerForm,
                 'result' => $result,
             );
         }
-        return array('form' => $form,
-            'providers' => $this->getProviderTable()->fetchAll(),
+        return array(
+            'form' => $this->providerForm,
+            'providers' => $this->providerTable->fetchAll(),
         );
     }
 
 
 
-    public function getProviderDataAction() {
+    public function getProviderDataAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $parameters['addproviders']="addproviders";
-            $result = $this->getProviderTable()->fetachProviderData($parameters);
+            $parameters['addproviders'] = "addproviders";
+            $result = $this->providerTable->fetchProviderData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
-    public function getTesterReportAction() {
+    public function getTesterReportAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $parameters['addproviders']="addproviders";
-            $result = $this->getProviderTable()->reportData($parameters);
+            $parameters['addproviders'] = "addproviders";
+            $result = $this->providerTable->reportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }

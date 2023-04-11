@@ -1,7 +1,7 @@
 <?php
 return array(
     'NCDM' => array(
-        'Certification\\Controller\\Certification' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'allow',
             'add' => 'allow',
@@ -12,34 +12,34 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'allow',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
             'pending' => 'allow',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'allow',
             'audi-details' => 'allow',
             'testers' => 'allow',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
@@ -48,7 +48,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
@@ -57,58 +57,58 @@ return array(
             'xls' => 'allow',
             'facility' => 'allow',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
@@ -117,7 +117,7 @@ return array(
         ),
     ),
     'NCC' => array(
-        'Certification\\Controller\\Certification' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'allow',
             'add' => 'deny',
@@ -128,34 +128,34 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'allow',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'edit' => 'deny',
             'pending' => 'allow',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'allow',
             'audi-details' => 'deny',
             'testers' => 'allow',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
@@ -164,7 +164,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'delete' => 'deny',
@@ -173,58 +173,58 @@ return array(
             'xls' => 'allow',
             'facility' => 'deny',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'attempt' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'edit' => 'deny',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'attempt' => 'deny',
@@ -233,7 +233,7 @@ return array(
         ),
     ),
     'DDM' => array(
-        'Certification\\Controller\\Certification' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'allow',
             'add' => 'allow',
@@ -244,34 +244,34 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'allow',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
             'pending' => 'allow',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'allow',
             'audi-details' => 'allow',
             'testers' => 'allow',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
@@ -280,7 +280,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
@@ -289,58 +289,58 @@ return array(
             'xls' => 'allow',
             'facility' => 'allow',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
@@ -348,8 +348,8 @@ return array(
             'edit' => 'allow',
         ),
     ),
-    'DC' => array(
-        'Certification\\Controller\\Certification' => array(
+    'DCC' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'deny',
             'add' => 'deny',
@@ -360,34 +360,34 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'deny',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'edit' => 'deny',
             'pending' => 'deny',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'allow',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'allow',
             'audi-details' => 'deny',
             'testers' => 'allow',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
@@ -396,7 +396,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'delete' => 'deny',
@@ -405,58 +405,58 @@ return array(
             'xls' => 'allow',
             'facility' => 'deny',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'edit' => 'deny',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
             'xls' => 'allow',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'allow',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'attempt' => 'allow',
@@ -465,7 +465,7 @@ return array(
         ),
     ),
     'PDM' => array(
-        'Certification\\Controller\\Certification' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'deny',
             'add' => 'deny',
@@ -476,34 +476,34 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'deny',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
             'pending' => 'deny',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'deny',
             'audi-details' => 'deny',
             'testers' => 'deny',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
@@ -512,7 +512,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'delete' => 'deny',
@@ -521,76 +521,76 @@ return array(
             'xls' => 'deny',
             'facility' => 'deny',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestSection' => array(
+        'Application\\Controller\\TestSectionController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
         ),
-        'Application\\Controller\\TestConfig' => array(
+        'Application\\Controller\\TestConfigController' => array(
             'index' => 'allow',
             'edit' => 'allow',
         ),
-        'Application\\Controller\\Test' => array(
+        'Application\\Controller\\TestController' => array(
             'index' => 'allow',
             'result' => 'allow',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'attempt' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestQuestion' => array(
+        'Application\\Controller\\TestQuestionController' => array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'attempt' => 'deny',
@@ -599,7 +599,7 @@ return array(
         ),
     ),
     'provider' => array(
-        'Certification\\Controller\\Certification' => array(
+        'Certification\\Controller\\CertificationController' => array(
             'pdf-setting' => 'deny',
             'index' => 'deny',
             'add' => 'deny',
@@ -611,40 +611,40 @@ return array(
             'header-text' => 'deny',
             'recommend' => 'allow',
         ),
-        'Certification\\Controller\\CertificationMail' => array(
+        'Certification\\Controller\\CertificationMailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Common' => array(
+        'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',
         ),
-        'Certification\\Controller\\Examination' => array(
+        'Certification\\Controller\\ExaminationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
             'pending' => 'deny',
         ),
-        'Application\\Controller\\Config' => array(
+        'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
             'edit-global' => 'deny',
         ),
-        'Application\\Controller\\Index' => array(
+        'Application\\Controller\\IndexController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\MailTemplate' => array(
+        'Application\\Controller\\MailTemplateController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Dashboard' => array(
+        'Application\\Controller\\DashboardController' => array(
             'index' => 'deny',
             'audi-details' => 'deny',
             'testers' => 'deny',
         ),
-        'Application\\Controller\\Email' => array(
+        'Application\\Controller\\EmailController' => array(
             'index' => 'deny',
         ),
-        'Application\\Controller\\Facility' => array(
+        'Application\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
@@ -653,7 +653,7 @@ return array(
             'get-province-list' => 'deny',
             'get-facility-name' => 'deny',
         ),
-        'Certification\\Controller\\Provider' => array(
+        'Certification\\Controller\\ProviderController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'certificate-pdf' => 'deny',
@@ -668,58 +668,58 @@ return array(
             'send-test-link' => 'deny',
             'test-frequency' => 'deny',
         ),
-        'Application\\Controller\\Roles' => array(
+        'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Users' => array(
+        'Application\\Controller\\UsersController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestSection' => array(
+        'Application\\Controller\\TestSectionController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestConfig' => array(
+        'Application\\Controller\\TestConfigController' => array(
             'index' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\TestQuestion' => array(
+        'Application\\Controller\\TestQuestionController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\Test' => array(
+        'Application\\Controller\\TestController' => array(
             'index' => 'allow',
             'intro' => 'allow',
             'result' => 'allow',
         ),
-        'Certification\\Controller\\District' => array(
+        'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Facility' => array(
+        'Certification\\Controller\\FacilityController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\Region' => array(
+        'Certification\\Controller\\RegionController' => array(
             'index' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\PracticalExam' => array(
+        'Certification\\Controller\\PracticalExamController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'attempt' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Application\\Controller\\PrintTestPdf' => array(
+        'Application\\Controller\\PrintTestPdfController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'answer-key-one' => 'deny',
@@ -728,26 +728,26 @@ return array(
             'print-pdf-question' => 'deny',
             'view-pdf-question' => 'deny',
         ),
-        'Certification\\Controller\\Recertification' => array(
+        'Certification\\Controller\\RecertificationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
         ),
-        'Certification\\Controller\\Training' => array(
+        'Certification\\Controller\\TrainingController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
             'xls' => 'deny',
         ),
-        'Certification\\Controller\\TrainingOrganization' => array(
+        'Certification\\Controller\\TrainingOrganizationController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'delete' => 'deny',
             'edit' => 'deny',
         ),
-        'Certification\\Controller\\WrittenExam' => array(
+        'Certification\\Controller\\WrittenExamController' => array(
             'index' => 'deny',
             'add' => 'deny',
             'attempt' => 'deny',

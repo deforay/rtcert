@@ -2,106 +2,112 @@
 
 namespace Certification\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\Recertification;
 use Certification\Form\RecertificationForm;
-use Zend\Session\Container;
-use Zend\Json\Json;
+use Laminas\Session\Container;
+use Laminas\Json\Json;
 
-class RecertificationController extends AbstractActionController {
+class RecertificationController extends AbstractActionController
+{
+    public \Certification\Model\RecertificationTable $recertificationTable;
+    public \Certification\Form\RecertificationForm $recertificationForm;
 
-    protected $recertificationTable;
-
-    public function getRecertificationTable() {
-        if (!$this->recertificationTable) {
-            $sm = $this->getServiceLocator();
-            $this->recertificationTable = $sm->get('Certification\Model\RecertificationTable');
-        }
-        return $this->recertificationTable;
+    public function __construct($recertificationForm, $recertificationTable)
+    {
+        $this->recertificationTable = $recertificationTable;
+        $this->recertificationForm = $recertificationForm;
     }
 
-    public function indexAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-//        $reminder = $this->getRecertificationTable()->fetchAll2();
+
+    public function indexAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        //        $reminder = $this->recertificationTable->fetchAll2();
         $certification_id = (int) base64_decode($this->params()->fromQuery(base64_encode('certification_id'), null));
         $key = base64_decode($this->params()->fromQuery(base64_encode('key'), null));
         if (!empty($certification_id) && !empty($key)) {
-            $this->getRecertificationTable()->ReminderSent($certification_id);
+            $this->recertificationTable->ReminderSent($certification_id);
             $container = new Container('alert');
             $container->alertMsg = 'Perform successfully';
             return $this->redirect()->toRoute('recertification', array(
-                        'action' => 'add'), array('query' => array(base64_encode('certification_id') => base64_encode($certification_id))));
+                'action' => 'add'
+            ), array('query' => array(base64_encode('certification_id') => base64_encode($certification_id))));
         } else {
 
             return new ViewModel(array(
-                'recertifications' => $this->getRecertificationTable()->fetchAll(),
-                'reminders' => $this->getRecertificationTable()->fetchAll2()
+                'recertifications' => $this->recertificationTable->fetchAll(),
+                'reminders' => $this->recertificationTable->fetchAll2()
             ));
         }
     }
 
-    public function addAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+    public function addAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $certification_id = (int) base64_decode($this->params()->fromQuery(base64_encode('certification_id'), null));
-        $form = new RecertificationForm($dbAdapter);
-        $form->get('submit')->setValue('SUBMIT');
+        
+        $this->recertificationForm->get('submit')->setValue('SUBMIT');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $recertification = new Recertification();
-            $form->setInputFilter($recertification->getInputFilter());
-            $form->setData($request->getPost());
+            $this->recertificationForm->setInputFilter($recertification->getInputFilter());
+            $this->recertificationForm->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $recertification->exchangeArray($form->getData());
-                $this->getRecertificationTable()->saveRecertification($recertification);
+            if ($this->recertificationForm->isValid()) {
+                $recertification->exchangeArray($this->recertificationForm->getData());
+                $this->recertificationTable->saveRecertification($recertification);
                 $container = new Container('alert');
                 $container->alertMsg = 'Re-certification added successfully';
                 return $this->redirect()->toRoute('recertification', array('action' => 'add'));
             }
         }
         if (isset($certification_id)) {
-            $provider = $this->getRecertificationTable()->certificationInfo($certification_id);
-            return array('form' => $form,
-                'provider' => $provider);
+            $provider = $this->recertificationTable->certificationInfo($certification_id);
+            return array(
+                'form' => $this->recertificationForm,
+                'provider' => $provider
+            );
         } else {
-            return array('form' => $form);
+            return array('form' => $this->recertificationForm);
         }
     }
 
-    public function editAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+    public function editAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $recertification_id = (int) base64_decode($this->params()->fromRoute('recertification_id', 0));
         if (!$recertification_id) {
             return $this->redirect()->toRoute('recertification', array(
-                        'action' => 'add'
+                'action' => 'add'
             ));
         }
 
         try {
-            $recertification = $this->getRecertificationTable()->getRecertification($recertification_id);
+            $recertification = $this->recertificationTable->getRecertification($recertification_id);
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('recertification', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
         $recertification->due_date = date("d-m-Y", strtotime($recertification->due_date));
         if (isset($recertification->date_reminder_sent)) {
             $recertification->date_reminder_sent = date("d-m-Y", strtotime($recertification->date_reminder_sent));
         }
-        $form = new RecertificationForm($dbAdapter);
-        $form->bind($recertification);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
+        
+        $this->recertificationForm->bind($recertification);
+        $this->recertificationForm->get('submit')->setAttribute('value', 'UPDATE');
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $form->setInputFilter($recertification->getInputFilter());
-            $form->setData($request->getPost());
+            $this->recertificationForm->setInputFilter($recertification->getInputFilter());
+            $this->recertificationForm->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $this->getRecertificationTable()->saveRecertification($recertification);
+            if ($this->recertificationForm->isValid()) {
+                $this->recertificationTable->saveRecertification($recertification);
                 $container = new Container('alert');
                 $container->alertMsg = 'Re-certification updated successfully';
                 return $this->redirect()->toRoute('recertification');
@@ -110,16 +116,17 @@ class RecertificationController extends AbstractActionController {
 
         return array(
             'recertification_id' => $recertification_id,
-            'form' => $form,
+            'form' => $this->recertificationForm,
         );
     }
 
-    public function xlsAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $countries = $this->getRecertificationTable()->getAllActiveCountries();
-        $form = new RecertificationForm($dbAdapter);
-        $form->get('submit')->setValue('DOWNLOAD REPORT');
+    public function xlsAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $countries = $this->recertificationTable->getAllActiveCountries();
+        
+        $this->recertificationForm->get('submit')->setValue('DOWNLOAD REPORT');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $decision = $request->getPost('decision');
@@ -136,7 +143,7 @@ class RecertificationController extends AbstractActionController {
                 $startDate = date("Y-m-d", strtotime($array[0]));
                 $endDate = date("Y-m-d", strtotime($array[2]));
             } else {
-//                
+                //                
                 $startDate = "";
                 $endDate = "";
             }
@@ -148,18 +155,19 @@ class RecertificationController extends AbstractActionController {
                 $startDate2 = date("Y-m-d", strtotime($array2[0]));
                 $endDate2 = date("Y-m-d", strtotime($array2[2]));
             } else {
-//                
+                //                
                 $startDate2 = "";
                 $endDate2 = "";
             }
-            $result = $this->getRecertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2);
+            $result = $this->recertificationTable->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2);
             $objPHPExcel = new \PHPExcel();
             $styleArray = array(
                 'font' => array(
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
+                )
+            );
 
 
             $objPHPExcel->setActiveSheetIndex(0);
@@ -200,7 +208,7 @@ class RecertificationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->SetCellValue('AC1', 'Facility In Charge');
             $objPHPExcel->getActiveSheet()->SetCellValue('AQ1', 'Certification');
             $objPHPExcel->getActiveSheet()->SetCellValue('AW1', 'Re-Certification');
-//           
+            //           
 
             $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Certification registration no');
             $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Certification id');
@@ -257,16 +265,16 @@ class RecertificationController extends AbstractActionController {
 
             $ligne = 3;
             foreach ($result as $result) {
-////           
+                ////           
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $result['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $result['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $result['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['middle_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($result['country_name']))?$result['country_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($result['region_name']))?$result['region_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($result['district_name']))?$result['district_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['last_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['first_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['middle_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($result['country_name'])) ? $result['country_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($result['region_name'])) ? $result['region_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($result['district_name'])) ? $result['district_name'] : '');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $result['type_vih_test']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, $result['phone']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $result['email']);
@@ -325,12 +333,13 @@ class RecertificationController extends AbstractActionController {
 
         return array(
             'countries' => $countries,
-            'form' => $form
+            'form' => $this->recertificationForm
         );
     }
 
     public function getRecertificateReportAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         $decision = $request->getPost('decision');
         $typeHiv = $request->getPost('typeHIV');
@@ -346,7 +355,7 @@ class RecertificationController extends AbstractActionController {
             $startDate = date("Y-m-d", strtotime($array[0]));
             $endDate = date("Y-m-d", strtotime($array[2]));
         } else {
-//                
+            //                
             $startDate = "";
             $endDate = "";
         }
@@ -358,13 +367,13 @@ class RecertificationController extends AbstractActionController {
             $startDate2 = date("Y-m-d", strtotime($array2[0]));
             $endDate2 = date("Y-m-d", strtotime($array2[2]));
         } else {
-//                
+            //                
             $startDate2 = "";
             $endDate2 = "";
         }
-        $result = $this->getRecertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2);
+        $result = $this->recertificationTable->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility, $reminder_type, $reminder_sent_to, $startDate2, $endDate2);
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' =>$result));
+        $viewModel->setVariables(array('result' => $result));
         $viewModel->setTerminal(true);
         return $viewModel;
     }
@@ -372,14 +381,12 @@ class RecertificationController extends AbstractActionController {
 
     public function getRecertificateReportsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getRecertificationTable()->reportData($parameters);
+            $result = $this->recertificationTable->reportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-
-    
-
 }

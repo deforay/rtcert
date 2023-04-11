@@ -2,11 +2,11 @@
 
 namespace Application\Model;
 
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
 use Application\Service\CommonService;
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -132,7 +132,7 @@ class TestSectionTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         //\Zend\Debug\Debug::dump($rResult);die;
@@ -140,7 +140,7 @@ class TestSectionTable extends AbstractTableGateway {
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -163,7 +163,7 @@ class TestSectionTable extends AbstractTableGateway {
             $row[] = ucwords($aRow['section_name']);
             // $row[] = $aRow['section_slug'];
             $row[] = ucwords($aRow['status']);
-            if ($acl->isAllowed($role, 'Application\Controller\TestSection', 'edit')) {
+            if ($acl->isAllowed($role, 'Application\Controller\TestSectionController', 'edit')) {
                 $row[] = '<a href="/test-section/edit/' . base64_encode($aRow['section_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';
             }else{
                 $row[] = "";

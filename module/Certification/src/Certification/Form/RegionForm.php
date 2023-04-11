@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Session\Container;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Form\Form;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Form\Form;
 use Application\Model\GlobalTable;
 
 class RegionForm extends Form

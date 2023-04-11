@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Session\Container;
-use Zend\Db\Adapter\AdapterInterface;
+use Laminas\Form\Form;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\AdapterInterface;
 use Application\Model\GlobalTable;
 
 class ExaminationForm extends Form
@@ -38,7 +38,7 @@ class ExaminationForm extends Form
         ));
         $this->add(array(
             'name' => 'provider',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Provider',
                 'empty_option' => 'Please choose an Type',
@@ -47,7 +47,7 @@ class ExaminationForm extends Form
         ));
         $this->add(array(
             'name' => 'id_written_exam',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Written Exam',
                 'empty_option' => 'Please choose an Type',
@@ -56,7 +56,7 @@ class ExaminationForm extends Form
         ));
         $this->add(array(
             'name' => 'practical_exam_id',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Practical Exam',
                 'empty_option' => 'Please choose an Type',

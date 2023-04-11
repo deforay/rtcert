@@ -1,45 +1,54 @@
 <?php
+
 namespace Application\Controller;
 
-use Zend\Json\Json;
-use Zend\View\Model\ViewModel;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\Json\Json;
+use Laminas\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
 
-class MailTemplateController extends AbstractActionController{
+class MailTemplateController extends AbstractActionController
+{
 
-    public function indexAction(){
+    public \Application\Service\MailService $mailService;
+
+    public function __construct($mailService)
+    {
+        $this->mailService = $mailService;
+    }
+
+    public function indexAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $mailServices = $this->getServiceLocator()->get('MailService');
-            $result = $mailServices->getMailServiceListInGrid($parameters);
+            $result = $this->mailService->getMailServiceListInGrid($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function addAction(){
+
+    public function addAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        $mailServices =$this->getServiceLocator()->get('MailService');
-        if($request->isPost()){
+        if ($request->isPost()) {
             $param = $request->getPost();
-            $mailServices->saveMailTemplateDetails($param);
-            return $this->redirect()->toRoute('mail-template'); 
+            $this->mailService->saveMailTemplateDetails($param);
+            return $this->redirect()->toRoute('mail-template');
         }
     }
-    
-    public function editAction(){
+
+    public function editAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        $mailServices =$this->getServiceLocator()->get('MailService');
-        if($request->isPost()){
+        if ($request->isPost()) {
             $param = $request->getPost();
-            $mailServices->saveMailTemplateDetails($param);
+            $this->mailService->saveMailTemplateDetails($param);
             return $this->redirect()->toRoute('mail-template');
-        } else{
-            $id=base64_decode($this->params()->fromRoute('id'));
+        } else {
+            $id = base64_decode($this->params()->fromRoute('id'));
             return new ViewModel(array('result' => $mailServices->getMailTemplate($id)));
         }
     }
-
-
 }
-

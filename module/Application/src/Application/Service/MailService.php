@@ -1,7 +1,7 @@
 <?php
 namespace Application\Service;
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 class MailService {
 
@@ -27,7 +27,7 @@ class MailService {
     }
     
     public function saveMailTemplateDetails($params){
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $db = $this->sm->get('MailTemplateTable');

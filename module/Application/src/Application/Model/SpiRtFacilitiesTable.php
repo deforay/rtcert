@@ -2,11 +2,11 @@
 
 namespace Application\Model;
 
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -33,11 +33,11 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
         $query = $sql->select()->from('spi_form_v_3')
                     ->columns(array('formId','facilityname','facilityid','Latitude','Longitude'))
                     ->where(array('id'=>$formId));
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         $result = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         if($result!=""){
 			$fQuery = $sql->select()->from('spi_rt_3_facilities')->where(array('facility_name'=>$result['facilityname']));
-			$fQueryStr = $sql->getSqlStringForSqlObject($fQuery);
+			$fQueryStr = $sql->buildSqlString($fQuery);
 			$fResult = $dbAdapter->query($fQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if($fResult==""){
 				$data = array(
@@ -190,21 +190,21 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
         }
 
 		$queryContainer->exportAllFacilityQuery = $sQuery;
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
         $tQuery =  $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 	                         ->where('spirt3.status != "deleted"');
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -216,7 +216,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 		
 	$loginContainer = new Container('credo');
         $role = $loginContainer->roleCode;
-        if ($acl->isAllowed($role, 'Application\Controller\Facility', 'edit')) {
+        if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'edit')) {
             $update = true;
         } else {
             $update = false;
@@ -247,7 +247,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	$dbAdapter = $this->adapter;
 	$sql = new Sql($dbAdapter);
 	$query = $sql->select()->from('spi_rt_3_facilities')->where("facility_name like '%$strSearch%'");
-		$queryStr = $sql->getSqlStringForSqlObject($query);
+		$queryStr = $sql->buildSqlString($query);
 		$result = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 		$echoResult = array();
 	foreach ($result as $row) {
@@ -276,7 +276,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	$dbAdapter = $this->adapter;
 	$sql = new Sql($dbAdapter);
 	$fQuery = $sql->select()->from('spi_rt_3_facilities')->where('facility_id = "'.$params['testingFacilityId'].'" OR facility_name = "'.$params['testingFacilityName'].'"');
-	$fQueryStr = $sql->getSqlStringForSqlObject($fQuery);
+	$fQueryStr = $sql->buildSqlString($fQuery);
 	$fResult = $dbAdapter->query($fQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 	if($fResult){
 	    return $fResult->id;
@@ -316,19 +316,19 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	    $auditQuery = $sql->select()->from(array('spiv3'=>'spi_form_v_3'))
 	                                ->columns(array('facilityname'))
 	                                ->where(array('spiv3.id'=>$auditId));
-	    $auditQueryStr = $sql->getSqlStringForSqlObject($auditQuery);
+	    $auditQueryStr = $sql->buildSqlString($auditQuery);
 	    $auditResult = $dbAdapter->query($auditQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 	    if($auditResult){
 		$auditsQuery = $sql->select()->from(array('spiv3'=>'spi_form_v_3'))
 	                                     ->columns(array('id','testingpointname','assesmentofaudit'))
 					     ->where(array('spiv3.facilityname'=>$auditResult->facilityname,'spiv3.status'=>'approved'));
-	        $auditsQueryStr = $sql->getSqlStringForSqlObject($auditsQuery);
+	        $auditsQueryStr = $sql->buildSqlString($auditsQuery);
 	        $auditsResult = $dbAdapter->query($auditsQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		
 		$fQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 	                                ->columns(array('facility_name','email'))
 	                                ->where(array('spirt3.facility_name'=>$auditResult->facilityname));
-	        $fQueryStr = $sql->getSqlStringForSqlObject($fQuery);
+	        $fQueryStr = $sql->buildSqlString($fQuery);
 	        $fResult = $dbAdapter->query($fQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
 	    }
 	   $result = array('fResult'=>$fResult,'auditsResult'=>$auditsResult);
@@ -341,7 +341,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	$sql = new Sql($dbAdapter);
 	$provinceQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 	                               ->columns(array('name'=>new Expression("DISTINCT province")));
-	$provinceQueryStr = $sql->getSqlStringForSqlObject($provinceQuery);
+	$provinceQueryStr = $sql->buildSqlString($provinceQuery);
 	return $dbAdapter->query($provinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 	
@@ -350,7 +350,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	$sql = new Sql($dbAdapter);
 	$districtQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 	                               ->columns(array('name'=>new Expression("DISTINCT district")));
-	$districtQueryStr = $sql->getSqlStringForSqlObject($districtQuery);
+	$districtQueryStr = $sql->buildSqlString($districtQuery);
 	return $dbAdapter->query($districtQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
     
@@ -374,7 +374,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	    $sQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 						    ->where('spirt3.province like "%'.$searchStr.'%"')
 						    ->group('spirt3.province');
-	    $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance
+	    $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
 	    $rResult = $adapter->query($sQueryStr, $adapter::QUERY_MODE_EXECUTE)->toArray();
 	    $echoResult = array();
 	    foreach ($rResult as $row) {
@@ -394,7 +394,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	    $sQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
 						    ->where('spirt3.district like "%'.$searchStr.'%"')
 						    ->group('spirt3.district');
-	    $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance
+	    $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
 	    $rResult = $adapter->query($sQueryStr, $adapter::QUERY_MODE_EXECUTE)->toArray();
 	    $echoResult = array();
 	    foreach ($rResult as $row) {

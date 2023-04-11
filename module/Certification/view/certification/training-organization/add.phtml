@@ -1,6 +1,6 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 ?>
@@ -21,7 +21,7 @@ $sessionLogin = new Container('credo');
                 <h2>Add A new Training organization</h2>
             </div>
             <div class="col-sm-4 ">
-                <?php // if ($acl->isAllowed($role, 'Application\Controller\Facility', 'add')) {  
+                <?php // if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {  
                 ?>
                 <a href="<?php echo $this->url('training-organization', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Trainings Organizations</a>
                 <?php // }  

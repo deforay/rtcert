@@ -1,31 +1,29 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
-class IndexController extends AbstractActionController{
-    public function indexAction(){
+class IndexController extends AbstractActionController
+{
 
-        $dashService = $this->getServiceLocator()->get('DashboardService');
-        $quickStats = $dashService->getQuickStats();
+    public \Application\Service\DashboardService $dashboardService;
+
+    public function __construct($dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
+    public function indexAction()
+    {
+
+        $quickStats = $this->dashboardService->getQuickStats();
         $viewModel = new ViewModel(array(
             'quickStats' => $quickStats,
         ));
 
         $viewModel->setTerminal(true);
         return $viewModel;
-
     }
-    
-
 }

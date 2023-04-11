@@ -2,170 +2,144 @@
 
 namespace Application\Controller;
 
-use Zend\Config\Config;
-use Zend\Json\Json;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Config\Config;
+use Laminas\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
-class FacilityController extends AbstractActionController {
+class FacilityController extends AbstractActionController
+{
 
-    public function indexAction() {
+    public \Application\Service\FacilityService $facilityService;
+
+    public function __construct($facilityService)
+    {
+        $this->facilityService = $facilityService;
+    }
+
+    public function indexAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->getAllFacilities($params);
+            $result = $this->facilityService->getAllFacilities($params);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function addAction() {
+
+    public function addAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->addFacility($params);
+            $result = $this->facilityService->addFacility($params);
             return $this->redirect()->toRoute("spi-facility");
         }
     }
-    
-    public function editAction() {
+
+    public function editAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        $facilityService= $this->getServiceLocator()->get('FacilityService');
         if ($request->isPost()) {
             $params = $request->getPost();
-            $result = $facilityService->updateFacility($params);
+            $result = $this->facilityService->updateFacility($params);
             return $this->redirect()->toRoute("spi-facility");
         } else {
             $id = base64_decode($this->params()->fromRoute('id'));
-            $result = $facilityService->getFacility($id);
-            //\Zend\Debug\Debug::dump($result);
-            //die;
+            $result = $this->facilityService->getFacility($id);
             return new ViewModel(array(
                 'result' => $result,
             ));
         }
     }
-    
-    public function facilityListAction(){
+
+    public function facilityListAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        
+
         if ($request->isGet()) {
             $val = $request->getQuery('search');
-            //\Zend\Debug\Debug::dump($val);
-        //die;
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->getFacilityList($val);
+            $result = $this->facilityService->getFacilityList($val);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function getFacilityNameAction()
+
+    public function getTestingPointAction()
     {
-        $layout = $this->layout();
-        $layout->setTemplate('layout/modal');
-        $odkFormService = $this->getServiceLocator()->get('OdkFormService');
-        $result = $odkFormService->getAllFacilityNames();
-        return new ViewModel(array(
-            'facilityName' => $result
-        ));
-    }
-    
-    public function getTestingPointAction() {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->getAllTestingPoints($params);
+            $result = $this->facilityService->getAllTestingPoints($params);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function getFacilityAuditRoundAction(){
-        $request = $this->getRequest();                
+
+    public function mapProvinceAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $odkFormService = $this->getServiceLocator()->get('OdkFormService');
-            $result = $odkFormService->getSpiV3FormFacilityAuditNo($params);
+            $result = $this->facilityService->mapProvince($params);
             $viewModel = new ViewModel(array(
-                'spiV3auditRoundNo'=>$result
-                ));
+                'result' => $result
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function getProvinceListAction(){
-        $layout = $this->layout();
-        $layout->setTemplate('layout/modal');
-        $odkFormService = $this->getServiceLocator()->get('OdkFormService');
-        $facilityService= $this->getServiceLocator()->get('FacilityService');
-        $result = $odkFormService->getAllFacilityNames();
-        $provinceResult = $facilityService->getProvinceList();
-        return new ViewModel(array(
-            'facilityName' => $result,
-            'provinces' => $provinceResult
-        ));
-    }
-    
-    public function mapProvinceAction(){
-        $request = $this->getRequest();                
+
+    public function getFacilityDetailsAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->mapProvince($params);
+            $result = $this->facilityService->getFacilityDetails($params);
             $viewModel = new ViewModel(array(
-                'result'=>$result
-                ));
+                'result' => $result
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function getFacilityDetailsAction(){
-        $request = $this->getRequest();                
+
+    public function exportFacilityAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
-            $params = $request->getPost();
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->getFacilityDetails($params);
+            $result = $this->facilityService->exportFacility();
             $viewModel = new ViewModel(array(
-                'result'=>$result
-                ));
+                'result' => $result
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function exportFacilityAction(){
-        $request = $this->getRequest();                
-        if ($request->isPost()) {
-            $facilityService= $this->getServiceLocator()->get('FacilityService');
-            $result = $facilityService->exportFacility();
-            $viewModel = new ViewModel(array(
-                'result'=>$result
-                ));
-            $viewModel->setTerminal(true);
-            return $viewModel;
-        }
-    }
-    
+
     public function searchProvinceListAction()
     {
-        $facilityService= $this->getServiceLocator()->get('FacilityService');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isGet()) {
             $val = $request->getQuery('q');
-            $result=$facilityService->getProvinceData($val);
+            $result = $this->facilityService->getProvinceData($val);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
     public function searchDistrictListAction()
     {
-        $facilityService= $this->getServiceLocator()->get('FacilityService');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isGet()) {
             $val = $request->getQuery('q');
-            $result=$facilityService->getDistrictData($val);
+            $result = $this->facilityService->getDistrictData($val);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }

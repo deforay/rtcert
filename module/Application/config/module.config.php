@@ -1,11 +1,4 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
 
 namespace Application;
 
@@ -21,18 +14,18 @@ return array(
                 'options' => array(
                     'route' => '/',
                     'defaults' => array(
-                        'controller'    => 'Application\Controller\Index',
+                        'controller'    => 'Application\Controller\IndexController',
                         'action'        => 'index',
                     ),
                 ),
-                
+
             ),
             'homeAuditPerformance' => array(
                 'type'    => 'Literal',
                 'options' => array(
                     'route'    => '/audit-performance',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
+                        'controller' => 'Application\Controller\IndexController',
                         'action' => 'audit-performance',
                     ),
                 ),
@@ -42,27 +35,17 @@ return array(
                 'options' => array(
                     'route'    => '/audit-locations',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
+                        'controller' => 'Application\Controller\IndexController',
                         'action' => 'audit-locations',
                     ),
                 ),
             ),
-            'odk-receiver' => array(
-                'type' => 'segment',
-                'options' => array(
-                    'route' => '/receiver[/]',
-                    'defaults' => array(
-                        'controller' => 'Application\Controller\Receiver',
-                        'action' => 'index',
-                    ),
-                ),
-            ),            
             'login' => array(
                 'type'    => 'segment',
                 'options' => array(
                     'route'    => '/login[/:action]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Login',
+                        'controller' => 'Application\Controller\LoginController',
                         'action' => 'index',
                     ),
                 ),
@@ -72,7 +55,7 @@ return array(
                 'options' => array(
                     'route' => '/facility[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Facility',
+                        'controller' => 'Application\Controller\FacilityController',
                         'action' => 'index',
                     ),
                 ),
@@ -82,7 +65,7 @@ return array(
                 'options' => array(
                     'route' => '/common[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Common',
+                        'controller' => 'Application\Controller\CommonController',
                         'action' => 'index',
                     ),
                 ),
@@ -92,7 +75,7 @@ return array(
                 'options' => array(
                     'route' => '/roles[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Roles',
+                        'controller' => 'Application\Controller\RolesController',
                         'action' => 'index',
                     ),
                 ),
@@ -102,7 +85,7 @@ return array(
                 'options' => array(
                     'route' => '/users[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Users',
+                        'controller' => 'Application\Controller\UsersController',
                         'action' => 'index',
                     ),
                 ),
@@ -112,7 +95,7 @@ return array(
                 'options' => array(
                     'route' => '/config[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Config',
+                        'controller' => 'Application\Controller\ConfigController',
                         'action' => 'index',
                     ),
                 ),
@@ -122,7 +105,7 @@ return array(
                 'options' => array(
                     'route' => '/email[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Email',
+                        'controller' => 'Application\Controller\EmailController',
                         'action' => 'index',
                     ),
                 ),
@@ -132,7 +115,7 @@ return array(
                 'options' => array(
                     'route' => '/dashboard[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Dashboard',
+                        'controller' => 'Application\Controller\DashboardController',
                         'action' => 'index',
                     ),
                 ),
@@ -142,7 +125,7 @@ return array(
                 'options' => array(
                     'route' => '/test-config[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\TestConfig',
+                        'controller' => 'Application\Controller\TestConfigController',
                         'action' => 'index',
                     ),
                 ),
@@ -152,7 +135,7 @@ return array(
                 'options' => array(
                     'route'    => '/test-section[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\TestSection',
+                        'controller' => 'Application\Controller\TestSectionController',
                         'action' => 'index',
                     ),
                 ),
@@ -162,7 +145,7 @@ return array(
                 'options' => array(
                     'route'    => '/test-question[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\TestQuestion',
+                        'controller' => 'Application\Controller\TestQuestionController',
                         'action' => 'index',
                     ),
                 ),
@@ -172,7 +155,7 @@ return array(
                 'options' => array(
                     'route'    => '/test[/:action][/][:id]',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Test',
+                        'controller' => 'Application\Controller\TestController',
                         'action' => 'index',
                     ),
                 ),
@@ -180,32 +163,32 @@ return array(
             'print-test-pdf' => array(
                 'type' => 'segment',
                 'options' => array(
-                     'route' => '/print-test-pdf[/:action][/][:id]',
-                     'defaults' => array(
-                          'controller' => 'Application\Controller\PrintTestPdf',
-                          'action' => 'index',
-                     ),
+                    'route' => '/print-test-pdf[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\PrintTestPdfController',
+                        'action' => 'index',
+                    ),
                 ),
             ),
             'mail-template' => array(
                 'type' => 'segment',
                 'options' => array(
-                     'route' => '/mail-template[/:action][/][:id]',
-                     'defaults' => array(
-                          'controller' => 'Application\Controller\MailTemplate',
-                          'action' => 'index',
-                     ),
+                    'route' => '/mail-template[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\MailTemplateController',
+                        'action' => 'index',
+                    ),
                 ),
             ),
         ),
     ),
     'service_manager' => array(
         'abstract_factories' => array(
-            'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
-            'Zend\Log\LoggerAbstractServiceFactory',
+            'Laminas\Cache\Service\StorageCacheAbstractServiceFactory',
+            'Laminas\Log\LoggerAbstractServiceFactory',
         ),
         'factories' => array(
-            'translator' => 'Zend\Mvc\Service\TranslatorServiceFactory',
+            'translator' => 'Laminas\Mvc\Service\TranslatorServiceFactory',
         ),
     ),
     'translator' => array(
@@ -220,22 +203,12 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index'          => "Application\Controller\IndexController",
-            'Application\Controller\Login'          => "Application\Controller\LoginController",
-            'Application\Controller\Facility'       => "Application\Controller\FacilityController",
-            'Application\Controller\Roles'          => "Application\Controller\RolesController",
-            'Application\Controller\Common'         => "Application\Controller\CommonController",
-            'Application\Controller\Users'          => "Application\Controller\UsersController",
-            'Application\Controller\Config'         => "Application\Controller\ConfigController",
-            'Application\Controller\Email'          => "Application\Controller\EmailController",
-            'Application\Controller\Cron'           => "Application\Controller\CronController",
-            'Application\Controller\Dashboard'      => "Application\Controller\DashboardController",
-            'Application\Controller\TestConfig'     => "Application\Controller\TestConfigController",
-            'Application\Controller\TestSection'    => 'Application\Controller\TestSectionController',
-            'Application\Controller\TestQuestion'   => 'Application\Controller\TestQuestionController',
-            'Application\Controller\Test'           => 'Application\Controller\TestController',
-            'Application\Controller\PrintTestPdf'   => 'Application\Controller\PrintTestPdfController',
-            'Application\Controller\MailTemplate'   => 'Application\Controller\MailTemplateController',
+            //'Application\Controller\CronController'           => "Application\Controller\CronController",
+            'Application\Controller\TestSectionController'    => 'Application\Controller\TestSectionController',
+            'Application\Controller\TestQuestionController'   => 'Application\Controller\TestQuestionController',
+            'Application\Controller\TestController'           => 'Application\Controller\TestController',
+            //'Application\Controller\PrintTestPdfController'   => 'Application\Controller\PrintTestPdfController',
+            'Application\Controller\MailTemplateController'   => 'Application\Controller\MailTemplateController',
         ),
     ),
     'view_manager' => array(
@@ -263,7 +236,7 @@ return array(
                     'options' => array(
                         'route' => 'send-mail',
                         'defaults' => array(
-                            'controller' => 'Application\Controller\Cron',
+                            'controller' => 'Application\Controller\CronController',
                             'action' => 'send-mail'
                         ),
                     ),
@@ -273,7 +246,7 @@ return array(
                     'options' => array(
                         'route' => 'send-test-alert-mail',
                         'defaults' => array(
-                            'controller' => 'Application\Controller\Cron',
+                            'controller' => 'Application\Controller\CronController',
                             'action' => 'send-test-alert-mail'
                         ),
                     ),
@@ -283,8 +256,8 @@ return array(
                     'options' => array(
                         'route'    => 'db-backup',
                         'defaults' => array(
-                            'controller' => 'Application\Controller\Cron',
-                             'action' => 'db-backup'
+                            'controller' => 'Application\Controller\CronController',
+                            'action' => 'db-backup'
                         ),
                     ),
                 ),
@@ -293,8 +266,8 @@ return array(
                     'options' => array(
                         'route'    => 'send-audit-mail',
                         'defaults' => array(
-                            'controller' => 'Application\Controller\Cron',
-                             'action' => 'send-audit-mail'
+                            'controller' => 'Application\Controller\CronController',
+                            'action' => 'send-audit-mail'
                         ),
                     ),
                 ),
@@ -303,8 +276,8 @@ return array(
                     'options' => array(
                         'route'    => 'generate-bulk-pdf',
                         'defaults' => array(
-                            'controller' => 'Application\Controller\Cron',
-                             'action' => 'generate-bulk-pdf'
+                            'controller' => 'Application\Controller\CronController',
+                            'action' => 'generate-bulk-pdf'
                         ),
                     ),
                 ),

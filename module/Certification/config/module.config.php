@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Certification;
 
 return array(
@@ -19,10 +11,10 @@ return array(
                     'route' => '/certification[/:action][/:id][/:written][/:practical][/:direct][/:sample][/:last][/:first][/:middle][/:provider][/:certification_id][/:professional_reg_no][/:date_issued][/:key]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id' => '[0-9]+',
+                        //                        'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Certification',
+                        'controller' => 'Certification\Controller\CertificationController',
                         'action' => 'index',
                     ),
                 ),
@@ -33,10 +25,10 @@ return array(
                     'route' => '/recertification[/:action][/:recertification_id][/:certification_id][/:key]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'recertification_id' => '[0-9]+',
+                        //                        'recertification_id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Recertification',
+                        'controller' => 'Certification\Controller\RecertificationController',
                         'action' => 'index',
                     ),
                 ),
@@ -47,10 +39,10 @@ return array(
                     'route' => '/written-exam[/:action][/:id_written_exam]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id_written_exam' => '[0-9]+',
+                        //                        'id_written_exam' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\WrittenExam',
+                        'controller' => 'Certification\Controller\WrittenExamController',
                         'action' => 'index',
                     ),
                 ),
@@ -61,10 +53,10 @@ return array(
                     'route' => '/practical-exam[/:action][/:practice_exam_id][/:id_written_exam]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'practice_exam_id' => '[0-9]+',
+                        //                        'practice_exam_id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\PracticalExam',
+                        'controller' => 'Certification\Controller\PracticalExamController',
                         'action' => 'index',
                     ),
                 ),
@@ -78,7 +70,7 @@ return array(
                         'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Examination',
+                        'controller' => 'Certification\Controller\ExaminationController',
                         'action' => 'index',
                     ),
                 ),
@@ -89,10 +81,10 @@ return array(
                     'route' => '/provider[/][:action][/:id][/:q]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id' => '[0-9]+',
+                        //                        'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Provider',
+                        'controller' => 'Certification\Controller\ProviderController',
                         'action' => 'index',
                     ),
                 ),
@@ -103,25 +95,25 @@ return array(
                     'route' => '/training[/:action][/:training_id]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'training_id' => '[0-9]+',
+                        //                        'training_id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Training',
+                        'controller' => 'Certification\Controller\TrainingController',
                         'action' => 'index',
                     ),
                 ),
             ),
-//            
+            //            
             'training-organization' => array(
                 'type' => 'segment',
                 'options' => array(
                     'route' => '/training-organization[/:action][/:training_organization_id]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'training_organization_id' => '[0-9]+',
+                        //                        'training_organization_id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\TrainingOrganization',
+                        'controller' => 'Certification\Controller\TrainingOrganizationController',
                         'action' => 'index',
                     ),
                 ),
@@ -135,7 +127,7 @@ return array(
                         'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\CertificationMail',
+                        'controller' => 'Certification\Controller\CertificationMailController',
                         'action' => 'index',
                     ),
                 ),
@@ -146,10 +138,10 @@ return array(
                     'route' => '/region[/:action][/:id][/:azerty]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id' => '[0-9]+',
+                        //                        'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Region',
+                        'controller' => 'Certification\Controller\RegionController',
                         'action' => 'index',
                     ),
                 ),
@@ -160,25 +152,25 @@ return array(
                     'route' => '/district[/:action][/:id]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id' => '[0-9]+',
+                        //                        'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\District',
+                        'controller' => 'Certification\Controller\DistrictController',
                         'action' => 'index',
                     ),
                 ),
             ),
-//            
+            //            
             'facility' => array(
                 'type' => 'segment',
                 'options' => array(
                     'route' => '/certification-facility[/:action][/:id]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-//                        'id' => '[0-9]+',
+                        //                        'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\Facility',
+                        'controller' => 'Certification\Controller\FacilityController',
                         'action' => 'index',
                     ),
                 ),
@@ -188,7 +180,7 @@ return array(
                 'options' => array(
                     'route' => '/generate-certificate-pdf',
                     'defaults' => array(
-                        'controller' => 'Certification\Controller\CertificationMail',
+                        'controller' => 'Certification\Controller\CertificationMailController',
                         'action' => 'generate-certificate-pdf',
                     ),
                 ),
@@ -197,21 +189,21 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Certification\Controller\Certification'        => "Certification\Controller\CertificationController",
-            'Certification\Controller\CertificationIssuer'  => "Certification\Controller\CertificationIssuerController",
-            'Certification\Controller\PracticalExam'        => "Certification\Controller\PracticalExamController",
-            'Certification\Controller\Provider'             => "Certification\Controller\ProviderController",
-            'Certification\Controller\Recertification'      => "Certification\Controller\RecertificationController",
-            'Certification\Controller\TrainingCertificate'  => "Certification\Controller\TrainingCertificateController",
-            'Certification\Controller\Training'             => "Certification\Controller\TrainingController",
-            'Certification\Controller\TrainingOrganization' => "Certification\Controller\TrainingOrganizationController",
-            'Certification\Controller\WrittenExam'          => "Certification\Controller\WrittenExamController",
-            'Certification\Controller\CertificationMail'    => "Certification\Controller\CertificationMailController",
-            'Certification\Controller\Examination'          => "Certification\Controller\ExaminationController",
-            'Certification\Controller\Region'               => "Certification\Controller\RegionController",
-            'Certification\Controller\District'             => "Certification\Controller\DistrictController",
-            'Certification\Controller\Facility'             => "Certification\Controller\FacilityController",
-           ),
+            //'Certification\Controller\CertificationController'        => "Certification\Controller\CertificationController",
+            //'Certification\Controller\CertificationIssuerController'  => "Certification\Controller\CertificationIssuerController",
+            //'Certification\Controller\PracticalExamController'        => "Certification\Controller\PracticalExamController",
+            //'Certification\Controller\ProviderController'             => "Certification\Controller\ProviderController",
+            //'Certification\Controller\RecertificationController'      => "Certification\Controller\RecertificationController",
+            //'Certification\Controller\TrainingCertificate'            => "Certification\Controller\TrainingCertificateController",
+            //'Certification\Controller\TrainingController'             => "Certification\Controller\TrainingController",
+            //'Certification\Controller\TrainingOrganizationController' => "Certification\Controller\TrainingOrganizationController",
+            //'Certification\Controller\WrittenExamController'          => "Certification\Controller\WrittenExamController",
+            //'Certification\Controller\CertificationMailController'    => "Certification\Controller\CertificationMailController",
+            //'Certification\Controller\ExaminationController'          => "Certification\Controller\ExaminationController",
+            'Certification\Controller\RegionController'               => "Certification\Controller\RegionController",
+            'Certification\Controller\DistrictController'             => "Certification\Controller\DistrictController",
+            'Certification\Controller\FacilityController'             => "Certification\Controller\FacilityController",
+        ),
     ),
     'view_manager' => array(
         'template_path_stack' => array(

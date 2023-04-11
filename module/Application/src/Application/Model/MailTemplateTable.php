@@ -1,10 +1,10 @@
 <?php
 namespace Application\Model;
 
-use Zend\Db\Sql\Sql;
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Sql\Sql;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Zend\Debug\Debug;
 
 class MailTemplateTable extends AbstractTableGateway {
@@ -106,7 +106,7 @@ class MailTemplateTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         //\Zend\Debug\Debug::dump($rResult);die;
@@ -114,7 +114,7 @@ class MailTemplateTable extends AbstractTableGateway {
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -139,7 +139,7 @@ class MailTemplateTable extends AbstractTableGateway {
             $row[] = $aRow['mail_from'];
             $row[] = ucwords($aRow['mail_subject']);
             $row[] = ucwords($aRow['mail_status']);
-            if ($acl->isAllowed($role, 'Application\Controller\MailTemplate', 'edit')) {
+            if ($acl->isAllowed($role, 'Application\Controller\MailTemplateController', 'edit')) {
                 $row[] = '<a href="/mail-template/edit/' . base64_encode($aRow['mail_temp_id']) . '" class="btn btn-default" style="margin-right: 2px;" title="Edit"><i class="fa fa-pencil"> Edit</i></a>';
             }
             $output['aaData'][] = $row;

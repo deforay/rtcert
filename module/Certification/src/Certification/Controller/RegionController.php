@@ -2,109 +2,113 @@
 
 namespace Certification\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Session\Container;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Session\Container;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\Region;
 use Certification\Form\RegionForm;
 
-class RegionController extends AbstractActionController {
+class RegionController extends AbstractActionController
+{
 
-    protected $regionTable;
 
-    public function getRegionTable() {
-        if (!$this->regionTable) {
-            $sm = $this->getServiceLocator();
-            $this->regionTable = $sm->get('Certification\Model\RegionTable');
-        }
-        return $this->regionTable;
+    public \Certification\Model\RegionTable $regionTable;
+    public \Application\Service\CommonService $commonService;
+    public \Certification\Form\RegionForm $regionForm;
+
+    public function __construct($commonService, $regionTable, $regionForm)
+    {
+        $this->commonService = $commonService;
+        $this->regionTable = $regionTable;
+        $this->regionForm = $regionForm;
     }
 
-    public function indexAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new RegionForm($dbAdapter);
-        $form->get('submit')->setValue('Submit');
-        $commonSerive = $this->getServiceLocator()->get('CommonService');
+
+
+    public function indexAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+
+        $this->regionForm->get('submit')->setValue('Submit');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $region = new Region();
-            $form->setInputFilter($region->getInputFilter());
-            $form->setData($request->getPost());
-            if ($form->isValid()) {
-                $region->exchangeArray($form->getData());
-                $commonSerive->saveRegion($region);
+            $this->regionForm->setInputFilter($region->getInputFilter());
+            $this->regionForm->setData($request->getPost());
+            if ($this->regionForm->isValid()) {
+                $region->exchangeArray($this->regionForm->getData());
+                $this->commonService->saveRegion($region);
                 return $this->redirect()->toRoute('region');
             }
         }
 
         return new ViewModel(array(
-            'regions' => $commonSerive->getAllProvinces($selectedCountries = array()),
-            'form' => $form,
+            'regions' => $this->commonService->getAllProvinces(),
+            'form' => $this->regionForm,
         ));
     }
 
-    public function editAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $commonSerive = $this->getServiceLocator()->get('CommonService');
+    public function editAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
         if (!$id) {
             return $this->redirect()->toRoute('region', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
         try {
-            $region = $commonSerive->getLocation($id);
-//            die(print_r($region));
+            $region = $this->commonService->getLocation($id);
+            //            die(print_r($region));
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('region', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
-        $form = new RegionForm($dbAdapter);
-        $form->bind($region);
-        $form->get('submit')->setAttribute('value', 'Update');
+
+        $this->regionForm->bind($region);
+        $this->regionForm->get('submit')->setAttribute('value', 'Update');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $region = new Region();
-            $form->setInputFilter($region->getInputFilter());
-            $form->setData($request->getPost());
-            if ($form->isValid()) {
-                $region->exchangeArray($form->getData());
-                $commonSerive->saveRegion($request->getPost());
+            $this->regionForm->setInputFilter($region->getInputFilter());
+            $this->regionForm->setData($request->getPost());
+            if ($this->regionForm->isValid()) {
+                $region->exchangeArray($this->regionForm->getData());
+                $this->commonService->saveRegion($request->getPost());
                 return $this->redirect()->toRoute('region');
             }
         }
 
         return array(
             'id' => $id,
-            'form' => $form
+            'form' => $this->regionForm
         );
     }
 
-    public function deleteAction() {
-        $commonSerive = $this->getServiceLocator()->get('CommonService');
+    public function deleteAction()
+    {
         $id = (int) $this->params()->fromRoute('id', 0);
 
         if (!$id) {
             return $this->redirect()->toRoute('region');
         } else {
-            $forein_key = $this->getRegionTable()->foreigne_key($id);
+            $forein_key = $this->regionTable->foreigne_key($id);
             if ($forein_key == 0) {
-                $commonSerive->deleteLocation($id);
+                $this->commonService->deleteLocation($id);
                 $container = new Container('alert');
                 $container->alertMsg = 'Deleted successfully';
                 return $this->redirect()->toRoute('region');
             } else {
                 $container = new Container('alert');
-                $config = $commonSerive->getGlobalConfigDetails();
-                $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?strtolower($config['region']):'region';
-                $districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?strtolower($config['districts']):'districts';
-                $container->alertMsg = 'Unable to delete this '.strtolower($regionLabel).' because it is used for one or more '.$districtLabel;
+                $config = $this->commonService->getGlobalConfigDetails();
+                $regionLabel = (isset($config['region']) && trim($config['region']) != '') ? strtolower($config['region']) : 'region';
+                $districtLabel = (isset($config['districts']) && trim($config['districts']) != '') ? strtolower($config['districts']) : 'districts';
+                $container->alertMsg = 'Unable to delete this ' . strtolower($regionLabel) . ' because it is used for one or more ' . $districtLabel;
                 return $this->redirect()->toRoute('region');
             }
         }
     }
-
 }

@@ -2,35 +2,45 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
 class TestConfigController extends AbstractActionController
 {
+
+
+    public \Application\Service\CommonService $commonService;
+    public \Application\Service\TestSectionService $testSectionService;
+
+    public function __construct($commonService, $testSectionService)
+    {
+        $this->commonService = $commonService;
+        $this->testSectionService = $testSectionService;
+    }
+
     public function indexAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $commonService = $this->getServiceLocator()->get('CommonService');
-            $result = $commonService->getTestConfig($params);
+            $result = $this->commonService->getTestConfig($params);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
     public function editAction()
     {
-        $commonService = $this->getServiceLocator()->get('CommonService');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $commonService->updateTestConfig($params);
+            $this->commonService->updateTestConfig($params);
             return $this->redirect()->toRoute('test-config');
         } else {
-            $configResult = $commonService->getTestConfigEditDetails();
-            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
-            $sectionResult = $testSectionService->getTestSectionAllList();
+            $configResult = $this->commonService->getTestConfigEditDetails();
+            $sectionResult = $this->testSectionService->getTestSectionAllList();
             return new ViewModel(array(
                 'config' => $configResult,
                 'sectionResult' => $sectionResult

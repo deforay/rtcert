@@ -2,12 +2,12 @@
 
 namespace Application\Model;
 
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Sql\Sql;
 use Application\Service\CommonService;
-use Zend\Session\Container;
+use Laminas\Session\Container;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -137,7 +137,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
         $querycontainer = new Container('query');
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
         $querycontainer->printTestPdfQueryStr = $sQueryStr;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
@@ -145,7 +145,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -162,13 +162,13 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $editAccess = false;$changeStatusAccess = false;$viewPdfAccess=false;
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'edit')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'edit')){
             $editAccess = true;
         }
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'change-status')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'change-status')){
             $changeStatusAccess = true;
         }
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'view-pdf-question')){
             $viewPdfAccess = true;
         }
         foreach ($rResult as $aRow) {
@@ -325,7 +325,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr;die;
         $querycontainer->testQueryStr =  $sQueryStr;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
@@ -333,12 +333,12 @@ class PrintTestPdfTable extends AbstractTableGateway {
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        $iTotalsQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $iTotalsQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         $iTotal = $dbAdapter->query($iTotalsQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->count();
 
         $output = array(
@@ -351,13 +351,13 @@ class PrintTestPdfTable extends AbstractTableGateway {
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $accessPdf = false;$answerKeyOne = false;$answerKeyTwo = false;
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'print-pdf-question')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'print-pdf-question')){
             $accessPdf = true;
         }
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'answer-key-one')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'answer-key-one')){
             $answerKeyOne = true;
         }
-        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'answer-key-two')){
+        if($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'answer-key-two')){
             $answerKeyTwo = true;
         }
         foreach ($rResult as $aRow) {
@@ -472,7 +472,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
                             ->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
                             ->order('pq.' . $primary . ' ASC');
                     }
-                    $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+                    $qQueryStr = $sql->buildSqlString($qQuery);
                     // die($qQueryStr);
                     $questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
                     foreach($questions as $key=>$q){
@@ -503,7 +503,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
 						->where(array('pq.test_id' => $testId))
 						->order('pq.' . $primary . ' ASC');
 				}
-				$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+				$qQueryStr = $sql->buildSqlString($qQuery);
 				$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 				foreach($questions as $key=>$q){
 					$questionResult[] = array(
@@ -532,7 +532,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
 					->where(array('pq.test_id' => $testId))
 					->order('pq.' . $primary . ' ASC');
 			}
-			$qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+			$qQueryStr = $sql->buildSqlString($qQuery);
 			$questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		}
 		return $questionResult;
@@ -563,7 +563,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
         }else{
             $ptpQuery = $ptpQuery->where(array('ptp.ptp_id'=>(int)$ptpId[0],'ptpd.variant_no'=>(int)$ptpId[1]));
         }
-        $ptpQueryStr = $sql->getSqlStringForSqlObject($ptpQuery);
+        $ptpQueryStr = $sql->buildSqlString($ptpQuery);
         $ptpResult = $dbAdapter->query($ptpQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         $questionList['ptpDetails'] = array(
             'title'         => $ptpResult['ptp_title'],
@@ -582,7 +582,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             ->where(array('ptp.ptp_id'=>(int)$ptpId,'ptpd.variant_no'=>1,'tq.status'=>'active','ts.status'=>'active'))
             ->order(array('ptpd_id ASE'))
             ->group(array('ts.section_id'));
-            $sectionQueryStr = $sql->getSqlStringForSqlObject($sectionQuery);
+            $sectionQueryStr = $sql->buildSqlString($sectionQuery);
             $questionList['examination'] = $dbAdapter->query($sectionQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
         // To get the ptp details
@@ -601,7 +601,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
             $qQuery = $qQuery->join(array('to'=>'test_options'),'ptpd.response_id=to.option_id',array('option'));
             $qQuery = $qQuery->group(array('ptpd.question_id'));
         }
-        $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+        $qQueryStr = $sql->buildSqlString($qQuery);
         $questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         
         foreach($questionResult as $key=>$question){
@@ -633,7 +633,7 @@ class PrintTestPdfTable extends AbstractTableGateway {
         ->where(array('ptpd.question_id'=>$qId,'to.status'=>'active'))
         ->order('to.option_id ASE')
         ->group('to.option_id');
-        $qQueryStr = $sql->getSqlStringForSqlObject($qQuery);
+        $qQueryStr = $sql->buildSqlString($qQuery);
         return $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 

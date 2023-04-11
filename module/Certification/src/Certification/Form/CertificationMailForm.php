@@ -1,8 +1,8 @@
 <?php
 namespace Certification\Form;
 
- use Zend\Db\Adapter\AdapterInterface;
- use Zend\Form\Form;
+ use Laminas\Db\Adapter\AdapterInterface;
+ use Laminas\Form\Form;
 
  class CertificationMailForm extends Form
  {
@@ -20,7 +20,7 @@ namespace Certification\Form;
          
          $this->add(array(
              'name' => 'type',
-             'type'=> 'Zend\Form\Element\Select',
+             'type'=> 'Laminas\Form\Element\Select',
              'options' => array(
                 'label' => 'Type Of Email',
 //                'empty_option' => 'Please Choose an Option',
@@ -31,7 +31,7 @@ namespace Certification\Form;
              ),
          ));
          $this->add(array(
-             'type'=> 'Zend\Form\Element\Select',
+             'type'=> 'Laminas\Form\Element\Select',
              'name' => 'provider',
              'required' => true,
              'options' => array(
@@ -42,7 +42,7 @@ namespace Certification\Form;
              ),
          ));
          $this->add(array(
-                'type' => 'Zend\Form\Element\MultiCheckbox',
+                'type' => 'Laminas\Form\Element\MultiCheckbox',
                 'name' => 'add_to',
                 'options' => array(
                     'label' => 'Add "To" emails',
@@ -54,21 +54,21 @@ namespace Certification\Form;
          ));
          $this->add(array(
              'name' => 'to_email',
-             'type' => 'Zend\Form\Element\Email',
+             'type' => 'Laminas\Form\Element\Email',
              'options' => array(
                  'label' => 'To ',
              ),
          ));
          $this->add(array(
              'name' => 'cc',
-             'type' => 'Zend\Form\Element\Email',
+             'type' => 'Laminas\Form\Element\Email',
              'options' => array(
                  'label' => 'cc',
              ),
          ));
          $this->add(array(
              'name' => 'bcc',
-             'type' => 'Zend\Form\Element\Email',
+             'type' => 'Laminas\Form\Element\Email',
              'options' => array(
                  'label' => 'bcc',
              ),

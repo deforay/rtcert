@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -173,10 +173,10 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                                 <th style="width:33%;"><?php echo $facilityLabel; ?> Address</th>
                                 <th style="width:33%;"><?php echo $districtLabel; ?></th>
 
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\Facility', 'edit')) { ?>
+                                <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
                                     <th>Edit</th>
                                 <?php } ?>
-                                     <?php if ($acl->isAllowed($role, 'Certification\Controller\Facility', 'delete')) { ?>
+                                     <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
                                         <th>Delete</th>
                                     <?php } ?>
                             </tr>
@@ -187,12 +187,12 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                                     <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_name'])); ?></div></td>
                                     <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_address'])); ?></div></td>
                                     <td><div style="width:200px;overflow:auto;"><?php echo (isset($facility['location_name']))?ucfirst($this->escapeHtml($facility['location_name'])):''; ?></div></td>
-                                    <?php if ($acl->isAllowed($role, 'Certification\Controller\Facility', 'edit')) { ?>
+                                    <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
                                         <td>
                                             <div style="width:80px;overflow:auto;"><a href="<?php echo $this->url('facility', array('action' => 'edit', 'id' => base64_encode($facility['id']))); ?>"> <span class="glyphicon glyphicon-pencil">Edit</span></a> </div>
                                         </td>
                                     <?php } ?>
-                                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Facility', 'delete')) { ?>
+                                        <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
                                 <td><div style="width:80px;overflow:auto;">
                                          <a onclick="if (!confirm('Do you really want to remove '+'<?php echo $this->escapeHtml($facility['facility_name']); ?> '+'?')) {
                                                     alert('Canceled!');

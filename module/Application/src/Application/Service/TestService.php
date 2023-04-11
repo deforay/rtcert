@@ -2,18 +2,18 @@
 namespace Application\Service;
 
 use PHPExcel;
-use Zend\Db\Sql\Sql;
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
 use \Application\Service\CommonService;
 use TCPDF;
 use Zend\Debug\Debug;
-use Zend\Mail\Transport\Smtp as SmtpTransport;
-use Zend\Mail\Transport\SmtpOptions;
-use Zend\Mail;
-use Zend\Mime\Message as MimeMessage;
-use Zend\Mime\Part as MimePart;
-use Zend\Mime\Mime as Mime;
+use Laminas\Mail\Transport\Smtp as SmtpTransport;
+use Laminas\Mail\Transport\SmtpOptions;
+use Laminas\Mail;
+use Laminas\Mime\Message as MimeMessage;
+use Laminas\Mime\Part as MimePart;
+use Laminas\Mime\Mime as Mime;
 
 class TestService{
 
@@ -51,7 +51,7 @@ class TestService{
             return $preResult;
         }
 
-        $config = new \Zend\Config\Reader\Ini();
+        $config = new \Laminas\Config\Reader\Ini();
         $testConfigDb = $this->sm->get('TestConfigTable');
         $tempMailDb = $this->sm->get('TempMailTable');
         $mailTemplateDb = $this->sm->get('MailTemplateTable');
@@ -267,7 +267,7 @@ class TestService{
             \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
             $output = array();
             $sheet = $excel->getActiveSheet();
-            $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+            $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
             $sResult = $dbAdapter->query($querycontainer->testQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             

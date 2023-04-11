@@ -1,6 +1,6 @@
 <?php
 use Zend\Debug\Debug;
-use Zend\Session\Container;
+use Laminas\Session\Container;
 // Debug::dump($result);die;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -92,7 +92,7 @@ $imported = (isset($result['data']['imported']) && count($result['data']['import
                 <h2>Import Online Test Questions</h2>
             </div>
             <div class="col-sm-4 ">
-                <?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestion', 'index')) {  ?>
+                <?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController', 'index')) {  ?>
                     <a href="<?php echo $this->url('test-question', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Online Test Questions</a>
                 <?php }  ?>
             </div>

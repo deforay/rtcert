@@ -1,10 +1,10 @@
 <?php
 
 use Zend\Debug\Debug;
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 // Debug::dump($provider);die;
-$config = new \Zend\Config\Reader\Ini();
+$config = new \Laminas\Config\Reader\Ini();
 $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
 $pathname = $configResult['domain'].'/uploads' . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $this->id . DIRECTORY_SEPARATOR . 'pic'
 ?>

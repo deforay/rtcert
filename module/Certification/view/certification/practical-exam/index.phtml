@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -24,7 +24,7 @@ $acl = $this->layout()->acl;
                 <h2>Practical Exams</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'add')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'add')) { ?>
                     <a href="<?php echo $this->url('practical-exam', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add a practical exam</a>
                 <?php } ?>
             </div>
@@ -47,11 +47,11 @@ $acl = $this->layout()->acl;
                         <th>Direct Observation Score (≥90%) </th>
                         <th>Sample Testing Score (=100%)</th>
                         <th>Practical Total Score</th>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'edit')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'edit')) { ?>
                             <th>Edit</th>
                             <th style="width: 140px;">Another Attempt</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'delete')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'delete')) { ?>
                             <th>Delete</th>
                         <?php } ?>
                     </tr>
@@ -67,7 +67,7 @@ $acl = $this->layout()->acl;
                             <td><div><?php echo $this->escapeHtml($exam->direct_observation_score . ' %'); ?></div></td>
                             <td><div><?php echo $this->escapeHtml($exam->Sample_testing_score . ' %'); ?></div></td>
                             <td><div style="font-weight: bold"><?php echo $this->escapeHtml($exam->practical_total_score . ' %'); ?></div></td>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'edit')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'edit')) { ?>
                                 <td>
                                     <div><a href="<?php echo $this->url('practical-exam', array('action' => 'edit', 'practice_exam_id' => base64_encode($exam->practice_exam_id))); ?>"><span class="glyphicon glyphicon-pencil"></span> Edit</a> </div>
                                 </td>
@@ -80,7 +80,7 @@ $acl = $this->layout()->acl;
                                 }
                                 ?>
                             <?php } ?>
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExam', 'delete')) { ?>
+                                <?php if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'delete')) { ?>
                                 <td><div style="overflow:auto;">
                                          <a onclick="if (!confirm('Do you really want to remove this practical exam?')) {
                                                     alert('Canceled!');

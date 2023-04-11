@@ -2,7 +2,7 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
+use Laminas\Form\Form;
 
 class TrainingOrganizationForm extends Form
 {
@@ -40,7 +40,7 @@ class TrainingOrganizationForm extends Form
 
         $this->add(array(
             'name' => 'type_organization',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Type of Training Organization',
                 'empty_option' => 'Please choose an Type of Organization',

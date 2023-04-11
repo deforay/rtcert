@@ -1,9 +1,9 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) {
+if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'view-pdf-question')) {
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center inline","bSortable":false}';
 }else{
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
@@ -95,7 +95,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
             <div class="col-sm-8">
                 <h2>Print Written Test</h2>
             </div>
-            <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'add')) {?>
+            <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'add')) {?>
             <div class="col-sm-4">
                 <a href="javascript:void(0)" onclick="insertPanel(this);" class="pull-right btn btn-primary btn-add-panel"><i class="fa fa-plus"></i> Add New Tests</a>
             </div>
@@ -174,7 +174,7 @@ if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-ques
                         <th style="width:10%">Number of Variants</th>
                         <th style="width:100%">Test Created By</th>
                         <th style="width:100%">Created On</th>
-                        <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdf', 'view-pdf-question')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Application\Controller\PrintTestPdfController', 'view-pdf-question')) { ?>
                         <th style="width: 15%;display: table-cell;">Action</th>
                         <?php } ?>
                     </tr>

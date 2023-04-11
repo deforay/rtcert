@@ -1,9 +1,9 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl=$this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\Roles', 'edit')) {
+if ($acl->isAllowed($role, 'Application\Controller\RolesController', 'edit')) {
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
 }else{
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
@@ -17,7 +17,7 @@ if ($acl->isAllowed($role, 'Application\Controller\Roles', 'edit')) {
 				</div>
 				<div class="col-sm-4">
 						<?php
-						if ($acl->isAllowed($role, 'Application\Controller\Roles', 'add')) {
+						if ($acl->isAllowed($role, 'Application\Controller\RolesController', 'add')) {
 						?>
 						<a href="<?php echo $this->url('roles',array('action' => 'add'));?>" class="btn btn-dark pull-right" style=""><i class="fa fa-plus"></i>&nbsp;Add Role</a>
 						<?php } ?>
@@ -36,7 +36,7 @@ if ($acl->isAllowed($role, 'Application\Controller\Roles', 'edit')) {
 						<th style="width:30%;">Role Code</th>
 						<th style="width:30%;">Access Level</th>
 						<th style="width:10%;">Status</th>
-						<?php if ($acl->isAllowed($role,'Application\Controller\Roles','edit')) { ?>
+						<?php if ($acl->isAllowed($role,'Application\Controller\RolesController','edit')) { ?>
 						<th>Action</th>
 						<?php } ?>
 					</tr>

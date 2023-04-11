@@ -1,9 +1,9 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl=$this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
+if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','edit')) {
   $colspan = true;
   $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
 }else{
@@ -19,7 +19,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
 			</div>
 			<div class="col-sm-4">
       <a href="<?php echo $this->url('test-question', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Questions</a>
-				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','add')) { ?>
+				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','add')) { ?>
 					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Question</a>
 				<?php } ?>
 			</div>
@@ -35,7 +35,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestion','edit')) {
                     <th style="width:20%;">Categories</th>
                     <th style="width:100%;">Correct Answer</th>
                     <th style="width:95%;">Status</th>
-                    <?php if ($acl->isAllowed($role, 'Application\Controller\TestSection','edit')) { ?>
+                    <?php if ($acl->isAllowed($role, 'Application\Controller\TestSectionController','edit')) { ?>
                       <th style="width:95%;">Action</th>
                     <?php }?>
                 </tr>

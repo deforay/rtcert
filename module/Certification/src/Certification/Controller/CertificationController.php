@@ -1,58 +1,62 @@
 <?php
+
 namespace Certification\Controller;
 
-use Zend\Session\Container;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Json\Json;
-use Zend\View\Model\ViewModel;
+use Laminas\Session\Container;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Json\Json;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\Certification;
-use Certification\Form\CertificationForm;
-use Zend\Debug\Debug;
 
-class CertificationController extends AbstractActionController {
+class CertificationController extends AbstractActionController
+{
 
-    protected $certificationTable;
+    public \Certification\Model\CertificationTable $certificationTable;
+    public \Application\Service\CommonService $commonService;
+    public \Certification\Form\CertificationForm $certificationForm;
 
-    public function getCertificationTable() {
-        if (!$this->certificationTable) {
-            $sm = $this->getServiceLocator();
-            $this->certificationTable = $sm->get('Certification\Model\CertificationTable');
-        }
-        return $this->certificationTable;
+    public function __construct($commonService, $certificationTable, $certificationForm)
+    {
+        $this->commonService = $commonService;
+        $this->certificationForm = $certificationForm;
+        $this->certificationTable = $certificationTable;
     }
 
-    public function indexAction() {
-        //$nb = $this->getCertificationTable()->countCertificate();
-        //$nb2 = $this->getCertificationTable()->countReminder();
+
+    public function indexAction()
+    {
+        //$nb = $this->certificationTable->countCertificate();
+        //$nb2 = $this->certificationTable->countReminder();
         //$this->layout()->setVariable('nb', $nb);
         //$this->layout()->setVariable('nb2', $nb2);
         $certification_id = (int) base64_decode($this->params()->fromQuery(base64_encode('certification_id'), null));
         $key = '';
         $src = '';
-        if($this->params()->fromQuery(base64_encode('key'), null)){
-           $key = base64_decode($this->params()->fromQuery(base64_encode('key'), null));
+        if ($this->params()->fromQuery(base64_encode('key'), null)) {
+            $key = base64_decode($this->params()->fromQuery(base64_encode('key'), null));
         }
-        if($this->params()->fromQuery('src', null)){
+        if ($this->params()->fromQuery('src', null)) {
             $src = $this->params()->fromQuery('src', null);
         }
         if (!empty($certification_id) && !empty($key)) {
-            $this->getCertificationTable()->CertificateSent($certification_id);
+            $this->certificationTable->CertificateSent($certification_id);
             $container = new Container('alert');
             $container->alertMsg = 'Perform successfully';
             return $this->redirect()->toRoute('certification', array(
-                        'action' => 'edit',
-                        'certification_id' => base64_encode($certification_id)));
+                'action' => 'edit',
+                'certification_id' => base64_encode($certification_id)
+            ));
         } else {
-            return new ViewModel(array('src'=>$src));
+            return new ViewModel(array('src' => $src));
         }
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $this->indexAction();
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
 
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
-//        die($id);
+        //        die($id);
         $written = (int) base64_decode($this->params()->fromQuery(base64_encode('written')));
         $practical = (int) base64_decode($this->params()->fromQuery(base64_encode('practical')));
         $sample = (int) base64_decode($this->params()->fromQuery(base64_encode('sample')));
@@ -62,25 +66,25 @@ class CertificationController extends AbstractActionController {
             return $this->redirect()->toRoute('examination');
         }
         $provider = (int) base64_decode($this->params()->fromQuery(base64_encode('provider')));
-        $certification_id = $this->getCertificationTable()->certificationType($provider);
+        $certification_id = $this->certificationTable->certificationType($provider);
 
-        $form = new CertificationForm($dbAdapter);
-        $form->get('submit')->setValue('Submit');
-        $form->get('provider')->setValue($provider);
+        $this->certificationForm->get('submit')->setValue('Submit');
+        $this->certificationForm->get('provider')->setValue($provider);
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $certification = new Certification();
-            $form->setInputFilter($certification->getInputFilter());
-            $form->setData($request->getPost());
+            $this->certificationForm->setInputFilter($certification->getInputFilter());
+            $this->certificationForm->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $certification->exchangeArray($form->getData());
-                $this->getCertificationTable()->saveCertification($certification);
-                $last_id = $this->getCertificationTable()->last_id();
-                $this->getCertificationTable()->updateExamination($last_id);
-                $this->getCertificationTable()->setToActive($last_id);
+            if ($this->certificationForm->isValid()) {
+                $certification->exchangeArray($this->certificationForm->getData());
+                $this->certificationTable->saveCertification($certification);
+                $last_id = $this->certificationTable->last_id();
+                $this->certificationTable->updateExamination($last_id);
+                $this->certificationTable->setToActive($last_id);
                 if (empty($certification_id) && $written >= 80 && $direct >= 90 && $sample = 100) {
-                    $this->getCertificationTable()->certificationId($provider);
+                    $this->certificationTable->certificationId($provider);
                 }
                 $container = new Container('alert');
                 $container->alertMsg = 'Added successfully';
@@ -94,44 +98,44 @@ class CertificationController extends AbstractActionController {
             'sample' => $sample,
             'direct' => $direct,
             'certification_id' => $certification_id,
-            'form' => $form
-            );
+            'form' => $this->certificationForm
+        );
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $this->indexAction();
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
         if (!$id) {
             return $this->redirect()->toRoute('certification', array(
-                        'action' => 'index'));
+                'action' => 'index'
+            ));
         }
 
         try {
-            $certification = $this->getCertificationTable()->getCertification($id);
-            
+            $certification = $this->certificationTable->getCertification($id);
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('certification', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
         $certification->date_certificate_issued = date("d-m-Y", strtotime($certification->date_certificate_issued));
-        if (isset($certification->date_certificate_sent) && $certification->date_certificate_sent!= null && $certification->date_certificate_sent!= '' && $certification->date_certificate_sent!= '0000-00-00') {
+        if (isset($certification->date_certificate_sent) && $certification->date_certificate_sent != null && $certification->date_certificate_sent != '' && $certification->date_certificate_sent != '0000-00-00') {
             $certification->date_certificate_sent = date("d-m-Y", strtotime($certification->date_certificate_sent));
-        }else{
+        } else {
             $certification->date_certificate_sent = '';
         }
-        $provider = $this->getCertificationTable()->getProvider($id);
-        $form = new CertificationForm($dbAdapter);
-        $form->bind($certification);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
-        $form->get('provider')->setValue($provider);
+        $provider = $this->certificationTable->getProvider($id);
+        $this->certificationForm->bind($certification);
+        $this->certificationForm->get('submit')->setAttribute('value', 'UPDATE');
+        $this->certificationForm->get('provider')->setValue($provider);
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $form->setInputFilter($certification->getInputFilter());
-            $form->setData($request->getPost());
-            if ($form->isValid()) {
-                $this->getCertificationTable()->saveCertification($certification);
+            $this->certificationForm->setInputFilter($certification->getInputFilter());
+            $this->certificationForm->setData($request->getPost());
+            if ($this->certificationForm->isValid()) {
+                $this->certificationTable->saveCertification($certification);
                 $container = new Container('alert');
                 $container->alertMsg = 'updated successfully';
                 return $this->redirect()->toRoute('certification');
@@ -140,16 +144,16 @@ class CertificationController extends AbstractActionController {
 
         return array(
             'id' => $id,
-            'form' => $form,
+            'form' => $this->certificationForm
         );
     }
 
-    public function pdfAction() {
-        $common = $this->getServiceLocator()->get('CommonService');
-        $showProfile =  $common->getGlobalValue('show-tester-photo-in-certificate');
-        $header_text = $this->getCertificationTable()->SelectTexteHeader();
-        $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
-        $globalConfigDetails = $this->getCertificationTable()->fetchCertificationConfig();
+    public function pdfAction()
+    {
+        $showProfile =  $this->commonService->getGlobalValue('show-tester-photo-in-certificate');
+        $header_text = $this->certificationTable->SelectTexteHeader();
+        $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
+        $globalConfigDetails = $this->certificationTable->fetchCertificationConfig();
         $id = base64_decode($this->params()->fromQuery(base64_encode('id')));
         $last = base64_decode($this->params()->fromQuery(base64_encode('last')));
         $first = base64_decode($this->params()->fromQuery(base64_encode('first')));
@@ -157,9 +161,9 @@ class CertificationController extends AbstractActionController {
         $certification_id = base64_decode($this->params()->fromQuery(base64_encode('certification_id')));
         $professional_reg_no = base64_decode($this->params()->fromQuery(base64_encode('professional_reg_no')));
         $date_issued = base64_decode($this->params()->fromQuery(base64_encode('date_issued')));
-        $date_end_validity = $this->getCertificationTable()->getCertificationValiditydate($id);
+        $date_end_validity = $this->certificationTable->getCertificationValiditydate($id);
 
-        $provider = $this->getCertificationTable()->getProviderDetailsByCertifyId($id);
+        $provider = $this->certificationTable->getProviderDetailsByCertifyId($id);
         // Debug::dump($provider['profile_picture']);die;
         return array(
             'last'                  => $last,
@@ -177,9 +181,11 @@ class CertificationController extends AbstractActionController {
         );
     }
 
-    public function xlsAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $countries = $this->getCertificationTable()->getAllActiveCountries();
+    public function xlsAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $countries = $this->certificationTable->getAllActiveCountries();
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $decision = $request->getPost('decision');
@@ -199,14 +205,8 @@ class CertificationController extends AbstractActionController {
             $district = $request->getPost('district');
             $excludeTesterName = $request->getPost('exclude_tester_name');
             $facility = $request->getPost('facility');
-            $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+            $result = $this->certificationTable->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
 
-            // $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-            // $sql = new Sql($dbAdapter);
-            // $queryContainer = new Container('query');
-           
-            // $queryStr = $sql->getSqlStringForSqlObject($queryContainer->exportAllEvents);
-            // $sResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 
             $objPHPExcel = new \PHPExcel();
             $styleArray = array(
@@ -214,7 +214,8 @@ class CertificationController extends AbstractActionController {
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
+                )
+            );
 
 
             $objPHPExcel->setActiveSheetIndex(0);
@@ -252,7 +253,7 @@ class CertificationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->SetCellValue('W1', 'Practical Examination');
             $objPHPExcel->getActiveSheet()->SetCellValue('AC1', 'Facility In Charge');
             $objPHPExcel->getActiveSheet()->SetCellValue('AQ1', 'Certificate');
-//           
+            //           
 
             $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Certification registration no');
             $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Certification id');
@@ -305,13 +306,13 @@ class CertificationController extends AbstractActionController {
 
             $ligne = 3;
             foreach ($result as $result) {
-////           
+                ////           
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $result['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $result['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $result['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$result['middle_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['last_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['first_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $result['middle_name'] : '');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, $result['country_name']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, $result['region_name']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, $result['district_name']);
@@ -371,10 +372,10 @@ class CertificationController extends AbstractActionController {
         return array(
             'countries' => $countries,
         );
-        
     }
     public function getCertificateReportAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         $decision = $request->getPost('decision');
         $typeHiv = $request->getPost('typeHIV');
@@ -393,21 +394,23 @@ class CertificationController extends AbstractActionController {
         $district = $request->getPost('district');
         $excludeTesterName = $request->getPost('exclude_tester_name');
         $facility = $request->getPost('facility');
-        $result = $this->getCertificationTable()->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
-        // $result = $this->getCertificationTable()->report($request);
+        $result = $this->certificationTable->report($startDate, $endDate, $decision, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        // $result = $this->certificationTable->report($request);
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' =>$result));
+        $viewModel->setVariables(array('result' => $result));
         $viewModel->setTerminal(true);
         return $viewModel;
     }
 
-    function pdfSettingAction() {
+    function pdfSettingAction()
+    {
 
-        
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
 
-        //$nb = $this->getCertificationTable()->countCertificate();
-        //$nb2 = $this->getCertificationTable()->countReminder();
+        //$nb = $this->certificationTable->countCertificate();
+        //$nb2 = $this->certificationTable->countReminder();
         //$this->layout()->setVariable('nb', $nb);
         //$this->layout()->setVariable('nb2', $nb2);
 
@@ -435,8 +438,8 @@ class CertificationController extends AbstractActionController {
 
             //The path you wish to upload the image to
             //$imagePath = $_SERVER["DOCUMENT_ROOT"] . '/assets/img/';
-            
-            if(!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
+
+            if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
                 mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
             }
 
@@ -450,8 +453,8 @@ class CertificationController extends AbstractActionController {
                     $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_left, $imagePath .DIRECTORY_SEPARATOR. 'logo_cert1.png')) {
-                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';                    
+                } elseif (move_uploaded_file($imagetemp_left, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert1.png')) {
+                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';
                 } else {
                     $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
                 }
@@ -465,9 +468,9 @@ class CertificationController extends AbstractActionController {
                     $msg_logo_right = 'You must load an image in PNG format for LOGO RIGHT.';
                 } elseif ($width > 425 || $height > 352) {
                     $msg_logo_right = 'the size of your image LOGO RIGHT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_right, $imagePath.DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
+                } elseif (move_uploaded_file($imagetemp_right, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
                     $msg_logo_right = 'image LOGO RIGHT loaded successfully';
-//                    
+                    //                    
                 } else {
                     $msg_logo_right = "Failure to save the image : LOGO RIGHT. Try Again";
                 }
@@ -477,26 +480,27 @@ class CertificationController extends AbstractActionController {
             $header_text_size = $request->getPost('header_text_font_size', null);
             //echo $header_text_size;die;
 
-            if (trim($header_text) != '' || trim($header_text_size)!= '') {
+            if (trim($header_text) != '' || trim($header_text_size) != '') {
                 $header_text = addslashes(trim($header_text));
                 $stringWithoutBR = str_replace("\r\n", "<br />", $header_text);
-                $this->getCertificationTable()->insertTextHeader($stringWithoutBR,$header_text_size);
+                $this->certificationTable->insertTextHeader($stringWithoutBR, $header_text_size);
                 $msg_header_text = "PDF Settings Saved Successfully.";
             }
 
             $headerText = $this->headerTextAction();
-            $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
-            return array('msg_logo_left' => $msg_logo_left,
+            $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
+            return array(
+                'msg_logo_left' => $msg_logo_left,
                 'msg_logo_right' => $msg_logo_right,
                 'msg_header_text' => $msg_header_text,
                 'header_text' => $headerText['header_text'],
                 'header_text_font_size' => $header_text_font_size
             );
-        }else{
-            
+        } else {
+
             $headerText = $this->headerTextAction();
             //die($headerText);
-            $header_text_font_size = $this->getCertificationTable()->SelectHeaderTextFontSize();
+            $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
             //echo $header_text_font_size;die;
             return array(
                 'header_text' => $headerText['header_text'],
@@ -505,20 +509,22 @@ class CertificationController extends AbstractActionController {
         }
     }
 
-    public function headerTextAction() {
-        $header_text = $this->getCertificationTable()->SelectTexteHeader();
+    public function headerTextAction()
+    {
+        $header_text = $this->certificationTable->SelectTexteHeader();
         return array('header_text' => $header_text);
     }
-    
-    public function recommendAction() {
-       $request = $this->getRequest();                
+
+    public function recommendAction()
+    {
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
             $result = 0;
-            if(isset($params['recommendationRow']) && count($params['recommendationRow']) > 0){
-                for($i=0;$i<count($params['recommendationRow']);$i++){
-                    $examArray = explode('#',$params['recommendationRow'][$i]);
-                    $certification_id = $this->getCertificationTable()->certificationType($examArray[5]);
+            if (isset($params['recommendationRow']) && count($params['recommendationRow']) > 0) {
+                for ($i = 0; $i < count($params['recommendationRow']); $i++) {
+                    $examArray = explode('#', $params['recommendationRow'][$i]);
+                    $certification_id = $this->certificationTable->certificationType($examArray[5]);
                     $certification = new Certification();
                     $certification->id = null;
                     $certification->provider = $examArray[5];
@@ -528,80 +534,92 @@ class CertificationController extends AbstractActionController {
                     $certification->date_certificate_issued = null;
                     $certification->date_certificate_sent = null;
                     if (empty($certification_id)) {
-                      $certification->certification_type = 'Initial';
-                    }else{
-                       $certification->certification_type = 'Recertification'; 
+                        $certification->certification_type = 'Initial';
+                    } else {
+                        $certification->certification_type = 'Recertification';
                     }
-                    $result = $this->getCertificationTable()->saveCertification($certification);
-                    $last_id = $this->getCertificationTable()->last_id();
-                    $this->getCertificationTable()->updateExamination($last_id);
-                    $this->getCertificationTable()->setToActive($last_id);
+                    $result = $this->certificationTable->saveCertification($certification);
+                    $last_id = $this->certificationTable->last_id();
+                    $this->certificationTable->updateExamination($last_id);
+                    $this->certificationTable->setToActive($last_id);
                     if (empty($certification_id) && $examArray[1] >= 80 && $examArray[3] >= 90 && $examArray[4] = 100) {
-                        $this->getCertificationTable()->certificationId($examArray[5]);
+                        $this->certificationTable->certificationId($examArray[5]);
                     }
                 }
             }
             $viewModel = new ViewModel(array(
-                'result'=>$result
-                ));
+                'result' => $result
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
-        } 
+        }
     }
-    
-    public function recommendedAction() {
+
+    public function recommendedAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->fetchAllRecommended($parameters);
+            $result = $this->certificationTable->fetchAllRecommended($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function approvalAction(){
-        $request = $this->getRequest();                
+
+    public function approvalAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $result = $this->getCertificationTable()->updateCertficateApproval($params);
+            $result = $this->certificationTable->updateCertficateApproval($params);
             $viewModel = new ViewModel(array(
-                'result'=>$result
-                ));
+                'result' => $result
+            ));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
-    
-    public function toBeSentAction() {
+
+    public function toBeSentAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->fetchAllToBeSentCertificate($parameters);
+            $result = $this->certificationTable->fetchAllToBeSentCertificate($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function certifiedAction() {
+
+    public function certifiedAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->fetchAllCertifiedTester($parameters);
+            $result = $this->certificationTable->fetchAllCertifiedTester($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-    public function pendingAction() {
+
+    public function pendingAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->fetchAllFailedTester($parameters);
+            $result = $this->certificationTable->fetchAllFailedTester($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
 
-    public function certificationExpiryAction() {
-        
-        // $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    public function certificationExpiryAction()
+    {
+
+        // $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
@@ -609,8 +627,8 @@ class CertificationController extends AbstractActionController {
             $country = $request->getPost('country_id');
             $region = $request->getPost('region');
             $district = $request->getPost('district');
-            $examination =$this->getCertificationTable()->expiryReport($expirydata,$country, $region, $district);        
-            
+            $examination = $this->certificationTable->expiryReport($expirydata, $country, $region, $district);
+
             $objPHPExcel = new \PHPExcel();
             $objPHPExcel->setActiveSheetIndex(0);
             $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:F1'); //merge some column
@@ -622,7 +640,8 @@ class CertificationController extends AbstractActionController {
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
+                )
+            );
             $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->applyFromArray($styleArray); //apply style from array style array
             $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
 
@@ -632,8 +651,8 @@ class CertificationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
 
             $objPHPExcel->getActiveSheet()->getStyle('A1:F2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
-          
-  
+
+
             $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Tester');
             $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Final Decision');
             $objPHPExcel->getActiveSheet()->SetCellValue('C2', 'Region');
@@ -643,8 +662,8 @@ class CertificationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->SetCellValue('G2', 'Current job title');
             $ligne = 3;
             foreach ($examination as $examination) {
-                
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['first_name'].' '.$examination['last_name']);
+
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['first_name'] . ' ' . $examination['last_name']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $examination['final_decision']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $examination['region_name']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $examination['district_name']);
@@ -659,52 +678,50 @@ class CertificationController extends AbstractActionController {
             $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_list of all '.$expirydata.'.xlsx"');
+            header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_list of all ' . $expirydata . '.xlsx"');
             header('Cache-Control: max-age=0');
             $objWriter->save('php://output');
             exit;
         }
-        $common = $this->getServiceLocator()->get('CommonService');
-        return array('country' => $common->getAllActiveCountries());
+        return array('country' => $this->commonService->getAllActiveCountries());
     }
 
 
     public function getExpiryCertificateReportAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         $expirydata = $request->getPost('expirycertification');
         $country = $request->getPost('country_id');
         $region = $request->getPost('region');
         $district = $request->getPost('district');
-        $result = $this->getCertificationTable()->expiryReport($expirydata,$country, $region, $district);        
+        $result = $this->certificationTable->expiryReport($expirydata, $country, $region, $district);
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' =>$result, 'params' => $expirydata));
+        $viewModel->setVariables(array('result' => $result, 'params' => $expirydata));
         $viewModel->setTerminal(true);
         return $viewModel;
-
     }
 
-    
+
     public function getCertificateReportsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->reportData($parameters);
+            $result = $this->certificationTable->reportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
+
     public function getExpiryCertificateReportsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getCertificationTable()->expiryReportData($parameters);
+            $result = $this->certificationTable->expiryReportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-    
-
-
 }

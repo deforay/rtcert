@@ -1,19 +1,40 @@
 {
     "name": "deforay/rtcert",
-    "description": "RTCQI Tester Certification Module",
-    "license": "BSD-3-Clause",
+    "description": "RTCQI Tester Certification",
     "keywords": [
-        "framework",
-        "zf2"
+        "rtcqi",
+        "certification"
     ],
-    "homepage": "http://framework.zend.com/",
+    "homepage": "https://rtcert.labsinformatics.com",
     "require": {
-        "php": ">=5.5",
-        "zendframework/zendframework": "~2.5",
-        "zendframework/zftool": "dev-master",
-        "vladmeh/zf2-tcpdf": "dev-master",
-        "phpmailer/phpmailer": "^6.0",
-        "league/oauth2-client": "^2.2",
-        "phpoffice/phpexcel": "^1.8"
+        "php": "^7.3 || ~8.0.0",
+        "laminas/laminas-dependency-plugin": "^2.1",
+        "league/oauth2-google": "^2.0",
+        "phpmailer/phpmailer": "^5.2",
+        "phpoffice/phpexcel": "^1.8",
+        "tecnickcom/tcpdf": "^6.2",
+        "laminas/laminas-mvc": "^3.3",
+        "laminas/laminas-db": "^2.12.0",
+        "laminas/laminas-mvc-form": "^1.1.0",
+        "laminas/laminas-json": "^3.2",
+        "laminas/laminas-log": "^2.13.1",
+        "laminas/laminas-cli": "^1.5",
+        "laminas/laminas-mvc-i18n": "^1.2.0",
+        "laminas/laminas-mvc-plugins": "^1.1.0",
+        "laminas/laminas-mvc-middleware": "^2.0.0",
+        "laminas/laminas-session": "^2.10.0",
+        "laminas/laminas-di": "^3.2.2",
+        "laminas/laminas-i18n": "^2.11",
+        "laminas/laminas-serializer": "^2.10",
+        "laminas/laminas-permissions-acl": "^2.10",
+        "laminas/laminas-eventmanager": "^3.5",
+        "laminas/laminas-mail": "^2.16",
+        "laminas/laminas-cache": "^3.6",
+        "laminas/laminas-cache-storage-adapter-filesystem": "^2.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "laminas/laminas-dependency-plugin": true
+        }
     }
 }

@@ -1,152 +1,161 @@
 <?php
+
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
-class PrintTestPdfController extends AbstractActionController{
+class PrintTestPdfController extends AbstractActionController
+{
 
-    public function indexAction(){
+    public \Application\Service\PrintTestPdfService $printTestPdfService;
+
+    public function __construct($printTestPdfService)
+    {
+        $this->printTestPdfService = $printTestPdfService;
+    }
+
+    public function indexAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $result = $printTestPdfService->getprintTestPdfGrid($parameters);
+            $result = $this->printTestPdfService->getprintTestPdfGrid($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
-        }else{
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+        } else {
             return new ViewModel(array(
-                'ptpSelectResult' => $printTestPdfService->getAllprintTestPdf()
+                'ptpSelectResult' => $this->printTestPdfService->getAllprintTestPdf()
             ));
         }
     }
-    
-    public function viewPdfQuestionAction(){
+
+    public function viewPdfQuestionAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $result = $printTestPdfService->getPtpDetailsInGrid($parameters);
+            $result = $this->printTestPdfService->getPtpDetailsInGrid($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
-        }else{
-            $ptpId=base64_decode($this->params()->fromRoute('id'));
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $ptpResult = $printTestPdfService->getPtpDetailsById($ptpId);
+        } else {
+            $ptpId = base64_decode($this->params()->fromRoute('id'));
+            $ptpResult = $this->printTestPdfService->getPtpDetailsById($ptpId);
             return new ViewModel(array(
                 'ptpResult'         => $ptpResult,
-                'ptpSelectResult'   => $printTestPdfService->getAllprintTestPdf(),
+                'ptpSelectResult'   => $this->printTestPdfService->getAllprintTestPdf(),
                 'ptpId'             => $this->params()->fromRoute('id')
             ));
         }
     }
 
-    public function addAction(){
+    public function addAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $params = $request->getPost();
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $printTestPdfService->addPrintTestPdfData($params);
+            $this->printTestPdfService->addPrintTestPdfData($params);
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
 
-    public function printPdfQuestionAction(){
-        $ptpId=base64_decode($this->params()->fromRoute('id'));
-        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-        $result = $printTestPdfService->getPdfDetailsById($ptpId);
-        if($result['ptpDetails']['title'] != ''){
+    public function printPdfQuestionAction()
+    {
+        $ptpId = base64_decode($this->params()->fromRoute('id'));
+        $result = $this->printTestPdfService->getPdfDetailsById($ptpId);
+        if ($result['ptpDetails']['title'] != '') {
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setVariables(array('result' => $result, 'ptpId' => explode('##', $ptpId)));
             $viewModel->setTerminal(true);
             return $viewModel;
-        }else{
+        } else {
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
 
     public function editAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $params = $request->getPost();
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $result = $printTestPdfService->savePdfTitle($params);
+            $result = $this->printTestPdfService->savePdfTitle($params);
             return $this->getResponse()->setContent(Json::encode($result));
-        }else{
+        } else {
             $layout = $this->layout();
             $layout->setTemplate('layout/modal');
-            $ptpId=base64_decode($this->params()->fromRoute('id'));
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
+            $ptpId = base64_decode($this->params()->fromRoute('id'));
             return new ViewModel(array(
-                'result' => $printTestPdfService->getPrintTestPdfDetailsById($ptpId)
+                'result' => $this->printTestPdfService->getPrintTestPdfDetailsById($ptpId)
             ));
         }
     }
 
-    public function changeStatusAction(){
+    public function changeStatusAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $params = $request->getPost();
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' => $printTestPdfService->changeStatus($params)));
+            $viewModel->setVariables(array('result' => $this->printTestPdfService->changeStatus($params)));
             $viewModel->setTerminal(true);
             return $viewModel;
         }
     }
 
-    public function answerKeyOneAction(){
-        $ptpId=base64_decode($this->params()->fromRoute('id'));
-        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-        $result = $printTestPdfService->getPdfDetailsById($ptpId,'answer');
-        if($result['ptpDetails']['title'] != ''){
+    public function answerKeyOneAction()
+    {
+        $ptpId = base64_decode($this->params()->fromRoute('id'));
+        $result = $this->printTestPdfService->getPdfDetailsById($ptpId, 'answer');
+        if ($result['ptpDetails']['title'] != '') {
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setVariables(array('result' => $result, 'ptpId' => explode('##', $ptpId)));
             $viewModel->setTerminal(true);
             return $viewModel;
-        }else{
+        } else {
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
 
-    public function answerKeyTwoAction(){
-        $ptpId=base64_decode($this->params()->fromRoute('id'));
-        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-        $result = $printTestPdfService->getPdfDetailsById($ptpId,'answer');
-        if($result['ptpDetails']['title'] != ''){
+    public function answerKeyTwoAction()
+    {
+        $ptpId = base64_decode($this->params()->fromRoute('id'));
+        $result = $this->printTestPdfService->getPdfDetailsById($ptpId, 'answer');
+        if ($result['ptpDetails']['title'] != '') {
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' => $result,'ptpId' => explode('##',$ptpId)));
+            $viewModel->setVariables(array('result' => $result, 'ptpId' => explode('##', $ptpId)));
             $viewModel->setTerminal(true);
             return $viewModel;
-        }else{
+        } else {
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
-    
-    public function examinationAction(){
-        $ptpId=base64_decode($this->params()->fromRoute('id'));
-        $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-        $result = $printTestPdfService->getPdfDetailsById($ptpId,'examination');
-        if($result['ptpDetails']['title'] != ''){
+
+    public function examinationAction()
+    {
+        $ptpId = base64_decode($this->params()->fromRoute('id'));
+        $result = $this->printTestPdfService->getPdfDetailsById($ptpId, 'examination');
+        if ($result['ptpDetails']['title'] != '') {
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
             return $viewModel;
-        }else{
+        } else {
             return $this->_redirect()->toRoute('print-test-pdf');
         }
     }
 
     public function exportDataAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if($request->isPost())
-        {
-            $printTestPdfService = $this->getServiceLocator()->get('PrintTestPdfService');
-            $result=$printTestPdfService->exportPdfDataDetails();
+        if ($request->isPost()) {
+            $result = $this->printTestPdfService->exportPdfDataDetails();
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' =>$result));
+            $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
             return $viewModel;
         }

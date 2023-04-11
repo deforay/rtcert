@@ -2,19 +2,29 @@
 
 namespace Certification\Model;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Select;
-use Zend\Paginator\Adapter\DbSelect;
-use Zend\Paginator\Paginator;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Paginator\Adapter\DbSelect;
+use Laminas\Paginator\Paginator;
 
-class TrainingOrganizationTable extends AbstractTableGateway {
+class TrainingOrganizationTable extends AbstractTableGateway
+{
+    protected $tableGateway;
+    protected $adapter;
+    protected $table = 'training_organization';
+    public $sm = null;
 
-    private $tableGateway;
+    public function __construct(Adapter $adapter, $sm = null)
+    {
+        $this->adapter = $adapter;
+        $this->sm = $sm;
 
-    public function __construct(TableGateway $tableGateway) {
-        $this->tableGateway = $tableGateway;
+        $resultSetPrototype = new ResultSet();
+        $resultSetPrototype->setArrayObjectPrototype(new Region());
+        $this->tableGateway =  new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
     public function fetchAll() {
@@ -62,7 +72,7 @@ class TrainingOrganizationTable extends AbstractTableGateway {
     }
 
     public function foreigne_key($training_organization_id) {
-        $db = $this->tableGateway->getAdapter();
+        $db = $this->adapter;
         $sql1 = 'SELECT COUNT(training_organization_id) as nombre from training  WHERE training_organization_id=' . $training_organization_id;
         $statement = $db->query($sql1);
         $result = $statement->execute();

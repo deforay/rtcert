@@ -2,99 +2,102 @@
 
 namespace Certification\Controller;
 
-use Zend\Session\container;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Session\container;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Certification\Model\Training;
 use Certification\Form\TrainingForm;
-use Zend\Json\Json;
-class TrainingController extends AbstractActionController {
+use Laminas\Json\Json;
 
-    protected $TrainingTable;
+class TrainingController extends AbstractActionController
+{
 
-    public function getTrainingTable() {
-        if (!$this->TrainingTable) {
-            $sm = $this->getServiceLocator();
-            $this->TrainingTable = $sm->get('Certification\Model\TrainingTable');
-        }
-        return $this->TrainingTable;
+    public \Certification\Model\TrainingTable $trainingTable;
+    public \Certification\Form\TrainingForm $trainingForm;
+
+    public function __construct($trainingTable, $trainingForm)
+    {
+        $this->trainingTable = $trainingTable;
+        $this->trainingForm = $trainingForm;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
 
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getTrainingTable()->fetchAllTraining($parameters);
+            $result = $this->trainingTable->fetchAllTraining($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
         // return new ViewModel(array(
-        //     'trainings' => $this->getTrainingTable()->fetchAllTraining(),
+        //     'trainings' => $this->trainingTable->fetchAllTraining(),
         // ));
 
     }
 
-    public function addAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new TrainingForm($dbAdapter);
-        $form->get('submit')->setValue('SUBMIT');
+    public function addAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $this->trainingForm->get('submit')->setValue('SUBMIT');
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-             $params = $request->getPost();
-            
+            $params = $request->getPost();
+
             $training = new Training();
-            $form->setInputFilter($training->getInputFilter());
+            $this->trainingForm->setInputFilter($training->getInputFilter());
             $select_time = $request->getPost('select_time');
             //die($select_time);
-            //$form->setData($request->getPost());
-            //if ($form->isValid()) {
-                $training->exchangeArray($request->getPost());
-                $training->length_of_training = $training->length_of_training . ' ' . $select_time;
-                $this->getTrainingTable()->saveTraining($training);
-                $container = new Container('alert');
-                $container->alertMsg = 'New training added successfully';
+            //$this->trainingForm->setData($request->getPost());
+            //if ($this->trainingForm->isValid()) {
+            $training->exchangeArray($request->getPost());
+            $training->length_of_training = $training->length_of_training . ' ' . $select_time;
+            $this->trainingTable->saveTraining($training);
+            $container = new Container('alert');
+            $container->alertMsg = 'New training added successfully';
 
-                return $this->redirect()->toRoute('training', array('action' => 'add'));
+            return $this->redirect()->toRoute('training', array('action' => 'add'));
             //}
         }
 
-        return array('form' => $form);
+        return array('form' => $this->trainingForm);
     }
 
-//
-    public function editAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    //
+    public function editAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $training_id = (int) base64_decode($this->params()->fromRoute('training_id', 0));
         if (!$training_id) {
             return $this->redirect()->toRoute('training', array(
-                        'action' => 'add'
+                'action' => 'add'
             ));
         }
 
         try {
+            /** @var \Laminas\Http\Request $request */
             $request = $this->getRequest();
-            $form = new TrainingForm($dbAdapter);
             if ($request->isPost()) {
                 $training = new Training();
-                $form->setInputFilter($training->getInputFilter());
+                $this->trainingForm->setInputFilter($training->getInputFilter());
                 $select_time = $request->getPost('select_time');
-                
+
                 $training->exchangeArray($request->getPost());
                 $training->length_of_training = $training->length_of_training . ' ' . $select_time;
-                $this->getTrainingTable()->saveTraining($training);
+                $this->trainingTable->saveTraining($training);
                 $container = new Container('alert');
                 $container->alertMsg = 'Training updated successfully';
                 return $this->redirect()->toRoute('training');
             }
-            $training = $this->getTrainingTable()->getTraining($training_id);
+            $training = $this->trainingTable->getTraining($training_id);
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('training', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
         //$training->last_training_date = date("d-m-Y", strtotime($training->last_training_date));
@@ -105,38 +108,39 @@ class TrainingController extends AbstractActionController {
         $time_array = explode(' ', $training->length_of_training);
         $time1 = $time_array[0];
         $time2 = $time_array[1];
-        
+
         $training->length_of_training = $time1;
-        $form->bind($training);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
+        $this->trainingForm->bind($training);
+        $this->trainingForm->get('submit')->setAttribute('value', 'UPDATE');
 
         return array(
             'training_id' => $training_id,
-            'form' => $form,
+            'form' => $this->trainingForm,
             'time2' => $time2,
         );
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $training_id = (int) $this->params()->fromRoute('training_id', 0);
 
         if (!$training_id) {
             return $this->redirect()->toRoute('training');
         } else {
 
-            $this->getTrainingTable()->deleteTraining($training_id);
+            $this->trainingTable->deleteTraining($training_id);
             $container = new Container('alert');
             $container->alertMsg = 'Deleted successfully';
             return $this->redirect()->toRoute('training');
         }
     }
 
-    public function xlsAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $form = new TrainingForm($dbAdapter);
-        $form->get('submit')->setValue('GET REPORT');
-        $countries = $this->getTrainingTable()->getAllActiveCountries();
+    public function xlsAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        $this->trainingForm->get('submit')->setValue('GET REPORT');
+        $countries = $this->trainingTable->getAllActiveCountries();
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $type_of_competency = $request->getPost('type_of_competency');
@@ -150,7 +154,7 @@ class TrainingController extends AbstractActionController {
             $district = $request->getPost('district');
             $facility = $request->getPost('facility_id');
             $excludeTesterName = $request->getPost('exclude_tester_name');
-            $training = $this->getTrainingTable()->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+            $training = $this->trainingTable->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
 
             $objPHPExcel = new \PHPExcel();
             $objPHPExcel->setActiveSheetIndex(0);
@@ -171,7 +175,8 @@ class TrainingController extends AbstractActionController {
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
+                )
+            );
             $objPHPExcel->getActiveSheet()->getStyle('A1:AF2')->applyFromArray($styleArray); //apply style from array style array
             $objPHPExcel->getActiveSheet()->getStyle('A1:AF2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
 
@@ -226,12 +231,12 @@ class TrainingController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $training['certification_reg_no']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $training['certification_id']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $training['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$training['middle_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($training['country_name']))?$training['country_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($training['region_name']))?$training['region_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($training['district_name']))?$training['district_name']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $training['last_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $training['first_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $training['middle_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($training['country_name'])) ? $training['country_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, (isset($training['region_name'])) ? $training['region_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, (isset($training['district_name'])) ? $training['district_name'] : '');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $training['type_vih_test']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, $training['phone']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $training['email']);
@@ -269,14 +274,15 @@ class TrainingController extends AbstractActionController {
             exit;
         }
         return array(
-            'form' => $form,
+            'form' => $this->trainingForm,
             'countries' => $countries
-            );
-//    }
+        );
+        //    }
     }
 
     public function getTrainingReportsAction()
     {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         $type_of_competency = $request->getPost('type_of_competency');
         $type_of_training = $request->getPost('type_of_training');
@@ -289,21 +295,22 @@ class TrainingController extends AbstractActionController {
         $district = $request->getPost('district');
         $facility = $request->getPost('facility_id');
         $excludeTesterName = $request->getPost('exclude_tester_name');
-        $training = $this->getTrainingTable()->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
+        $training = $this->trainingTable->report($type_of_competency, $type_of_training, $training_organization_id, $training_certificate, $typeHiv, $jobTitle, $country, $region, $district, $facility);
         $viewModel = new ViewModel();
-        $viewModel->setVariables(array('result' =>$training));
+        $viewModel->setVariables(array('result' => $training));
         $viewModel->setTerminal(true);
         return $viewModel;
     }
 
-    public function getTrainingReportAction() {
+    public function getTrainingReportAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $parameters['addproviders']="addproviders";
-            $result = $this->getTrainingTable()->reportData($parameters);
+            $parameters['addproviders'] = "addproviders";
+            $result = $this->trainingTable->reportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-
 }

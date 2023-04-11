@@ -1,12 +1,12 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
 $configResult = $this->GlobalConfigHelper();
 $isClickable = false;
-if ($acl->isAllowed($role, 'Application\Controller\Dashboard', 'testers')) {
+if ($acl->isAllowed($role, 'Application\Controller\DashboardController', 'testers')) {
     $isClickable = true;
 }
 ?>

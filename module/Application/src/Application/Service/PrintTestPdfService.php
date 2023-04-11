@@ -2,10 +2,10 @@
 namespace Application\Service;
 
 use PHPExcel;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Adapter\Adapter;
-use Zend\Session\Container;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Session\Container;
 
 class PrintTestPdfService {
 
@@ -33,7 +33,7 @@ class PrintTestPdfService {
 
     public function addPrintTestPdfData($params)
     {
-        $adapter = $this->sm->get('Zend\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
         $adapter->beginTransaction();
         try {
             $db = $this->sm->get('PrintTestPdfTable');
@@ -96,7 +96,7 @@ class PrintTestPdfService {
             \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
             $output = array();
             $sheet = $excel->getActiveSheet();
-            $dbAdapter = $this->sm->get('Zend\Db\Adapter\Adapter');
+            $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sResult = $dbAdapter->query($querycontainer->printTestPdfQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             
             $output= array();

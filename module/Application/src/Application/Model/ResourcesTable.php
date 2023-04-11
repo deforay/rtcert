@@ -2,9 +2,9 @@
 
 namespace Application\Model;
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Zend\Debug\Debug;
 
 /*
@@ -31,7 +31,7 @@ class ResourcesTable extends AbstractTableGateway {
         $sql = new Sql($dbAdapter);
         $resourceQuery = $sql->select()->from('resources')
                                        ->order('display_name');
-        $resourceQueryStr = $sql->getSqlStringForSqlObject($resourceQuery);
+        $resourceQueryStr = $sql->buildSqlString($resourceQuery);
         $resourceResult = $dbAdapter->query($resourceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return $resourceResult;
     }

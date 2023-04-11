@@ -2,28 +2,35 @@
 
 namespace Certification\Model;
 
-use Zend\Session\Container;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Session\Container;
+
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Zend\Debug\Debug;
-use Zend\Db\Sql\Expression;
-//use Zend\Db\Sql\Where;
+use Laminas\Db\Sql\Expression;
+//use Laminas\Db\Sql\Where;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
 
-class CertificationTable
+class CertificationTable extends AbstractTableGateway
 {
 
     protected $tableGateway;
+    protected $adapter;
+    protected $table = 'certification';
     public $sm = null;
 
-    public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm = null)
+    public function __construct(Adapter $adapter, $sm = null)
     {
-        $this->tableGateway = $tableGateway;
         $this->adapter = $adapter;
         $this->sm = $sm;
+
+        $resultSetPrototype = new ResultSet();
+        $resultSetPrototype->setArrayObjectPrototype(new Certification());
+        $this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
     public function getQuickStats()
@@ -62,7 +69,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $query = $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
     }
 
@@ -83,7 +90,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $query = $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 
@@ -100,7 +107,7 @@ class CertificationTable
             ->where('(c.final_decision = "Certified" OR c.final_decision = "certified")')
             ->group('p.region');
 
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         //    echo $queryStr; die;
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
@@ -116,7 +123,7 @@ class CertificationTable
             ->join(array('l_d' => 'location_details'), 'l_d.location_id=p.district', array('location_name'))
             ->where('(c.final_decision = "Certified" OR c.final_decision = "certified")')
             ->group('p.district');
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         //   echo $queryStr; die;
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
@@ -155,7 +162,7 @@ class CertificationTable
             } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
                 $query = $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
             }
-            $queryStr = $sql->getSqlStringForSqlObject($query);
+            $queryStr = $sql->buildSqlString($query);
             $result = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             $certificationResult['certification']['Certifications'][$j] = (isset($result[0]["certifications"])) ? $result[0]["certifications"] : 0;
             $certificationResult['certification']['Recertifications'][$j] = (isset($result[0]["recertifications"])) ? $result[0]["recertifications"] : 0;
@@ -193,8 +200,8 @@ class CertificationTable
         $sqlSelect->join('examination', 'examination.id = certification.examination ', array('provider'), 'left')
             ->join('provider', 'provider.id = examination.provider ', array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no'), 'left')
             ->where(array('approval_status' => 'rejected'))
-            ->where(array('final_decision' => 'failed'), \Zend\Db\Sql\Where::OP_OR)
-            ->where(array('final_decision' => 'pending'), \Zend\Db\Sql\Where::OP_OR);
+            ->where(array('final_decision' => 'failed'), \Laminas\Db\Sql\Where::OP_OR)
+            ->where(array('final_decision' => 'pending'), \Laminas\Db\Sql\Where::OP_OR);
         $sqlSelect->order('id desc');
 
         $resultSet = $this->tableGateway->selectWith($sqlSelect);
@@ -636,7 +643,7 @@ class CertificationTable
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $acl = $this->sm->get('AppAcl');
-        if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
+        if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) {
             $aColumns = array('c.id', 'professional_reg_no', 'certification_reg_no', 'certification_id', 'first_name', 'middle_name', 'last_name', 'final_decision', 'certification_issuer', "DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')", "DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')", 'certification_type');
             $orderColumns = array('c.id', 'professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type');
         } else {
@@ -739,14 +746,14 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -761,7 +768,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -773,7 +780,7 @@ class CertificationTable
 
         foreach ($rResult as $aRow) {
             $row = array();
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) {
                 $row[] = '<input class="approvalRow" type="checkbox" id="' . $aRow['id'] . '" onchange="selectForApproval(this);" value="' . $aRow['id'] . '"/>';
             }
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
@@ -910,14 +917,14 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -932,7 +939,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -954,17 +961,17 @@ class CertificationTable
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued'] != null && $aRow['date_certificate_issued'] != '' && $aRow['date_certificate_issued'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_issued'])) : '';
             $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent'] != null && $aRow['date_certificate_sent'] != '' && $aRow['date_certificate_sent'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_sent'])) : '';
             $row[] = $aRow['certification_type'];
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) {
                 if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
                     $row[] = "<a href='/certification/pdf?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('last')) . "=" . base64_encode($aRow['last_name']) . "&" . urlencode(base64_encode('first')) . "=" . base64_encode($aRow['first_name']) . "&" . urlencode(base64_encode('middle')) . "=" . base64_encode($aRow['middle_name']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('date_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
                 } else {
                     $row[] = "<div></div>";
                 }
             }
-            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) {
                 $row[] = "<a href='/certification-mail/index?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('provider_id')) . "=" . base64_encode($aRow['provider']) . "&" . urlencode(base64_encode('email')) . "=" . base64_encode($aRow['email']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('provider_name')) . "=" . base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name']) . "&" . urlencode(base64_encode('facility_in_charge_email')) . "=" . base64_encode($aRow['facility_in_charge_email']) . "&" . urlencode(base64_encode('test_site_in_charge_email')) . "=" . base64_encode($aRow['test_site_in_charge_email']) . "&" . urlencode(base64_encode('date_certificate_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "&" . urlencode(base64_encode('date_end_validity')) . "=" . base64_encode($aRow['date_end_validity']) . "&" . urlencode(base64_encode('key2')) . "=" . base64_encode('key') . "'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
             }
-            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) {
                 $row[] = "<div style='width:120px;height:40px;overflow:auto;'><a href='javascript:void(0);' onclick='markAsSent(\"" . urlencode(base64_encode('certification_id')) . "\",\"" . base64_encode($aRow['id']) . "\",\"" . urlencode(base64_encode('key')) . "\",\"" . base64_encode('key') . "\");'><span class='glyphicon glyphicon-send'></span>&nbsp;Mark as sent</a></div>";
             }
             $output['aaData'][] = $row;
@@ -1075,14 +1082,14 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -1097,7 +1104,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -1119,10 +1126,10 @@ class CertificationTable
             $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued'] != null && $aRow['date_certificate_issued'] != '' && $aRow['date_certificate_issued'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_issued'])) : '';
             $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent'] != null && $aRow['date_certificate_sent'] != '' && $aRow['date_certificate_sent'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_sent'])) : '';
             $row[] = $aRow['certification_type'];
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) {
                 $row[] = "<a href='/certification/edit/" . base64_encode($aRow['id']) . "'><span class='glyphicon glyphicon-pencil'>Edit</span></a>";
             }
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) {
                 if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
                     $row[] = "<a href='/certification/pdf?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('last')) . "=" . base64_encode($aRow['last_name']) . "&" . urlencode(base64_encode('first')) . "=" . base64_encode($aRow['first_name']) . "&" . urlencode(base64_encode('middle')) . "=" . base64_encode($aRow['middle_name']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('date_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
                 } else {
@@ -1238,14 +1245,14 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -1261,7 +1268,7 @@ class CertificationTable
         } else {
             $tQuery->where('c.final_decision IN("pending","Pending")');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -1279,7 +1286,7 @@ class CertificationTable
             $row[] = $aRow['certification_id'];
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_type'];
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) {
                 $row[] = "<a href='/certification/edit/" . base64_encode($aRow['id']) . "'><span class='glyphicon glyphicon-pencil'>Edit</span></a>";
             }
             $output['aaData'][] = $row;
@@ -1293,7 +1300,7 @@ class CertificationTable
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))
-            ->columns(array('locCount' => new \Zend\Db\Sql\Expression("COUNT(*)")))
+            ->columns(array('locCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
             ->join(array('p' => 'provider'), 'p.id=e.id', array())
             ->join(array('c_f' => 'certification_facilities'), 'c_f.id=p.facility_id', array('facility_name', 'longitude', 'latitude'))
@@ -1304,11 +1311,11 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         $facilityResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 
         $query = $sql->select()->from(array('c' => 'certification'))
-            ->columns(array('regCount' => new \Zend\Db\Sql\Expression("COUNT(*)")))
+            ->columns(array('regCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
             ->join(array('p' => 'provider'), 'p.id=e.id', array())
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('location_name', 'longitude', 'latitude'))
@@ -1319,11 +1326,11 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         $provinceResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 
         $query = $sql->select()->from(array('c' => 'certification'))->columns(array())
-            ->columns(array('districtCount' => new \Zend\Db\Sql\Expression("COUNT(*)")))
+            ->columns(array('districtCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
             ->join(array('p' => 'provider'), 'p.id=e.id', array())
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('location_name', 'longitude', 'latitude'))
@@ -1334,7 +1341,7 @@ class CertificationTable
         } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
             $query->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         $districtResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         return array('facilityResult' => $facilityResult, 'provinceResult' => $provinceResult, 'districtResult' => $districtResult);
     }
@@ -1366,7 +1373,7 @@ class CertificationTable
 
     public function expiryReport($expirydata, $country, $region, $district)
     {
-             
+
         $logincontainer = new Container('credo');
         $roleCode = $logincontainer->roleCode;
 
@@ -1376,30 +1383,29 @@ class CertificationTable
         $globalDb = new GlobalTable($adapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
         $registrarName = $globalDb->getGlobalValue('month-flex-limit');
-        $upForRecertificationdate=$monthValid-2;
-        $didNotRecertifydate=$monthValid+$registrarName;
+        $upForRecertificationdate = $monthValid - 2;
+        $didNotRecertifydate = $monthValid + $registrarName;
 
         $db = $this->tableGateway->getAdapter();
 
         $sql = 'select certification.certification_issuer,certification.certification_type, certification.date_certificate_issued,certification.date_end_validity, certification.final_decision,provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, written_exam.exam_type as written_exam_type,written_exam.exam_admin as written_exam_admin,written_exam.date as written_exam_date,written_exam.qa_point,written_exam.rt_point,written_exam.safety_point,written_exam.specimen_point, written_exam.testing_algo_point, written_exam.report_keeping_point,written_exam.EQA_PT_points, written_exam.ethics_point, written_exam.inventory_point, written_exam.total_points,written_exam.final_score, practical_exam.exam_type as practical_exam_type , practical_exam.exam_admin as practical_exam_admin , practical_exam.Sample_testing_score, practical_exam.direct_observation_score,practical_exam.practical_total_score,practical_exam.date as practical_exam_date from certification,examination,written_exam,practical_exam,provider,location_details as l_d_r,location_details as l_d_d, country as c, certification_facilities WHERE certification.examination= examination.id and examination.id_written_exam= written_exam.id_written_exam and examination.practical_exam_id= practical_exam.practice_exam_id and provider.id=examination.provider and provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
 
-        if ($expirydata=='upForRecertification') {
-            $syearmonth = date('Y-m', strtotime('first day of -'.$upForRecertificationdate.' month'));
-            
-            $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-'.date('d');
+        if ($expirydata == 'upForRecertification') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $upForRecertificationdate . ' month'));
+
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
             // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
             $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
-                       
         }
-        if ($expirydata=='remindersSent') {
+        if ($expirydata == 'remindersSent') {
             $sql = $sql . ' and certification.reminder_sent="yes"';
         }
 
-        if ($expirydata=='didNotRecertify') {
-            $syearmonth = date('Y-m', strtotime('first day of -'.$didNotRecertifydate.' month'));            
-            $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-'.date('d');
+        if ($expirydata == 'didNotRecertify') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $didNotRecertifydate . ' month'));
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
             // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
             $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
         }
@@ -1424,7 +1430,7 @@ class CertificationTable
 
     public function reportData($parameters)
     {
-        
+
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $roleCode = $sessionLogin->roleCode;
@@ -1433,7 +1439,7 @@ class CertificationTable
         $typeHiv = $parameters['typeHIV'];
         $jobTitle = $parameters['jobTitle'];
         $dateRange = $parameters['dateRange'];
-         if (!empty($dateRange)) {
+        if (!empty($dateRange)) {
             $array = explode(" ", $dateRange);
             $startDate = date("Y-m-d", strtotime($array[0]));
             $endDate = date("Y-m-d", strtotime($array[2]));
@@ -1447,9 +1453,9 @@ class CertificationTable
         $excludeTesterName = $parameters['exclude_tester_name'];
         $facility = $parameters['facility'];
 
-        $aColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
-       
-        $orderColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
+        $aColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod');
+
+        $orderColumns = array('first_name', 'professional_reg_no', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod');
 
 
         /*
@@ -1526,12 +1532,12 @@ class CertificationTable
         $sQuery = $sql->select()->from(array('c' => 'certification'))
             ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
             ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'))
             ->group('p.id');
 
@@ -1539,36 +1545,36 @@ class CertificationTable
             $sQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
         }
         if (!empty($decision)) {
-            $sQuery->where(array('c.final_decision'=>$decision));
+            $sQuery->where(array('c.final_decision' => $decision));
         }
         if (!empty($typeHiv)) {
-            $sQuery->where(array('p.type_vih_test'=>$typeHiv));
+            $sQuery->where(array('p.type_vih_test' => $typeHiv));
         }
         if (!empty($jobTitle)) {
-            $sQuery->where(array('p.current_jod'=>$jobTitle));
+            $sQuery->where(array('p.current_jod' => $jobTitle));
         }
         if (!empty($facility)) {
-            $sQuery->where(array('cf.id'=>$facility));
+            $sQuery->where(array('cf.id' => $facility));
         }
         if (!empty($country)) {
-            $sQuery->where(array('c.country_id'=>$country));
-        }else{
+            $sQuery->where(array('c.country_id' => $country));
+        } else {
             if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($region)) {
-            $sQuery->where(array('l_d_r.location_id'=>$region));
-        }else{
+            $sQuery->where(array('l_d_r.location_id' => $region));
+        } else {
             if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($district)) {
-            $sQuery->where(array('l_d_d.location_id'=>$district));
-        }else{
+            $sQuery->where(array('l_d_d.location_id' => $district));
+        } else {
             if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
             }
         }
 
@@ -1587,65 +1593,65 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
         $tQuery =  $sql->select()->from(array('c' => 'certification'))
-        ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
-        ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-        ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-        ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-        ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
-        ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
-        ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-        ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
-        ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
+            ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
+            ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
+            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
+            ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
+            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
 
-    if (!empty($startDate) && !empty($endDate)) {
-        $tQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
-    }
-    if (!empty($decision)) {
-        $tQuery->where(array('c.final_decision'=>$decision));
-    }
-    if (!empty($typeHiv)) {
-        $tQuery->where(array('p.type_vih_test'=>$typeHiv));
-    }
-    if (!empty($jobTitle)) {
-        $tQuery->where(array('p.current_jod'=>$jobTitle));
-    }
-    if (!empty($facility)) {
-        $tQuery->where(array('cf.id'=>$facility));
-    }
-    if (!empty($country)) {
-        $tQuery->where(array('c.country_id'=>$country));
-    }else{
-        if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($startDate) && !empty($endDate)) {
+            $tQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
         }
-    }
-    if (!empty($region)) {
-        $tQuery->where(array('l_d_r.location_id'=>$region));
-    }else{
-        if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($decision)) {
+            $tQuery->where(array('c.final_decision' => $decision));
         }
-    }
-    if (!empty($district)) {
-        $tQuery->where(array('l_d_d.location_id'=>$district));
-    }else{
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+        if (!empty($typeHiv)) {
+            $tQuery->where(array('p.type_vih_test' => $typeHiv));
         }
-    }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        if (!empty($jobTitle)) {
+            $tQuery->where(array('p.current_jod' => $jobTitle));
+        }
+        if (!empty($facility)) {
+            $tQuery->where(array('cf.id' => $facility));
+        }
+        if (!empty($country)) {
+            $tQuery->where(array('c.country_id' => $country));
+        } else {
+            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($region)) {
+            $tQuery->where(array('l_d_r.location_id' => $region));
+        } else {
+            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($district)) {
+            $tQuery->where(array('l_d_d.location_id' => $district));
+        } else {
+            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+            }
+        }
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -1698,9 +1704,9 @@ class CertificationTable
         $excludeTesterName = $parameters['exclude_tester_name'];
         $facility = $parameters['facility'];
 
-        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
-       
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type','type_vih_test','current_jod');
+        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
+
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
 
 
         /*
@@ -1777,48 +1783,48 @@ class CertificationTable
         $sQuery = $sql->select()->from(array('c' => 'certification'))
             ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
             ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
 
         if (!empty($startDate) && !empty($endDate)) {
             $sQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
         }
         if (!empty($decision)) {
-            $sQuery->where(array('c.final_decision'=>$decision));
+            $sQuery->where(array('c.final_decision' => $decision));
         }
         if (!empty($typeHiv)) {
-            $sQuery->where(array('p.type_vih_test'=>$typeHiv));
+            $sQuery->where(array('p.type_vih_test' => $typeHiv));
         }
         if (!empty($jobTitle)) {
-            $sQuery->where(array('p.current_jod'=>$jobTitle));
+            $sQuery->where(array('p.current_jod' => $jobTitle));
         }
         if (!empty($facility)) {
-            $sQuery->where(array('cf.id'=>$facility));
+            $sQuery->where(array('cf.id' => $facility));
         }
         if (!empty($country)) {
-            $sQuery->where(array('c.country_id'=>$country));
-        }else{
+            $sQuery->where(array('c.country_id' => $country));
+        } else {
             if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($region)) {
-            $sQuery->where(array('l_d_r.location_id'=>$region));
-        }else{
+            $sQuery->where(array('l_d_r.location_id' => $region));
+        } else {
             if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($district)) {
-            $sQuery->where(array('l_d_d.location_id'=>$district));
-        }else{
+            $sQuery->where(array('l_d_d.location_id' => $district));
+        } else {
             if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
             }
         }
 
@@ -1837,65 +1843,65 @@ class CertificationTable
             $sQuery->offset($sOffset);
         }
         $queryContainer->exportAllEvents = $sQuery;
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
         $tQuery =  $sql->select()->from(array('c' => 'certification'))
-        ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
-        ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-        ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-        ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-        ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
-        ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
-        ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-        ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
-        ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
+            ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
+            ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
+            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
+            ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
+            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
 
-    if (!empty($startDate) && !empty($endDate)) {
-        $tQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
-    }
-    if (!empty($decision)) {
-        $tQuery->where(array('c.final_decision'=>$decision));
-    }
-    if (!empty($typeHiv)) {
-        $tQuery->where(array('p.type_vih_test'=>$typeHiv));
-    }
-    if (!empty($jobTitle)) {
-        $tQuery->where(array('p.current_jod'=>$jobTitle));
-    }
-    if (!empty($facility)) {
-        $tQuery->where(array('cf.id'=>$facility));
-    }
-    if (!empty($country)) {
-        $tQuery->where(array('c.country_id'=>$country));
-    }else{
-        if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($startDate) && !empty($endDate)) {
+            $tQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
         }
-    }
-    if (!empty($region)) {
-        $tQuery->where(array('l_d_r.location_id'=>$region));
-    }else{
-        if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+        if (!empty($decision)) {
+            $tQuery->where(array('c.final_decision' => $decision));
         }
-    }
-    if (!empty($district)) {
-        $tQuery->where(array('l_d_d.location_id'=>$district));
-    }else{
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+        if (!empty($typeHiv)) {
+            $tQuery->where(array('p.type_vih_test' => $typeHiv));
         }
-    }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        if (!empty($jobTitle)) {
+            $tQuery->where(array('p.current_jod' => $jobTitle));
+        }
+        if (!empty($facility)) {
+            $tQuery->where(array('cf.id' => $facility));
+        }
+        if (!empty($country)) {
+            $tQuery->where(array('c.country_id' => $country));
+        } else {
+            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($region)) {
+            $tQuery->where(array('l_d_r.location_id' => $region));
+        } else {
+            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+            }
+        }
+        if (!empty($district)) {
+            $tQuery->where(array('l_d_d.location_id' => $district));
+        } else {
+            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+            }
+        }
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -1924,7 +1930,7 @@ class CertificationTable
 
     public function expiryReportData($parameters)
     {
-        
+
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $roleCode = $sessionLogin->roleCode;
@@ -1934,9 +1940,9 @@ class CertificationTable
         $district = $parameters['district'];
         $expirydata = $parameters['expirycertification'];
 
-        $aColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
-       
-        $orderColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test','current_jod');
+        $aColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod');
+
+        $orderColumns = array('first_name', 'final_decision', 'l_d_r.location_name', 'l_d_d.location_name', 'facility_name', 'type_vih_test', 'current_jod');
 
 
         /*
@@ -2012,57 +2018,56 @@ class CertificationTable
         $globalDb = new GlobalTable($dbAdapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
         $registrarName = $globalDb->getGlobalValue('month-flex-limit');
-        $upForRecertificationdate=$monthValid-2;
-        $didNotRecertifydate=$monthValid+$registrarName;
+        $upForRecertificationdate = $monthValid - 2;
+        $didNotRecertifydate = $monthValid + $registrarName;
         $sQuery = $sql->select()->from(array('c' => 'certification'))
             ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
             ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
 
-            if ($expirydata=='upForRecertification') {
-                $syearmonth = date('Y-m', strtotime('first day of -'.$upForRecertificationdate.' month'));
-                $startDate= $syearmonth.'-01';
-                $endDate= $syearmonth.'-'.date('d');
-                // $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
-                $sQuery->where('c.date_end_validity<="'.$endDate.'"');
-                           
-            }
-            if ($expirydata=='remindersSent') {
-                $sQuery->where(array('c.reminder_sent'=>'yes'));
-            }
-    
-            if ($expirydata=='didNotRecertify') {
-                $syearmonth = date('Y-m', strtotime('first day of -'.$didNotRecertifydate.' month'));            
-                $startDate= $syearmonth.'-01';
-                $endDate= $syearmonth.'-'.date('d');
-                $sQuery->where('c.date_end_validity<="'.$endDate.'"');
-            }
-          
+        if ($expirydata == 'upForRecertification') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $upForRecertificationdate . ' month'));
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
+            // $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
+            $sQuery->where('c.date_end_validity<="' . $endDate . '"');
+        }
+        if ($expirydata == 'remindersSent') {
+            $sQuery->where(array('c.reminder_sent' => 'yes'));
+        }
+
+        if ($expirydata == 'didNotRecertify') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $didNotRecertifydate . ' month'));
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
+            $sQuery->where('c.date_end_validity<="' . $endDate . '"');
+        }
+
         if (!empty($parameters['country'])) {
-            $sQuery->where(array('country.country_id'=>$parameters['country']));
-        }else{
+            $sQuery->where(array('country.country_id' => $parameters['country']));
+        } else {
             if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($parameters['region'])) {
-            $sQuery->where(array('l_d_r.location_id'=>$parameters['region']));
-        }else{
+            $sQuery->where(array('l_d_r.location_id' => $parameters['region']));
+        } else {
             if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($parameters['district'])) {
-            $sQuery->where(array('l_d_d.location_id'=>$parameters['district']));
-        }else{
+            $sQuery->where(array('l_d_d.location_id' => $parameters['district']));
+        } else {
             if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-                    $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
             }
         }
 
@@ -2072,76 +2077,75 @@ class CertificationTable
 
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
-        } 
+        }
 
         if (isset($sLimit) && isset($sOffset)) {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         // echo $sQueryStr; die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
         $tQuery =  $sql->select()->from(array('c' => 'certification'))
-        ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
-        ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-        ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type','written_exam_admin' => 'exam_admin','written_exam_date' => 'date','qa_point','rt_point','safety_point','specimen_point','testing_algo_point','report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score'))
-        ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date'=>'date'))
-        ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'), 'left')
-        ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
-        ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-        ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))       
-        ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
+            ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
+            ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
+            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
+            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
+            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
+            ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
+            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
+            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'));
 
-        if ($expirydata=='upForRecertification') {
-            $syearmonth = date('Y-m', strtotime('first day of -'.$upForRecertificationdate.' month'));
-            $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-'.date('d');
+        if ($expirydata == 'upForRecertification') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $upForRecertificationdate . ' month'));
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
             // $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
-            $tQuery->where('c.date_end_validity<="'.$endDate.'"');
-                       
+            $tQuery->where('c.date_end_validity<="' . $endDate . '"');
         }
-        if ($expirydata=='remindersSent') {
-            $tQuery->where(array('c.reminder_sent'=>'yes'));
+        if ($expirydata == 'remindersSent') {
+            $tQuery->where(array('c.reminder_sent' => 'yes'));
         }
 
-        if ($expirydata=='didNotRecertify') {
-            $syearmonth = date('Y-m', strtotime('first day of -'.$didNotRecertifydate.' month'));            
-            $startDate= $syearmonth.'-01';
-            $endDate= $syearmonth.'-'.date('d');
-            $tQuery->where('c.date_end_validity<="'.$endDate.'"');
+        if ($expirydata == 'didNotRecertify') {
+            $syearmonth = date('Y-m', strtotime('first day of -' . $didNotRecertifydate . ' month'));
+            $startDate = $syearmonth . '-01';
+            $endDate = $syearmonth . '-' . date('d');
+            $tQuery->where('c.date_end_validity<="' . $endDate . '"');
         }
         if (!empty($parameters['country'])) {
-            $tQuery->where(array('country.country_id'=>$parameters['country']));
-        }else{
+            $tQuery->where(array('country.country_id' => $parameters['country']));
+        } else {
             if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
                 $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($parameters['region'])) {
-            $tQuery->where(array('l_d_r.location_id'=>$parameters['region']));
-        }else{
+            $tQuery->where(array('l_d_r.location_id' => $parameters['region']));
+        } else {
             if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
                 $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
             }
         }
         if (!empty($parameters['district'])) {
-            $tQuery->where(array('l_d_d.location_id'=>$parameters['district']));
-        }else{
+            $tQuery->where(array('l_d_d.location_id' => $parameters['district']));
+        } else {
             if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
                 $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
             }
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -2170,12 +2174,12 @@ class CertificationTable
         $common = new CommonService($this->sm);
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
-        $query = $sql->select()->from(array('c'=>'certification'))->columns(array('certifyId'=>'id','date_certificate_issued','date_end_validity'))
-        ->join(array('e' => 'examination'),'c.examination=e.id',array('add_to_certification'))
-        ->join(array('p' => 'provider'),'e.provider=p.id',array('providerId'=>'id','first_name','middle_name','last_name','email','test_link_send', 'link_send_count','certification_id','profile_picture'))
-        ->where(array('c.id' =>$id))
-        ->group('p.id');
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $query = $sql->select()->from(array('c' => 'certification'))->columns(array('certifyId' => 'id', 'date_certificate_issued', 'date_end_validity'))
+            ->join(array('e' => 'examination'), 'c.examination=e.id', array('add_to_certification'))
+            ->join(array('p' => 'provider'), 'e.provider=p.id', array('providerId' => 'id', 'first_name', 'middle_name', 'last_name', 'email', 'test_link_send', 'link_send_count', 'certification_id', 'profile_picture'))
+            ->where(array('c.id' => $id))
+            ->group('p.id');
+        $queryStr = $sql->buildSqlString($query);
         // die($queryStr);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
     }

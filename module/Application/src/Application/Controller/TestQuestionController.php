@@ -1,51 +1,59 @@
 <?php
+
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
-class TestQuestionController extends AbstractActionController{
+class TestQuestionController extends AbstractActionController
+{
 
-    public function indexAction(){
+    public \Application\Service\TestSectionService $testSectionService;
+    public \Application\Service\QuestionService $questionService;
+
+    public function __construct($testSectionService, $questionService)
+    {
+        $this->testSectionService = $testSectionService;
+        $this->questionService = $questionService;
+    }
+
+    public function indexAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
-        if ($request->isPost()){
+        if ($request->isPost()) {
             $parameters = $request->getPost();
-            $questionService = $this->getServiceLocator()->get('QuestionService');
-            $result = $questionService->getQuestionList($parameters);
+            $result = $this->questionService->getQuestionList($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
 
-    public function addAction(){
-        $questionService = $this->getServiceLocator()->get('QuestionService');
-        if($this->getRequest()->isPost()){
-            $params=$this->getRequest()->getPost();
-            $questionService->addQuestionData($params);
+    public function addAction()
+    {
+        if ($this->getRequest()->isPost()) {
+            $params = $this->getRequest()->getPost();
+            $this->questionService->addQuestionData($params);
             return $this->_redirect()->toRoute('test-question');
-        }
-        else {
-            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
-            $sectionResult = $testSectionService->getTestSectionAllList();
+        } else {
+            $sectionResult = $this->testSectionService->getTestSectionAllList();
             return new ViewModel(array(
                 'sectionResult' => $sectionResult,
             ));
         }
     }
 
-    public function editAction(){
-        $questionService = $this->getServiceLocator()->get('QuestionService');
-        if($this->getRequest()->isPost()){
-            $param=$this->getRequest()->getPost();
-            $questionService->updateQuestionDetails($param);
+    public function editAction()
+    {
+        if ($this->getRequest()->isPost()) {
+            $param = $this->getRequest()->getPost();
+            $this->questionService->updateQuestionDetails($param);
             return $this->redirect()->toRoute('test-question');
-        }
-        else{
-            $questionId=base64_decode($this->params()->fromRoute('id'));
-            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
-            $sectionResult = $testSectionService->getTestSectionAllList();
-            $questionResult = $questionService->getQuestionsListById($questionId);
-            $optionResult = $questionService->getOptionListById($questionId);
+        } else {
+            $questionId = base64_decode($this->params()->fromRoute('id'));
+            $sectionResult = $this->testSectionService->getTestSectionAllList();
+            $questionResult = $this->questionService->getQuestionsListById($questionId);
+            $optionResult = $this->questionService->getOptionListById($questionId);
             return new ViewModel(array(
                 'sectionResult' => $sectionResult,
                 'questionResult' => $questionResult,
@@ -54,19 +62,17 @@ class TestQuestionController extends AbstractActionController{
         }
     }
 
-    public function importExcelAction(){
-        $questionService = $this->getServiceLocator()->get('QuestionService');
-        if($this->getRequest()->isPost()){
-            $params=$this->getRequest()->getPost();
-            $result = $questionService->uploadTestQuestion($params);
+    public function importExcelAction()
+    {
+        if ($this->getRequest()->isPost()) {
+            $params = $this->getRequest()->getPost();
+            $result = $this->questionService->uploadTestQuestion($params);
             return new ViewModel(array(
                 'result' => $result
             ));
             return $this->_redirect()->toRoute('test-question');
-        }
-        else {
-            $testSectionService = $this->getServiceLocator()->get('TestSectionService');
-            $sectionResult = $testSectionService->getTestSectionAllList();
+        } else {
+            $sectionResult = $this->testSectionService->getTestSectionAllList();
             return new ViewModel(array(
                 'sectionResult' => $sectionResult,
             ));

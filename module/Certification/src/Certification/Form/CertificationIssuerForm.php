@@ -2,7 +2,7 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
+use Laminas\Form\Form;
 
 class CertificationIssuerForm extends Form {
 
@@ -71,7 +71,7 @@ class CertificationIssuerForm extends Form {
 
         $this->add(array(
             'name' => 'prefered_contact_method',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Prefered Contact Methode',
                 'empty_option' => 'Please choose a methode',

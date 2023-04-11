@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl = $this->layout()->acl;
@@ -57,7 +57,7 @@ $acl = $this->layout()->acl;
                 <table id="recommendTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                     <thead>
                         <tr class="waiting-tr">
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend')) { ?>
                             <th  style="width:4%;"># </th>
                             <?php } ?>
                             <th  style="width:10%;">Tester </th>
@@ -122,7 +122,7 @@ $acl = $this->layout()->acl;
                             <th  style="width:10%;">Date Certificate Issued</th>
                             <th  style="width:10%;">Date Certificate Sent</th>
                             <th  style="width:10%;">Type of Certification</th>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                             <th  style="width:10%;">PDF</th>
                         <?php } ?>
                         </tr>
@@ -341,7 +341,7 @@ function recommendInit(){
         "bDestroy": true,
         "pageLength": 50,
         "aoColumns": [
-               <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
+               <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend')) { ?>
                 {"sClass":"center","bSortable":false},
                <?php } ?>
 		{"sClass":""},
@@ -351,7 +351,7 @@ function recommendInit(){
                 {"sClass":"center"},
                 {"sClass":"center"}
         ],
-        //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend'))?2:1; ?>, "asc" ]],
+        //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend'))?2:1; ?>, "asc" ]],
         "aaSorting": [],
         "fnDrawCallback": function( oSettings ) {
             $('input:checkbox').each(function () {
@@ -433,7 +433,7 @@ function approvedInit(){
                 {"sClass":"center"},
                 {"sClass":"center"},
                 {"sClass":""},
-            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                 {"sClass":"center"}
             <?php } ?>
         ],
@@ -594,7 +594,7 @@ function manageRecommendation(){
     }
 }
 
-<?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) { ?>
+<?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend')) { ?>
 //Insert a raw HTML into data table
 var count_elem = document.getElementById('recommendTable');
 var div = document.createElement('div');

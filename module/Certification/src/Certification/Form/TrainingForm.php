@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\Adapter\Adapter;
 
 class TrainingForm extends Form {
 
@@ -22,7 +22,7 @@ class TrainingForm extends Form {
             'type' => 'Hidden',
         ));
         $this->add(array(
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'name' => 'Provider_id',
             'options' => array(
                 'label' => 'Tester',
@@ -32,7 +32,7 @@ class TrainingForm extends Form {
         ));
 
         $this->add(array(
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'name' => 'type_of_competency',
             'options' => array(
                 'label' => 'Type of Competency',
@@ -59,7 +59,7 @@ class TrainingForm extends Form {
 
 
         $this->add(array(
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'name' => 'type_of_training',
             'options' => array(
                 'label' => 'Type of Activity/Training',
@@ -91,7 +91,7 @@ class TrainingForm extends Form {
             ],
         ));
         $this->add(array(
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'name' => 'training_organization_id',
             'options' => array(
                 'label' => 'Training Organization',
@@ -109,7 +109,7 @@ class TrainingForm extends Form {
         ));
 
         $this->add(array(
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'name' => 'training_certificate',
             'options' => array(
                 'label' => 'Training certificate (if available)',

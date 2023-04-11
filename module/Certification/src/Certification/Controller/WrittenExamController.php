@@ -2,144 +2,146 @@
 
 namespace Certification\Controller;
 
-use Zend\Session\Container;
-use Zend\Mvc\Controller\AbstractActionController;
-use Certification\Form\WrittenExamForm;
-use Zend\View\Model\ViewModel;
+use Laminas\Session\Container;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
-class WrittenExamController extends AbstractActionController {
+class WrittenExamController extends AbstractActionController
+{
 
-    protected $writtenExamTable;
+    public \Certification\Model\WrittenExamTable $writtenExamTable;
+    public \Certification\Form\WrittenExamForm $writtenExamform;
 
-    public function getWrittenExamTable() {
-        if (!$this->writtenExamTable) {
-            $sm = $this->getServiceLocator();
-            $this->writtenExamTable = $sm->get('Certification\Model\WrittenExamTable');
-        }
-        return $this->writtenExamTable;
+
+    public function __construct($writtenExamform, $writtenExamTable)
+    {
+        $this->writtenExamTable = $writtenExamTable;
+        $this->writtenExamform = $writtenExamform;
     }
 
-    public function indexAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    public function indexAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         return new ViewModel(array(
-            'writtens' => $this->getWrittenExamTable()->fetchAll()
+            'writtens' => $this->writtenExamTable->fetchAll()
         ));
     }
 
-    public function addAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
+    public function addAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
         $practical = (int) base64_decode($this->params()->fromQuery(base64_encode('practice_exam_id'), 0));
-        $provider = $this->getWrittenExamTable()->getProviderName($practical);
-        $form = new WrittenExamForm($dbAdapter);
-        $form->get('submit')->setValue('SUBMIT');
+        $provider = $this->writtenExamTable->getProviderName($practical);
+        $this->writtenExamform->get('submit')->setValue('SUBMIT');
         $container = new Container('alert');
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
 
             $writtenExam = new \Certification\Model\WrittenExam();
-            $form->setInputFilter($writtenExam->getInputFilter());
-            $form->setData($request->getPost());
+            $this->writtenExamform->setInputFilter($writtenExam->getInputFilter());
+            $this->writtenExamform->setData($request->getPost());
             $practical = $request->getPost('practical', null);
             $provider_id = $this->getRequest()->getPost('provider_id');
-            $exam_to_val = $this->getWrittenExamTable()->examToValidate($provider_id);
+            $exam_to_val = $this->writtenExamTable->examToValidate($provider_id);
             if ($exam_to_val > 0) {
                 $container->alertMsg = 'This tester has a review pending validation. you must first validate it in the Examination tab.';
                 return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
             }
-            $written = $this->getWrittenExamTable()->counWritten($provider_id);
+            $written = $this->writtenExamTable->counWritten($provider_id);
 
-            $nb_days = $this->getWrittenExamTable()->numberOfDays($provider_id);
+            $nb_days = $this->writtenExamTable->numberOfDays($provider_id);
             if (isset($nb_days) && $nb_days <= 30) {
                 $container->alertMsg = 'The last attempt of this tester was ' . $nb_days . ' day(s) ago. Please wait at lease ' . date("d-m-Y", strtotime(date("Y-m-d") . "  + " . (31 - $nb_days) . " day"));
                 return array(
-                    'form' => $form,);
+                    'form' => $this->writtenExamform,
+                );
             } else {
 
                 if ($written == 0) {
-                    if ($form->isValid() && empty($practical)) {
-                        $writtenExam->exchangeArray($form->getData());
-                        $this->getWrittenExamTable()->saveWrittenExam($writtenExam);
-                        $last_id = $this->getWrittenExamTable()->last_id();
-                        $this->getWrittenExamTable()->insertToExamination($last_id);
+                    if ($this->writtenExamform->isValid() && empty($practical)) {
+                        $writtenExam->exchangeArray($this->writtenExamform->getData());
+                        $this->writtenExamTable->saveWrittenExam($writtenExam);
+                        $last_id = $this->writtenExamTable->last_id();
+                        $this->writtenExamTable->insertToExamination($last_id);
                         $container->alertMsg = 'Written exam added successfully';
                         return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
-                    } else if ($form->isValid() && !empty($practical)) {
-                        $writtenExam->exchangeArray($form->getData());
-                        $this->getWrittenExamTable()->saveWrittenExam($writtenExam);
-                        $last_id = $this->getWrittenExamTable()->last_id();
-                        $nombre2 = $this->getWrittenExamTable()->countPractical2($practical);
+                    } else if ($this->writtenExamform->isValid() && !empty($practical)) {
+                        $writtenExam->exchangeArray($this->writtenExamform->getData());
+                        $this->writtenExamTable->saveWrittenExam($writtenExam);
+                        $last_id = $this->writtenExamTable->last_id();
+                        $nombre2 = $this->writtenExamTable->countPractical2($practical);
                         if ($nombre2 == 0) {
-                            $this->getWrittenExamTable()->examination($last_id, $practical);
+                            $this->writtenExamTable->examination($last_id, $practical);
                         } else {
-                            $this->getWrittenExamTable()->insertToExamination($last_id);
+                            $this->writtenExamTable->insertToExamination($last_id);
                         }
                         $container->alertMsg = 'written exam added successfully';
                         return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
                     }
                 } else {
                     $container->alertMsg = 'Unable to process this request. This tester has already taken a written exam.';
-                    return array('form' => $form);
+                    return array('form' => $this->writtenExamform);
                 }
             }
         }
         $nombre = null;
         if (isset($provider['id'])) {
-            $nombre = $this->getWrittenExamTable()->attemptNumber($provider['id']);
+            $nombre = $this->writtenExamTable->attemptNumber($provider['id']);
         }
-        // \Zend\Debug\Debug::dump($form);die;
-        return new ViewModel(array('form' => $form,
+        return new ViewModel(array(
+            'form' => $this->writtenExamform,
             'practical' => $practical,
             'nombre' => $nombre,
             'provider' => $provider,
-            'writtens' => $this->getWrittenExamTable()->fetchAll(),
+            'writtens' => $this->writtenExamTable->fetchAll(),
         ));
     }
 
-    public function editAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    public function editAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
         $id_written_exam = (int) base64_decode($this->params()->fromRoute('id_written_exam', 0));
         if (!$id_written_exam) {
             return $this->redirect()->toRoute('written-exam', array(
-                        'action' => 'add'
+                'action' => 'add'
             ));
         }
 
         try {
-            $writtenExam = $this->getWrittenExamTable()->getWrittenExam($id_written_exam);
+            $writtenExam = $this->writtenExamTable->getWrittenExam($id_written_exam);
         } catch (\Exception $ex) {
             return $this->redirect()->toRoute('written-exam', array(
-                        'action' => 'index'
+                'action' => 'index'
             ));
         }
-        $provider = $this->getWrittenExamTable()->getProviderName2($id_written_exam);
-        $training = $this->getWrittenExamTable()->getTrainingName($id_written_exam);
+        $provider = $this->writtenExamTable->getProviderName2($id_written_exam);
+        $training = $this->writtenExamTable->getTrainingName($id_written_exam);
 
         $writtenExam->date = date("d-m-Y", strtotime($writtenExam->date));
-        $form = new WrittenExamForm($dbAdapter);
-        $form->bind($writtenExam);
-        $form->get('submit')->setAttribute('value', 'UPDATE');
+        $this->writtenExamform->bind($writtenExam);
+        $this->writtenExamform->get('submit')->setAttribute('value', 'UPDATE');
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $form->setInputFilter($writtenExam->getInputFilter());
-            $form->setData($request->getPost());
+            $this->writtenExamform->setInputFilter($writtenExam->getInputFilter());
+            $this->writtenExamform->setData($request->getPost());
 
-            if ($form->isValid()) {
-                $this->getWrittenExamTable()->saveWrittenExam($writtenExam);
+            if ($this->writtenExamform->isValid()) {
+                $this->writtenExamTable->saveWrittenExam($writtenExam);
                 $container = new Container('alert');
                 $container->alertMsg = 'Written exam updated successfully';
 
                 return $this->redirect()->toRoute('written-exam');
             }
         }
-        $attemptNumber = $this->getWrittenExamTable()->getExamType($id_written_exam);
+        $attemptNumber = $this->writtenExamTable->getExamType($id_written_exam);
         return array(
             'id_written_exam' => $id_written_exam,
-            'form' => $form,
+            'form' => $this->writtenExamform,
             'attemptNumber' => $attemptNumber,
             'provider_id' => $provider['id'],
             'provider_name' => $provider['name'],
@@ -148,23 +150,25 @@ class WrittenExamController extends AbstractActionController {
         );
     }
 
-    public function attemptAction() {
+    public function attemptAction()
+    {
         $q = (int) $_GET['q'];
-        $result = $this->getWrittenExamTable()->attemptNumber($q);
+        $result = $this->writtenExamTable->attemptNumber($q);
         return array(
             'result' => $result,
         );
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $id_written_exam = (int) base64_decode($this->params()->fromRoute('id_written_exam', 0));
 
         if (!$id_written_exam) {
             return $this->redirect()->toRoute('written-exam');
         } else {
-            $nb_written = $this->getWrittenExamTable()->CountWritten($id_written_exam);
+            $nb_written = $this->writtenExamTable->CountWritten($id_written_exam);
             if ($nb_written == 1) {
-                $this->getWrittenExamTable()->deleteWritten($id_written_exam);
+                $this->writtenExamTable->deleteWritten($id_written_exam);
                 $container = new Container('alert');
                 $container->alertMsg = 'Deleted successfully';
                 return $this->redirect()->toRoute('written-exam');
@@ -175,5 +179,4 @@ class WrittenExamController extends AbstractActionController {
             }
         }
     }
-
 }

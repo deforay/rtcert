@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Application;
 
 
@@ -39,41 +31,34 @@ use Application\Model\PrintTestPdfDetailsTable;
 use Application\Model\MailTemplateTable;
 use Application\Model\FeedbackMailTable;
 
-use Application\Service\DashboardService;
-use Application\Service\UserService;
-use Application\Service\FacilityService;
-use Application\Service\CommonService;
-use Application\Service\RoleService;
-use Application\Service\TcpdfExtends;
-use Application\Service\TestSectionService;
-use Application\Service\QuestionService;
-use Application\Service\TestService;
-use Application\Service\PrintTestPdfService;
-use Application\Service\MailService;
 
 use Application\Model\Acl;
-use Zend\Mvc\ModuleRouteListener;
-use Zend\Mvc\MvcEvent;
+use Laminas\Mvc\ModuleRouteListener;
+use Laminas\Mvc\MvcEvent;
 
-use Zend\Session\Container;
-use Zend\View\Model\ViewModel;
+use Laminas\Session\Container;
+use Laminas\View\Model\ViewModel;
 
 class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
-        $eventManager        = $e->getApplication()->getEventManager();
+        /** @var $application \Laminas\Mvc\Application */
+        $application = $e->getApplication();
+
+        $eventManager        = $application->getEventManager();
+
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
+        //no need to call presetter if request is from CLI
         if (php_sapi_name() != 'cli') {
             $eventManager->attach('dispatch', array($this, 'preSetter'), 100);
-            $eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'dispatchError'), -999);
         }
     }
 
-    public function dispatchError(MvcEvent $event) {
-        $error = $event->getError();
+    public function dispatchError(MvcEvent $event)
+    {
         $baseModel = new ViewModel();
         $baseModel->setTemplate('layout/layout');
     }
@@ -83,23 +68,26 @@ class Module
 
 
         $session = new Container('credo');
-        $sm = $e->getApplication()->getServiceManager();
-        $commonService = $sm->get('CommonService');
+        $diContainer = $e->getApplication()->getServiceManager();
+        $commonService = $diContainer->get('CommonService');
         $config = $commonService->getGlobalConfigDetails();
         $session->countryName = $config['country-name'];
 
+        /** @var $application \Laminas\Mvc\Application */
+        $application = $e->getApplication();
+        /** @var \Laminas\Http\Request $request */
+        $request = $e->getRequest();
+
         if (
-            $e->getRouteMatch()->getParam('controller') != 'Application\Controller\Login'
-            && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\Index'
-            && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\Provider'
+            !$request->isXmlHttpRequest() &&
+            $e->getRouteMatch()->getParam('controller') != 'Application\Controller\LoginController'
+            && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\IndexController'
+            && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController'
         ) {
-            if (!isset($session->userId) || $session->userId == "") {
-                if ($e->getRequest()->isXmlHttpRequest()) {
-                    return;
-                }
-                if($e->getRouteMatch()->getParam('controller') != 'Certification\Controller\Provider'){
+            if (empty($session) || !isset($session->userId) || empty($session->userId)) {
+                if ($e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController') {
                     $url = $e->getRouter()->assemble(array(), array('name' => 'provider'));
-                }else{
+                } else {
                     $url = $e->getRouter()->assemble(array(), array('name' => 'login'));
                 }
                 $response = $e->getResponse();
@@ -117,9 +105,9 @@ class Module
                 $e->getApplication()->getEventManager()->attach(MvcEvent::EVENT_ROUTE, $stopCallBack, -10000);
                 return $response;
             } else {
-                $sm = $e->getApplication()->getServiceManager();
+                $diContainer = $e->getApplication()->getServiceManager();
                 $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
-                $acl = $sm->get('AppAcl');
+                $acl = $diContainer->get('AppAcl');
                 $viewModel->acl = $acl;
                 $session->acl = serialize($acl);
 
@@ -135,20 +123,29 @@ class Module
                 //\Zend\Debug\Debug::dump($privilege);
                 //die;
                 //if($e->getRequest()->isXmlHttpRequest() || $role == 'SA') {
-                if ($e->getRequest()->isXmlHttpRequest()) {
-                    return;
-                } else {
-                    if (!$acl->hasResource($resource) || (!$acl->isAllowed($role, $resource, $privilege))) {
-                        $e->setError('ACL_ACCESS_DENIED')->setParam('route', $e->getRouteMatch());
-                        $e->getApplication()->getEventManager()->trigger('dispatch.error', $e);
-                    }
+
+                if (!$acl->hasResource($resource) || (!$acl->isAllowed($role, $resource, $privilege))) {
+                    /** @var \Laminas\Http\Response $response */
+                    $response = $e->getResponse();
+                    $response->setStatusCode(403);
+                    $response->sendHeaders();
+
+                    // To avoid additional processing
+                    // we can attach a listener for Event Route with a high priority
+                    $stopCallBack = function ($event) use ($response) {
+                        $event->stopPropagation();
+                        return $response;
+                    };
+                    //Attach the "break" as a listener with a high priority
+                    $application->getEventManager()->attach(MvcEvent::EVENT_ROUTE, $stopCallBack, -10000);
+                    return $response;
                 }
             }
         } else {
             if (isset($session->userId)) {
-                $sm = $e->getApplication()->getServiceManager();
+                $diContainer = $e->getApplication()->getServiceManager();
                 $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
-                $acl = $sm->get('AppAcl');
+                $acl = $diContainer->get('AppAcl');
                 $viewModel->acl = $acl;
                 $session->acl = serialize($acl);
             }
@@ -166,169 +163,294 @@ class Module
     {
         return array(
             'factories' => array(
-                'AppAcl' => function ($sm) {
-                    $resourcesTable = $sm->get('ResourcesTable');
-                    $rolesTable = $sm->get('RolesTable');
-                    return new Acl($resourcesTable->fetchAllResourceMap(), $rolesTable->fecthAllActiveRoles());
+                'AppAcl' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $resourcesTable = $diContainer->get('ResourcesTable');
+                        $rolesTable = $diContainer->get('RolesTable');
+                        return new Acl($resourcesTable->fetchAllResourceMap(), $rolesTable->fecthAllActiveRoles());
+                    }
                 },
-                'UsersTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UsersTable($dbAdapter);
-                    return $table;
+                'UsersTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UsersTable($dbAdapter);
+                    }
                 },
-                'RolesTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new RolesTable($dbAdapter);
-                    return $table;
+                'RolesTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new RolesTable($dbAdapter);
+                    }
                 },
-                'UserRoleMapTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UserRoleMapTable($dbAdapter);
-                    return $table;
+                'UserRoleMapTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UserRoleMapTable($dbAdapter);
+                    }
                 },
-                'GlobalTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $certificationTable = $sm->get('\Certification\Model\CertificationTable');
-                    $table = new GlobalTable($dbAdapter, $certificationTable);
-                    return $table;
+                'GlobalTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $certificationTable = $diContainer->get('\Certification\Model\CertificationTable');
+                        return new GlobalTable($dbAdapter, $certificationTable);
+                    }
                 },
-                'EventLogTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new EventLogTable($dbAdapter);
-                    return $table;
+                'EventLogTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new EventLogTable($dbAdapter);
+                    }
                 },
-                'ResourcesTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new ResourcesTable($dbAdapter);
-                    return $table;
+                'ResourcesTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new ResourcesTable($dbAdapter);
+                    }
                 },
-                'TempMailTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TempMailTable($dbAdapter);
-                    return $table;
+                'TempMailTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TempMailTable($dbAdapter);
+                    }
                 },
-                'UserTokenMapTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UserTokenMapTable($dbAdapter);
-                    return $table;
+                'UserTokenMapTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UserTokenMapTable($dbAdapter);
+                    }
                 },
-                'LocationDetailsTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new LocationDetailsTable($dbAdapter);
-                    return $table;
+                'LocationDetailsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new LocationDetailsTable($dbAdapter);
+                    }
                 },
-                'UserCountryMapTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UserCountryMapTable($dbAdapter);
-                    return $table;
+                'UserCountryMapTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UserCountryMapTable($dbAdapter);
+                    }
                 },
-                'UserProvinceMapTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UserProvinceMapTable($dbAdapter);
-                    return $table;
+                'UserProvinceMapTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UserProvinceMapTable($dbAdapter);
+                    }
                 },
-                'UserDistrictMapTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new UserDistrictMapTable($dbAdapter);
-                    return $table;
+                'UserDistrictMapTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new UserDistrictMapTable($dbAdapter);
+                    }
                 },
-                'TestConfigTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TestConfigTable($dbAdapter);
-                    return $table;
+                'TestConfigTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TestConfigTable($dbAdapter);
+                    }
                 },
-                'TestConfigDetailsTable' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TestConfigDetailsTable($dbAdapter);
-                    return $table;
+                'TestConfigDetailsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TestConfigDetailsTable($dbAdapter);
+                    }
                 },
-                'TestSectionTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TestSectionTable($dbAdapter);
-                    return $table;
+                'TestSectionTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TestSectionTable($dbAdapter);
+                    }
                 },
-                'QuestionTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new QuestionTable($dbAdapter);
-                    return $table;
+                'QuestionTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new QuestionTable($dbAdapter);
+                    }
                 },
-                'TestOptionsTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TestOptionsTable($dbAdapter);
-                    return $table;
+                'TestOptionsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TestOptionsTable($dbAdapter);
+                    }
                 },
-                'PostTestQuestionsTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new PostTestQuestionsTable($dbAdapter);
-                    return $table;
+                'PostTestQuestionsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new PostTestQuestionsTable($dbAdapter);
+                    }
                 },
-                'PretestQuestionsTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $writtenExamTable = $sm->get('\Certification\Model\WrittenExamTable');
-                    $table = new PretestQuestionsTable($dbAdapter,$writtenExamTable);
-                    return $table;
+                'PretestQuestionsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        $writtenExamTable = $diContainer->get('Certification\Model\WrittenExamTable');
+                        return new PretestQuestionsTable($dbAdapter, $writtenExamTable);
+                    }
                 },
-                'TestsTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new TestsTable($dbAdapter);
-                    return $table;
+                'TestsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new TestsTable($dbAdapter);
+                    }
                 },
-                'PrintTestPdfTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new PrintTestPdfTable($dbAdapter);
-                    return $table;
+                'PrintTestPdfTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new PrintTestPdfTable($dbAdapter);
+                    }
                 },
-                'PrintTestPdfDetailsTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new PrintTestPdfDetailsTable($dbAdapter);
-                    return $table;
+                'PrintTestPdfDetailsTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new PrintTestPdfDetailsTable($dbAdapter);
+                    }
                 },
-                'MailTemplateTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new MailTemplateTable($dbAdapter);
-                    return $table;
+                'MailTemplateTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new MailTemplateTable($dbAdapter);
+                    }
                 },
-                'FeedbackMailTable' => function($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new FeedbackMailTable($dbAdapter);
-                    return $table;
+                'FeedbackMailTable' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
+                        return new FeedbackMailTable($dbAdapter);
+                    }
                 },
 
-                'DashboardService' => function ($sm) {
-                    return new DashboardService($sm);
+                //services
+                'DashboardService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\DashboardService($diContainer);
+                    }
                 },
-                'CommonService' => function ($sm) {
-                    return new CommonService($sm);
+                'CommonService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\CommonService($diContainer);
+                    }
                 },
-                'UserService' => function ($sm) {
-                    return new UserService($sm);
+                'UserService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\UserService($diContainer);
+                    }
                 },
-                'FacilityService' => function ($sm) {
-                    return new FacilityService($sm);
+                'FacilityService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\FacilityService($diContainer);
+                    }
                 },
-                'CommonService' => function ($sm) {
-                    return new CommonService($sm);
+                'CommonService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\CommonService($diContainer);
+                    }
                 },
-                'RoleService' => function ($sm) {
-                    return new RoleService($sm);
+                'RoleService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\RoleService($diContainer);
+                    }
                 },
-                'TcpdfExtends' => function ($sm) {
-                    return new TcpdfExtends($sm);
+                'TcpdfExtends' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\TcpdfExtends($diContainer);
+                    }
                 },
-                'TestSectionService' => function($sm) {
-                    return new TestSectionService($sm);
+                'TestSectionService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\TestSectionService($diContainer);
+                    }
                 },
-                'QuestionService' => function($sm) {
-                    return new QuestionService($sm);
+                'QuestionService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\QuestionService($diContainer);
+                    }
                 },
-                'TestService' => function($sm) {
-                    return new TestService($sm);
+                'TestService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\TestService($diContainer);
+                    }
                 },
-                'PrintTestPdfService' => function($sm) {
-                    return new PrintTestPdfService($sm);
+                'PrintTestPdfService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\PrintTestPdfService($diContainer);
+                    }
                 },
-                'MailService' => function($sm) {
-                    return new MailService($sm);
+                'MailService' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        return new \Application\Service\MailService($diContainer);
+                    }
                 },
             ),
 
@@ -339,10 +461,159 @@ class Module
     public function getViewHelperConfig()
     {
         return array(
-            'invokables' => array(
-                'humanDateFormat' => 'Application\View\Helper\HumanDateFormat',
-                'GlobalConfigHelper' => 'Application\View\Helper\GlobalConfigHelper',
-                'GetNotificationCount' => 'Application\View\Helper\GetNotificationCount'
+            'factories' => array(
+                'GetNotificationCount'         => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $certificationTable = $diContainer->get('Certification\Model\CertificationTable');
+                        return new \Application\View\Helper\GetNotificationCount($certificationTable);
+                    }
+                },
+                'GlobalConfigHelper'         => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $globalTable = $diContainer->get('GlobalTable');
+                        return new \Application\View\Helper\GlobalConfig($globalTable);
+                    }
+                },
+                'humanDateFormat'         => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $configResult = $diContainer->get('Config');
+                        return new \Application\View\Helper\HumanReadableDateFormat($configResult);
+                    }
+                }
+            ),
+        );
+    }
+
+    public function getControllerConfig()
+    {
+        return array(
+            'factories' => array(
+                'Application\Controller\IndexController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dashboardService = $diContainer->get('DashboardService');
+                        return new \Application\Controller\IndexController($dashboardService);
+                    }
+                },
+                'Application\Controller\LoginController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $userService = $diContainer->get('UserService');
+                        return new \Application\Controller\LoginController($userService);
+                    }
+                },
+                'Application\Controller\FacilityController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $facilityService = $diContainer->get('FacilityService');
+                        return new \Application\Controller\FacilityController($facilityService);
+                    }
+                },
+                'Application\Controller\RolesController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $roleService = $diContainer->get('RoleService');
+                        return new \Application\Controller\RolesController($roleService);
+                    }
+                },
+                'Application\Controller\CommonController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        return new \Application\Controller\CommonController($commonService);
+                    }
+                },
+                'Application\Controller\DashboardController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $dashboardService = $diContainer->get('DashboardService');
+                        return new \Application\Controller\DashboardController($dashboardService);
+                    }
+                },
+                'Application\Controller\UsersController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $roleService = $diContainer->get('RoleService');
+                        $userService = $diContainer->get('UserService');
+                        return new \Application\Controller\UsersController($userService, $commonService, $roleService);
+                    }
+                },
+                'Application\Controller\ConfigController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $certificationTable = $diContainer->get('Certification\Model\CertificationTable');
+                        return new \Application\Controller\ConfigController($commonService, $certificationTable);
+                    }
+                },
+                'Application\Controller\TestConfigController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $testSectionService = $diContainer->get('TestSectionService');
+                        return new \Application\Controller\TestConfigController($commonService, $testSectionService);
+                    }
+                },
+                'Application\Controller\PrintTestPdfController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $printTestPdfService = $diContainer->get('PrintTestPdfService');
+                        return new \Application\Controller\PrintTestPdfController($printTestPdfService);
+                    }
+                },
+                'Application\Controller\TestController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $commonService = $diContainer->get('CommonService');
+                        $testService = $diContainer->get('TestService');
+                        $questionService = $diContainer->get('QuestionService');
+                        $providerTable = $diContainer->get('Certification\Model\ProviderTable');
+                        return new \Application\Controller\TestController($commonService, $testService, $questionService, $providerTable);
+                    }
+                },
+                'Application\Controller\TestQuestionController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $testSectionService = $diContainer->get('TestSectionService');
+                        $questionService = $diContainer->get('QuestionService');
+                        return new \Application\Controller\TestQuestionController($testSectionService, $questionService);
+                    }
+                },
+                'Application\Controller\TestSectionController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $testSectionService = $diContainer->get('TestSectionService');
+                        return new \Application\Controller\TestSectionController($testSectionService);
+                    }
+                },
+                'Application\Controller\MailTemplateController' => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $mailService = $diContainer->get('MailService');
+                        return new \Application\Controller\MailTemplateController($mailService);
+                    }
+                },
             ),
         );
     }
@@ -351,7 +622,7 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),

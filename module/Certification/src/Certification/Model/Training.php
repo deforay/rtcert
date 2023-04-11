@@ -2,8 +2,8 @@
 
 namespace Certification\Model;
 
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterInterface;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterInterface;
 
 class Training {
 

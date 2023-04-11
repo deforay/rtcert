@@ -2,86 +2,95 @@
 
 namespace Certification\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Certification\Model\Examination;
-use Certification\Form\ExaminationForm;
-use Zend\Json\Json;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Json\Json;
+use Laminas\View\Model\ViewModel;
 
-class ExaminationController extends AbstractActionController {
+class ExaminationController extends AbstractActionController
+{
 
-    protected $examinationTable;
+    public \Certification\Model\ExaminationTable $examinationTable;
+    public \Application\Service\CommonService $commonService;
 
-    public function getExaminationTable() {
-        if (!$this->examinationTable) {
-            $sm = $this->getServiceLocator();
-            $this->examinationTable = $sm->get('Certification\Model\ExaminationTable');
-        }
-        return $this->examinationTable;
+    public function __construct($commonService, $examinationTable)
+    {
+        $this->commonService = $commonService;
+        $this->examinationTable = $examinationTable;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->fetchAll($parameters);
+            $result = $this->examinationTable->fetchAll($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
         return new ViewModel(array());
     }
-    
-    public function recommendedAction() {
+
+    public function recommendedAction()
+    {
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->fetchAllRecommended($parameters);
+            $result = $this->examinationTable->fetchAllRecommended($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
-    }
-    
-    public function approvedAction() {
-        $request = $this->getRequest();
-        if ($request->isPost()) {
-            $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->fetchAllApproved($parameters);
-            return $this->getResponse()->setContent(Json::encode($result));
-        }
-    }
-    
-    public function pendingAction() {
-        $request = $this->getRequest();
-        if ($request->isPost()) {
-            $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->fetchAllPendingTests($parameters);
-            return $this->getResponse()->setContent(Json::encode($result));
-        }
-        return new ViewModel(array()); 
-    }
-    
-    public function failedAction() {
-        $request = $this->getRequest();
-        if ($request->isPost()) {
-            $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->fetchAllFailedTests($parameters);
-            return $this->getResponse()->setContent(Json::encode($result));
-        } 
     }
 
-    public function xlsAction() {
-        $this->forward()->dispatch('Certification\Controller\Certification', array('action' => 'index'));
+    public function approvedAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->examinationTable->fetchAllApproved($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+
+    public function pendingAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->examinationTable->fetchAllPendingTests($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+        return new ViewModel(array());
+    }
+
+    public function failedAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $result = $this->examinationTable->fetchAllFailedTests($parameters);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
+    }
+
+    public function xlsAction()
+    {
+        $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
             // print_r($params['Exam']);die;
-            $examination = $this->getExaminationTable()->report($params);
+            $examination = $this->examinationTable->report($params);
             $objPHPExcel = new \PHPExcel();
             $objPHPExcel->setActiveSheetIndex(0);
             $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:D1'); //merge some column
             $objPHPExcel->setActiveSheetIndex()->mergeCells('E1:I1');
-            if($params['Exam'] == 'online-exam'){
+            if ($params['Exam'] == 'online-exam') {
                 $objPHPExcel->setActiveSheetIndex()->mergeCells('K1:R1');
-            }
-            else{
+            } else {
                 $objPHPExcel->setActiveSheetIndex()->mergeCells('K1:N1');
             }
             // $objPHPExcel->setActiveSheetIndex()->mergeCells('T1:V1');
@@ -96,12 +105,12 @@ class ExaminationController extends AbstractActionController {
                     'bold' => true,
                     'size' => 11,
                     'name' => 'Verdana',
-            ));
-            if($params['Exam'] == 'online-exam'){
+                )
+            );
+            if ($params['Exam'] == 'online-exam') {
                 $objPHPExcel->getActiveSheet()->getStyle('A1:R2')->applyFromArray($styleArray); //apply style from array style array
                 $objPHPExcel->getActiveSheet()->getStyle('A1:R2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
-            }
-            else{
+            } else {
                 $objPHPExcel->getActiveSheet()->getStyle('A1:N2')->applyFromArray($styleArray); //apply style from array style array
                 $objPHPExcel->getActiveSheet()->getStyle('A1:N2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
             }
@@ -113,10 +122,9 @@ class ExaminationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->getStyle('A1:E2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
             $objPHPExcel->getActiveSheet()->getStyle('E1:I2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('E6E6FA');
             // $objPHPExcel->getActiveSheet()->getStyle('N1:N2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('F5DEB3');
-            if($params['Exam'] == 'online-exam'){
+            if ($params['Exam'] == 'online-exam') {
                 $objPHPExcel->getActiveSheet()->getStyle('K1:R2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
-            }
-            else{
+            } else {
                 $objPHPExcel->getActiveSheet()->getStyle('K1:N2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
             }
             // $objPHPExcel->getActiveSheet()->getStyle('T1:V2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('7FFFD4');
@@ -131,7 +139,7 @@ class ExaminationController extends AbstractActionController {
             $objPHPExcel->getActiveSheet()->SetCellValue('H2', 'Phone');
             $objPHPExcel->getActiveSheet()->SetCellValue('I2', 'Email');
             $objPHPExcel->getActiveSheet()->SetCellValue('J2', 'Facility');
-            if($params['Exam'] == 'online-exam'){
+            if ($params['Exam'] == 'online-exam') {
                 $objPHPExcel->getActiveSheet()->SetCellValue('K2', 'Pre test start date');
                 $objPHPExcel->getActiveSheet()->SetCellValue('L2', 'Pre test end date');
                 $objPHPExcel->getActiveSheet()->SetCellValue('M2', 'Pre test score');
@@ -140,8 +148,7 @@ class ExaminationController extends AbstractActionController {
                 $objPHPExcel->getActiveSheet()->SetCellValue('P2', 'Post test end date');
                 $objPHPExcel->getActiveSheet()->SetCellValue('Q2', 'Post test score');
                 $objPHPExcel->getActiveSheet()->SetCellValue('R2', 'Post test status');
-            }
-            else{
+            } else {
                 $objPHPExcel->getActiveSheet()->SetCellValue('K2', 'Practical exam date');
                 $objPHPExcel->getActiveSheet()->SetCellValue('L2', 'Practical total score');
                 $objPHPExcel->getActiveSheet()->SetCellValue('M2', 'Written exam date');
@@ -153,29 +160,28 @@ class ExaminationController extends AbstractActionController {
             foreach ($examination as $examination) {
 
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['last_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['first_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes')?$examination['middle_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($examination['country_name']))?$examination['country_name']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($examination['regionName']))?$examination['regionName']:'');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($examination['districtName']))?$examination['districtName']:'');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['last_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['first_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['middle_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($examination['country_name'])) ? $examination['country_name'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($examination['regionName'])) ? $examination['regionName'] : '');
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($examination['districtName'])) ? $examination['districtName'] : '');
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, $examination['phone']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, $examination['email']);
                 $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $examination['facility_name']);
-                if($params['Exam'] == 'online-exam'){
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['pretest_start_datetime']) && $examination['pretest_start_datetime'] != NULL)? date("d-M-Y", strtotime($examination['pretest_start_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['pretest_end_datetime']) && $examination['pretest_end_datetime'] != NULL)? date("d-M-Y", strtotime($examination['pretest_end_datetime'])):'');
+                if ($params['Exam'] == 'online-exam') {
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['pretest_start_datetime']) && $examination['pretest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['pretest_start_datetime'])) : '');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['pretest_end_datetime']) && $examination['pretest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['pretest_end_datetime'])) : '');
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, $examination['pre_test_score']);
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['pre_test_status']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, (isset($examination['posttest_start_datetime']) && $examination['posttest_start_datetime'] != NULL)? date("d-M-Y", strtotime($examination['posttest_start_datetime'])):'');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(15, $ligne, (isset($examination['posttest_end_datetime']) && $examination['posttest_end_datetime'] != NULL)? date("d-M-Y", strtotime($examination['posttest_end_datetime'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, (isset($examination['posttest_start_datetime']) && $examination['posttest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['posttest_start_datetime'])) : '');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(15, $ligne, (isset($examination['posttest_end_datetime']) && $examination['posttest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['posttest_end_datetime'])) : '');
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(16, $ligne, $examination['post_test_score']);
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(17, $ligne, $examination['post_test_status']);
-                }
-                else{
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['practicalExamDate']) && $examination['practicalExamDate'] != NULL)? date("d-M-Y", strtotime($examination['practicalExamDate'])):'');
+                } else {
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['practicalExamDate']) && $examination['practicalExamDate'] != NULL) ? date("d-M-Y", strtotime($examination['practicalExamDate'])) : '');
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $examination['practical_total_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, (isset($examination['writenExamDate']) && $examination['writenExamDate'] != NULL)? date("d-M-Y", strtotime($examination['writenExamDate'])):'');
+                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, (isset($examination['writenExamDate']) && $examination['writenExamDate'] != NULL) ? date("d-M-Y", strtotime($examination['writenExamDate'])) : '');
                     $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['final_score']);
                 }
                 $ligne++;
@@ -191,8 +197,7 @@ class ExaminationController extends AbstractActionController {
             $objWriter->save('php://output');
             exit;
         }
-        $common = $this->getServiceLocator()->get('CommonService');
-        return array('country' => $common->getAllActiveCountries());
+        return array('country' => $this->commonService->getAllActiveCountries());
     }
 
     public function getReportAction()
@@ -201,19 +206,19 @@ class ExaminationController extends AbstractActionController {
         // if($request->isPost())
         // {
         //     $params = $request->getPost();
-        //     $result = $this->getExaminationTable()->report($params);
+        //     $result = $this->examinationTable->report($params);
         //     $viewModel = new ViewModel();
         //     $viewModel->setVariables(array('result' =>$result, 'params' => $params));
         //     $viewModel->setTerminal(true);
         //     return $viewModel;
         // }
 
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->getExaminationTable()->examReportData($parameters);
+            $result = $this->examinationTable->examReportData($parameters);
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
-
 }

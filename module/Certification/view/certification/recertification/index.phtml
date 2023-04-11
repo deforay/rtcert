@@ -1,5 +1,5 @@
 <?php
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -32,7 +32,7 @@ $acl = $this->layout()->acl;
                 <h2>Reminders for Recertifications</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'add')) { ?>
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'add')) { ?>
                     <a href="<?php echo $this->url('recertification', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add a Recertification reminder</a>
                 <?php } ?>
 
@@ -76,13 +76,13 @@ $acl = $this->layout()->acl;
                         <th  style="width:10%;">Date Certificate Issued</th>
                         <th style="width:10%;">Date Certificate Sent</th>
                         <th style="width:10%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                             <th style="width:5%;">PDF</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                             <th style="width:5%;">E-Mail</th>
                         <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                             <th style="width:5%;">Status</th>
                         <?php } ?>
                     </tr>
@@ -107,7 +107,7 @@ if (isset($certification['date_certificate_sent'])) {
     ?>
                             
                             <td><div style="width:120px;height:40px;overflow:auto;"><?php echo $this->escapeHtml($certification['certification_type']); ?></div></td>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                                 <?php
                                 if (strcasecmp($certification['final_decision'], 'Certified') == 0) {
 
@@ -123,10 +123,10 @@ if (isset($certification['date_certificate_sent'])) {
                                 ;
                                 ?>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                                 <td> <div style='width:120px;height:40px;overflow:auto;'><a href="<?php echo $this->url('certification-mail', array('action' => 'index'), array('query' => array(base64_encode('id') => base64_encode($certification['id']), base64_encode('email') => base64_encode($certification['email']), base64_encode('provider_id') => base64_encode($certification['provider']), base64_encode('certification_id') => base64_encode($certification['certification_id']), base64_encode('date_certificate_issued') => base64_encode($certification['date_certificate_issued']), base64_encode('date_end_validity') => base64_encode($certification['date_end_validity']), base64_encode('provider_name') => base64_encode($certification['last_name'] . ' ' . $certification['first_name'] . ' ' . $certification['middle_name']), base64_encode('facility_in_charge_email') => base64_encode($certification['facility_in_charge_email'])))); ?>"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send reminder</a></div> </td>
                             <?php } ?>    
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\Recertification', 'index')) { ?>
+                                <?php if ($acl->isAllowed($role, 'Certification\Controller\RecertificationController', 'index')) { ?>
                                 <td> <div style='width:120px;height:40px;overflow:auto;' onclick="if(!confirm('Do you really want to mark this Reminider as sent?')){return false;}" ><a href="<?php echo $this->url('recertification', array('action' => 'index'), array('query' => array(base64_encode('certification_id') => base64_encode($certification['id']),base64_encode('key') => base64_encode('key')))); ?>"><span class="glyphicon glyphicon-send"></span>&nbsp;send via mail</a></div> </td>
                             <?php } ?>    
                         </tr>
@@ -156,7 +156,7 @@ if (isset($certification['date_certificate_sent'])) {
                         <th style="width:12%;">Name of Recipient</th>
                         <th style="width:12%;">Date Reminder sent </th>
 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\Recertification', 'edit')) { ?>
+                        <?php if ($acl->isAllowed($role, 'Certification\Controller\RecertificationController', 'edit')) { ?>
                             <th style="width:5%;">Edit</th>
                         <?php } ?>
                     </tr>
@@ -172,7 +172,7 @@ if (isset($certification['date_certificate_sent'])) {
                             <td><?php echo $this->escapeHtml($recertification->reminder_sent_to); ?></td>
                             <td><?php echo $this->escapeHtml($recertification->name_of_recipient); ?></td>
                             <td><?php echo date("d-m-Y", strtotime($this->escapeHtml($recertification->date_reminder_sent))); ?></td>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Recertification', 'edit')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\RecertificationController', 'edit')) { ?>
                                 <td>
                                     
                                         <a href="<?php echo $this->url('recertification', array('action' => 'edit', 'recertification_id' => base64_encode($recertification->recertification_id))); ?>"><span class="glyphicon glyphicon-pencil">Edit</span></a> 

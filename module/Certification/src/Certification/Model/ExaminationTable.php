@@ -2,40 +2,50 @@
 
 namespace Certification\Model;
 
-use Zend\Session\Container;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Select;
-use Zend\Debug\Debug;
-use Zend\Paginator\Adapter\DbSelect;
-use Zend\Paginator\Paginator;
+use Laminas\Session\Container;
 
-class ExaminationTable {
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\TableGateway\TableGateway;
+use Zend\Debug\Debug;
+use Laminas\Paginator\Adapter\DbSelect;
+use Laminas\Paginator\Paginator;
+
+class ExaminationTable extends AbstractTableGateway
+{
 
     protected $tableGateway;
+    protected $table = 'examination';
     public $sm = null;
+    public $adapter = null;
 
-    public function __construct(TableGateway $tableGateway, Adapter $adapter, $sm=null) {
-        $this->tableGateway = $tableGateway;
+    public function __construct(Adapter $adapter, $sm = null)
+    {
+
         $this->adapter = $adapter;
         $this->sm = $sm;
+
+        $resultSetPrototype = new ResultSet();
+        $resultSetPrototype->setArrayObjectPrototype(new Examination());
+        $this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
-    public function fetchAll($parameters) {
+    public function fetchAll($parameters)
+    {
         //die('dona');
         $sessionLogin = new Container('credo');
         $role = $sessionLogin->roleCode;
         $acl = $this->sm->get('AppAcl');
-        if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) {
-            $aColumns = array('id','professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_score','practical_total_score');
-            $orderColumns = array('id','professional_reg_no','certification_reg_no','certification_id','last_name','final_score','practical_total_score');
-        }else{
-            $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_score','practical_total_score');
-            $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_score','practical_total_score');
+        if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend')) {
+            $aColumns = array('id', 'professional_reg_no', 'certification_reg_no', 'certification_id', 'first_name', 'middle_name', 'last_name', 'final_score', 'practical_total_score');
+            $orderColumns = array('id', 'professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_score', 'practical_total_score');
+        } else {
+            $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'first_name', 'middle_name', 'last_name', 'final_score', 'practical_total_score');
+            $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_score', 'practical_total_score');
         }
 
         /*
@@ -55,7 +65,7 @@ class ExaminationTable {
         if (isset($parameters['iSortCol_0'])) {
             for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
                 if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -79,12 +89,12 @@ class ExaminationTable {
                     $sWhereSub .= " AND (";
                 }
                 $colSize = count($aColumns);
- 
+
                 for ($i = 0; $i < $colSize; $i++) {
                     if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
                     } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
                     }
                 }
                 $sWhereSub .= ")";
@@ -110,288 +120,139 @@ class ExaminationTable {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
 
-        $select1 = $sql->select()->from(array('e'=>'examination'))
-                               ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
-                               ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','date'=>'updated_on'),'left')
-                               ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'))
-                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $select1->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $select1 = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score', 'date' => 'updated_on'), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'updated_on' => new Expression('NULL')), 'left')
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
+            ->where(array('add_to_certification' => 'no'))
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $select1->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $select2 = $sql->select()->from(array('e'=>'examination'))
-                               ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
-                               ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
-                               ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'))
-                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $select2 = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score', 'updated_on' => new Expression('NULL')), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'date' => 'updated_on'), 'left')
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
+            ->where(array('add_to_certification' => 'no'))
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $select2->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select1->combine($select2);
-	    $sQuery = $sql->select()->from(array('result' => $select1));
+        $sQuery = $sql->select()->from(array('result' => $select1));
         $sQuery = $sQuery->group('id');
-        
+
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
- 
+
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
-        }else{
+        } else {
             $sQuery->order('date DESC');
         }
- 
+
         if (isset($sLimit) && isset($sOffset)) {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        $select1 = $sql->select()->from(array('e'=>'examination'))
-                               ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
-                               ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','date'=>'updated_on'),'left')
-                               ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','updated_on'=>new Expression('NULL')),'left')
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'))
-                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $select1->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $select1->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $select1 = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score', 'date' => 'updated_on'), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'updated_on' => new Expression('NULL')), 'left')
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
+            ->where(array('add_to_certification' => 'no'))
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $select1->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $select2 = $sql->select()->from(array('e'=>'examination'))
-                               ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
-                               ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score','updated_on'=>new Expression('NULL')),'left')
-                               ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score','date'=>'updated_on'),'left')
-                               ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'),'left')
-                               ->where(array('add_to_certification' => 'no'))
-                               ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $select2->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $select2->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $select2 = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('final_score', 'updated_on' => new Expression('NULL')), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'date' => 'updated_on'), 'left')
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
+            ->where(array('add_to_certification' => 'no'))
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $select2->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select1->combine($select2);
-	    $tQuery = $sql->select()->from(array('result' => $select1));
+        $tQuery = $sql->select()->from(array('result' => $select1));
         $tQuery = $tQuery->group('id');
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
         );
-        
+
         foreach ($rResult as $aRow) {
             if (empty($aRow['final_score']) || empty($aRow['practical_total_score'])) {
                 //continue;
             }
-          $practical_score = $aRow['practical_total_score'];
-          $written_score = $aRow['final_score'];
-          $sample_testing = $aRow['Sample_testing_score'];
-          $direct_observation = $aRow['direct_observation_score'];  
-          if ($written_score >= 80 && $direct_observation >= 90 && $sample_testing = 100) {
-            $final_decision = 'Certified';
-          } elseif ($written_score < 80 && ($direct_observation < 90 || $sample_testing < 100)) {
-            $final_decision = 'Failed';
-          } else {
-            $final_decision = 'Pending';
-          }  
-         $row = array();
-         if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'recommend')) {
-            if (empty($aRow['final_score']) || empty($aRow['practical_total_score'])) {
-               $row[] = '';
-            }else{
-               $row[] = '<input class="recommendationRow" type="checkbox" id="'.$aRow['id'].'" onchange="selectForRecommendation(this);" value="'.$aRow['id'].'#'.$aRow['final_score'].'#'.$aRow['practical_total_score'].'#'.$aRow['direct_observation_score'].'#'.$aRow['Sample_testing_score'].'#'.$aRow['provider'].'#'.$final_decision.'"/>';
+            $practical_score = $aRow['practical_total_score'];
+            $written_score = $aRow['final_score'];
+            $sample_testing = $aRow['Sample_testing_score'];
+            $direct_observation = $aRow['direct_observation_score'];
+            if ($written_score >= 80 && $direct_observation >= 90 && $sample_testing = 100) {
+                $final_decision = 'Certified';
+            } elseif ($written_score < 80 && ($direct_observation < 90 || $sample_testing < 100)) {
+                $final_decision = 'Failed';
+            } else {
+                $final_decision = 'Pending';
             }
-         }
-         
-         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
-         $row[] = $aRow['professional_reg_no'];
-         $row[] = $aRow['certification_reg_no'];
-         $row[] = $aRow['certification_id'];
-         
-         $row[] = (isset($aRow['final_score']))?$aRow['final_score'].' %':'';
-         $row[] = (isset($aRow['practical_total_score']))?$aRow['practical_total_score'].' %':'';
-         $output['aaData'][] = $row;
-        }
-        return $output;
-    }
-    
-    public function fetchAllRecommended($parameters){
-        $sessionLogin = new Container('credo');
-        $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
-        /*
-        * Paging
-        */
-        $sLimit = "";
-        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
-            $sOffset = $parameters['iDisplayStart'];
-            $sLimit = $parameters['iDisplayLength'];
-        }
-
-        /*
-        * Ordering
-        */
-
-        $sOrder = "";
-        if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
-                }
-            }
-            $sOrder = substr_replace($sOrder, "", -1);
-        }
-         
-        /*
-        * Filtering
-        * NOTE this does not match the built-in DataTables filtering which does it
-        * word by word on any field. It's possible to do here, but concerned about efficiency
-        * on very large tables, and MySQL's regex functionality is very limited
-        */
-
-        $sWhere = "";
-        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
-            $sWhereSub = "";
-            foreach ($searchArray as $search) {
-                if ($sWhereSub == "") {
-                    $sWhereSub .= "(";
+            $row = array();
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'recommend')) {
+                if (empty($aRow['final_score']) || empty($aRow['practical_total_score'])) {
+                    $row[] = '';
                 } else {
-                    $sWhereSub .= " AND (";
-                }
-                $colSize = count($aColumns);
- 
-                for ($i = 0; $i < $colSize; $i++) {
-                    if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
-                    } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
-                    }
-                }
-                $sWhereSub .= ")";
-            }
-            $sWhere .= $sWhereSub;
-        }
-
-        /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
-            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
-                if ($sWhere == "") {
-                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
-                } else {
-                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                    $row[] = '<input class="recommendationRow" type="checkbox" id="' . $aRow['id'] . '" onchange="selectForRecommendation(this);" value="' . $aRow['id'] . '#' . $aRow['final_score'] . '#' . $aRow['practical_total_score'] . '#' . $aRow['direct_observation_score'] . '#' . $aRow['Sample_testing_score'] . '#' . $aRow['provider'] . '#' . $final_decision . '"/>';
                 }
             }
-        }
 
-        /*
-        * SQL queries
-        * Get data to display
-        */
-        $dbAdapter = $this->adapter;
-        $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array('provider'))
-                                ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
-                                ->where('c.approval_status IN("pending","Pending")');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }
-        if (isset($sWhere) && $sWhere != "") {
-            $sQuery->where($sWhere);
-        }
- 
-        if (isset($sOrder) && $sOrder != "") {
-            $sQuery->order($sOrder);
-        }else{
-            $sQuery->order('c.last_updated_on DESC');
-        }
- 
-        if (isset($sLimit) && isset($sOffset)) {
-            $sQuery->limit($sLimit);
-            $sQuery->offset($sOffset);
-        }
-
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
-        //echo $sQueryStr;die;
-        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
-
-        /* Data set length after filtering */
-        $sQuery->reset('limit');
-        $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
-        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
-        $iFilteredTotal = count($aResultFilterTotal);
-
-        /* Total data set length */
-        $tQuery =  $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array('provider'))
-                                ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
-                                ->where('c.approval_status IN("pending","Pending")');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
-        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
-        $iTotal = count($tResult);
-        $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
-        );
-        
-        foreach ($rResult as $aRow) {
-         $row = array();
-         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            
-            $row[] = $aRow['final_decision'];
-            $row[] = $aRow['certification_issuer'];
-            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
-            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
-            $row[] = $aRow['certification_type'];
-           $output['aaData'][] = $row;
+
+            $row[] = (isset($aRow['final_score'])) ? $aRow['final_score'] . ' %' : '';
+            $row[] = (isset($aRow['practical_total_score'])) ? $aRow['practical_total_score'] . ' %' : '';
+            $output['aaData'][] = $row;
         }
         return $output;
     }
-    
-    public function fetchAllApproved($parameters){
+
+    public function fetchAllRecommended($parameters)
+    {
         $sessionLogin = new Container('credo');
-        $role = $sessionLogin->roleCode;
-        $aColumns = array('professional_reg_no','certification_reg_no','certification_id','first_name','middle_name','last_name','final_decision','certification_issuer',"DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')","DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')",'certification_type');
-        $orderColumns = array('professional_reg_no','certification_reg_no','certification_id','last_name','final_decision','certification_issuer','date_certificate_issued','date_certificate_sent','certification_type');
+        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'first_name', 'middle_name', 'last_name', 'final_decision', 'certification_issuer', "DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')", "DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')", 'certification_type');
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type');
         /*
         * Paging
         */
@@ -409,7 +270,7 @@ class ExaminationTable {
         if (isset($parameters['iSortCol_0'])) {
             for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
                 if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -433,12 +294,12 @@ class ExaminationTable {
                     $sWhereSub .= " AND (";
                 }
                 $colSize = count($aColumns);
- 
+
                 for ($i = 0; $i < $colSize; $i++) {
                     if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
                     } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
                     }
                 }
                 $sWhereSub .= ")";
@@ -463,248 +324,243 @@ class ExaminationTable {
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array('provider'))
-                                ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
-                                ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $sQuery = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('provider'))
+            ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
+            ->where('c.approval_status IN("pending","Pending")');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
- 
+
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
-        }else{
+        } else {
             $sQuery->order('c.last_updated_on DESC');
         }
- 
+
         if (isset($sLimit) && isset($sOffset)) {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        $tQuery =  $sql->select()->from(array('e'=>'examination'))
-                                 ->columns(array('provider'))
-                                 ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
-                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
-                                 ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
+        $tQuery =  $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('provider'))
+            ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
+            ->where('c.approval_status IN("pending","Pending")');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['professional_reg_no'];
+            $row[] = $aRow['certification_reg_no'];
+            $row[] = $aRow['certification_id'];
+
+            $row[] = $aRow['final_decision'];
+            $row[] = $aRow['certification_issuer'];
+            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued'] != null && $aRow['date_certificate_issued'] != '' && $aRow['date_certificate_issued'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_issued'])) : '';
+            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent'] != null && $aRow['date_certificate_sent'] != '' && $aRow['date_certificate_sent'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_sent'])) : '';
+            $row[] = $aRow['certification_type'];
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
+    public function fetchAllApproved($parameters)
+    {
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'first_name', 'middle_name', 'last_name', 'final_decision', 'certification_issuer', "DATE_FORMAT(date_certificate_issued,'%d-%b-%Y')", "DATE_FORMAT(date_certificate_sent,'%d-%b-%Y')", 'certification_type');
+        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type');
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('provider'))
+            ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
+            ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        }
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        } else {
+            $sQuery->order('c.last_updated_on DESC');
+        }
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->buildSqlString($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('e' => 'examination'))
+            ->columns(array('provider'))
+            ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
+            ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        }
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
         );
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
-         $row = array();
-         $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
-            
+
             $row[] = $aRow['final_decision'];
             $row[] = $aRow['certification_issuer'];
-            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued']!= null && $aRow['date_certificate_issued']!= '' && $aRow['date_certificate_issued']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_issued'])):'';
-            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent']!= null && $aRow['date_certificate_sent']!= '' && $aRow['date_certificate_sent']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['date_certificate_sent'])):'';
+            $row[] = (isset($aRow['date_certificate_issued']) && $aRow['date_certificate_issued'] != null && $aRow['date_certificate_issued'] != '' && $aRow['date_certificate_issued'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_issued'])) : '';
+            $row[] = (isset($aRow['date_certificate_sent']) && $aRow['date_certificate_sent'] != null && $aRow['date_certificate_sent'] != '' && $aRow['date_certificate_sent'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['date_certificate_sent'])) : '';
             $row[] = $aRow['certification_type'];
-            if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) {
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) {
                 if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
-                   $row[] = "<a href='/certification/pdf?".urlencode(base64_encode('id'))."=".base64_encode($aRow['id'])."&".urlencode(base64_encode('last'))."=".base64_encode($aRow['last_name'])."&".urlencode(base64_encode('first'))."=".base64_encode($aRow['first_name'])."&".urlencode(base64_encode('middle'))."=".base64_encode($aRow['middle_name'])."&".urlencode(base64_encode('professional_reg_no'))."=".base64_encode($aRow['professional_reg_no'])."&".urlencode(base64_encode('certification_id'))."=".base64_encode($aRow['certification_id'])."&".urlencode(base64_encode('date_issued'))."=".base64_encode($aRow['date_certificate_issued'])."' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
-                }else{
-                   $row[] = "";
+                    $row[] = "<a href='/certification/pdf?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('last')) . "=" . base64_encode($aRow['last_name']) . "&" . urlencode(base64_encode('first')) . "=" . base64_encode($aRow['first_name']) . "&" . urlencode(base64_encode('middle')) . "=" . base64_encode($aRow['middle_name']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('date_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "' target='_blank'><span class='glyphicon glyphicon-download-alt'>PDF</span></a>";
+                } else {
+                    $row[] = "";
                 }
             }
-           $output['aaData'][] = $row;
+            $output['aaData'][] = $row;
         }
         return $output;
     }
-    
-    public function fetchAllPendingTests($parameters){
-    $sessionLogin = new Container('credo');
-        $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
-        $orderColumns = array('last_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
-        /*
-        * Paging
-        */
-        $sLimit = "";
-        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
-            $sOffset = $parameters['iDisplayStart'];
-            $sLimit = $parameters['iDisplayLength'];
-        }
 
-        /*
-        * Ordering
-        */
-
-        $sOrder = "";
-        if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
-                }
-            }
-            $sOrder = substr_replace($sOrder, "", -1);
-        }
-
-        /*
-        * Filtering
-        * NOTE this does not match the built-in DataTables filtering which does it
-        * word by word on any field. It's possible to do here, but concerned about efficiency
-        * on very large tables, and MySQL's regex functionality is very limited
-        */
-
-        $sWhere = "";
-        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
-            $sWhereSub = "";
-            foreach ($searchArray as $search) {
-                if ($sWhereSub == "") {
-                    $sWhereSub .= "(";
-                } else {
-                    $sWhereSub .= " AND (";
-                }
-                $colSize = count($aColumns);
- 
-                for ($i = 0; $i < $colSize; $i++) {
-                    if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
-                    } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
-                    }
-                }
-                $sWhereSub .= ")";
-            }
-            $sWhere .= $sWhereSub;
-        }
-
-        /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
-            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
-                if ($sWhere == "") {
-                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
-                } else {
-                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
-                }
-            }
-        }
-
-        /*
-        * SQL queries
-        * Get data to display
-        */
-        $dbAdapter = $this->adapter;
-        $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array())
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
-                                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
-                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
-                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-	if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
-            $sQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
-        }
-
-        if (isset($sWhere) && $sWhere != "") {
-            $sQuery->where($sWhere);
-        }
- 
-        if (isset($sOrder) && $sOrder != "") {
-            $sQuery->order($sOrder);
-        }
- 
-        if (isset($sLimit) && isset($sOffset)) {
-            $sQuery->limit($sLimit);
-            $sQuery->offset($sOffset);
-        }
-
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
-        //echo $sQueryStr;die;
-        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
-
-        /* Data set length after filtering */
-        $sQuery->reset('limit');
-        $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
-        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
-        $iFilteredTotal = count($aResultFilterTotal);
-
-        /* Total data set length */
-        $tQuery =  $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array())
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
-                                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
-                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate'=>'date', 'final_score'),'left')
-                                ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-	if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
-            $tQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
-        }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
-        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
-        $iTotal = count($tResult);
-        $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
-        );
-        
-        foreach ($rResult as $aRow) {
-         $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
-            $row[] = (isset($aRow['regionName']))?$aRow['regionName']:'';
-            $row[] = (isset($aRow['districtName']))?$aRow['districtName']:'';
-            $row[] = $aRow['phone'];
-            $row[] = $aRow['email'];
-            $row[] = (isset($aRow['writenExamDate']) && $aRow['writenExamDate']!= null && $aRow['writenExamDate']!= '' && $aRow['writenExamDate']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['writenExamDate'])):'';
-            $row[] = (isset($aRow['final_score']))?$aRow['final_score']:'';
-            $row[] = (isset($aRow['practicalExamDate']) && $aRow['practicalExamDate']!= null && $aRow['practicalExamDate']!= '' && $aRow['practicalExamDate']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['practicalExamDate'])):'';
-            $row[] = (isset($aRow['practical_total_score']))?$aRow['practical_total_score']:'';
-           $output['aaData'][] = $row;
-        }
-        return $output;
-    }
-    
-    public function fetchAllFailedTests($parameters){
+    public function fetchAllPendingTests($parameters)
+    {
         $sessionLogin = new Container('credo');
-        $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
-        $orderColumns = array('last_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
+        $aColumns = array('first_name', 'middle_name', 'last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', "DATE_FORMAT(w_ex.date,'%d-%b-%Y')", 'w_ex.final_score', "DATE_FORMAT(p_ex.date,'%d-%b-%Y')", 'p_ex.practical_total_score');
+        $orderColumns = array('last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', 'w_ex.date', 'w_ex.final_score', 'p_ex.date', 'p_ex.practical_total_score');
         /*
         * Paging
         */
@@ -722,7 +578,7 @@ class ExaminationTable {
         if (isset($parameters['iSortCol_0'])) {
             for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
                 if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -746,12 +602,12 @@ class ExaminationTable {
                     $sWhereSub .= " AND (";
                 }
                 $colSize = count($aColumns);
- 
+
                 for ($i = 0; $i < $colSize; $i++) {
                     if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
                     } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
                     }
                 }
                 $sWhereSub .= ")";
@@ -776,88 +632,247 @@ class ExaminationTable {
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from(array('e'=>'examination'))
-                                ->columns(array())
-                                ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
-                                ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate'=>'date', 'practical_total_score'))
-                                ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'))
-                                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $sQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $sQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
-            $sQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
+        $sQuery = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array())
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'phone', 'email'))
+            ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+            ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate' => 'date', 'final_score'), 'left')
+            ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+            $sQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
+
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
- 
+
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
         }
- 
+
         if (isset($sLimit) && isset($sOffset)) {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        $tQuery =  $sql->select()->from(array('e'=>'examination'))
-                                 ->columns(array())
-                                 ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name','first_name','middle_name','phone','email'))
-                                 ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate'=>'date', 'practical_total_score'))
-                                 ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate'=>'date', 'final_score'))
-                                 ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                 ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
-        if(isset($sessionLogin->district) && count($sessionLogin->district) > 0){
-            $tQuery->where('p.district IN('.implode(',',$sessionLogin->district).')');
-        }else if(isset($sessionLogin->region) && count($sessionLogin->region) > 0){
-            $tQuery->where('p.region IN('.implode(',',$sessionLogin->region).')');
-        }else if(isset($sessionLogin->country) && count($sessionLogin->country) > 0){
-            $tQuery->where('l_d_r.country IN('.implode(',',$sessionLogin->country).')');
+        $tQuery =  $sql->select()->from(array('e' => 'examination'))
+            ->columns(array())
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'phone', 'email'))
+            ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+            ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate' => 'date', 'final_score'), 'left')
+            ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+            $tQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
         );
-        
+
         foreach ($rResult as $aRow) {
-         $row = array();
+            $row = array();
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
-            $row[] = (isset($aRow['regionName']))?$aRow['regionName']:'';
-            $row[] = (isset($aRow['districtName']))?$aRow['districtName']:'';
+            $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
+            $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
             $row[] = $aRow['phone'];
             $row[] = $aRow['email'];
-            $row[] = (isset($aRow['writenExamDate']) && $aRow['writenExamDate']!= null && $aRow['writenExamDate']!= '' && $aRow['writenExamDate']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['writenExamDate'])):'';
-            $row[] = (isset($aRow['final_score']))?$aRow['final_score']:'';
-            $row[] = (isset($aRow['practicalExamDate']) && $aRow['practicalExamDate']!= null && $aRow['practicalExamDate']!= '' && $aRow['practicalExamDate']!= '0000-00-00')?date("d-M-Y", strtotime($aRow['practicalExamDate'])):'';
-            $row[] = (isset($aRow['practical_total_score']))?$aRow['practical_total_score']:'';
-           $output['aaData'][] = $row;
+            $row[] = (isset($aRow['writenExamDate']) && $aRow['writenExamDate'] != null && $aRow['writenExamDate'] != '' && $aRow['writenExamDate'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['writenExamDate'])) : '';
+            $row[] = (isset($aRow['final_score'])) ? $aRow['final_score'] : '';
+            $row[] = (isset($aRow['practicalExamDate']) && $aRow['practicalExamDate'] != null && $aRow['practicalExamDate'] != '' && $aRow['practicalExamDate'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['practicalExamDate'])) : '';
+            $row[] = (isset($aRow['practical_total_score'])) ? $aRow['practical_total_score'] : '';
+            $output['aaData'][] = $row;
         }
         return $output;
     }
-    
-    public function getExamination($id) {
+
+    public function fetchAllFailedTests($parameters)
+    {
+        $sessionLogin = new Container('credo');
+        $aColumns = array('first_name', 'middle_name', 'last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', "DATE_FORMAT(w_ex.date,'%d-%b-%Y')", 'w_ex.final_score', "DATE_FORMAT(p_ex.date,'%d-%b-%Y')", 'p_ex.practical_total_score');
+        $orderColumns = array('last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', 'w_ex.date', 'w_ex.final_score', 'p_ex.date', 'p_ex.practical_total_score');
+        /*
+        * Paging
+        */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+        * Ordering
+        */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
+                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+        * Filtering
+        * NOTE this does not match the built-in DataTables filtering which does it
+        * word by word on any field. It's possible to do here, but concerned about efficiency
+        * on very large tables, and MySQL's regex functionality is very limited
+        */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+
+        /* Individual column filtering */
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+        * SQL queries
+        * Get data to display
+        */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('e' => 'examination'))
+            ->columns(array())
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'phone', 'email'))
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate' => 'date', 'practical_total_score'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate' => 'date', 'final_score'))
+            ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+            ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+            ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+            $sQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
+        }
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //echo $sQueryStr;die;
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->buildSqlString($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $tQuery =  $sql->select()->from(array('e' => 'examination'))
+            ->columns(array())
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'phone', 'email'))
+            ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('writenExamDate' => 'date', 'practical_total_score'))
+            ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate' => 'date', 'final_score'))
+            ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+            ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+            ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+            $tQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
+        }
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iTotal = count($tResult);
+        $output = array(
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
+            $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
+            $row[] = $aRow['phone'];
+            $row[] = $aRow['email'];
+            $row[] = (isset($aRow['writenExamDate']) && $aRow['writenExamDate'] != null && $aRow['writenExamDate'] != '' && $aRow['writenExamDate'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['writenExamDate'])) : '';
+            $row[] = (isset($aRow['final_score'])) ? $aRow['final_score'] : '';
+            $row[] = (isset($aRow['practicalExamDate']) && $aRow['practicalExamDate'] != null && $aRow['practicalExamDate'] != '' && $aRow['practicalExamDate'] != '0000-00-00') ? date("d-M-Y", strtotime($aRow['practicalExamDate'])) : '';
+            $row[] = (isset($aRow['practical_total_score'])) ? $aRow['practical_total_score'] : '';
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
+    public function getExamination($id)
+    {
         $id = (int) $id;
         $rowset = $this->tableGateway->select(array('id' => $id));
         $row = $rowset->current();
@@ -872,72 +887,70 @@ class ExaminationTable {
         // Debug::dump($params);die;
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        if($params['Exam'] == 'written-exam'){
-            $sQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'))
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
-                $sQuery->where(array('p.district' =>$params['District']));
-            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+        if ($params['Exam'] == 'written-exam') {
+            $sQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'))
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'), 'left')
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
+                $sQuery->where(array('p.district' => $params['District']));
+            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
-            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+            $fQuery = $sql->buildSqlString($sQuery);
             return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
-        
-        if($params['Exam'] == 'practical-exam'){
-            $sQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
-                $sQuery->where(array('p.district' =>$params['District']));
-            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+
+        if ($params['Exam'] == 'practical-exam') {
+            $sQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
+                $sQuery->where(array('p.district' => $params['District']));
+            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
-            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+            $fQuery = $sql->buildSqlString($sQuery);
             return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
-        
-        if($params['Exam'] == 'online-exam'){
-            $sQuery = $sql->select()->from(array('t'=>'tests'))
-                                    ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")')
-                                    ;
-            if(isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != ''){
-                $sQuery->where(array('p.district' =>$params['District']));
-            }else if(isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != ''){
+
+        if ($params['Exam'] == 'online-exam') {
+            $sQuery = $sql->select()->from(array('t' => 'tests'))
+                ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
+            if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
+                $sQuery->where(array('p.district' => $params['District']));
+            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            }else if(isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$params['Country']));
+            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
-            $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+            $fQuery = $sql->buildSqlString($sQuery);
             return $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
     }
 
 
-    public function examReportData($parameters){
+    public function examReportData($parameters)
+    {
         $sessionLogin = new Container('credo');
-        $aColumns = array('first_name','middle_name','last_name','l_d_r.location_name','l_d_d.location_name','phone','email',"DATE_FORMAT(w_ex.date,'%d-%b-%Y')",'w_ex.final_score',"DATE_FORMAT(p_ex.date,'%d-%b-%Y')",'p_ex.practical_total_score');
-        $orderColumns = array('last_name','l_d_r.location_name','l_d_d.location_name','phone','email','w_ex.date','w_ex.final_score','p_ex.date','p_ex.practical_total_score');
+        $aColumns = array('first_name', 'middle_name', 'last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', "DATE_FORMAT(w_ex.date,'%d-%b-%Y')", 'w_ex.final_score', "DATE_FORMAT(p_ex.date,'%d-%b-%Y')", 'p_ex.practical_total_score');
+        $orderColumns = array('last_name', 'l_d_r.location_name', 'l_d_d.location_name', 'phone', 'email', 'w_ex.date', 'w_ex.final_score', 'p_ex.date', 'p_ex.practical_total_score');
         /*
         * Paging
         */
@@ -955,7 +968,7 @@ class ExaminationTable {
         if (isset($parameters['iSortCol_0'])) {
             for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
                 if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -979,12 +992,12 @@ class ExaminationTable {
                     $sWhereSub .= " AND (";
                 }
                 $colSize = count($aColumns);
- 
+
                 for ($i = 0; $i < $colSize; $i++) {
                     if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' OR ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
                     } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search ) . "%' ";
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
                     }
                 }
                 $sWhereSub .= ")";
@@ -1009,167 +1022,154 @@ class ExaminationTable {
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        if($parameters['Exam'] == 'written-exam'){
-            $sQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'))
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $sQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+        if ($parameters['Exam'] == 'written-exam') {
+            $sQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'))
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'), 'left')
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $sQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-         
         }
-        
-        if($parameters['Exam'] == 'practical-exam'){
-            $sQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $sQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+
+        if ($parameters['Exam'] == 'practical-exam') {
+            $sQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $sQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-           
         }
-        
-        if($parameters['Exam'] == 'online-exam'){
-            $sQuery = $sql->select()->from(array('t'=>'tests'))
-                                    ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $sQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+
+        if ($parameters['Exam'] == 'online-exam') {
+            $sQuery = $sql->select()->from(array('t' => 'tests'))
+                ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $sQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $sQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-          
         }
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
- 
+
         if (isset($sOrder) && $sOrder != "") {
             $sQuery->order($sOrder);
         }
- 
+
         if (isset($sLimit) && isset($sOffset)) {
             $sQuery->limit($sLimit);
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
         /* Total data set length */
-        if($parameters['Exam'] == 'written-exam'){
-            $tQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'))
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'),'left')
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $tQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+        if ($parameters['Exam'] == 'written-exam') {
+            $tQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'))
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'), 'left')
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $tQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $tQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-         
         }
-        
-        if($parameters['Exam'] == 'practical-exam'){
-            $tQuery = $sql->select()->from(array('p'=>'provider'))
-                                    ->columns(array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate'=>'date', 'practical_total_score'),'left')
-                                    ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate'=>'date', 'final_score'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
-                                    ->group('p_ex.provider_id')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $tQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+
+        if ($parameters['Exam'] == 'practical-exam') {
+            $tQuery = $sql->select()->from(array('p' => 'provider'))
+                ->columns(array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('p_ex' => 'practical_exam'), "p_ex.provider_id=p.id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
+                ->join(array('w_ex' => 'written_exam'), "w_ex.provider_id=p.id", array('writenExamDate' => 'date', 'final_score'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
+                ->group('p_ex.provider_id');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $tQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $tQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-           
         }
-        
-        if($parameters['Exam'] == 'online-exam'){
-            $tQuery = $sql->select()->from(array('t'=>'tests'))
-                                    ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name','first_name','middle_name','phone','email','professional_reg_no'))
-                                    ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName'=>'location_name'),'left')
-                                    ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName'=>'location_name'),'left')
-                                    ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")')
-                                    ;
-            if(isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != ''){
-                $tQuery->where(array('p.district' =>$parameters['District']));
-            }else if(isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != ''){
+
+        if ($parameters['Exam'] == 'online-exam') {
+            $tQuery = $sql->select()->from(array('t' => 'tests'))
+                ->join(array('p' => 'provider'), "t.user_id=p.id", array('last_name', 'first_name', 'middle_name', 'phone', 'email', 'professional_reg_no'))
+                ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
+                ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
+                ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
+            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+                $tQuery->where(array('p.district' => $parameters['District']));
+            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            }else if(isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != ''){
-                $tQuery->where(array('l_d_r.country' =>$parameters['Country']));
+            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+                $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
-          
         }
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-           "sEcho" => intval($parameters['sEcho']),
-           "iTotalRecords" => $iTotal,
-           "iTotalDisplayRecords" => $iFilteredTotal,
-           "aaData" => array()
+            "sEcho" => intval($parameters['sEcho']),
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
         );
-         
+
         foreach ($rResult as $aRow) {
-         $row = array();
-         if($parameters['Exam'] == 'online-exam'){
-             $row[] =  date('d-M-Y (h:i:s a)',strtotime($aRow['pretest_start_datetime']));
-         }
+            $row = array();
+            if ($parameters['Exam'] == 'online-exam') {
+                $row[] =  date('d-M-Y (h:i:s a)', strtotime($aRow['pretest_start_datetime']));
+            }
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['phone'];
             $row[] = $aRow['email'];
             $row[] = $aRow['regionName'];
             $row[] = $aRow['districtName'];
-           $output['aaData'][] = $row;
+            $output['aaData'][] = $row;
         }
         return $output;
     }
-    
-} 
+}

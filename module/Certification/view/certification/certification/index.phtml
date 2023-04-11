@@ -1,6 +1,6 @@
 <?php
 
-use Zend\Session\Container;
+use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
@@ -57,7 +57,7 @@ $acl = $this->layout()->acl;
                 <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                     <thead>
                         <tr class="allreminders">
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
                                 <th>#</th>
                             <?php } ?>
                             <th style="width:10%;">Tester</th>
@@ -96,13 +96,13 @@ $acl = $this->layout()->acl;
                             <th style="width:10%;">Date Certificate Issued</th>
                             <th style="width:10%;">Date Certificate Sent</th>
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                                 <th style="width:5%;">Download PDF</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                                 <th style="width:5%;">E-Mail Certificate</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                                 <th style="width:5%;">Update Status</th>
                             <?php } ?>
                         </tr>
@@ -132,10 +132,10 @@ $acl = $this->layout()->acl;
                             <th style="width:10%;">Date Certificate Issued</th>
                             <th style="width:10%;">Date Certificate Sent</th>
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
                                 <th style="width:5%;">Edit</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                                 <th style="width:5%;">PDF</th>
                             <?php } ?>
                         </tr>
@@ -165,7 +165,7 @@ $acl = $this->layout()->acl;
                             <!--<th  style="width:10%;">Date Certificate Issued</th>-->
                             <!--<th style="width:10%;">Date Certificate Sent</th>-->
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?>
+                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
                                 <th style="width:5%;">Edit</th>
                             <?php } ?>
                         </tr>
@@ -310,7 +310,7 @@ $acl = $this->layout()->acl;
             "bDestroy": true,
             "pageLength": 50,
             "aoColumns": [
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?> {
                         "sClass": "center",
                         "bSortable": false
                     },
@@ -342,7 +342,7 @@ $acl = $this->layout()->acl;
                     "sClass": "center"
                 }
             ],
-            //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval'))?3:2; ?>, "asc" ]],
+            //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval'))?3:2; ?>, "asc" ]],
             "aaSorting": [],
             "fnDrawCallback": function(oSettings) {
                 $('input:checkbox').each(function() {
@@ -403,15 +403,15 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMail', 'index')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
@@ -466,11 +466,11 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'pdf')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
@@ -516,7 +516,7 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'edit')) { ?> {
+                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
@@ -613,7 +613,7 @@ $acl = $this->layout()->acl;
             return false;
         }
     }
-    <?php if ($acl->isAllowed($role, 'Certification\Controller\Certification', 'approval')) { ?>
+    <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
         //Insert a raw HTML into data table
         var count_elem = document.getElementById('recommendedTable');
         var div = document.createElement('div');

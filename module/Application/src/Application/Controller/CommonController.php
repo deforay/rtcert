@@ -2,93 +2,89 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
-class CommonController extends AbstractActionController {
+class CommonController extends AbstractActionController
+{
 
-    public function indexAction() {
+    public \Application\Service\CommonService $commonService;
+
+    public function __construct($commonService)
+    {
+        $this->commonService = $commonService;
+    }
+
+    public function indexAction()
+    {
         $result = "";
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $common = $this->getServiceLocator()->get('CommonService');
-            $result = $common->checkFieldValidations($params);
+            $result = $this->commonService->checkFieldValidations($params);
         }
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' => $result))
-                ->setTerminal(true);
+            ->setTerminal(true);
 
         return $viewModel;
     }
     public function multipleFieldValidationAction()
     {
         $result = "";
-                $request = $this->getRequest();
-                if ($request->isPost()) {
-                    $params = $request->getPost();
-                    //\Zend\Debug\Debug::dump($params);die;
-                    $common = $this->getServiceLocator()->get('CommonService');
-                    $result = $common->checkMultipleFieldValidations($params);
-                }
-                $viewModel = new ViewModel();
-                $viewModel->setVariables(array('result' => $result))
-                        ->setTerminal(true);
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            //\Zend\Debug\Debug::dump($params);die;
+            $result = $this->commonService->checkMultipleFieldValidations($params);
+        }
+        $viewModel = new ViewModel();
+        $viewModel->setVariables(array('result' => $result))
+            ->setTerminal(true);
 
-                return $viewModel;
+        return $viewModel;
     }
-    public function auditLocationsAction()
+
+    public function getCountryLocationsAction()
     {
-        $odkFormService = $this->getServiceLocator()->get('OdkFormService');
-        $request = $this->getRequest();
-        if ($request->isGet()) {
-            $val = $request->getQuery();
-            $spiV3auditRoundNo = $odkFormService->getSpiV3FormAuditNo();
-            return new ViewModel(array(
-                'id' => $val,
-                'spiV3auditRoundNo'=>$spiV3auditRoundNo
-            ));
-        }
-    }
-    
-    public function getCountryLocationsAction(){
         $result = "";
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $common = $this->getServiceLocator()->get('CommonService');
-            $result = $common->getCountryLocations($params);
+            $result = $this->commonService->getCountryLocations($params);
         }
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' => $result))
-                ->setTerminal(true);
+            ->setTerminal(true);
         return $viewModel;
     }
-    
-    public function getProvinceDistrictsAction(){
+
+    public function getProvinceDistrictsAction()
+    {
         $result = "";
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $common = $this->getServiceLocator()->get('CommonService');
-            $result = $common->getProvinceDistricts($params);
+            $result = $this->commonService->getProvinceDistricts($params);
         }
         $viewModel = new ViewModel();
         $viewModel->setVariables(array('result' => $result))
-                ->setTerminal(true);
+            ->setTerminal(true);
         return $viewModel;
     }
 
-    public function sendMailAction() {
-        
+    public function sendMailAction()
+    {
+
+        /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
-            $common = $this->getServiceLocator()->get('CommonService');
-            $result = $common->sendContactMail($params);
-            return $result;
+            return $this->commonService->sendContactMail($params);
         }
     }
-
 }
-

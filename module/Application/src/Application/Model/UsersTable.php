@@ -2,11 +2,11 @@
 
 namespace Application\Model;
 
-use Zend\Session\Container;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Expression;
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Service\CommonService;
 use Application\Model\UserRoleMapTable;
 use Application\Model\UserTokenMapTable;
@@ -35,7 +35,7 @@ class UsersTable extends AbstractTableGateway {
         $container = new Container('alert');
         $logincontainer = new Container('credo');
         $username = $params['username'];
-        $config = new \Zend\Config\Reader\Ini();
+        $config = new \Laminas\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         $password = sha1($params['password'] . $configResult["password"]["salt"]);        
         $dbAdapter = $this->adapter;
@@ -45,7 +45,7 @@ class UsersTable extends AbstractTableGateway {
                                 ->join(array('urm' => 'user_role_map'), 'urm.user_id=u.id', array('role_id'))
                                 ->join(array('r' => 'roles'), 'r.role_id=urm.role_id', array('role_name','role_code','access_level'))
                                 ->where(array('login' => $username, 'password' => $password,'u.status' =>'active'));
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery);
+        $sQueryStr = $sql->buildSqlString($sQuery);
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         if ($sResult) {
             $token = array();
@@ -53,7 +53,7 @@ class UsersTable extends AbstractTableGateway {
                                             ->columns(array('token'))
                                             ->where(array('user_id'=>$sResult->id))
                                             ->order("token ASC");
-            $userTokenQueryStr = $sql->getSqlStringForSqlObject($userTokenQuery);
+            $userTokenQueryStr = $sql->buildSqlString($userTokenQuery);
             $userTokenResult = $dbAdapter->query($userTokenQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             foreach($userTokenResult as $userToken){
                 $token[] = $userToken['token'];
@@ -66,7 +66,7 @@ class UsersTable extends AbstractTableGateway {
                                          ->join(array('l_d'=>'location_details'),'l_d.location_id=u_d_map.location_id',array('location_id','parent_location','country'))
                                          ->where(array('u_d_map.user_id'=>$sResult->id))
                                          ->order("location_name ASC");
-                $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+                $userDistrictQueryStr = $sql->buildSqlString($userDistrictQuery);
                 $userDistrictResult = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
                 if(isset($userDistrictResult) && count($userDistrictResult) > 0){
                     foreach($userDistrictResult as $userDistrict){
@@ -80,7 +80,7 @@ class UsersTable extends AbstractTableGateway {
                                          ->join(array('l_d'=>'location_details'),'l_d.location_id=u_p_map.location_id',array('location_id','country'))
                                          ->where(array('u_p_map.user_id'=>$sResult->id))
                                          ->order("location_name ASC");
-                $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+                $userProvinceQueryStr = $sql->buildSqlString($userProvinceQuery);
                 $userProvinceResult = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
                 if(isset($userProvinceResult) && count($userProvinceResult) > 0){
                     foreach($userProvinceResult as $userProvince){
@@ -91,7 +91,7 @@ class UsersTable extends AbstractTableGateway {
             }else if(isset($sResult->access_level) && $sResult->access_level!= null && trim($sResult->access_level)!= '' && (int)$sResult->access_level == 2){
                 $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
                                         ->where(array('u_c_map.user_id'=>$sResult->id));
-                $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+                $userCountryQueryStr = $sql->buildSqlString($userCountryQuery);
                 $userCountryResult = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
                 if(isset($userCountryResult) && count($userCountryResult) > 0){
                     foreach($userCountryResult as $userCountry){
@@ -126,7 +126,7 @@ class UsersTable extends AbstractTableGateway {
         $userDistrictMap = new UserDistrictMapTable($dbAdapter);
         $userProvinceMap = new UserProvinceMapTable($dbAdapter);
         $userCountryMap = new UserCountryMapTable($dbAdapter);
-        $config = new \Zend\Config\Reader\Ini();
+        $config = new \Laminas\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
         $password = sha1($params['password'] . $configResult["password"]["salt"]);
         $lastInsertId = 0;
@@ -181,7 +181,7 @@ class UsersTable extends AbstractTableGateway {
         $userCountryMap = new UserCountryMapTable($dbAdapter);
         $userId=base64_decode($params['userId']);
         if (isset($params['password']) && $params['password'] != '') {
-            $config = new \Zend\Config\Reader\Ini();
+            $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
             $password = sha1($params['password'] . $configResult["password"]["salt"]);
             $data = array('password' => $password);
@@ -328,14 +328,14 @@ class UsersTable extends AbstractTableGateway {
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->getSqlStringForSqlObject($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
         /* Data set length after filtering */
         $sQuery->reset('limit');
         $sQuery->reset('offset');
-        $fQuery = $sql->getSqlStringForSqlObject($sQuery);
+        $fQuery = $sql->buildSqlString($sQuery);
         $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
         $iFilteredTotal = count($aResultFilterTotal);
 
@@ -343,7 +343,7 @@ class UsersTable extends AbstractTableGateway {
         $tQuery =  $sql->select()->from(array('u'=>'users'))
                        ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array())
                        ->join(array('r' => 'roles'), "r.role_id=urm.role_id", array('access_level','role_name'));
-        $tQueryStr = $sql->getSqlStringForSqlObject($tQuery); // Get the string of the Sql, instead of the Select-instance
+        $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
@@ -355,7 +355,7 @@ class UsersTable extends AbstractTableGateway {
         
         $loginContainer = new Container('credo');
         $role = $loginContainer->roleCode;
-        if ($acl->isAllowed($role, 'Application\Controller\Users', 'edit')) {
+        if ($acl->isAllowed($role, 'Application\Controller\UsersController', 'edit')) {
             $update = true;
         } else {
             $update = false;
@@ -370,7 +370,7 @@ class UsersTable extends AbstractTableGateway {
             $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
                                     ->join(array('c' => 'country'), "c.country_id=u_c_map.country_id", array('countryMaps'=>new Expression("GROUP_CONCAT(country_name)")))
                                     ->where(array('u_c_map.user_id'=>$aRow['id']));
-            $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+            $userCountryQueryStr = $sql->buildSqlString($userCountryQuery);
             $userCountryResult = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if(isset($userCountryResult) && trim($userCountryResult->countryMaps)!= ''){
                $accessLevel.= ' ('.$userCountryResult->countryMaps.')';
@@ -380,7 +380,7 @@ class UsersTable extends AbstractTableGateway {
             $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
                                      ->join(array('l_d' => 'location_details'), "l_d.location_id=u_p_map.location_id", array('provinceMaps'=>new Expression("GROUP_CONCAT(location_name)")))
                                      ->where(array('u_p_map.user_id'=>$aRow['id']));
-            $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+            $userProvinceQueryStr = $sql->buildSqlString($userProvinceQuery);
             $userProvinceResult = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if(isset($userProvinceResult) && trim($userProvinceResult->provinceMaps)!= ''){
                $accessLevel.= ' ('.$userProvinceResult->provinceMaps.')';
@@ -390,7 +390,7 @@ class UsersTable extends AbstractTableGateway {
             $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
                                      ->join(array('l_d' => 'location_details'), "l_d.location_id=u_d_map.location_id", array('districtMaps'=>new Expression("GROUP_CONCAT(location_name)")))
                                      ->where(array('u_d_map.user_id'=>$aRow['id']));
-            $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+            $userDistrictQueryStr = $sql->buildSqlString($userDistrictQuery);
             $userDistrictResult = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
             if(isset($userDistrictResult) && trim($userDistrictResult->districtMaps)!= ''){
                $accessLevel.= ' ('.$userDistrictResult->districtMaps.')';
@@ -419,7 +419,7 @@ class UsersTable extends AbstractTableGateway {
                                ->join(array('urm' => 'user_role_map'), "urm.user_id=u.id", array('role_id'))
                                ->join(array('r' => 'roles'), "r.role_id=urm.role_id", array('access_level'))
                                ->where(array('id'=>$id));
-        $queryStr = $sql->getSqlStringForSqlObject($query);
+        $queryStr = $sql->buildSqlString($query);
         $queryResult = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         if($queryResult){
             //User-Token
@@ -427,14 +427,14 @@ class UsersTable extends AbstractTableGateway {
                                             ->columns(array('token'))
                                             ->where(array('user_id'=>$id))
                                             ->order("token ASC");
-            $userTokenQueryStr = $sql->getSqlStringForSqlObject($userTokenQuery);
+            $userTokenQueryStr = $sql->buildSqlString($userTokenQuery);
             $queryResult['userToken'] = $dbAdapter->query($userTokenQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             //User-District
             $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
                                                ->columns(array('location_id'))
                                                ->join(array('l_d'=>'location_details'),'l_d.location_id=u_d_map.location_id',array('parent_location','country'))
                                                ->where(array('user_id'=>$id));
-            $userDistrictQueryStr = $sql->getSqlStringForSqlObject($userDistrictQuery);
+            $userDistrictQueryStr = $sql->buildSqlString($userDistrictQuery);
             $queryResult['userDistricts'] = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             if(isset($queryResult['userDistricts']) && count($queryResult['userDistricts']) >0){
                 $provinces = array();
@@ -456,7 +456,7 @@ class UsersTable extends AbstractTableGateway {
                                                ->columns(array('location_id'))
                                                ->join(array('l_d'=>'location_details'),'l_d.location_id=u_p_map.location_id',array('country'))
                                                ->where(array('user_id'=>$id));
-            $userProvinceQueryStr = $sql->getSqlStringForSqlObject($userProvinceQuery);
+            $userProvinceQueryStr = $sql->buildSqlString($userProvinceQuery);
             $queryResult['userProvinces'] = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
             if(isset($queryResult['userProvinces']) && count($queryResult['userProvinces']) >0){
                 $countries = array();
@@ -472,7 +472,7 @@ class UsersTable extends AbstractTableGateway {
             $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
                                               ->columns(array('country_id'))
                                               ->where(array('user_id'=>$id));
-            $userCountryQueryStr = $sql->getSqlStringForSqlObject($userCountryQuery);
+            $userCountryQueryStr = $sql->buildSqlString($userCountryQuery);
             $queryResult['userCountries'] = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
         }
         return $queryResult;

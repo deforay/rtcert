@@ -2,9 +2,9 @@
 
 namespace Certification\Form;
 
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\Adapter\Adapter;
 
 class PracticalExamForm extends Form {
 
@@ -24,7 +24,7 @@ class PracticalExamForm extends Form {
 
         $this->add(array(
             'name' => 'exam_type',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Number of Attempts',
                  'disable_inarray_validator' => true, 
@@ -42,7 +42,7 @@ class PracticalExamForm extends Form {
 
         $this->add(array(
             'name' => 'provider_id',
-            'type' => 'Zend\Form\Element\Select',
+            'type' => 'Laminas\Form\Element\Select',
             'options' => array(
                 'label' => 'Tester',
                 'empty_option' => 'Please choose a Tester',

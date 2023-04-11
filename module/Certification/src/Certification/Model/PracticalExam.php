@@ -2,9 +2,9 @@
 
 namespace Certification\Model;
 
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterInterface;
-use Zend\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterInterface;
+use Laminas\InputFilter\InputFilterAwareInterface;
 
 class PracticalExam implements InputFilterAwareInterface {
 
