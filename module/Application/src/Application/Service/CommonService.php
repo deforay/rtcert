@@ -30,7 +30,7 @@ class CommonService
         return $this->sm;
     }
 
-    public function getCurrentWeekStartAndEndDate()
+    public static function getCurrentWeekStartAndEndDate()
     {
         $cDate = date('Y-m-d');
         $date = new \DateTime($cDate);
@@ -155,45 +155,6 @@ class CommonService
         } catch (Exception $exc) {
             error_log($exc->getMessage());
             error_log($exc->getTraceAsString());
-        }
-    }
-
-    public function dateFormat($date)
-    {
-        if (!isset($date) || $date == null || $date == "" || $date == "0000-00-00") {
-            return "0000-00-00";
-        } else {
-            $dateArray = explode('-', $date);
-            if (sizeof($dateArray) == 0) {
-                return;
-            }
-            $newDate = $dateArray[2] . "-";
-
-            $monthsArray = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-            $mon = 1;
-            $mon += array_search(ucfirst($dateArray[1]), $monthsArray);
-
-            if (strlen($mon) == 1) {
-                $mon = "0" . $mon;
-            }
-            return $newDate .= $mon . "-" . $dateArray[0];
-        }
-    }
-
-
-    public function viewDateFormat($date)
-    {
-
-        if ($date == null || $date == "" || $date == "0000-00-00") {
-            return "";
-        } else {
-            $dateArray = explode('-', $date);
-            $newDate = $dateArray[2] . "-";
-
-            $monthsArray = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-            $mon = $monthsArray[$dateArray[1] - 1];
-
-            return $newDate .= $mon . "-" . $dateArray[0];
         }
     }
 
@@ -832,7 +793,7 @@ class CommonService
         return $configDb->fetchHeaderText();
     }
 
-    public function getRandomArray($min, $max)
+    public static function getRandomArray($min, $max)
     {
         $valArray = array();
         foreach (range($min, $max) as $val) {

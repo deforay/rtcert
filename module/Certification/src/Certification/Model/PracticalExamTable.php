@@ -68,7 +68,6 @@ class PracticalExamTable extends AbstractTableGateway
 	public function savePracticalExam(PracticalExam $practicalExam)
 	{
 		$sessionLogin = new Container('credo');
-		$common = new CommonService($this->sm);
 		$date = $practicalExam->date;
 		$date_explode = explode("-", $date);
 		$newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
@@ -86,14 +85,14 @@ class PracticalExamTable extends AbstractTableGateway
 		//        print_r($data);
 		$practice_exam_id = (int)$practicalExam->practice_exam_id;
 		if ($practice_exam_id == 0) {
-			$data['added_on'] = $common->getDateTime();
+			$data['added_on'] = \Application\Service\CommonService::getDateTime();
 			$data['added_by'] = $sessionLogin->userId;
-			$data['updated_on'] = $common->getDateTime();
+			$data['updated_on'] = \Application\Service\CommonService::getDateTime();
 			$data['updated_by'] = $sessionLogin->userId;
 			$this->tableGateway->insert($data);
 		} else {
 			if ($this->getPracticalExam($practice_exam_id)) {
-				$data['updated_on'] = $common->getDateTime();
+				$data['updated_on'] = \Application\Service\CommonService::getDateTime();
 				$data['updated_by'] = $sessionLogin->userId;
 				$this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
 			} else {
@@ -171,7 +170,6 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function attemptNumber($provider)
 	{
-		$common = new CommonService($this->sm);
 		$db = $this->adapter;
 		$sql1 = 'select date_certificate_issued, date_end_validity, certification_id from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and approval_status="approved" and final_decision="certified" and provider=' . $provider . ' ORDER BY date_certificate_issued DESC LIMIT 1';
 		$statement1 = $db->query($sql1);
@@ -394,11 +392,10 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function fecthPracticalWrittenCountResults($params = nul)
 	{
-		$common = new CommonService($this->sm);
 		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
 		/* Current Week */
-		$week_array = $common->getCurrentWeekStartAndEndDate();
+		$week_array = \Application\Service\CommonService::getCurrentWeekStartAndEndDate();
 		$start_date = $week_array['weekStart'];
 		$end_date = $week_array['weekEnd'];
 		$dateSet = \Application\Service\CommonService::humanReadableDateFormat($start_date) . ' to ' . \Application\Service\CommonService::humanReadableDateFormat($end_date);

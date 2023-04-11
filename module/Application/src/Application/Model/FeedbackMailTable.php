@@ -27,13 +27,12 @@ class FeedbackMailTable extends AbstractTableGateway {
     }
     
     public function insertFeedbackMailDetails($name,$email,$subject,$message){
-        $common=new CommonService();
         $data = array(
             'feedback_name' => $name,
             'feedback_email' => $email,
             'feedback_subject' => $subject,
             'feedback_message' => $message,
-            'added_on' => $common->getDateTime()
+            'added_on' => \Application\Service\CommonService::getDateTime()
         );
         $this->insert($data);
         return $this->lastInsertValue;

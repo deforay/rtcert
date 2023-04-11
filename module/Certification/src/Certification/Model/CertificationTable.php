@@ -234,7 +234,6 @@ class CertificationTable extends AbstractTableGateway
     public function saveCertification(Certification $certification)
     {
         $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $dbAdapter = $this->adapter;
         $globalDb = new GlobalTable($dbAdapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
@@ -277,14 +276,14 @@ class CertificationTable extends AbstractTableGateway
         if ($id == 0) {
             $data['approval_status'] = 'pending';
             $data['date_end_validity'] = $date_end;
-            $data['added_on'] = $common->getDateTime();
+            $data['added_on'] = \Application\Service\CommonService::getDateTime();
             $data['added_by'] = $sessionLogin->userId;
-            $data['last_updated_on'] = $common->getDateTime();
+            $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
             $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getCertification($id)) {
-                $data['last_updated_on'] = $common->getDateTime();
+                $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
                 $data['last_updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('id' => $id));
             } else {
@@ -801,13 +800,12 @@ class CertificationTable extends AbstractTableGateway
     public function updateCertficateApproval($params)
     {
         $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $result = false;
         if (isset($params['approvalRow']) && count($params['approvalRow']) > 0) {
             $result = true;
             $db = $this->tableGateway->getAdapter();
             for ($i = 0; $i < count($params['approvalRow']); $i++) {
-                $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' AND last_updated_on ='" . $common->getDateTime() . "' AND last_updated_by = '" . $sessionLogin->userId . "' WHERE id = " . $params['approvalRow'][$i];
+                $sql = "UPDATE certification SET approval_status='" . $params['status'] . "' AND last_updated_on ='" . \Application\Service\CommonService::getDateTime() . "' AND last_updated_by = '" . $sessionLogin->userId . "' WHERE id = " . $params['approvalRow'][$i];
                 $db->getDriver()->getConnection()->execute($sql);
             }
         }
@@ -2171,7 +2169,6 @@ class CertificationTable extends AbstractTableGateway
 
     public function getProviderDetailsByCertifyId($id)
     {
-        $common = new CommonService($this->sm);
         $dbAdapter = $this->tableGateway->getAdapter();
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))->columns(array('certifyId' => 'id', 'date_certificate_issued', 'date_end_validity'))

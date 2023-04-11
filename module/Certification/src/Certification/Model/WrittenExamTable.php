@@ -74,7 +74,6 @@ class WrittenExamTable extends AbstractTableGateway
     {
 
         $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $date = $written_exam->date;
         $date_explode = explode("-", $date);
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
@@ -102,14 +101,14 @@ class WrittenExamTable extends AbstractTableGateway
 
         $id_written_exam = (int) $written_exam->id_written_exam;
         if ($id_written_exam == 0) {
-            $data['added_on'] = $common->getDateTime();
+            $data['added_on'] = \Application\Service\CommonService::getDateTime();
             $data['added_by'] = $sessionLogin->userId;
-            $data['updated_on'] = $common->getDateTime();
+            $data['updated_on'] = \Application\Service\CommonService::getDateTime();
             $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getWrittenExam($id_written_exam)) {
-                $data['updated_on'] = $common->getDateTime();
+                $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                 $data['updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
             } else {
@@ -120,8 +119,6 @@ class WrittenExamTable extends AbstractTableGateway
 
     public function saveWrittenExamByTest($written_exam)
     {
-        $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $dbAdapter = $this->adapter;
         $testConfigDb = new TestConfigTable($dbAdapter);
         $date = $written_exam->date;
@@ -151,14 +148,14 @@ class WrittenExamTable extends AbstractTableGateway
         );
         $id_written_exam = (int) $written_exam->id_written_exam;
         if ($id_written_exam == 0) {
-            $data['added_on'] = $common->getDateTime();
+            $data['added_on'] = \Application\Service\CommonService::getDateTime();
             $data['added_by'] = $written_exam->added_by;
-            // $data['updated_on'] = $common->getDateTime();
+            // $data['updated_on'] = \Application\Service\CommonService::getDateTime();
             // $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
         } else {
             if ($this->getWrittenExam($id_written_exam)) {
-                $data['updated_on'] = $common->getDateTime();
+                $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                 $data['updated_by'] = $written_exam->updated_by;
                 $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
             } else {
@@ -232,7 +229,6 @@ class WrittenExamTable extends AbstractTableGateway
      */
     public function attemptNumber($provider)
     {
-        $common = new CommonService($this->sm);
         $db = $this->adapter;
         $sql1 = 'select date_certificate_issued, date_end_validity, certification_id from certification, examination, provider WHERE certification.examination=examination.id and examination.provider=provider.id and approval_status="approved" and final_decision="certified" and provider=' . $provider . ' ORDER BY date_certificate_issued DESC LIMIT 1';
         $statement1 = $db->query($sql1);

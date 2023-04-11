@@ -74,9 +74,7 @@ class ProviderTable extends AbstractTableGateway
 
     public function saveProvider(\Certification\Model\Provider $provider)
     {
-        // Debug::dump($provider);die;
         $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $last_name = strtoupper($provider->last_name);
         $first_name = strtoupper($provider->first_name);
         $middle_name = strtoupper($provider->middle_name);
@@ -134,16 +132,16 @@ class ProviderTable extends AbstractTableGateway
 
         if ($id == 0 && !$certification_id) {
             $data['certification_reg_no'] = $certification_reg_no;
-            $data['added_on'] = $common->getDateTime();
+            $data['added_on'] = \Application\Service\CommonService::getDateTime();
             $data['added_by'] = $sessionLogin->userId;
-            $data['last_updated_on'] = $common->getDateTime();
+            $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
             $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
             $id = $this->tableGateway->lastInsertValue;
         } else {
             if ($this->getProvider($id)) {
                 $data['certification_id'] = $provider->certification_id;
-                $data['last_updated_on'] = $common->getDateTime();
+                $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
                 $data['last_updated_by'] = $sessionLogin->userId;
                 $this->tableGateway->update($data, array('id' => $id));
             } else {
@@ -156,7 +154,7 @@ class ProviderTable extends AbstractTableGateway
                 mkdir($pathname, 0777, true);
             }
             $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $provider->profile_picture['name'], PATHINFO_EXTENSION));
-            $imageName = $common->generateRandomString(4, 'alphanum') . "." . $extension;
+            $imageName = \Application\Service\CommonService::generateRandomString(4, 'alphanum') . "." . $extension;
 
             if (move_uploaded_file($provider->profile_picture['tmp_name'], $pathname . DIRECTORY_SEPARATOR . $imageName)) {
                 $this->tableGateway->update(array('profile_picture' => $imageName), "id=" . $id);
@@ -571,14 +569,13 @@ class ProviderTable extends AbstractTableGateway
         $globalDb = new GlobalTable($this->adapter);
         $countryName = $globalDb->getGlobalValue('country-name');
         $sessionLogin = new Container('credo');
-        $common = new CommonService($this->sm);
         $provider = $this->getProvider(base64_decode($params['providerId']));
         $update = 0;
-        $token = $common->generateRandomString(8);
+        $token = \Application\Service\CommonService::generateRandomString(8);
         if ($provider) {
             $data['link_token']     = $token;
             $data['link_send_count'] = (isset($provider->link_send_count) && $provider->link_send_count != '') ? ($provider->link_send_count + 1) : 1;
-            $data['link_send_on']   = $common->getDateTime();
+            $data['link_send_on']   = \Application\Service\CommonService::getDateTime();
             $data['link_send_by']   = $sessionLogin->userId;
             $update = $this->tableGateway->update($data, array('id' => base64_decode($params['providerId'])));
             if ($update > 0) {
@@ -666,11 +663,11 @@ class ProviderTable extends AbstractTableGateway
             $bcc        = "";
 
             foreach ($providerResult as $provider) {
-                $token = $common->generateRandomString(8);
+                $token = \Application\Service\CommonService::generateRandomString(8);
                 $data['link_token']     = $token;
                 $data['test_link_send'] = 'yes';
                 $data['link_send_count'] = (isset($provider['link_send_count']) && $provider['link_send_count'] != '') ? ($provider['link_send_count'] + 1) : 1;;
-                $data['link_send_on']   = $common->getDateTime();
+                $data['link_send_on']   = \Application\Service\CommonService::getDateTime();
                 $data['link_send_by']   = 0;
                 $this->tableGateway->update($data, array('id' => $provider['providerId']));
                 /* Insert content to temp mail */
@@ -762,7 +759,6 @@ class ProviderTable extends AbstractTableGateway
                     $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
                     // Debug::dump($sheetData);die;
                     $count = count($sheetData);
-                    $common = new CommonService();
                     $j = 0;
                     for ($i = 2; $i <= $count; ++$i) {
                         $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
@@ -839,9 +835,9 @@ class ProviderTable extends AbstractTableGateway
                                 'facility_in_charge_phone'  => $sheetData[$i]['S'],
                                 'facility_in_charge_email'  => $sheetData[$i]['T'],
                                 'certification_reg_no'      => $certification_reg_no,
-                                'added_on'                  => $common->getDateTime(),
+                                'added_on'                  => \Application\Service\CommonService::getDateTime(),
                                 'added_by'                  => $loginContainer->userId,
-                                'last_updated_on'           => $common->getDateTime(),
+                                'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
                                 'last_updated_by'           => $loginContainer->userId,
                             );
                             $response['data']['imported'][$j] = $data;
@@ -896,7 +892,6 @@ class ProviderTable extends AbstractTableGateway
         $loginContainer    = new Container('credo');
         $dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql               = new Sql($dbAdapter);
-        $common = new CommonService();
 
         $rowset = $this->tableGateway->select(array('email' => $params['email'], 'professional_reg_no' => $params['regNo']))->current();
         $facility = $this->getFacilityByName($params['facility']);
@@ -949,9 +944,9 @@ class ProviderTable extends AbstractTableGateway
                 'facility_in_charge_phone'  => $params['facilityPhone'],
                 'facility_in_charge_email'  => $params['facilityEmail'],
                 'certification_reg_no'      => $certification_reg_no,
-                'added_on'                  => $common->getDateTime(),
+                'added_on'                  => \Application\Service\CommonService::getDateTime(),
                 'added_by'                  => $loginContainer->userId,
-                'last_updated_on'           => $common->getDateTime(),
+                'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
                 'last_updated_by'           => $loginContainer->userId,
             );
             $this->tableGateway->insert($data);

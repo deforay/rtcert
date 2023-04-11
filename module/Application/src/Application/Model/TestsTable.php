@@ -35,7 +35,6 @@ class TestsTable extends AbstractTableGateway {
         * you want to insert a non-database field (for example a counter or static image)
         */
         $querycontainer = new Container('query');
-        $common = new CommonService();
         $aColumns = array('first_name', "DATE_FORMAT(pretest_start_datetime,'%d-%b-%Y %H:%i:%s')","DATE_FORMAT(pretest_end_datetime,'%d-%b-%Y %H:%i:%s')",'pre_test_score','pre_test_status');
         $orderColumns = array('first_name', 'pretest_start_datetime', 'pretest_end_datetime','pre_test_score','pre_test_status');
         /*
