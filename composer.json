@@ -9,10 +9,7 @@
     "require": {
         "php": "^7.3 || ~8.0.0",
         "laminas/laminas-dependency-plugin": "^2.1",
-        "league/oauth2-google": "^2.0",
-        "phpmailer/phpmailer": "^5.2",
         "phpoffice/phpexcel": "^1.8",
-        "tecnickcom/tcpdf": "^6.2",
         "laminas/laminas-mvc": "^3.3",
         "laminas/laminas-db": "^2.12.0",
         "laminas/laminas-mvc-form": "^1.1.0",
@@ -30,7 +27,10 @@
         "laminas/laminas-eventmanager": "^3.5",
         "laminas/laminas-mail": "^2.16",
         "laminas/laminas-cache": "^3.6",
-        "laminas/laminas-cache-storage-adapter-filesystem": "^2.2"
+        "laminas/laminas-cache-storage-adapter-filesystem": "^2.2",
+        "phpmailer/phpmailer": "^6.8",
+        "league/oauth2-google": "^4.0",
+        "tecnickcom/tcpdf": "^6.6"
     },
     "config": {
         "allow-plugins": {

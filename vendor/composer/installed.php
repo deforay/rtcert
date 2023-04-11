@@ -491,9 +491,9 @@
             'dev_requirement' => false,
         ),
         'league/oauth2-google' => array(
-            'pretty_version' => '2.2.0',
-            'version' => '2.2.0.0',
-            'reference' => 'c0faed29ec6d665ce3234e01f62029516cee4c02',
+            'pretty_version' => '4.0.1',
+            'version' => '4.0.1.0',
+            'reference' => '1b01ba18ba31b29e88771e3e0979e5c91d4afe76',
             'type' => 'library',
             'install_path' => __DIR__ . '/../league/oauth2-google',
             'aliases' => array(),
@@ -518,9 +518,9 @@
             'dev_requirement' => false,
         ),
         'phpmailer/phpmailer' => array(
-            'pretty_version' => 'v5.2.28',
-            'version' => '5.2.28.0',
-            'reference' => 'acba50393dd03da69a50226c139722af8b153b11',
+            'pretty_version' => 'v6.8.0',
+            'version' => '6.8.0.0',
+            'reference' => 'df16b615e371d81fb79e506277faea67a1be18f1',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpmailer/phpmailer',
             'aliases' => array(),
@@ -664,8 +664,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0',
-                1 => '1.0.0',
+                0 => '1.0.0',
+                1 => '1.0|2.0',
             ),
         ),
         'psr/simple-cache' => array(
