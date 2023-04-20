@@ -261,8 +261,8 @@ class ComposerStaticInitb10e5a0b197a1158dfec9135e14a0356
         ),
         'League\\OAuth2\\Client\\' => 
         array (
-            0 => __DIR__ . '/..' . '/league/oauth2-client/src',
-            1 => __DIR__ . '/..' . '/league/oauth2-google/src',
+            0 => __DIR__ . '/..' . '/league/oauth2-google/src',
+            1 => __DIR__ . '/..' . '/league/oauth2-client/src',
         ),
         'Laminas\\ZendFrameworkBridge\\' => 
         array (

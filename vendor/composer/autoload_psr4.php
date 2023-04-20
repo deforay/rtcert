@@ -33,7 +33,7 @@ return array(
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
-    'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-client/src', $vendorDir . '/league/oauth2-google/src'),
+    'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-google/src', $vendorDir . '/league/oauth2-client/src'),
     'Laminas\\ZendFrameworkBridge\\' => array($vendorDir . '/laminas/laminas-zendframework-bridge/src'),
     'Laminas\\View\\' => array($vendorDir . '/laminas/laminas-view/src'),
     'Laminas\\Validator\\' => array($vendorDir . '/laminas/laminas-validator/src'),
