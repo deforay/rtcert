@@ -97,6 +97,7 @@
     duplicateName = true;
     var rowCount = 1;
     var optionsList = [];
+    var deleteQuestionId = [];
     function validateNow() {
 		flag = deforayValidator.init({
             formId: 'addFacilityInfo'
@@ -136,7 +137,6 @@
             if (rl == 1) {
                 insRow();
             }
-            updateCorrectOption();
         });
         
     }
@@ -167,7 +167,6 @@
         j = 0;
         if(obj.value == ''){
             $('#optionSelect'+row_id).prop('checked', false);
-            updateCorrectOption();
         }
         for (i = 0; i < optionName.length; i++) {
             if (cur_value == optionName[i].value) {
@@ -182,8 +181,6 @@
                 obj.value = "";
                 obj.focus();
             }
-        }else{
-            updateCorrectOption();
         }
     }
 
