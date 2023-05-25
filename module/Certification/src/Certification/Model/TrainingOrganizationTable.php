@@ -23,7 +23,7 @@ class TrainingOrganizationTable extends AbstractTableGateway
         $this->sm = $sm;
 
         $resultSetPrototype = new ResultSet();
-        //$resultSetPrototype->setArrayObjectPrototype(new Region());
+        $resultSetPrototype->setArrayObjectPrototype(new TrainingOrganization());
         $this->tableGateway =  new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 

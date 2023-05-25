@@ -33,17 +33,17 @@ class TrainingOrganizationController extends AbstractActionController
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
-        $this->trainingOrganizationTable->get('submit')->setValue('SUBMIT');
+        $this->trainingOrganizationForm->get('submit')->setValue('SUBMIT');
 
         /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
             $training_organization = new TrainingOrganization();
-            $this->trainingOrganizationTable->setInputFilter($training_organization->getInputFilter());
-            $this->trainingOrganizationTable->setData($request->getPost());
+            $this->trainingOrganizationForm->setInputFilter($training_organization->getInputFilter());
+            $this->trainingOrganizationForm->setData($request->getPost());
 
-            if ($this->trainingOrganizationTable->isValid()) {
-                $training_organization->exchangeArray($this->trainingOrganizationTable->getData());
+            if ($this->trainingOrganizationForm->isValid()) {
+                $training_organization->exchangeArray($this->trainingOrganizationForm->getData());
                 $this->trainingOrganizationTable->saveTraining_Organization($training_organization);
                 $container = new Container('alert');
                 $container->alertMsg = 'Training Organization added successfully';
@@ -51,7 +51,7 @@ class TrainingOrganizationController extends AbstractActionController
                 return $this->redirect()->toRoute('training-organization');
             }
         }
-        return array('form' => $this->trainingOrganizationTable);
+        return array('form' => $this->trainingOrganizationForm);
     }
 
     public function editAction()
@@ -70,16 +70,16 @@ class TrainingOrganizationController extends AbstractActionController
         }
 
 
-        $this->trainingOrganizationTable->bind($training_organization);
-        $this->trainingOrganizationTable->get('submit')->setAttribute('value', 'UPDATE');
+        $this->trainingOrganizationForm->bind($training_organization);
+        $this->trainingOrganizationForm->get('submit')->setAttribute('value', 'UPDATE');
 
         /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $this->trainingOrganizationTable->setInputFilter($training_organization->getInputFilter());
-            $this->trainingOrganizationTable->setData($request->getPost());
+            $this->trainingOrganizationForm->setInputFilter($training_organization->getInputFilter());
+            $this->trainingOrganizationForm->setData($request->getPost());
 
-            if ($this->trainingOrganizationTable->isValid()) {
+            if ($this->trainingOrganizationForm->isValid()) {
                 $this->trainingOrganizationTable->saveTraining_Organization($training_organization);
                 $container = new Container('alert');
                 $container->alertMsg = 'Training Organization updated successfully';
@@ -89,7 +89,7 @@ class TrainingOrganizationController extends AbstractActionController
 
         return array(
             'training_organization_id' => $training_organization_id,
-            'form' => $this->trainingOrganizationTable,
+            'form' => $this->trainingOrganizationForm,
         );
     }
 
