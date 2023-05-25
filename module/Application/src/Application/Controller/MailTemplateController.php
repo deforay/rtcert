@@ -48,7 +48,7 @@ class MailTemplateController extends AbstractActionController
             return $this->redirect()->toRoute('mail-template');
         } else {
             $id = base64_decode($this->params()->fromRoute('id'));
-            return new ViewModel(array('result' => $mailServices->getMailTemplate($id)));
+            return new ViewModel(array('result' => $this->mailService->getMailTemplate($id)));
         }
     }
 }
