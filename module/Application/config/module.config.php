@@ -190,7 +190,6 @@ return array(
         'factories' => array(
             'translator' => 'Laminas\Mvc\Service\TranslatorServiceFactory',
             \Application\Command\SendTempMail::class => \Application\Command\SendTempMailFactory::class,
-            \Application\Command\SendAuditMail::class => \Application\Command\SendAuditMailFactory::class,
             \Application\Command\SendTestAlertMail::class => \Application\Command\SendTestAlertMailFactory::class,
         ),
     ),
@@ -233,7 +232,6 @@ return array(
     'laminas-cli' => [
         'commands' => [
             'send-mail' => \Application\Command\SendTempMail::class,
-            'send-audit-mail' => \Application\Command\SendAuditMail::class,
             'send-test-alert-mail' => \Application\Command\SendTestAlertMail::class,
         ],
     ],
