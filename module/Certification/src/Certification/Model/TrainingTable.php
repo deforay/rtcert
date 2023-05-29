@@ -28,7 +28,7 @@ class TrainingTable extends AbstractTableGateway
         $this->sm = $sm;
 
         $resultSetPrototype = new ResultSet();
-        $resultSetPrototype->setArrayObjectPrototype(new Provider());
+        $resultSetPrototype->setArrayObjectPrototype(new Training());
         $this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
