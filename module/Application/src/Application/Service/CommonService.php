@@ -220,9 +220,16 @@ class CommonService
                     $body = new MimeMessage();
                     $body->setParts(array($html));
 
+                    if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email") && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email")) {
+                        mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email");
+                    }
+
                     $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id;
+                    if (!file_exists($dirPath) && !is_dir($dirPath)) {
+                        mkdir($dirPath);
+                    }
                     if (is_dir($dirPath)) {
-                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id);
+                        $dh  = opendir($dirPath);
                         while (($filename = readdir($dh)) !== false) {
                             if ($filename != "." && $filename != "..") {
                                 $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
@@ -281,7 +288,7 @@ class CommonService
                 foreach ($mailResult as $result) {
                     $alertMail = new Mail\Message();
                     $id = $result['mail_id'];
-                    $auditMailDb->updateInitialAuditMailStatus($id);
+                    //$auditMailDb->updateInitialAuditMailStatus($id);
 
                     $fromEmail = $result['from_mail'];
                     $fromFullName = $result['from_full_name'];
@@ -307,9 +314,17 @@ class CommonService
                     $body = new MimeMessage();
                     $body->setParts(array($html));
 
+                    if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email") && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email")) {
+                        mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email");
+                    }
+
+                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email" . DIRECTORY_SEPARATOR . $id;
+                    if (!file_exists($dirPath) && !is_dir($dirPath)) {
+                        mkdir($dirPath);
+                    }
                     $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email" . DIRECTORY_SEPARATOR . $id;
                     if (is_dir($dirPath)) {
-                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "audit-email" . DIRECTORY_SEPARATOR . $id);
+                        $dh  = opendir($dirPath);
                         while (($filename = readdir($dh)) !== false) {
                             if ($filename != "." && $filename != "..") {
                                 $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
@@ -322,7 +337,7 @@ class CommonService
                             }
                         }
                         closedir($dh);
-                        $this->removeDirectory($dirPath);
+                        //$this->removeDirectory($dirPath);
                     }
 
                     $alertMail->setBody($body);
