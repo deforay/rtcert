@@ -64,7 +64,7 @@ $certificate_title = '';
 
 // $tester='<div style="color:#4B77BE; font-size:70%; text-align:center;">&nbsp;&nbsp;'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'&nbsp;&nbsp;</div>';
 $text_content='
-<div style="font-size:75%;text-align:left;">
+<div style="font-size:75%;text-align:left; line-height: 1.5;">
     <b>
     <br>
     Hereby Certifies That</b>
@@ -72,7 +72,7 @@ $text_content='
             <br>
             <u>'.strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last).'</u>
             <br><b>
-            Having Successfully Fulfilled the Requirements of the Health Laboratory Practitioners" 
+            Having Successfully Fulfilled the Requirements of the Health Laboratory Practitioners"
             <br> 
             Council 
             <br> 
@@ -97,18 +97,17 @@ $text_content='
                     <br>
                         Professional Registration Number : <u><span style=" color:#4B77BE;">'.$professional_reg_no.'</span></u>
                     <br>
-                    License No : 
+                    License No.: 
                     <u>
                         <span style=" color:#4B77BE; ">'.$certification_id.'</span>
                     </u>
             </span>
         </b>
     </i>
-    <br><br><br>
-    .......................
     <br>
+    .......................
     <span style=" font-size:15px; ">'.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].'</span>
-    <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code><span style=" font-size:17px; ">'.ucwords($signatureText).'</span></code></li>
+    <li>&nbsp;&nbsp;&nbsp;&nbsp;<code><b><span style=" font-size:15px; ">'.ucwords($signatureText).'</span></b></code></li>
     </div>';
     
 // set different text position

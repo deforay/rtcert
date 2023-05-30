@@ -782,7 +782,7 @@ class CertificationTable extends AbstractTableGateway
             if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) {
                 $row[] = '<input class="approvalRow" type="checkbox" id="' . $aRow['id'] . '" onchange="selectForApproval(this);" value="' . $aRow['id'] . '"/>';
             }
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -949,7 +949,7 @@ class CertificationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -1114,7 +1114,7 @@ class CertificationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -1278,7 +1278,7 @@ class CertificationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
