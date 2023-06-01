@@ -43,6 +43,10 @@ class MailService {
             error_log($exc->getTraceAsString());
         }
     }
+    public function getMailTemplateByMailPurpose($mailPurpose){
+        $db = $this->sm->get('MailTemplateTable');
+        return $db->fetchMailTemplateByPurpose($mailPurpose);
+    }
 }
 
 ?>

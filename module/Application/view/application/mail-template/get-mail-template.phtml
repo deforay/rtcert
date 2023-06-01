@@ -1,0 +1,8 @@
+<?php
+if(isset($result)){
+
+    $res=array('title'=>$result['mail_title'],'subject'=>$result['mail_subject'],'message'=>$result['mail_content']);
+
+    echo json_encode($res);
+}
+?>

@@ -51,4 +51,17 @@ class MailTemplateController extends AbstractActionController
             return new ViewModel(array('result' => $this->mailService->getMailTemplate($id)));
         }
     }
+    public function getMailTemplateAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $param = $request->getPost();
+            $mailPurpose =  $param['mail_purpose'];
+            $result = $this->mailService->getMailTemplateByMailPurpose($mailPurpose);
+            $viewModel = new ViewModel();
+            $viewModel->setVariables(array('result' => $result));
+            $viewModel->setTerminal(true);
+            return $viewModel;
+        }
+    }
 }
