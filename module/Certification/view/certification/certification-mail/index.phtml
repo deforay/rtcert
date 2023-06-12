@@ -155,8 +155,22 @@ if (isset($provider_name) && trim($provider_name) != '') {
                                                 <?= $this->formElementErrors($form->get('type')); ?>
                                             </div>
                                         </div>
-                                        <div id="Recipient" class="row"></div>
-                                        <div id="Recipient_name" class="row"></div>
+                                        <div id="Recipient" class="row" style="display:none;">
+                                            <div class='form-group col-lg-6'><label>Reminder Sent To</label><span class='mandatory'>*</span>
+                                                <select name='type_recipient'id='type_recipient' class='form-control' onclick='emptyInput(type_recipient)' onchange = 'getMailTemplate()'>
+                                                    <option value=''>please select an recipient</option>
+                                                    <option value='District focal person'>District focal person</option>
+                                                    <option value='HTS focal person'>HTS focal person</option>
+                                                    <option value='Implementing partner'>Implementing partner</option>
+                                                    <option value='Facility in charge'>Facility in charge</option>
+                                                    <option value='Provider'>Provider</option>
+                                                    <option value='QA/QI focal person'>QA/QI focal person</option>
+                                                <select>
+                                            </div>
+                                        </div>
+                                        <div id="Recipient_name" class="row" style="display:none;">
+                                            <div class='form-group col-lg-6'><label>Name Of Recipient</label><input name='name_recipient' id='name_recipient' class='form-control' type='text'/></div>
+                                        </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('provider')); ?><span class="mandatory">*</span>
@@ -365,23 +379,45 @@ if (isset($provider_name) && trim($provider_name) != '') {
         getMailTemplate();
     }
     function getMailTemplate(){
-        debugger;
         var choice = document.getElementById("Choice").value;
+        var type_recipient = document.getElementById("type_recipient").value;
+        var mail_purpose;
+        var replacedMessage = '';
         if (choice == 1) {
-            $.post("<?php echo $this->url('mail-template', array('action' => 'get-mail-template')); ?>", { mail_purpose: "send-certificate" },
+            mail_purpose = "send-certificate";
+            $("#Recipient").hide();
+            $("#Recipient_name").hide();
+        }else if(choice == 2){
+            mail_purpose = "send-reminder";
+            $("#Recipient").show();
+            $("#Recipient_name").show();
+        }
+        if (choice == 1 || choice == 2) {
+            $.post("<?php echo $this->url('mail-template', array('action' => 'get-mail-template')); ?>", { mail_purpose: mail_purpose },
             function(data) {
                 data=JSON.parse(data);
                 if (data === "" || data === null || data === undefined) {
-                    alert('Not available this mail template');
+                    alert('Not available' + mail_purpose + 'mail template');
                     return false;
                 } else {
-                    var replacedMessage = data.message.replace("##USER##", provider);
+                    if (choice == 1) {
+                        replacedMessage = data.message.replace("##USER##", provider);
+                    }else if(choice == 2){
+                        if(type_recipient == '') {
+                            replacedMessage = '';
+                        }else if(type_recipient == 'Provider') {
+                            replacedMessage = data.message.replace("##CERTIFICATE_EXPIRY_DATE##", due_date);
+                        }else if (type_recipient != 'Provider') {
+                            replacedMessage = ' This is a reminder that the HIV tester certificate of ' + provider + ' will expire on ' + due_date + '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
+                        }
+                    }
                     document.getElementById("Subject").innerHTML = data.subject;
                     document.getElementById("Message").innerHTML = replacedMessage;
                 }
             });
-        }else if(choice == 2) {
-            // Need to work
+        }else{
+            document.getElementById("Subject").innerHTML = "";
+            document.getElementById("Message").innerHTML = "";
         }
     }
     function validateForm() {

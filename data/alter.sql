@@ -930,3 +930,21 @@ CREATE TABLE `feedback_mail` (
 );
 -- Thana 3-Aug-2020
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Show Tester Photo In Certificate', 'show-tester-photo-in-certificate', 'no');
+
+-- Brindha 09-June-2023
+INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (9, 'Send Certificate', 'send-certificate', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate of Competency', '<div>Congratulations ##USER##! You have successfully fulfilled the 
+requirements of the national HIV tester certification program and are 
+deemed competent to perform HIV  Rapid Testing.  This certificate of 
+competency is delivered to you for a two year period from the date of 
+issuance.
+
+Important Note!!! 
+
+This certificate is only issued for HIV Rapid Testing and does not allow
+ to perform any other test.
+
+Note for printing the certificate!!!
+To print this certificate ensure that the paper size selected by the 
+printer is A4 and that the orientation is landscape</div>', NULL, 'active');
+
+INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (10, 'Send Reminder', 'send-reminder', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate Reminder', '<div>This is a reminder that your HIV tester certificate will expire on ##CERTIFICATE_EXPIRY_DATE## . Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of your certificate.</div>', NULL, 'active');

@@ -724,4 +724,20 @@ class CertificationController extends AbstractActionController
             return $this->getResponse()->setContent(Json::encode($result));
         }
     }
+    public function sendMultipleCertificationMailAction()
+    {
+        $request = $this->getRequest();
+        $container = new Container('alert');
+        if ($request->isPost()) {
+            $parameters = $request->getPost();
+            $tempId = $this->commonService->sendMultipleCertificationMail($parameters);
+            if($tempId  > 0){
+                $container->alertMsg = 'Mail sent successfully. Please check your mail after 20 minutes.';
+                return $this->redirect()->toRoute('certification');
+            }else{
+                $container->alertMsg = 'Mail not sent';
+                return $this->redirect()->toRoute('certification');
+            }  
+        }
+    }
 }

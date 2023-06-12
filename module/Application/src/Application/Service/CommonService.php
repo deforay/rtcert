@@ -14,6 +14,7 @@ use Laminas\Mime\Part as MimePart;
 use Laminas\Mime\Mime;
 use Laminas\Mail\Transport\Sendmail;
 use Laminas\Db\Sql\Expression;
+use TCPDF as MYPDF;
 
 class CommonService
 {
@@ -198,7 +199,6 @@ class CommonService
 
                     $fromEmail = $result['from_mail'];
                     $fromFullName = $result['from_full_name'];
-                    $subject = $result['subject'];
 
                     $alertMail->addFrom($fromEmail, $fromFullName);
                     $alertMail->addReplyTo($fromEmail, $fromFullName);
@@ -211,44 +211,238 @@ class CommonService
                     if (isset($result['bcc']) && trim($result['bcc']) != "") {
                         $alertMail->addBcc($result['bcc']);
                     }
+                    $subjectArray = explode("$$", $result['subject']);
+                    $subject_content = $subjectArray[0];
+                    $mail_purpose = $subjectArray[1];
+                    $alertMail->setSubject($subject_content);
+                    if($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder'){
+                        if($result['message'] != ''){
+                            $messageArray = explode("$$", $result['message']);
+                            $message_content = $messageArray[0];
+                            $unique_ids = $messageArray[1];
+                            $type_recipient = $messageArray[2];
+                            $name_recipient = $messageArray[3];
+                            $certificateDb = $this->sm->get('Certification\Model\CertificationTable');
+                            $results = $certificateDb->getToBeSentCertificateById($unique_ids);
+                            $certificateMailDb = $this->sm->get('Certification\Model\CertificationMailTable');
+                            $header_text = $certificateMailDb->SelectTexteHeader();
+                            $message = '';
+                            foreach($results as $data){
+                                $tester_name = strtoupper($data['first_name']).' '. strtoupper($data['middle_name']).' '. strtoupper($data['last_name']);
+                            
+                                if ($mail_purpose == 'send-certificate'){
+                                    $message = str_replace("##USER##", $tester_name, $message_content);
+                                }
+                                if ($mail_purpose == 'send-reminder'){
+                                    if($type_recipient  == '') {
+                                        $message = '';
+                                    }else if($type_recipient  == 'Provider') {
+                                        $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $data['date_end_validity'], $message_content);
+                                    }else if ($type_recipient  != 'Provider') {
+                                        $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $data['date_end_validity'] . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
+                                    }
+                                }
+                                $filename = '';
+                                if($mail_purpose == 'send-certificate'){
+                                    // create new PDF document
+                                    $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-                    $alertMail->setSubject($subject);
+                                    // set document information
+                                    $pdf->SetCreator(PDF_CREATOR);
+                                    $pdf->SetAuthor('RT CERTIFICATION');
+                                    $pdf->SetTitle('Personnel Certificate by RTCQI');
+                                    $pdf->SetSubject('Certificate');
+                                    $pdf->SetKeywords('RTCQI, HIV, Certificate, HIV Testing, RT CERTIFICATE');
 
-                    $html = new MimePart($result['message']);
-                    $html->type = "text/html";
+                                    // set margins
+                                    $pdf->SetMargins(5, 5, 5);
+                                    $pdf->SetHeaderMargin(0);
+                                    $pdf->SetFooterMargin(0);
 
-                    $body = new MimeMessage();
-                    $body->setParts(array($html));
+                                    // remove default footer
+                                    $pdf->setPrintFooter(false);
 
-                    if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email") && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email")) {
-                        mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email");
-                    }
+                                    // set image scale factor
+                                    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
-                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id;
-                    if (!file_exists($dirPath) && !is_dir($dirPath)) {
-                        mkdir($dirPath);
-                    }
-                    if (is_dir($dirPath)) {
-                        $dh  = opendir($dirPath);
-                        while (($filename = readdir($dh)) !== false) {
-                            if ($filename != "." && $filename != "..") {
-                                $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
-                                $attachment = new MimePart($fileContent);
-                                $attachment->filename    = $filename;
-                                $attachment->type        = Mime::TYPE_OCTETSTREAM;
-                                $attachment->encoding    = Mime::ENCODING_BASE64;
-                                $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
-                                $body->addPart($attachment);
+                                    // set some language-dependent strings (optional)
+                                    if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
+                                        require_once(dirname(__FILE__) . '/lang/eng.php');
+                                        $pdf->setLanguageArray($l);
+                                    }
+
+                                    // ---------------------------------------------------------
+                                    // set font
+                                    $pdf->SetFont('times', '', 20);
+                                    $pdf->setFontSubsetting(false);
+                                    // remove default header
+                                    $pdf->setPrintHeader(false);
+                                    $pdf->SetMargins(10, 20, 10, true);
+                                    // add a page
+                                    $pdf->AddPage('L', 'A4');
+
+                                    // -- set new background ---
+                                    $pdf->SetAutoPageBreak(false, 0);
+                                    // set bacground image
+                                    $img_file = dirname(__CLASS__) . '/public/assets/img/microsoft-word-certificate-borders.png';
+                                    $pdf->Image($img_file, 0, 0, 295, 209, '', '', '', false, 300, '', false, false, 0);
+                                    // set the starting point for the page content
+                                    $pdf->setPageMark();
+
+                                    $header_text = '<div style="text-align:center;"><span>' . $header_text . '</span></div>';
+
+                                    $certificate_title = '<div style="width=10px; height=10px; text-align:center;"><span style="font-size:200%; line-height: 0.0">Certificate of Competency</span><br>
+                                    <span style="line-height: 0.0">is issued to</span></div>';
+
+                                    $tester='<div style="color:#4B77BE; font-size:170%; text-align:center;">&nbsp;&nbsp;'.$tester_name.'&nbsp;&nbsp;</div>';
+                                    
+                                    $text_content='<div style="font-size:85%;text-align:center;">For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council<br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
+                                    <br><span style="font-size:65%; font-style: normal;"> Note : This certificate is <span style="Font-Weight: Bold">only </span>issued for HIV Rapid Testing and does not allow to perform any other test.</span>   
+
+                                    <br><br>
+                                    Professional Registration Number : <span style=" color:#4B77BE;">'.$data['professional_reg_no'].'</span>
+                                    <br>
+                                    Certification Number : <span style=" color:#4B77BE; ">'.$data['certification_id'].'</span>
+                                    <br>
+                                    <span style="font-size:90%; font-style: normal;">Validity : <span> '.date("d-M-Y", strtotime($data['date_certificate_issued'])).' to '.date("d-M-Y", strtotime($data['date_end_validity'])) .'</span>
+                                    <br><br><br><br><br>
+                                    <table style="width:900px;">
+                                    <tr>
+                                    <td style="text-align:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registrar Name and Title </td>
+                                    <td style="text-align:right;">Signature of Registrar</td>
+                                    </tr>
+                                    </table>
+
+                                    </div>';
+
+                                    // set different text position
+                                    $pdf->writeHTMLCell(0, 0, 10, 30, $header_text, 0, 0, 0, true, 'J', true);
+                                    $pdf->writeHTMLCell(0, 0, 05, 45, $certificate_title, 0, 0, 0, true, 'J', true);
+                                    $pdf->writeHTMLCell(0, 0, 05, 68, $tester, 0, 0, 0, true, 'J', true);
+                                    $pdf->writeHTMLCell(0, 0, 10, 88, $text_content, 0, 0, 0, true, 'J', true);
+
+                                    $img_file = $img_file2 = "";
+                                    if(file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert1.png')){
+                                        $img_file = dirname(__CLASS__) . '/public/assets/img/logo_cert1.png';
+                                    }
+
+                                    if(file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert2.png')){
+                                        $img_file2 = dirname(__CLASS__) . '/public/assets/img/logo_cert2.png';
+                                    }
+
+                                    $pdf->Image($img_file, 20, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
+
+                                    $pdf->Image($img_file2, 225, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
+
+                                    ///---------------------------------------------------------
+                                    $alertContainer = new Container('alert');
+                                    $alertContainer->rVal = \Application\Service\CommonService::generateRandomString(6);
+                                    if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal) && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal)) {
+                                        mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal);
+                                    }
+                                    $pathFront = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal;
+                                    $filename = ucfirst($data['first_name']).''. ucfirst($data['middle_name']).''. ucfirst($data['last_name']).'_HIVRT_Certification_' . date('Y') . '.pdf';
+                                    $pdf->Output($pathFront. DIRECTORY_SEPARATOR . $filename,"F");
+                                    $filename = $alertContainer->rVal.'##'.$filename;
+                                    $alertContainer->rVal = '';
+                                }
+                                //$original_message = substr($message, 0, strpos($message, "$$"));
+                                $html = new MimePart($message);
+                                $html->type = "text/html";
+
+                                $body = new MimeMessage();
+                                $body->setParts(array($html));
+                                if ($filename != '') {
+                                    $fileArray = explode('##', $filename);
+                                    $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
+                                    if (is_dir($dirPath)) {
+                                        $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
+                                        while (($filename = readdir($dh)) !== false) {
+                                            if ($filename != "." && $filename != "..") {
+                                                $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $fileArray[1], 'r');
+                                                $attachment = new MimePart($fileContent);
+                                                $attachment->filename    = $filename;
+                                                $attachment->type        = Mime::TYPE_OCTETSTREAM;
+                                                $attachment->encoding    = Mime::ENCODING_BASE64;
+                                                $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
+                                                $body->addPart($attachment);
+                                            }
+                                        }
+                                        closedir($dh);
+                                        $this->removeDirectory($dirPath);
+                                    }
+                                }
+
+                                $alertMail->setBody($body);
+                                $hasSent = $transport->send($alertMail);
+
+                                if ($hasSent || $hasSent==NULL) {
+                                    $cert_id = $data['id'];
+                                    $provider_id = $data['provider'];
+                                    $due_date = $data['date_end_validity'];
+
+                                    if ($mail_purpose == 'send-certificate' && !empty($cert_id)) {
+                                        $certificateMailDb->dateCertificateSent($cert_id);
+                                    } elseif ($mail_purpose == 'send-reminder') {
+                                        $reminder_type = 'Email';
+                                        $reminder_sent_to = $type_recipient;
+                                        $name_reminder = $name_recipient;
+                                        $date_reminder_sent = date('Y-m-d');
+                                        if (!empty($cert_id)) {
+                                            $certificateMailDb->insertRecertification($due_date, $provider_id, $reminder_type, $reminder_sent_to, $name_reminder, $date_reminder_sent);
+                                            $certificateMailDb->reminderSent($cert_id);
+                                        }
+                                    }
+                                    $save_mail = new \Certification\Model\CertificationMail();
+                                    $save_mail->to_email = $result['to_email'];
+                                    $save_mail->type = $mail_purpose;
+                                    $save_mail->cc = '';
+                                    $save_mail->bcc = '';
+                                    $save_mail->mail_id = 0;
+                                    $certificateMailDb->saveCertificationMail($save_mail);
+                                    $tempMailDb->deleteTempMail($id);
+                                }
+                                
                             }
                         }
-                        closedir($dh);
-                        $this->removeDirectory($dirPath);
+                    }else{
+                        $html = new MimePart($result['message']);
+                        $html->type = "text/html";
+
+                        $body = new MimeMessage();
+                        $body->setParts(array($html));
+
+                        if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email") && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email")) {
+                            mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email");
+                        }
+
+                        $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . "email" . DIRECTORY_SEPARATOR . $id;
+                        if (!file_exists($dirPath) && !is_dir($dirPath)) {
+                            mkdir($dirPath);
+                        }
+                        if (is_dir($dirPath)) {
+                            $dh  = opendir($dirPath);
+                            while (($filename = readdir($dh)) !== false) {
+                                if ($filename != "." && $filename != "..") {
+                                    $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'r');
+                                    $attachment = new MimePart($fileContent);
+                                    $attachment->filename    = $filename;
+                                    $attachment->type        = Mime::TYPE_OCTETSTREAM;
+                                    $attachment->encoding    = Mime::ENCODING_BASE64;
+                                    $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
+                                    $body->addPart($attachment);
+                                }
+                            }
+                            closedir($dh);
+                            $this->removeDirectory($dirPath);
+                        }
+
+                        $alertMail->setBody($body);
+
+                        $transport->send($alertMail);
+                        $tempMailDb->deleteTempMail($id);
                     }
-
-                    $alertMail->setBody($body);
-
-                    $transport->send($alertMail);
-                    $tempMailDb->deleteTempMail($id);
+                    
                 }
             }
         } catch (Exception $e) {
@@ -591,7 +785,7 @@ class CommonService
             $alertMail = new Mail\Message();
 
             $fromEmail = 'rtqiicertification@gmail.com';
-            $fromFullName = 'RTQII PERSONNEL CERTIFICATION PROGRAM';
+            $fromFullName = 'RTCQI PERSONNEL CERTIFICATION PROGRAM';
             $subject = $params['subject'];
             $alertMail->addFrom($fromEmail, $fromFullName);
             $alertMail->addReplyTo($fromEmail, $fromFullName);
@@ -639,8 +833,8 @@ class CommonService
             }
 
             $alertMail->setBody($body);
-
-            if ($transport->send($alertMail)) {
+            $result = $transport->send($alertMail);
+            if ($result || $result==NULL) {
                 return true;
             } else {
                 return false;
@@ -819,5 +1013,25 @@ class CommonService
             error_log($e->getTraceAsString());
             error_log('whoops! Something went wrong in send-certificate-reminder-mail.');
         }
+    }
+    public function sendMultipleCertificationMail($parameters)
+    {
+        $mailTemplateDb = $this->sm->get('MailTemplateTable');
+        $mailTemplateDetails = $mailTemplateDb->fetchMailTemplateByPurpose($parameters['mailPurpose']);
+        $subject = '';
+        $message = '';
+
+        $fromName = $mailTemplateDetails['from_name'];
+        $fromMail = $mailTemplateDetails['mail_from'];
+        $subject = $mailTemplateDetails['mail_subject'];
+        $message = $mailTemplateDetails['mail_content'];
+        $toMail = $parameters['to_mail'];
+        $cc = '';
+        $bcc = '';
+        $subject .= "$$".$mailTemplateDetails['mail_purpose'];
+        $message .= "$$".$parameters['uniqueIds']."$$".$parameters['type_recipient']."$$".$parameters['name_recipient'];
+        $tempmailDb = $this->sm->get('TempMailTable');
+        $tempId = $tempmailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
+        return $tempId;
     }
 }

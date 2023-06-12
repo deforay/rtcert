@@ -948,7 +948,16 @@ class CertificationTable extends AbstractTableGateway
         );
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
+            if (!empty($aRow['date_end_validity'])) {
+                $mailPurpose = "send-certificate";
+                $type = "1";
+            } else {
+                $mailPurpose = "send-reminder";
+                $type = "2";
+            }
+
             $row = array();
+            $row[] = '<input type="checkbox" name="subchk[]" id="'.$aRow['id'].'" value="'.$mailPurpose.'" onclick="checkChoice(\'' . $aRow['id'] . '\',this)">';
             $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
@@ -2179,5 +2188,31 @@ class CertificationTable extends AbstractTableGateway
         $queryStr = $sql->buildSqlString($query);
         // die($queryStr);
         return $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+    }
+
+    public function getToBeSentCertificateById($uniqueIds)
+    {
+        $sessionLogin = new Container('credo');
+
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from(array('c' => 'certification'))
+            ->columns(array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_end_validity', 'date_certificate_sent', 'certification_type'))
+            ->join(array('e' => 'examination'), 'e.id=c.examination', array('provider'))
+            ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email', 'facility_in_charge_email', 'test_site_in_charge_email'), 'left')
+            ->where('c.final_decision IN("certified","Certified") AND certificate_sent ="no"');
+        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+            $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+            $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
+        }
+        if(!empty($uniqueIds)){
+            $sQuery->where('c.id IN(' . $uniqueIds . ')');
+        }
+
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        return $rResult;
     }
 }
