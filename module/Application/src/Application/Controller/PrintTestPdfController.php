@@ -57,7 +57,7 @@ class PrintTestPdfController extends AbstractActionController
         if ($request->isPost()) {
             $params = $request->getPost();
             $this->printTestPdfService->addPrintTestPdfData($params);
-            return $this->_redirect()->toRoute('print-test-pdf');
+            return $this->redirect()->toRoute('print-test-pdf');
         }
     }
 
@@ -71,7 +71,7 @@ class PrintTestPdfController extends AbstractActionController
             $viewModel->setTerminal(true);
             return $viewModel;
         } else {
-            return $this->_redirect()->toRoute('print-test-pdf');
+            return $this->redirect()->toRoute('print-test-pdf');
         }
     }
 
@@ -116,7 +116,7 @@ class PrintTestPdfController extends AbstractActionController
             $viewModel->setTerminal(true);
             return $viewModel;
         } else {
-            return $this->_redirect()->toRoute('print-test-pdf');
+            return $this->redirect()->toRoute('print-test-pdf');
         }
     }
 
@@ -130,7 +130,7 @@ class PrintTestPdfController extends AbstractActionController
             $viewModel->setTerminal(true);
             return $viewModel;
         } else {
-            return $this->_redirect()->toRoute('print-test-pdf');
+            return $this->redirect()->toRoute('print-test-pdf');
         }
     }
 
@@ -144,7 +144,7 @@ class PrintTestPdfController extends AbstractActionController
             $viewModel->setTerminal(true);
             return $viewModel;
         } else {
-            return $this->_redirect()->toRoute('print-test-pdf');
+            return $this->redirect()->toRoute('print-test-pdf');
         }
     }
 

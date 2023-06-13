@@ -3,24 +3,23 @@ use Laminas\Session\Container;
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
 $acl=$this->layout()->acl;
-if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','edit')) {
+if ($acl->isAllowed($role, 'Application\Controller\TestSectionController','edit')) {
   $colspan = true;
-  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
+  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false}';
 }else{
   $colspan = false;
-  $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
+  $editAction = '{"sClass":"center"},{"sClass":"center"}';
 }
 ?>
 <div class="am-content">
     <div class="page-head">
         <div class="row">
 			<div class="col-sm-8">
-			<h2>Online Tests</h2>
+			<h2>Online Question Categories</h2>
 			</div>
 			<div class="col-sm-4">
-      <a href="<?php echo $this->url('test-question', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Questions</a>
-				<?php if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','add')) { ?>
-					<a href="<?php echo $this->url('test-question',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add New Test Question</a>
+				<?php if ($acl->isAllowed($role, 'Application\Controller\TestSectionController','add')) { ?>
+					<a href="<?php echo $this->url('test-section',array('action' => 'add'));?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Add Online Question Categories</a>
 				<?php } ?>
 			</div>
 		  </div>
@@ -30,10 +29,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','edit
             <table id="testSection" class="table table-bordered table-striped table-hover table-fw-widget"  style="width:100%;">
               <thead>
                 <tr>
-                    <th style="width:10%;">Question Code</th>
-                    <th style="width:40%;">Question</th>
                     <th style="width:20%;">Categories</th>
-                    <th style="width:100%;">Correct Answer</th>
                     <th style="width:95%;">Status</th>
                     <?php if ($acl->isAllowed($role, 'Application\Controller\TestSectionController','edit')) { ?>
                       <th style="width:95%;">Action</th>
@@ -42,7 +38,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','edit
               </thead>
               <tbody>
                 <tr>
-                    <td colspan="<?php echo ($colspan)?6:5;?>" class="dataTables_empty">Loading data from server</td>
+                    <td colspan="<?php echo ($colspan)?3:2;?>" class="dataTables_empty">Loading data from server</td>
                 </tr>
               </tbody>
             </table>
@@ -59,7 +55,7 @@ if ($acl->isAllowed($role, 'Application\Controller\TestQuestionController','edit
         "bServerSide": true,
          "aoColumns": [<?php echo $editAction; ?>],
          "aaSorting": [[ 0, "ase" ]],
-         "sAjaxSource": "<?php echo $this->url('test-question',array('action' => 'index')); ?>",
+         "sAjaxSource": "<?php echo $this->url('test-section',array('action' => 'index')); ?>",
          "fnServerData": function ( sSource, aoData, fnCallback ) {
 			$.ajax({
 				"dataType": 'json',

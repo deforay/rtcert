@@ -32,7 +32,7 @@ class TestSectionController extends AbstractActionController
         if ($request->isPost()) {
             $params = $request->getPost();
             $this->testSectionService->addTestSectionData($params);
-            return $this->_redirect()->toRoute('test-section');
+            return $this->redirect()->toRoute('test-section');
         }
     }
 

@@ -732,10 +732,10 @@ class CertificationController extends AbstractActionController
             $parameters = $request->getPost();
             $tempId = $this->commonService->sendMultipleCertificationMail($parameters);
             if($tempId  > 0){
-                $container->alertMsg = 'Mail sent successfully. Please check your mail after 20 minutes.';
+                $container->alertMsg = 'Mail queued successfully';
                 return $this->redirect()->toRoute('certification');
             }else{
-                $container->alertMsg = 'Mail not sent';
+                $container->alertMsg = 'Mail not queued';
                 return $this->redirect()->toRoute('certification');
             }  
         }

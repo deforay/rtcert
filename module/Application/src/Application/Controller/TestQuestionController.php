@@ -34,7 +34,7 @@ class TestQuestionController extends AbstractActionController
         if ($this->getRequest()->isPost()) {
             $params = $this->getRequest()->getPost();
             $this->questionService->addQuestionData($params);
-            return $this->_redirect()->toRoute('test-question');
+            return $this->redirect()->toRoute('test-question');
         } else {
             $sectionResult = $this->testSectionService->getTestSectionAllList();
             return new ViewModel(array(
