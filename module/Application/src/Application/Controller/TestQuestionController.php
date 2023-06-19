@@ -70,7 +70,7 @@ class TestQuestionController extends AbstractActionController
             return new ViewModel(array(
                 'result' => $result
             ));
-            return $this->_redirect()->toRoute('test-question');
+            return $this->redirect()->toRoute('test-question');
         } else {
             $sectionResult = $this->testSectionService->getTestSectionAllList();
             return new ViewModel(array(

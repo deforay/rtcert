@@ -1191,7 +1191,7 @@ class ProviderTable extends AbstractTableGateway
             $sendLink = '';
             if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'send-test-link')) {
                 $link_send_count = (isset($aRow['link_send_count']) && $aRow['link_send_count'] > 0) ? $aRow['link_send_count'] : 0;
-                $sendLink = '<a href="javascript:void(0);" class="btn btn-primary" onclick="sendTestLink(\'' . base64_encode($aRow['id']) . '\',\'' . $aRow['email'] . '\');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link(' . $link_send_count . ';)</a>';
+                $sendLink = '<a href="javascript:void(0);" class="btn btn-primary" onclick="sendTestLink(\'' . base64_encode($aRow['id']) . '\',\'' . $aRow['email'] . '\');"><span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Test Link(' . $link_send_count . ')</a>';
             }
 
             $row = array();

@@ -44,7 +44,7 @@ class TestService{
 
     
     public function getPreResultDetails(){
-        $db = $this->sm->get('PreTestQuestionsTable');
+        $db = $this->sm->get('PretestQuestionsTable');
         /* Check the provider already got mail */
         $preResult = $db->fetchPreResultDetails();
         if($preResult['test_mail_send'] == 'yes'){
