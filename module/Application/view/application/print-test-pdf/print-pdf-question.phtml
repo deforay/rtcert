@@ -113,6 +113,82 @@ $tbl .= '<table style="width:100%;" border="0" cellpadding="2"  align="center">'
         </td>
     </tr>';
 $tbl .= '</table>';
+$tbl .= '<div></div><table style="width:100%;" border="1"  align="center">
+                <thead>
+                    <tr align="center" style="background-color:#BFBFBF;">
+                        <th align="center" style="width:11%;font-size:12px;"><b>S.No</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION1</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION2</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION3</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION4</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION5</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION6</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION7</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION8</b></th>
+                        <th align="center" style="width:10%;font-size:12px;"><b>SECTION9</b></th>
+                    </tr>
+                </thead><tbody>';
+                for($i=1; $i <= 4; $i++){
+                    if($i==1 || $i==2){
+                        $tbl .='<tr>
+                            <td align="center" style="width:11%;font-size:10px;">'.$i.'</td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                        </tr>';     
+                    }
+                    if($i==3){
+                        $tbl .='<tr>
+                            <td align="center" style="width:11%;font-size:10px;">'.$i.'</td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                        </tr>';     
+                    }
+                    if($i == 4){
+                        $tbl .='<tr>
+                            <td align="center" style="width:11%;font-size:10px;">'.$i.'</td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                            <td align="center" style="width:10%;font-size:10px;background-color:#BFBFBF;"></td>
+                        </tr>';     
+                    }          
+                }
+            $tbl .='<tr>
+                    <td align="center" style="width:11%;font-size:10px;background-color:#BFBFBF;">TOTAL</td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    <td align="center" style="width:10%;font-size:10px;"></td>
+                    
+                </tr>';
+            $tbl .= '</tbody></table>
+        </td>
+    </tr>';
+$tbl .= '</table>';
     
 $pdf->writeHTML($tbl);
 
