@@ -100,7 +100,9 @@ class TrainingController extends AbstractActionController
                 'action' => 'index'
             ));
         }
-        //$training->last_training_date = date("d-m-Y", strtotime($training->last_training_date));
+        if (isset($training->last_training_date)) {
+            $training->last_training_date = date("d-m-Y", strtotime($training->last_training_date));
+        }
         if (isset($training->date_certificate_issued)) {
             $training->date_certificate_issued = date("d-m-Y", strtotime($training->date_certificate_issued));
         }

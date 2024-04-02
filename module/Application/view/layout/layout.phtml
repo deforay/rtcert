@@ -67,12 +67,15 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrga
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\MailTemplateController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('mail-template', array('action' => 'index')) . ">Mail Template</a></li>";
 }
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
+	$adminMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
+	$adminMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
+}
 
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdfController", "index")) {
 	$testerMenu .= "<li><a href=" . $this->url('print-test-pdf', array('action' => 'index')) . ">Print Written Test</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
-	$testerMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\WrittenExamController", "add")) {
 	$testerExamSubMenu .= "<li><a href=" . $this->url('written-exam', array('action' => 'add')) . ">Written Examinations</a></li>";
@@ -87,9 +90,6 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExa
 
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
 	$testerReminderMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
-	$testerReminderMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
 }
 
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\CertificationController", "index")) {

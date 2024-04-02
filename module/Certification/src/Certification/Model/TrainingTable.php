@@ -62,11 +62,13 @@ class TrainingTable extends AbstractTableGateway
 
     public function saveTraining(Training $Training)
     {
-        //$date = $Training->last_training_date;
-        //$date_explode = explode("-", $date);
-        //die(print_r($date_explode));
-        //$newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
+        $newsdate = NULL;
         $newsdate2 = NULL;
+        if (isset($Training->last_training_date) && trim($Training->last_training_date) != "") {
+            $date = $Training->last_training_date;
+            $date_explode = explode("-", $date);
+            $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
+        }
         if (isset($Training->date_certificate_issued) && trim($Training->date_certificate_issued) != "") {
             $date2 = $Training->date_certificate_issued;
             $date_explode2 = explode("-", $date2);
@@ -79,7 +81,7 @@ class TrainingTable extends AbstractTableGateway
                 $data = array(
                     'Provider_id' => $val,
                     'type_of_competency' => $Training->type_of_competency,
-                    //'last_training_date' => $newsdate,
+                    'last_training_date' => $newsdate,
                     'type_of_training' => $Training->type_of_training,
                     'length_of_training' => $Training->length_of_training,
                     'training_organization_id' => $Training->training_organization_id,
@@ -95,7 +97,7 @@ class TrainingTable extends AbstractTableGateway
                 $data = array(
                     'Provider_id' => $Training->Provider_id,
                     'type_of_competency' => $Training->type_of_competency,
-                    //'last_training_date' => $newsdate,
+                    'last_training_date' => $newsdate,
                     'type_of_training' => $Training->type_of_training,
                     'length_of_training' => $Training->length_of_training,
                     'training_organization_id' => $Training->training_organization_id,
@@ -381,7 +383,6 @@ class TrainingTable extends AbstractTableGateway
             if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'delete')) {
                 $DeleteId = '<a class="btn btn-primary"  onclick="' . $deleteconfirm . '" href="/training/delete/' . $aRow['training_id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
             }
-
             $row = array();
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['professional_reg_no'];
@@ -389,7 +390,7 @@ class TrainingTable extends AbstractTableGateway
             $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
             $row[] = $aRow['type_of_competency'];
             $row[] = $aRow['type_of_training'];
-            $row[] =  date("d-m-Y", strtotime($aRow['last_training_date']));
+            $row[] =  isset($aRow['last_training_date']) ? date("d-m-Y", strtotime($aRow['last_training_date'])) : '';
             $row[] = $aRow['length_of_training'];
             $row[] = $aRow['training_organization_name'];
             $row[] = $aRow['type_organization'];

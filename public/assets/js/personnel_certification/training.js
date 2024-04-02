@@ -151,19 +151,30 @@ $(document).ready(function () {
 
 $(document).ready(function () {
 
-    $("#date2").datepicker(
-            {
-                showButtonPanel: true
-                , dateFormat: 'dd-mm-yy'
-                , dayNamesMin: ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun']
-                , dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', ' Thursday ', 'Friday', 'Saturday']
-                , monthNamesShort: ['Jan', 'Fed', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                , monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ]
-                , prevText: 'Previous'
-                , nextText: 'Next'
-                , closeText: 'OK'
-                , currentText: "Today"
-            });
+    $("#date2").datepicker({
+        showButtonPanel: true
+        , dateFormat: 'dd-mm-yy'
+        , dayNamesMin: ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun']
+        , dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', ' Thursday ', 'Friday', 'Saturday']
+        , monthNamesShort: ['Jan', 'Fed', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        , monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ]
+        , prevText: 'Previous'
+        , nextText: 'Next'
+        , closeText: 'OK'
+        , currentText: "Today"
+    });
+    $("#date3").datepicker({
+        showButtonPanel: true
+        , dateFormat: 'dd-mm-yy'
+        , dayNamesMin: ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun']
+        , dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', ' Thursday ', 'Friday', 'Saturday']
+        , monthNamesShort: ['Jan', 'Fed', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        , monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ]
+        , prevText: 'Previous'
+        , nextText: 'Next'
+        , closeText: 'OK'
+        , currentText: "Today"
+    });
 
 }); //EOf:: DOM isReady
 
