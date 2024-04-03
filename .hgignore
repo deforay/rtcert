@@ -1,15 +1,28 @@
 syntax: regexp
-makkacm.komodoproject
-^application/cache/(?!index.php)
+^data/cache/(?!index.php)
 ^backup/(?!index.php)
 ^public/uploads/(?!index.php)
 ^public/temporary/(?!index.php)
-^library/Zend/
+^vendor
 error_log
+\.DS_Store$
+[Tt]humbs\.db$
+
+syntax: glob
+error_log
+error.log
+errors.log
+npm-debug.log
 Thumbs.db
 Thumbs.db.orig
 .DS_Store
 .DS_Store.orig
+rector.php
+.env
 .git
+.idea
+.git/*
+.gitattributes
 .gitignore
-.orig
+config/autoload/custom.global.php
+config/development.config.php

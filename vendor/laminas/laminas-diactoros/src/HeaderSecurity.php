@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Laminas\Diactoros;
 
-use function get_class;
-use function gettype;
+use function get_debug_type;
 use function in_array;
 use function is_numeric;
-use function is_object;
 use function is_string;
 use function ord;
 use function preg_match;
@@ -124,12 +122,12 @@ final class HeaderSecurity
      * @param mixed $value Value to be tested. This method asserts it is a string or number.
      * @throws Exception\InvalidArgumentException For invalid values.
      */
-    public static function assertValid($value): void
+    public static function assertValid(mixed $value): void
     {
         if (! is_string($value) && ! is_numeric($value)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Invalid header value type; must be a string or numeric; received %s',
-                is_object($value) ? get_class($value) : gettype($value)
+                get_debug_type($value)
             ));
         }
         if (! self::isValid($value)) {
@@ -145,18 +143,17 @@ final class HeaderSecurity
      *
      * @see http://tools.ietf.org/html/rfc7230#section-3.2
      *
-     * @param mixed $name
      * @throws Exception\InvalidArgumentException
      */
-    public static function assertValidName($name): void
+    public static function assertValidName(mixed $name): void
     {
         if (! is_string($name)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Invalid header name type; expected string; received %s',
-                is_object($name) ? get_class($name) : gettype($name)
+                get_debug_type($name)
             ));
         }
-        if (! preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name)) {
+        if (! preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/D', $name)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '"%s" is not valid header name',
                 $name

@@ -8,6 +8,10 @@ use Laminas\InputFilter\InputFilterInterface;
 
 class CertificationMail {
 
+    /**
+     * @var mixed
+     */
+    public $mail_date;
     public $mail_id;
     public $provider;
     public $to_email;
@@ -17,13 +21,13 @@ class CertificationMail {
     protected $inputFilter;
 
     public function exchangeArray($data) {
-        $this->mail_id = (!empty($data['mail_id'])) ? $data['mail_id'] : null;
-        $this->provider = (!empty($data['provider'])) ? $data['provider'] : null;
-        $this->to_email = (!empty($data['to_email'])) ? $data['to_email'] : null;
-        $this->cc = (!empty($data['cc'])) ? $data['cc'] : null;
-        $this->bcc = (!empty($data['bcc'])) ? $data['bcc'] : null;
-        $this->type = (!empty($data['type'])) ? $data['type'] : null;
-        $this->mail_date = (!empty($data['mail_date'])) ? $data['mail_date'] : null;
+        $this->mail_id = (empty($data['mail_id'])) ? null : $data['mail_id'];
+        $this->provider = (empty($data['provider'])) ? null : $data['provider'];
+        $this->to_email = (empty($data['to_email'])) ? null : $data['to_email'];
+        $this->cc = (empty($data['cc'])) ? null : $data['cc'];
+        $this->bcc = (empty($data['bcc'])) ? null : $data['bcc'];
+        $this->type = (empty($data['type'])) ? null : $data['type'];
+        $this->mail_date = (empty($data['mail_date'])) ? null : $data['mail_date'];
     }
 
     public function setInputFilter(InputFilterInterface $inputFilter) {

@@ -81,7 +81,8 @@ class MongoDBOptions extends AbstractOptions
     {
         parent::__construct($options);
 
-        $mongoVersion = phpversion('mongo') ?: '0.0.0';
+        $mongoVersion = phpversion('mongo');
+        $mongoVersion = $mongoVersion === false ? '0.0.0' : $mongoVersion;
         if ($this->saveOptions === ['w' => 1] && version_compare($mongoVersion, '1.3.0', '<')) {
             $this->saveOptions = ['safe' => true];
         }
@@ -168,7 +169,6 @@ class MongoDBOptions extends AbstractOptions
      *
      * @see http://php.net/manual/en/mongocollection.save.php
      *
-     * @param array $saveOptions
      * @return MongoDBOptions
      */
     public function setSaveOptions(array $saveOptions)

@@ -9,9 +9,7 @@ use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Stream;
 use Psr\Http\Message\StreamInterface;
 
-use function get_class;
-use function gettype;
-use function is_object;
+use function get_debug_type;
 use function is_string;
 use function sprintf;
 
@@ -61,7 +59,7 @@ class HtmlResponse extends Response
         if (! is_string($html)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Invalid content (%s) provided to %s',
-                is_object($html) ? get_class($html) : gettype($html),
+                get_debug_type($html),
                 self::class
             ));
         }

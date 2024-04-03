@@ -505,7 +505,7 @@ class Code128 extends AbstractAdapter
         }
 
         $value = $strWrapper->substr($value, 1, null);
-        while ($strWrapper->strpos($value, 'Š') || ($value !== '')) {
+        while ($strWrapper->strpos((string) $value, 'Š') !== false || ((string) $value !== '')) {
             $char = $strWrapper->substr($value, 0, 1);
             if ($read === 'C') {
                 $char = $strWrapper->substr($value, 0, 2);
@@ -601,18 +601,12 @@ class Code128 extends AbstractAdapter
     protected function getCodingSet($value)
     {
         $value = $this->getUtf8StringWrapper()->substr($value, 0, 1);
-        switch ($value) {
-            case '‡':
-                return 'A';
-
-            case 'ˆ':
-                return 'B';
-
-            case '‰':
-                return 'C';
-        }
-
-        return '';
+        return match ($value) {
+            '‡' => 'A',
+            'ˆ' => 'B',
+            '‰' => 'C',
+            default => '',
+        };
     }
 
     /**

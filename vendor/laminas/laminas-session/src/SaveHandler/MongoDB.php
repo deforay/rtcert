@@ -23,13 +23,6 @@ use function time;
 class MongoDB implements SaveHandlerInterface
 {
     /**
-     * MongoClient instance
-     *
-     * @var MongoClient
-     */
-    protected $mongoClient;
-
-    /**
      * MongoCollection instance
      *
      * @var MongoCollection
@@ -63,7 +56,7 @@ class MongoDB implements SaveHandlerInterface
      * @param MongoClient $mongoClient
      * @throws InvalidArgumentException
      */
-    public function __construct($mongoClient, MongoDBOptions $options)
+    public function __construct(protected $mongoClient, MongoDBOptions $options)
     {
         if (null === ($database = $options->getDatabase())) {
             throw new InvalidArgumentException('The database option cannot be empty');
@@ -72,20 +65,18 @@ class MongoDB implements SaveHandlerInterface
         if (null === ($collection = $options->getCollection())) {
             throw new InvalidArgumentException('The collection option cannot be empty');
         }
-
-        $this->mongoClient = $mongoClient;
-        $this->options     = $options;
+        $this->options = $options;
     }
 
     /**
      * Open session
      *
-     * @param string $savePath
+     * @param string $path
      * @param string $name
      * @return bool
      */
     #[ReturnTypeWillChange]
-    public function open($savePath, $name)
+    public function open($path, $name)
     {
         // Note: session save path is not used
         $this->sessionName = $name;

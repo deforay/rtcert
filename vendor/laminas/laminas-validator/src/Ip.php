@@ -10,6 +10,7 @@ use function ip2long;
 use function is_string;
 use function long2ip;
 use function preg_match;
+use function str_contains;
 use function strlen;
 use function strpos;
 use function strrpos;
@@ -83,8 +84,11 @@ class Ip extends AbstractValidator
                 }
             }
 
+            $isValidV6Address = $this->validateIPv6($value);
+            $isValidV6Address = $isValidV6Address !== false && $isValidV6Address !== 0;
+
             if (
-                ($this->options['allowipv6'] && $this->validateIPv6($value)) ||
+                ($this->options['allowipv6'] && $isValidV6Address) ||
                 ($this->options['allowipvfuture'] && $this->validateIPvFuture($value))
             ) {
                 return true;
@@ -136,16 +140,16 @@ class Ip extends AbstractValidator
             return $value === '::';
         }
 
-        if (strpos($value, '.')) {
+        if (strpos($value, '.') !== false) {
             $lastcolon = strrpos($value, ':');
-            if (! ($lastcolon && $this->validateIPv4(substr($value, $lastcolon + 1)))) {
+            if (! ($lastcolon !== false && $this->validateIPv4(substr($value, $lastcolon + 1)))) {
                 return false;
             }
 
             $value = substr($value, 0, $lastcolon) . ':0:0';
         }
 
-        if (strpos($value, '::') === false) {
+        if (! str_contains($value, '::')) {
             return preg_match('/\A(?:[a-f0-9]{1,4}:){7}[a-f0-9]{1,4}\z/i', $value);
         }
 

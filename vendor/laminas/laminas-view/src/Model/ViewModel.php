@@ -13,8 +13,9 @@ use ReturnTypeWillChange; // phpcs:ignore
 use Traversable;
 
 use function array_key_exists;
+use function array_merge;
 use function count;
-use function get_class;
+use function get_debug_type;
 use function gettype;
 use function is_array;
 use function is_object;
@@ -32,14 +33,14 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Child models
      *
-     * @var array
+     * @var list<ModelInterface>
      */
     protected $children = [];
 
     /**
      * Renderer options
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options = [];
 
@@ -75,8 +76,8 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Constructor
      *
-     * @param  null|array|Traversable|ArrayAccess $variables
-     * @param  array|Traversable $options
+     * @param  null|array<string, mixed>|Traversable<string, mixed>|ArrayAccess<string, mixed> $variables
+     * @param  null|array<string, mixed>|Traversable<string, mixed> $options
      */
     public function __construct($variables = null, $options = null)
     {
@@ -191,7 +192,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Set renderer options/hints en masse
      *
-     * @param array|Traversable $options
+     * @param array<string, mixed>|Traversable<string, mixed> $options
      * @throws Exception\InvalidArgumentException
      * @return ViewModel
      */
@@ -207,7 +208,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s: expects an array, or Traversable argument; received "%s"',
                 __METHOD__,
-                is_object($options) ? get_class($options) : gettype($options)
+                get_debug_type($options),
             ));
         }
 
@@ -218,7 +219,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Get renderer options/hints
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions()
     {
@@ -228,7 +229,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Clear any existing renderer options/hints
      *
-     * @return ViewModel
+     * @return $this
      */
     public function clearOptions()
     {
@@ -287,7 +288,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s: expects an array, or Traversable argument; received "%s"',
                 __METHOD__,
-                is_object($variables) ? get_class($variables) : gettype($variables)
+                is_object($variables) ? $variables::class : gettype($variables)
             ));
         }
 
@@ -377,7 +378,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
      *
      * Return specifies an array, but may be any iterable object.
      *
-     * @return array
+     * @return list<ModelInterface>
      */
     public function getChildren()
     {
@@ -410,15 +411,15 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
      *
      * @param string $capture
      * @param bool $recursive search recursive through children, default true
-     * @return array
+     * @return list<ModelInterface>
      */
     public function getChildrenByCaptureTo($capture, $recursive = true)
     {
         $children = [];
 
         foreach ($this->children as $child) {
-            if ($recursive === true) {
-                $children += $child->getChildrenByCaptureTo($capture);
+            if ($recursive === true && $child instanceof RetrievableChildrenInterface) {
+                $children = array_merge($children, $child->getChildrenByCaptureTo($capture));
             }
 
             if ($child->captureTo() === $capture) {
@@ -509,7 +510,7 @@ class ViewModel implements ModelInterface, ClearableModelInterface, RetrievableC
     /**
      * Get iterator of children
      *
-     * @return ArrayIterator
+     * @return Traversable<int, ModelInterface>
      */
     #[ReturnTypeWillChange]
     public function getIterator()

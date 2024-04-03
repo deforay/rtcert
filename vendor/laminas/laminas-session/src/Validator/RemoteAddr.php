@@ -48,7 +48,7 @@ class RemoteAddr implements SessionValidator
      */
     public function __construct($data = null)
     {
-        if (empty($data)) {
+        if ($data === null || $data === '') {
             $data = $this->getIpAddress();
         }
         $this->data = $data;
@@ -92,7 +92,6 @@ class RemoteAddr implements SessionValidator
     /**
      * Set list of trusted proxy addresses
      *
-     * @param  array $trustedProxies
      * @return void
      */
     public static function setTrustedProxies(array $trustedProxies)

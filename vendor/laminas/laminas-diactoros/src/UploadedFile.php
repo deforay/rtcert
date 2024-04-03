@@ -17,7 +17,7 @@ use function is_resource;
 use function is_string;
 use function is_writable;
 use function move_uploaded_file;
-use function strpos;
+use function str_starts_with;
 use function unlink;
 
 use const PHP_SAPI;
@@ -44,20 +44,13 @@ class UploadedFile implements UploadedFileInterface
         UPLOAD_ERR_EXTENSION  => 'A PHP extension stopped the file upload.',
     ];
 
-    private ?string $clientFilename;
-
-    private ?string $clientMediaType;
-
     private int $error;
 
     private ?string $file = null;
 
     private bool $moved = false;
 
-    private int $size;
-
-    /** @var null|StreamInterface */
-    private $stream;
+    private ?StreamInterface $stream = null;
 
     /**
      * @param string|resource|StreamInterface $streamOrFile
@@ -65,10 +58,10 @@ class UploadedFile implements UploadedFileInterface
      */
     public function __construct(
         $streamOrFile,
-        int $size,
+        private ?int $size,
         int $errorStatus,
-        ?string $clientFilename = null,
-        ?string $clientMediaType = null
+        private ?string $clientFilename = null,
+        private ?string $clientMediaType = null
     ) {
         if ($errorStatus === UPLOAD_ERR_OK) {
             if (is_string($streamOrFile)) {
@@ -78,7 +71,7 @@ class UploadedFile implements UploadedFileInterface
                 $this->stream = new Stream($streamOrFile);
             }
 
-            if (! $this->file && ! $this->stream) {
+            if ($this->file === null && $this->stream === null) {
                 if (! $streamOrFile instanceof StreamInterface) {
                     throw new Exception\InvalidArgumentException('Invalid stream or file provided for UploadedFile');
                 }
@@ -86,17 +79,12 @@ class UploadedFile implements UploadedFileInterface
             }
         }
 
-        $this->size = $size;
-
         if (0 > $errorStatus || 8 < $errorStatus) {
             throw new Exception\InvalidArgumentException(
                 'Invalid error status for UploadedFile; must be an UPLOAD_ERR_* constant'
             );
         }
         $this->error = $errorStatus;
-
-        $this->clientFilename  = $clientFilename;
-        $this->clientMediaType = $clientMediaType;
     }
 
     /**
@@ -136,7 +124,7 @@ class UploadedFile implements UploadedFileInterface
      * @throws Exception\UploadedFileErrorException On any error during the
      *     move operation, or on the second or subsequent call to the method.
      */
-    public function moveTo($targetPath): void
+    public function moveTo(string $targetPath): void
     {
         if ($this->moved) {
             throw new Exception\UploadedFileAlreadyMovedException('Cannot move file; already moved!');
@@ -148,7 +136,7 @@ class UploadedFile implements UploadedFileInterface
             );
         }
 
-        if (! is_string($targetPath) || empty($targetPath)) {
+        if (empty($targetPath)) {
             throw new Exception\InvalidArgumentException(
                 'Invalid path provided for move operation; must be a non-empty string'
             );
@@ -161,7 +149,10 @@ class UploadedFile implements UploadedFileInterface
 
         $sapi = PHP_SAPI;
         switch (true) {
-            case empty($sapi) || 0 === strpos($sapi, 'cli') || 0 === strpos($sapi, 'phpdbg') || ! $this->file:
+            case empty($sapi)
+                || str_starts_with($sapi, 'cli')
+                || str_starts_with($sapi, 'phpdbg')
+                || $this->file === null:
                 // Non-SAPI environment, or no filename present
                 $this->writeFile($targetPath);
 
