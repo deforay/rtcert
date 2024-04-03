@@ -986,9 +986,9 @@ class ProviderTable extends AbstractTableGateway
         $logincontainer = new Container('credo');
         $role = $logincontainer->roleCode;
         $roleCode = $logincontainer->roleCode;
-        $aColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
+        $aColumns = array('certification_reg_no', 'professional_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
 
-        $orderColumns = array('professional_reg_no', 'certification_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
+        $orderColumns = array('certification_reg_no', 'professional_reg_no', 'certification_id', 'last_name', 'final_decision', 'certification_type', 'type_vih_test', 'current_jod');
 
 
         /*

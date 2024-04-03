@@ -628,9 +628,9 @@ class CertificationTable extends AbstractTableGateway
     public function getCertificationValiditydate($id)
     {
         $dbAdapter = $this->tableGateway->getAdapter();
-        $sql = 'SELECT date_end_validity FROM certification WHERE certification.id = ' . $id;
+        $sql = 'SELECT date_end_validity FROM certification WHERE certification.id = ?';
         $statement = $dbAdapter->query($sql);
-        $result = $statement->execute();
+        $result = $statement->execute([$id]);
         foreach ($result as $res) {
             $date_end_validity = $res['date_end_validity'];
         }
