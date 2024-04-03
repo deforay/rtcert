@@ -30,7 +30,7 @@ class ProviderController extends AbstractActionController
     public function indexAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
@@ -50,7 +50,7 @@ class ProviderController extends AbstractActionController
     public function addAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
@@ -86,7 +86,7 @@ class ProviderController extends AbstractActionController
     public function editAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
@@ -176,7 +176,7 @@ class ProviderController extends AbstractActionController
     public function districtAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
@@ -191,7 +191,7 @@ class ProviderController extends AbstractActionController
     public function facilityAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
@@ -228,7 +228,7 @@ class ProviderController extends AbstractActionController
     public function deleteAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $id = (int) $this->params()->fromRoute('id', 0);
@@ -390,7 +390,7 @@ class ProviderController extends AbstractActionController
     public function testHistoryAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
         $tester = base64_decode($this->params()->fromQuery('tester', null));
@@ -560,7 +560,7 @@ class ProviderController extends AbstractActionController
     public function importExcelAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toRoute("login");
         }
 

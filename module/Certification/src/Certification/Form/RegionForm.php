@@ -85,7 +85,7 @@ class RegionForm extends Form
     {
         $logincontainer = new Container('credo');
         $countryWhere = 'WHERE country_status = "active"';
-        if (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
+        if (!empty($logincontainer->country)) {
             $countryWhere = 'WHERE country_id IN(' . implode(',', $logincontainer->country) . ') AND country_status = "active"';
         }
         $dbAdapter = $this->adapter;

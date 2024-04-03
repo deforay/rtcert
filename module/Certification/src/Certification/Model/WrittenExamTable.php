@@ -48,9 +48,9 @@ class WrittenExamTable extends AbstractTableGateway
             ->where(array('display' => 'yes'));
         $sqlSelect->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
 
-        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
+        if (!empty($sessionLogin->district)) {
             $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
+        } elseif (!empty($sessionLogin->region)) {
             $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $sqlSelect->order('id_written_exam desc');
@@ -217,7 +217,7 @@ class WrittenExamTable extends AbstractTableGateway
     }
 
     /**
-     * count the number of  attempt 
+     * count the number of  attempt
      * @return type $nombre integer
      */
     public function attemptNumber($provider)
@@ -254,7 +254,7 @@ class WrittenExamTable extends AbstractTableGateway
                 return '##' . $certification_id . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_certificate_issued) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_after) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_before);
             }
         }
-        $sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, 
+        $sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued,
                 date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,
                 certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and (approval_status in("rejected","Rejected") or final_decision in ("failed","pending")) and date_certificate_issued >' . $date_certificate_issued . ' and provider=' . $provider . ') as tab';
         //        die($sql);
@@ -453,7 +453,7 @@ class WrittenExamTable extends AbstractTableGateway
     {
         $db = $this->adapter;
 
-        $sql1 = 'SELECT 
+        $sql1 = 'SELECT
         id_written_exam,
         training.training_id,
         training.Provider_id,
@@ -467,9 +467,9 @@ class WrittenExamTable extends AbstractTableGateway
         Comments,
         last_name,
         first_name,
-        middle_name, 
-        professional_reg_no, 
-        certification_id, 
+        middle_name,
+        professional_reg_no,
+        certification_id,
         certification_reg_no,
         training_organization_name,
         type_organization

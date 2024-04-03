@@ -3,41 +3,41 @@
 namespace Application;
 
 
-use Application\Model\UsersTable;
-
-//use Application\Model\SpiRtFacilitiesTable;
-use Application\Model\RolesTable;
-use Application\Model\UserRoleMapTable;
-use Application\Model\GlobalTable;
-use Application\Model\EventLogTable;
-use Application\Model\ResourcesTable;
-use Application\Model\TempMailTable;
-use Application\Model\UserTokenMapTable;
-use Application\Model\AuditMailTable;
-use Application\Model\LocationDetailsTable;
-use Application\Model\UserCountryMapTable;
-use Application\Model\UserProvinceMapTable;
-use Application\Model\UserDistrictMapTable;
-use Application\Model\TestConfigTable;
-use Application\Model\TestConfigDetailsTable;
-use Application\Model\TestSectionTable;
-use Application\Model\QuestionTable;
-use Application\Model\TestOptionsTable;
-use Application\Model\PostTestQuestionsTable;
-use Application\Model\PretestQuestionsTable;
-use Application\Model\TestsTable;
-use Application\Model\PrintTestPdfTable;
-use Application\Model\PrintTestPdfDetailsTable;
-use Application\Model\MailTemplateTable;
-use Application\Model\FeedbackMailTable;
-
-
-use Application\Model\Acl;
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 
+use Application\Model\Acl;
+use Laminas\Http\Response;
 use Laminas\Session\Container;
+use Application\Model\RolesTable;
+use Application\Model\TestsTable;
+use Application\Model\UsersTable;
 use Laminas\View\Model\ViewModel;
+use Application\Model\GlobalTable;
+use Application\Model\EventLogTable;
+use Application\Model\QuestionTable;
+use Application\Model\TempMailTable;
+use Laminas\Mvc\ModuleRouteListener;
+use Application\Model\AuditMailTable;
+use Application\Model\ResourcesTable;
+use Application\Model\TestConfigTable;
+use Application\Model\TestOptionsTable;
+use Application\Model\TestSectionTable;
+use Application\Model\UserRoleMapTable;
+use Application\Model\FeedbackMailTable;
+use Application\Model\MailTemplateTable;
+use Application\Model\PrintTestPdfTable;
+use Application\Model\UserTokenMapTable;
+use Application\Model\UserCountryMapTable;
+use Application\Model\LocationDetailsTable;
+use Application\Model\UserDistrictMapTable;
+
+
+use Application\Model\UserProvinceMapTable;
+use Application\Model\PretestQuestionsTable;
+use Application\Model\PostTestQuestionsTable;
+
+use Application\Model\TestConfigDetailsTable;
+use Application\Model\PrintTestPdfDetailsTable;
 
 class Module
 {
@@ -53,7 +53,7 @@ class Module
 
         //no need to call presetter if request is from CLI
         if (php_sapi_name() != 'cli') {
-            $eventManager->attach('dispatch', function (\Laminas\Mvc\MvcEvent $e) {
+            $eventManager->attach('dispatch', function (MvcEvent $e) {
                 return $this->preSetter($e);
             }, 100);
         }
@@ -80,16 +80,21 @@ class Module
         /** @var \Laminas\Http\Request $request */
         $request = $e->getRequest();
 
-        if (!$request->isXmlHttpRequest() &&
-        $e->getRouteMatch()->getParam('controller') != 'Application\Controller\LoginController'
-        && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\IndexController'
-        && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController') {
-            if (empty($session) || (!property_exists($session, 'userId') || $session->userId === null) || empty($session->userId)) {
+        if (
+            !$request->isXmlHttpRequest() &&
+            $e->getRouteMatch()->getParam('controller') != 'Application\Controller\LoginController'
+            && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\IndexController'
+            && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController'
+        ) {
+            if (empty($session) || empty($session->userId)) {
                 if ($e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController') {
                     $url = $e->getRouter()->assemble(array(), array('name' => 'provider'));
                 } else {
                     $url = $e->getRouter()->assemble(array(), array('name' => 'login'));
                 }
+
+                /** @var Response $response */
+
                 $response = $e->getResponse();
                 $response->getHeaders()->addHeaderLine('Location', $url);
                 $response->setStatusCode(302);
@@ -141,7 +146,7 @@ class Module
                     return $response;
                 }
             }
-        } elseif (property_exists($session, 'userId') && $session->userId !== null) {
+        } elseif (empty($session->userId)) {
             $diContainer = $e->getApplication()->getServiceManager();
             $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
             $acl = $diContainer->get('AppAcl');
@@ -394,13 +399,6 @@ class Module
                         return new \Application\Service\FacilityService($diContainer);
                     }
                 },
-                'CommonService' => new class
-                {
-                    public function __invoke($diContainer)
-                    {
-                        return new \Application\Service\CommonService($diContainer);
-                    }
-                },
                 'RoleService' => new class
                 {
                     public function __invoke($diContainer)
@@ -480,8 +478,7 @@ class Module
                 {
                     public function __invoke($diContainer)
                     {
-                        $configResult = $diContainer->get('Config');
-                        return new \Application\View\Helper\HumanReadableDateFormat($configResult);
+                        return new \Application\View\Helper\HumanReadableDateFormat();
                     }
                 }
             ),

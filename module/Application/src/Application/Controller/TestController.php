@@ -88,7 +88,7 @@ class TestController extends AbstractActionController
     public function introAction()
     {
         $logincontainer = new Container('credo');
-        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
+        if (empty($logincontainer->userId)) {
             return $this->redirect()->toUrl("/provider/login");
         }
         return new ViewModel(array('name' => $this->commonService->getGlobalValue('country-name')));

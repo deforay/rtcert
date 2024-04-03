@@ -43,11 +43,11 @@ class PracticalExamTable extends AbstractTableGateway
 		$sqlSelect->join('provider', ' provider.id = practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
 			->join('location_details', ' provider.district = location_details.location_id ', array('location_name'), 'left')
 			->where(array('display' => 'yes'));
-		if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
-      $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-  } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
-      $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
-  }
+		if (!empty($sessionLogin->district)) {
+			$sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
+		} elseif (!empty($sessionLogin->region)) {
+			$sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
+		}
 		$sqlSelect->order('practice_exam_id desc');
 		return $this->tableGateway->selectWith($sqlSelect);
 	}
@@ -83,18 +83,18 @@ class PracticalExamTable extends AbstractTableGateway
 		//        print_r($data);
 		$practice_exam_id = (int)$practicalExam->practice_exam_id;
 		if ($practice_exam_id == 0) {
-      $data['added_on'] = \Application\Service\CommonService::getDateTime();
-      $data['added_by'] = $sessionLogin->userId;
-      $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-      $data['updated_by'] = $sessionLogin->userId;
-      $this->tableGateway->insert($data);
-  } elseif ($this->getPracticalExam($practice_exam_id)) {
-      $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-      $data['updated_by'] = $sessionLogin->userId;
-      $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
-  } else {
-				throw new \Exception('Practical Exam id does not exist');
-			}
+			$data['added_on'] = \Application\Service\CommonService::getDateTime();
+			$data['added_by'] = $sessionLogin->userId;
+			$data['updated_on'] = \Application\Service\CommonService::getDateTime();
+			$data['updated_by'] = $sessionLogin->userId;
+			$this->tableGateway->insert($data);
+		} elseif ($this->getPracticalExam($practice_exam_id)) {
+			$data['updated_on'] = \Application\Service\CommonService::getDateTime();
+			$data['updated_by'] = $sessionLogin->userId;
+			$this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
+		} else {
+			throw new \Exception('Practical Exam id does not exist');
+		}
 	}
 
 	/**
@@ -108,7 +108,7 @@ class PracticalExamTable extends AbstractTableGateway
 
 	/**
 	 * insert practical_exam id to examination table
-	 * @param type $last_id 
+	 * @param type $last_id
 	 */
 	public function insertToExamination($last_id)
 	{
@@ -160,7 +160,7 @@ class PracticalExamTable extends AbstractTableGateway
 	}
 
 	/**
-	 * count the number of  attempt 
+	 * count the number of  attempt
 	 * @return type $nombre integer
 	 */
 	public function attemptNumber($provider)
@@ -197,7 +197,7 @@ class PracticalExamTable extends AbstractTableGateway
 				return '##' . $certification_id . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_certificate_issued) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_after) . '##' . \Application\Service\CommonService::humanReadableDateFormat($date_before);
 			}
 		}
-		$sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued, 
+		$sql = 'SELECT COUNT(*) as nombre from (select  certification.id ,examination, final_decision, certification_issuer, date_certificate_issued,
                 date_certificate_sent, certification_type, provider,last_name, first_name, middle_name, certification_id,
                 certification_reg_no, professional_reg_no,email,date_end_validity,facility_in_charge_email from certification, examination, provider where examination.id = certification.examination and provider.id = examination.provider and (approval_status in("rejected","Rejected") or final_decision in ("failed","pending")) and date_certificate_issued >' . $date_certificate_issued . ' and provider=' . $provider . ') as tab';
 		//        die($sql);
@@ -238,7 +238,7 @@ class PracticalExamTable extends AbstractTableGateway
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type $written
 	 * @return type
 	 */
@@ -443,7 +443,7 @@ class PracticalExamTable extends AbstractTableGateway
 	{
 		$db = $this->adapter;
 
-		$sql1 = 'SELECT 
+		$sql1 = 'SELECT
         practice_exam_id,
         training.training_id,
         training.Provider_id,
@@ -457,9 +457,9 @@ class PracticalExamTable extends AbstractTableGateway
         Comments,
         last_name,
         first_name,
-        middle_name, 
-        professional_reg_no, 
-        certification_id, 
+        middle_name,
+        professional_reg_no,
+        certification_id,
         certification_reg_no,
         training_organization_name,
         type_organization

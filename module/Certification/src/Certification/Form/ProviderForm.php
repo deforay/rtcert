@@ -7,41 +7,43 @@ use Laminas\Session\Container;
 use Laminas\Db\Adapter\AdapterInterface;
 use Application\Model\GlobalTable;
 
-class ProviderForm extends Form {
+class ProviderForm extends Form
+{
 
     public $regionLabel;
     public $districtsLabel;
     public $facilityLabel;
     protected $adapter;
 
-    public function __construct(AdapterInterface $dbAdapter) {
+    public function __construct(AdapterInterface $dbAdapter)
+    {
 
         $this->adapter = $dbAdapter;
         $globalDb = new GlobalTable($dbAdapter);
-        
-        $TranslateRegionLabel=$globalDb->getGlobalValue('region');
-        if(trim($TranslateRegionLabel)==""){
-            $TranslateRegionLabel="Region";
+
+        $TranslateRegionLabel = $globalDb->getGlobalValue('region');
+        if (trim($TranslateRegionLabel) == "") {
+            $TranslateRegionLabel = "Region";
         }
-        $TranslateDistrictsLabel=$globalDb->getGlobalValue('districts');
-        if(trim($TranslateDistrictsLabel)==""){
-            $TranslateDistrictsLabel="Districts";
+        $TranslateDistrictsLabel = $globalDb->getGlobalValue('districts');
+        if (trim($TranslateDistrictsLabel) == "") {
+            $TranslateDistrictsLabel = "Districts";
         }
-        $TranslateFacilityLabel=$globalDb->getGlobalValue('facilities');
-        if(trim($TranslateFacilityLabel)==""){
-            $TranslateFacilityLabel="Facilities";
+        $TranslateFacilityLabel = $globalDb->getGlobalValue('facilities');
+        if (trim($TranslateFacilityLabel) == "") {
+            $TranslateFacilityLabel = "Facilities";
         }
-        $this->regionLabel=$TranslateRegionLabel;
-        $this->districtsLabel=$TranslateDistrictsLabel;
-        $this->facilityLabel=$TranslateFacilityLabel;
-        
+        $this->regionLabel = $TranslateRegionLabel;
+        $this->districtsLabel = $TranslateDistrictsLabel;
+        $this->facilityLabel = $TranslateFacilityLabel;
+
         parent::__construct("provider");
-       
+
         $this->setAttributes(array(
             'method' => 'post',
             'enctype' => 'multipart/form-data'
         ));
-       
+
         $this->add(array(
             'name' => 'id',
             'type' => 'Hidden',
@@ -92,7 +94,7 @@ class ProviderForm extends Form {
                 'label' => 'Middle Name (3rd name)',
             ),
         ));
-        
+
         $this->add(array(
             'name' => 'country',
             'type' => 'select',
@@ -101,10 +103,10 @@ class ProviderForm extends Form {
                 'disable_inarray_validator' => true,
                 'empty_option' => 'Please Choose a Country',
                 'value_options' => $this->getAllActiveCountries(),
-                'value'=>1,
+                'value' => 1,
             ),
         ));
-         
+
         $this->add(array(
             'name' => 'region',
             'type' => 'select',
@@ -277,12 +279,12 @@ class ProviderForm extends Form {
             ),
         ));
 
-        
+
         $this->add(array(
             'name' => 'profile_picture',
             'type' => 'Laminas\Form\Element\File',
             'options' => array(
-                 'label' => 'Upload Profile Picture'
+                'label' => 'Upload Profile Picture'
             ),
             'attributes' => array(
                 'class' => 'form-control',
@@ -298,15 +300,16 @@ class ProviderForm extends Form {
             ),
         ));
     }
-    
-    public function getAllActiveCountries() {
+
+    public function getAllActiveCountries()
+    {
         $logincontainer = new Container('credo');
         $countryWhere = 'WHERE country_status = "active"';
-        if(property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0){
-            $countryWhere = 'WHERE country_id IN('.implode(',',$logincontainer->country).') AND country_status = "active"';
+        if (!empty($logincontainer->country)) {
+            $countryWhere = 'WHERE country_id IN(' . implode(',', $logincontainer->country) . ') AND country_status = "active"';
         }
         $dbAdapter = $this->adapter;
-        $sql = 'SELECT country_id, country_name FROM country '.$countryWhere.' ORDER by country_name asc';
+        $sql = 'SELECT country_id, country_name FROM country ' . $countryWhere . ' ORDER by country_name asc';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
         $selectData = [];
@@ -315,5 +318,4 @@ class ProviderForm extends Form {
         }
         return $selectData;
     }
-
 }

@@ -40,9 +40,9 @@ class TrainingTable extends AbstractTableGateway
         $sqlSelect->join('provider', 'provider.id = training.Provider_id', array('last_name', 'first_name', 'middle_name', 'professional_reg_no', 'certification_id', 'certification_reg_no'), 'left')
             ->join('training_organization', 'training_organization.training_organization_id = training.training_organization_id ', array('training_organization_name', 'type_organization'), 'left');
         $sqlSelect->order('training_id desc');
-        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
+        if (!empty($sessionLogin->district)) {
             $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
+        } elseif (!empty($sessionLogin->region)) {
             $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         return $this->tableGateway->selectWith($sqlSelect);
@@ -148,19 +148,19 @@ class TrainingTable extends AbstractTableGateway
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
-        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
             $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
         }
 
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
-        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
             $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
-        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
             $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
 
@@ -313,7 +313,7 @@ class TrainingTable extends AbstractTableGateway
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
         // echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
@@ -524,17 +524,17 @@ class TrainingTable extends AbstractTableGateway
         }
         if (!empty($parameters['country'])) {
             $sQuery->where(array('c.country_id' => $parameters['country']));
-        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
             $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
         if (!empty($parameters['region'])) {
             $sQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
             $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
         if (!empty($parameters['district'])) {
             $sQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
             $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
         if (!empty($parameters['facility'])) {
@@ -556,7 +556,7 @@ class TrainingTable extends AbstractTableGateway
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
         // echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
@@ -599,17 +599,17 @@ class TrainingTable extends AbstractTableGateway
         }
         if (!empty($parameters['country'])) {
             $tQuery->where(array('c.country_id' => $parameters['country']));
-        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
             $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
         if (!empty($parameters['region'])) {
             $tQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
             $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
         if (!empty($parameters['district'])) {
             $tQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+        } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
             $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
         if (!empty($parameters['facility'])) {
