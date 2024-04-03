@@ -112,12 +112,12 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                         <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('district')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('district')); ?>
-                            <?= $this->formElementErrors($form->get('district')); ?>
+                            <?php // $this->formElementErrors($form->get('district')); ?>
                         </div>
                         <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('facility_name')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('facility_name')); ?>
-                            <?= $this->formElementErrors($form->get('facility_name')); ?>
+                            <?php // $this->formElementErrors($form->get('facility_name')); ?>
                         </div>
                     </div>
 
@@ -125,12 +125,12 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('contact_person_name')); ?>
                             <?= $this->formElement($form->get('contact_person_name')); ?>
-                            <?= $this->formElementErrors($form->get('contact_person_name')); ?>
+                            <?php // $this->formElementErrors($form->get('contact_person_name')); ?>
                         </div>
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('phone_no')); ?>
                             <?= $this->formElement($form->get('phone_no')); ?>
-                            <?= $this->formElementErrors($form->get('phone_no')); ?>
+                            <?php // $this->formElementErrors($form->get('phone_no')); ?>
                         </div>
                     </div>
                     
@@ -138,24 +138,24 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('email_id')); ?>
                             <?= $this->formElement($form->get('email_id')); ?>
-                            <?= $this->formElementErrors($form->get('email_id')); ?>
+                            <?php // $this->formElementErrors($form->get('email_id')); ?>
                         </div>
                         <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('facility_address')); ?>
                             <?= $this->formElement($form->get('facility_address')); ?>
-                            <?= $this->formElementErrors($form->get('facility_address')); ?>
+                            <?php // $this->formElementErrors($form->get('facility_address')); ?>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6"> 
                             <?= $this->formLabel($form->get('latitude')); ?>
                             <?= $this->formElement($form->get('latitude')); ?>
-                            <?= $this->formElementErrors($form->get('latitude')); ?>
+                            <?php // $this->formElementErrors($form->get('latitude')); ?>
                         </div>
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('longitude')); ?>
                             <?= $this->formElement($form->get('longitude')); ?>
-                            <?= $this->formElementErrors($form->get('longitude')); ?>
+                            <?php // $this->formElementErrors($form->get('longitude')); ?>
                         </div>
                     </div>
 

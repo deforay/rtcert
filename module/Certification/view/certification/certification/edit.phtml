@@ -84,30 +84,30 @@ $sessionLogin = new Container('credo');
                                 <div class="form-group col-lg-6"> 
                                     <?= $this->formLabel($form->get('final_decision')); ?><span class="mandatory" style="color: green;">*</span>
                                     <?= $this->formElement($form->get('final_decision')); ?>
-                                    <?= $this->formElementErrors($form->get('final_decision')); ?>
+                                    <?php // $this->formElementErrors($form->get('final_decision')); ?>
                                 </div>
 
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('date_certificate_issued')); ?><span class="mandatory" style="color: green;">*</span>
                                     <?= $this->formElement($form->get('date_certificate_issued')); ?>
-                                    <?= $this->formElementErrors($form->get('date_certificate_issued')); ?>
+                                    <?php // $this->formElementErrors($form->get('date_certificate_issued')); ?>
                                 </div>
 
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('certification_type')); ?><span class="mandatory" style="color: green;">*</span>
                                     <?= $this->formElement($form->get('certification_type')); ?>
-                                    <?= $this->formElementErrors($form->get('certification_type')); ?></div>
+                                    <?php // $this->formElementErrors($form->get('certification_type')); ?></div>
 
                                 <div class="form-group col-lg-6" id="issued">
                                     <?= $this->formLabel($form->get('certification_issuer')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('certification_issuer')); ?>
-                                    <?= $this->formElementErrors($form->get('certification_issuer')); ?>
+                                    <?php // $this->formElementErrors($form->get('certification_issuer')); ?>
                                 </div>
  
                                 <div class="form-group col-lg-6" >
                                     <?= $this->formLabel($form->get('date_certificate_sent')); ?>
                                     <?= $this->formElement($form->get('date_certificate_sent')); ?>
-                                    <?= $this->formElementErrors($form->get('date_certificate_sent')); ?>
+                                    <?php // $this->formElementErrors($form->get('date_certificate_sent')); ?>
                                 </div>
                                 <div class="form-group col-lg-6" style="margin-top: 30px"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
                                     <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('certification', array('action' => 'index')); ?>" >CANCEL</a> </div>

@@ -219,75 +219,75 @@ if($nombre!= null){
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('provider_id')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('provider_id')); ?>
-                        <?= $this->formElementErrors($form->get('provider_id')); ?>
+                        <?php // $this->formElementErrors($form->get('provider_id')); ?>
                     </div>
                   
                     <div class="form-group col-lg-6"> 
                         <?= $this->formLabel($form->get('exam_type')); ?><span class="mandatory" style="color: green;">*</span>
                         <?= $this->formElement($form->get('exam_type')); ?>
-                        <?= $this->formElementErrors($form->get('exam_type')); ?>
+                        <?php // $this->formElementErrors($form->get('exam_type')); ?>
                     </div>
 
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('exam_admin')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('exam_admin')); ?>
-                        <?= $this->formElementErrors($form->get('exam_admin')); ?>
+                        <?php // $this->formElementErrors($form->get('exam_admin')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('date')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('date')); ?>
-                        <?= $this->formElementErrors($form->get('date')); ?>
+                        <?php // $this->formElementErrors($form->get('date')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('qa_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('qa_point')); ?>
-                        <?= $this->formElementErrors($form->get('qa_point')); ?>
+                        <?php // $this->formElementErrors($form->get('qa_point')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('rt_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('rt_point')); ?>
-                        <?= $this->formElementErrors($form->get('rt_point')); ?> </div>
+                        <?php // $this->formElementErrors($form->get('rt_point')); ?> </div>
                     <div class="form-group col-lg-6">  
                         <?= $this->formLabel($form->get('safety_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('safety_point')); ?>
-                        <?= $this->formElementErrors($form->get('safety_point')); ?>
+                        <?php // $this->formElementErrors($form->get('safety_point')); ?>
                     </div>
 
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('specimen_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('specimen_point')); ?>
-                        <?= $this->formElementErrors($form->get('specimen_point')); ?>       
+                        <?php // $this->formElementErrors($form->get('specimen_point')); ?>       
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('testing_algo_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('testing_algo_point')); ?>
-                        <?= $this->formElementErrors($form->get('testing_algo_point')); ?>
+                        <?php // $this->formElementErrors($form->get('testing_algo_point')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('report_keeping_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('report_keeping_point')); ?>
-                        <?= $this->formElementErrors($form->get('report_keeping_point')); ?>
+                        <?php // $this->formElementErrors($form->get('report_keeping_point')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('EQA_PT_points')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('EQA_PT_points')); ?>
-                        <?= $this->formElementErrors($form->get('EQA_PT_points')); ?>
+                        <?php // $this->formElementErrors($form->get('EQA_PT_points')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('ethics_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('ethics_point')); ?>
-                        <?= $this->formElementErrors($form->get('ethics_point')); ?>
+                        <?php // $this->formElementErrors($form->get('ethics_point')); ?>
                     </div>
 
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('inventory_point')); ?><span class="mandatory">*</span>
                         <?= $this->formElement($form->get('inventory_point')); ?>
-                        <?= $this->formElementErrors($form->get('inventory_point')); ?>
+                        <?php // $this->formElementErrors($form->get('inventory_point')); ?>
                     </div>
                     <div class="form-group col-lg-6">
                         <?= $this->formLabel($form->get('training_id')); ?>
                         <?= $this->formElement($form->get('training_id')); ?>
-                        <?= $this->formElementErrors($form->get('training_id')); ?>
+                        <?php // $this->formElementErrors($form->get('training_id')); ?>
                     </div>
 
                     <?php echo $this->formHidden($form->get('practical')) ?>

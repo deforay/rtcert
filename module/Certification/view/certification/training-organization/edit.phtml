@@ -80,31 +80,31 @@ $sessionLogin = new Container('credo');
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('training_organization_name')); ?>
                                         <?= $this->formElement($form->get('training_organization_name')); ?>
-                                        <?= $this->formElementErrors($form->get('training_organization_name')); ?>
+                                        <?php // $this->formElementErrors($form->get('training_organization_name')); ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('abbreviation')); ?>
                                         <?= $this->formElement($form->get('abbreviation')); ?>
-                                        <?= $this->formElementErrors($form->get('abbreviation')); ?>
+                                        <?php // $this->formElementErrors($form->get('abbreviation')); ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('type_organization')); ?>
                                         <?= $this->formElement($form->get('type_organization')); ?>
-                                        <?= $this->formElementErrors($form->get('type_organization')); ?>
+                                        <?php // $this->formElementErrors($form->get('type_organization')); ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('address')); ?>
                                         <?= $this->formElement($form->get('address')); ?>
-                                        <?= $this->formElementErrors($form->get('address')); ?>
+                                        <?php // $this->formElementErrors($form->get('address')); ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('phone')); ?>
                                         <?= $this->formElement($form->get('phone')); ?>
-                                        <?= $this->formElementErrors($form->get('phone')); ?>
+                                        <?php // $this->formElementErrors($form->get('phone')); ?>
                                     </div>
                                 </div>
                                 <div class="row" style="margin-left: 18px;"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>

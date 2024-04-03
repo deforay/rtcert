@@ -231,83 +231,83 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                         <div class="form-group col-lg-4"> 
                                             <?= $this->formLabel($form->get('professional_reg_no')); ?>
                                             <?= $this->formElement($form->get('professional_reg_no')); ?>
-                                            <?= $this->formElementErrors($form->get('professional_reg_no')); ?>
+                                            <?php // $this->formElementErrors($form->get('professional_reg_no')); ?>
                                         </div>
                                         <div class="form-group col-lg-4"> 
                                             <?= $this->formLabel($form->get('profile_picture')); ?>
                                             <?= $this->formFile($form->get('profile_picture')); ?>
-                                            <?= $this->formElementErrors($form->get('profile_picture')); ?>
+                                            <?php // $this->formElementErrors($form->get('profile_picture')); ?>
                                             <div class="box-body"> <code>!</code>Please make sure profile image size of:  <code>600x600.</code> </div>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('first_name')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('first_name')); ?>
-                                            <?= $this->formElementErrors($form->get('first_name')); ?>
+                                            <?php // $this->formElementErrors($form->get('first_name')); ?>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="form-group col-lg-4"> 
                                             <?= $this->formLabel($form->get('last_name')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('last_name')); ?>
-                                            <?= $this->formElementErrors($form->get('last_name')); ?>
+                                            <?php // $this->formElementErrors($form->get('last_name')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('middle_name')); ?>
                                             <?= $this->formElement($form->get('middle_name')); ?>
-                                            <?= $this->formElementErrors($form->get('middle_name')); ?>
+                                            <?php // $this->formElementErrors($form->get('middle_name')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('country')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('country')); ?>
-                                            <?= $this->formElementErrors($form->get('country')); ?>
+                                            <?php // $this->formElementErrors($form->get('country')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('region')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('region')); ?>
-                                            <?= $this->formElementErrors($form->get('region')); ?>
+                                            <?php // $this->formElementErrors($form->get('region')); ?>
                                         </div>
     
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('district')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('district')); ?>
-                                            <?= $this->formElementErrors($form->get('district')); ?></div>
+                                            <?php // $this->formElementErrors($form->get('district')); ?></div>
     
                                         <div class="form-group col-lg-4">  
                                             <?= $this->formLabel($form->get('type_vih_test')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('type_vih_test')); ?>
-                                            <?= $this->formElementErrors($form->get('type_vih_test')); ?>
+                                            <?php // $this->formElementErrors($form->get('type_vih_test')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('phone')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('phone')); ?>
-                                            <?= $this->formElementErrors($form->get('phone')); ?>
+                                            <?php // $this->formElementErrors($form->get('phone')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('email')); ?><span class="mandatory testerEmailMandatorySection" style="display:none;">*</span>
                                             <?= $this->formElement($form->get('email')); ?>
-                                            <?= $this->formElementErrors($form->get('email')); ?>
+                                            <?php // $this->formElementErrors($form->get('email')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('prefered_contact_method')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('prefered_contact_method')); ?>
-                                            <?= $this->formElementErrors($form->get('prefered_contact_method')); ?>       
+                                            <?php // $this->formElementErrors($form->get('prefered_contact_method')); ?>       
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('current_jod')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('current_jod')); ?>
-                                            <?= $this->formElementErrors($form->get('current_jod')); ?>
+                                            <?php // $this->formElementErrors($form->get('current_jod')); ?>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('facility_id')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('facility_id')); ?>
-                                            <?= $this->formElementErrors($form->get('facility_id')); ?>
+                                            <?php // $this->formElementErrors($form->get('facility_id')); ?>
                                         </div>
     
                                         <div class = " form-group col-lg-4">
                                             <div class = "input-group">
                                                 <?= $this->formLabel($form->get('time_worked')); ?><span class="mandatory">*</span>
                                                 <?= $this->formElement($form->get('time_worked')); ?>
-                                                <?= $this->formElementErrors($form->get('time_worked')); ?>
+                                                <?php // $this->formElementErrors($form->get('time_worked')); ?>
                                                 <div class = "input-group-btn">
                                                     <select class="form-control" style="margin-bottom: -28px; width: 100px;" name="select_time" id="Time" onclick = 'emptyInput(this)'> 
                                                         <option value="">--Select--</option>
@@ -323,13 +323,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('username')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('username')); ?>
-                                            <?= $this->formElementErrors($form->get('username')); ?>
+                                            <?php // $this->formElementErrors($form->get('username')); ?>
                                         </div>
                                         
                                         <div class="form-group col-lg-4">
                                             <?= $this->formLabel($form->get('password')); ?><span class="mandatory">*</span>
                                             <?= $this->formElement($form->get('password')); ?>
-                                            <?= $this->formElementErrors($form->get('password')); ?>
+                                            <?php // $this->formElementErrors($form->get('password')); ?>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -339,17 +339,17 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('test_site_in_charge_name')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('test_site_in_charge_name')); ?>
-                                        <?= $this->formElementErrors($form->get('test_site_in_charge_name')); ?>
+                                        <?php // $this->formElementErrors($form->get('test_site_in_charge_name')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('test_site_in_charge_phone')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('test_site_in_charge_phone')); ?>
-                                        <?= $this->formElementErrors($form->get('test_site_in_charge_phone')); ?>
+                                        <?php // $this->formElementErrors($form->get('test_site_in_charge_phone')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('test_site_in_charge_email')); ?>
                                         <?= $this->formElement($form->get('test_site_in_charge_email')); ?>
-                                        <?= $this->formElementErrors($form->get('test_site_in_charge_email')); ?>
+                                        <?php // $this->formElementErrors($form->get('test_site_in_charge_email')); ?>
                                     </div>
                                 </fieldset>
 
@@ -362,17 +362,17 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('facility_in_charge_name')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('facility_in_charge_name')); ?>
-                                        <?= $this->formElementErrors($form->get('facility_in_charge_name')); ?>
+                                        <?php // $this->formElementErrors($form->get('facility_in_charge_name')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('facility_in_charge_phone')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('facility_in_charge_phone')); ?>
-                                        <?= $this->formElementErrors($form->get('facility_in_charge_phone')); ?>
+                                        <?php // $this->formElementErrors($form->get('facility_in_charge_phone')); ?>
                                     </div>
                                     <div class="form-group col-lg-4">
                                         <?= $this->formLabel($form->get('facility_in_charge_email')); ?>
                                         <?= $this->formElement($form->get('facility_in_charge_email')); ?>
-                                        <?= $this->formElementErrors($form->get('facility_in_charge_email')); ?>
+                                        <?php // $this->formElementErrors($form->get('facility_in_charge_email')); ?>
                                     </div>
                                 </fieldset>
 

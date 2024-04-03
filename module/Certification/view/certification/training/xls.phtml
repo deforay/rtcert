@@ -70,24 +70,24 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('type_of_competency')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('type_of_competency')); ?>
-                                    <?= $this->formElementErrors($form->get('type_of_competency')); ?>
+                                    <?php // $this->formElementErrors($form->get('type_of_competency')); ?>
                                 </div>
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('type_of_training')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('type_of_training')); ?>
-                                    <?= $this->formElementErrors($form->get('type_of_training')); ?>
+                                    <?php // $this->formElementErrors($form->get('type_of_training')); ?>
                                 </div>
                                 
                                 <div class="form-group col-lg-6">  
                                     <?= $this->formLabel($form->get('training_organization_id')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('training_organization_id')); ?>
-                                    <?= $this->formElementErrors($form->get('training_organization_id')); ?>
+                                    <?php // $this->formElementErrors($form->get('training_organization_id')); ?>
                                 </div>
                                
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('training_certificate')); ?>
                                     <?= $this->formElement($form->get('training_certificate')); ?>
-                                    <?= $this->formElementErrors($form->get('training_certificate')); ?>       
+                                    <?php // $this->formElementErrors($form->get('training_certificate')); ?>       
                                 </div>
 
                                 <div class="form-group col-lg-6">

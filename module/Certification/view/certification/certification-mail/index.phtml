@@ -152,7 +152,7 @@ if (isset($provider_name) && trim($provider_name) != '') {
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('type')); ?>
                                                 <?= $this->formElement($form->get('type')); ?>
-                                                <?= $this->formElementErrors($form->get('type')); ?>
+                                                <?php // $this->formElementErrors($form->get('type')); ?>
                                             </div>
                                         </div>
                                         <div id="Recipient" class="row" style="display:none;">
@@ -175,21 +175,21 @@ if (isset($provider_name) && trim($provider_name) != '') {
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('provider')); ?><span class="mandatory">*</span>
                                                 <?= $this->formElement($form->get('provider')); ?>
-                                                <?= $this->formElementErrors($form->get('provider')); ?>
+                                                <?php // $this->formElementErrors($form->get('provider')); ?>
                                             </div>
                                         </div>
                                         <div class="row" style="display:none;">
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('add_to')); ?>
                                                 <?= $this->formElement($form->get('add_to')); ?>
-                                                <?= $this->formElementErrors($form->get('add_to')); ?>
+                                                <?php // $this->formElementErrors($form->get('add_to')); ?>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('to_email')); ?><span class="mandatory">*</span>
                                                 <?= $this->formElement($form->get('to_email')); ?>
-                                                <?= $this->formElementErrors($form->get('to_email')); ?>
+                                                <?php // $this->formElementErrors($form->get('to_email')); ?>
                                             </div>
                                         </div>
 
@@ -197,28 +197,28 @@ if (isset($provider_name) && trim($provider_name) != '') {
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('cc')); ?>
                                                 <?= $this->formElement($form->get('cc')); ?>
-                                                <?= $this->formElementErrors($form->get('cc')); ?>
+                                                <?php // $this->formElementErrors($form->get('cc')); ?>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6 pull-left">
                                                 <?= $this->formLabel($form->get('bcc')); ?>
                                                 <?= $this->formElement($form->get('bcc')); ?>
-                                                <?= $this->formElementErrors($form->get('bcc')); ?>
+                                                <?php // $this->formElementErrors($form->get('bcc')); ?>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6">
                                                 <?= $this->formLabel($form->get('subject')); ?><span class="mandatory" style="color: green;">*</span>
                                                 <?= $this->formElement($form->get('subject')); ?>
-                                                <?= $this->formElementErrors($form->get('subject')); ?>
+                                                <?php // $this->formElementErrors($form->get('subject')); ?>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-lg-6 ">
                                                 <?= $this->formLabel($form->get('message')); ?><span class="mandatory" style="color: green;">*</span>
                                                 <?= $this->formElement($form->get('message')); ?>
-                                                <?= $this->formElementErrors($form->get('message')); ?>
+                                                <?php // $this->formElementErrors($form->get('message')); ?>
                                             </div>
                                         </div>
                                         <!-- <div style="margin-bottom: 20px; " id="div-file">
