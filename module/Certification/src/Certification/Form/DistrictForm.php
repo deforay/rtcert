@@ -57,7 +57,7 @@ class DistrictForm extends Form {
             'name' => 'location_code',
             'type' => 'Text',
             'options' => array(
-                'label' => 'Province Code',
+                'label' => 'District Code',
             ),
         ));
         $this->add(array(
