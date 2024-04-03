@@ -46,12 +46,10 @@ class CertificationMailTable extends AbstractTableGateway {
         $mail_id = (int) $CertificationMail->mail_id;
         if ($mail_id == 0) {
             $this->tableGateway->insert($data);
+        } elseif ($this->getCertificationMail($mail_id)) {
+            $this->tableGateway->update($data, array('mail_id' => $mail_id));
         } else {
-            if ($this->getCertificationMail($mail_id)) {
-                $this->tableGateway->update($data, array('mail_id' => $mail_id));
-            } else {
-                throw new \Exception('Mail id does not exist');
-            }
+            throw new \Exception('Mail id does not exist');
         }
     }
 
@@ -79,9 +77,7 @@ class CertificationMailTable extends AbstractTableGateway {
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('mail_id', 'to_email', 'cc', 'bcc', 'type', 'mail_date'));
         $sqlSelect->order('mail_date asc');
-
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     public function insertRecertification($due_date,$provider_id, $reminder_type, $reminder_sent_to, $name_reminder,$date_reminder_sent) {

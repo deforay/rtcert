@@ -8,6 +8,7 @@ use Laminas\Db\Adapter\Adapter;
 
 class RecertificationForm extends Form {
 
+    public $adapter;
     public function __construct(AdapterInterface $dbAdapter) {
         
         $this->adapter = $dbAdapter;

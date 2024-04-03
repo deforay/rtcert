@@ -52,9 +52,9 @@ class PrintTestPdfTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -90,9 +90,11 @@ class PrintTestPdfTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -153,7 +155,7 @@ class PrintTestPdfTable extends AbstractTableGateway
         $iTotal = $this->select()->count();
 
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -199,10 +201,8 @@ class PrintTestPdfTable extends AbstractTableGateway
                                     </label>';
                 }
             }
-            if ($viewPdfAccess) {
-                if (isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active') {
-                    $viewPdfQuestion = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye"></i> View PDF Questions Sets</a>';
-                }
+            if ($viewPdfAccess && (isset($aRow['ptp_status']) && $aRow['ptp_status'] == 'active')) {
+                $viewPdfQuestion = '<a href="/print-test-pdf/view-pdf-question/' . base64_encode($aRow['ptp_id']) . '" class="btn btn-success action-btn" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-eye"></i> View PDF Questions Sets</a>';
             }
             if ($editAccess = true || $changeStatusAccess == true || $viewPdfAccess == true) {
                 $row[] = $eidOption . $changeStatus . $viewPdfQuestion;
@@ -235,9 +235,9 @@ class PrintTestPdfTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -273,9 +273,11 @@ class PrintTestPdfTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -343,7 +345,7 @@ class PrintTestPdfTable extends AbstractTableGateway
         $iTotal = $dbAdapter->query($iTotalsQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->count();
 
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -417,7 +419,7 @@ class PrintTestPdfTable extends AbstractTableGateway
         $this->insert($data);
         $lastInsertedId = $this->lastInsertValue;
         if ($lastInsertedId > 0) {
-            $questionResult = $this->getRandomPdfQuestions(null, $testConfigResult[1]['test_config_value'], 'print_test_pdf', 'ptp_id');
+            $questionResult = $this->getRandomPdfQuestions('print_test_pdf', 'ptp_id', null, $testConfigResult[1]['test_config_value']);
             $randomString = \Application\Service\CommonService::generateRandomString();
             if ($params['ptpNoOfVariants'] > 0) {
                 foreach (range(1, $params['ptpNoOfVariants']) as $number) {
@@ -449,7 +451,7 @@ class PrintTestPdfTable extends AbstractTableGateway
         return $lastInsertedId;
     }
 
-    public function getRandomPdfQuestions($testId = null, $limit = null, $tableName, $primary)
+    public function getRandomPdfQuestions($tableName, $primary, $testId = null, $limit = null)
     {
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
@@ -472,7 +474,7 @@ class PrintTestPdfTable extends AbstractTableGateway
                         } else {
                             return $questionResult;
                         }
-                    } else if ($limit == null) {
+                    } elseif ($limit == null) {
                         $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
                             ->where(array('pq.test_id' => $testId, 'section' => $cd['section_id']))
                             ->order('pq.' . $primary . ' ASC');
@@ -503,7 +505,7 @@ class PrintTestPdfTable extends AbstractTableGateway
                     $qQuery = $qQuery->order(new Expression('RAND()'))
                         ->where(array('status' => 'active'))
                         ->limit(($limit - $secLimit));
-                } else if ($limit == null) {
+                } elseif ($limit == null) {
                     $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
                         ->where(array('pq.test_id' => $testId))
                         ->order('pq.' . $primary . ' ASC');
@@ -532,7 +534,7 @@ class PrintTestPdfTable extends AbstractTableGateway
                 $qQuery = $qQuery->order(new Expression('RAND()'))
                     ->where(array('status' => 'active'))
                     ->limit($limit);
-            } else if ($limit == null) {
+            } elseif ($limit == null) {
                 $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
                     ->where(array('pq.test_id' => $testId))
                     ->order('pq.' . $primary . ' ASC');

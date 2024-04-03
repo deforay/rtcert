@@ -9,6 +9,7 @@ use Application\Model\GlobalTable;
 
 class RegionForm extends Form
 {
+    public $regionLabel;
     protected $adapter;
 
     public function __construct(AdapterInterface $dbAdapter)
@@ -84,7 +85,7 @@ class RegionForm extends Form
     {
         $logincontainer = new Container('credo');
         $countryWhere = 'WHERE country_status = "active"';
-        if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        if (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $countryWhere = 'WHERE country_id IN(' . implode(',', $logincontainer->country) . ') AND country_status = "active"';
         }
         $dbAdapter = $this->adapter;

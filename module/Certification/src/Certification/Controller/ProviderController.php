@@ -30,7 +30,7 @@ class ProviderController extends AbstractActionController
     public function indexAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
@@ -50,7 +50,7 @@ class ProviderController extends AbstractActionController
     public function addAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
@@ -86,14 +86,14 @@ class ProviderController extends AbstractActionController
     public function editAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
 
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('provider', array('action' => 'add'));
         }
 
@@ -176,7 +176,7 @@ class ProviderController extends AbstractActionController
     public function districtAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
@@ -191,7 +191,7 @@ class ProviderController extends AbstractActionController
     public function facilityAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $q = (int) $_GET['q'];
@@ -228,12 +228,12 @@ class ProviderController extends AbstractActionController
     public function deleteAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $id = (int) $this->params()->fromRoute('id', 0);
 
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('provider');
         } else {
             $keys = $this->providerTable->foreigne_key($id);
@@ -390,7 +390,7 @@ class ProviderController extends AbstractActionController
     public function testHistoryAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
         $tester = base64_decode($this->params()->fromQuery('tester', null));
@@ -465,8 +465,8 @@ class ProviderController extends AbstractActionController
                 );
 
                 $message = str_replace($mailSearch, $mailReplace, $mailTemplates['mail_content']);
-                $message = str_replace("&nbsp;", "", strval($message));
-                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $message = str_replace("&nbsp;", "", (string) $message);
+                $message = str_replace("&amp;nbsp;", "", (string) $message);
                 $message = html_entity_decode($message . $mailTemplates['mail_footer'], ENT_QUOTES, 'UTF-8');
 
                 $fromMail = $mailTemplates['mail_from'];
@@ -515,7 +515,7 @@ class ProviderController extends AbstractActionController
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->testService->exportTestDetails($parameters);
+            $result = $this->testService->exportTestDetails();
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
@@ -529,7 +529,7 @@ class ProviderController extends AbstractActionController
         $request = $this->getRequest();
         if ($request->isPost()) {
             $parameters = $request->getPost();
-            $result = $this->questionService->exportQuestionDetails($parameters);
+            $result = $this->questionService->exportQuestionDetails();
             $viewModel = new ViewModel();
             $viewModel->setVariables(array('result' => $result));
             $viewModel->setTerminal(true);
@@ -545,7 +545,7 @@ class ProviderController extends AbstractActionController
             return array(
                 'result' => $result
             );
-        } else if ($this->getRequest()->isGet()) {
+        } elseif ($this->getRequest()->isGet()) {
             $testId = base64_decode($this->getRequest()->getQuery('testId'));
             $result = $this->testService->getCertificateFieldDetails($testId);
             return array(
@@ -560,7 +560,7 @@ class ProviderController extends AbstractActionController
     public function importExcelAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toRoute("login");
         }
 

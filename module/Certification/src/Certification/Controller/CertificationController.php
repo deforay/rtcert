@@ -38,7 +38,7 @@ class CertificationController extends AbstractActionController
         if ($this->params()->fromQuery('src', null)) {
             $src = $this->params()->fromQuery('src', null);
         }
-        if (!empty($certification_id) && !empty($key)) {
+        if ($certification_id !== 0 && !empty($key)) {
             $this->certificationTable->CertificateSent($certification_id);
             $container = new Container('alert');
             $container->alertMsg = 'Perform successfully';
@@ -106,7 +106,7 @@ class CertificationController extends AbstractActionController
     {
         $this->indexAction();
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('certification', array(
                 'action' => 'index'
             ));
@@ -522,7 +522,8 @@ class CertificationController extends AbstractActionController
             $params = $request->getPost();
             $result = 0;
             if (isset($params['recommendationRow']) && count($params['recommendationRow']) > 0) {
-                for ($i = 0; $i < count($params['recommendationRow']); $i++) {
+                $counter = count($params['recommendationRow']);
+                for ($i = 0; $i < $counter; $i++) {
                     $examArray = explode('#', $params['recommendationRow'][$i]);
                     $certification_id = $this->certificationTable->certificationType($examArray[5]);
                     $certification = new Certification();
@@ -533,11 +534,7 @@ class CertificationController extends AbstractActionController
                     $certification->certification_issuer = $params['certificationIssuer'];
                     $certification->date_certificate_issued = null;
                     $certification->date_certificate_sent = null;
-                    if (empty($certification_id)) {
-                        $certification->certification_type = 'Initial';
-                    } else {
-                        $certification->certification_type = 'Recertification';
-                    }
+                    $certification->certification_type = empty($certification_id) ? 'Initial' : 'Recertification';
                     $result = $this->certificationTable->saveCertification($certification);
                     $last_id = $this->certificationTable->last_id();
                     $this->certificationTable->updateExamination($last_id);

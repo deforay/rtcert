@@ -5,6 +5,8 @@ use TCPDF;
 
 class TcpdfExtends extends TCPDF {
     
+    public $header;
+    public $logo;
     public function setSchemeName($header,$logo) {
 	$this->header = $header;
 	$this->logo = $logo;
@@ -13,7 +15,7 @@ class TcpdfExtends extends TCPDF {
     //Page header
     public function Header() {
         // Logo
-        if(trim($this->logo)!="" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo'. DIRECTORY_SEPARATOR.$this->logo)){
+        if(trim($this->logo) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo'. DIRECTORY_SEPARATOR.$this->logo)){
 	    $image_file = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo'. DIRECTORY_SEPARATOR.$this->logo;
 	    $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo'. DIRECTORY_SEPARATOR.$this->logo,PATHINFO_EXTENSION));
 	    $this->Image($image_file, 12,3,20, '',strtoupper($extension), '', 'T', false, 300, 'L', false, false, 0, false, false, false);

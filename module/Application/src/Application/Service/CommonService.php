@@ -62,7 +62,7 @@ class CommonService
         $date = trim($date);
         $response = false;
 
-        if (empty($date) || 'undefined' === $date || 'null' === $date) {
+        if ($date === '' || 'undefined' === $date || 'null' === $date) {
             $response = false;
         } else {
             try {
@@ -92,7 +92,7 @@ class CommonService
         } else {
             $format = "Y-m-d";
             if ($includeTime === true) {
-                $format = $format . " H:i:s";
+                $format .= " H:i:s";
             }
             return (new DateTimeImmutable($date))->format($format);
         }
@@ -109,7 +109,7 @@ class CommonService
         } else {
 
             if ($includeTime === true) {
-                $format = $format . " H:i";
+                $format .= " H:i";
             }
 
             return (new DateTimeImmutable($date))->format($format);
@@ -234,11 +234,11 @@ class CommonService
                                     $message = str_replace("##USER##", $tester_name, $message_content);
                                 }
                                 if ($mail_purpose == 'send-reminder'){
-                                    if($type_recipient  == '') {
+                                    if ($type_recipient  == '') {
                                         $message = '';
-                                    }else if($type_recipient  == 'Provider') {
+                                    } elseif ($type_recipient  == 'Provider') {
                                         $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $data['date_end_validity'], $message_content);
-                                    }else if ($type_recipient  != 'Provider') {
+                                    } elseif ($type_recipient != 'Provider') {
                                         $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $data['date_end_validity'] . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
                                     }
                                 }
@@ -488,8 +488,7 @@ class CommonService
         }
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
-        $data = count($result);
-        return $data;
+        return count($result);
     }
 
     public function getAllConfig($parameters)
@@ -791,7 +790,8 @@ class CommonService
             $alertMail->addReplyTo($fromEmail, $fromFullName);
 
             $toArray = explode(",", $params['to_email']);
-            for ($e = 0; $e < count($toArray); $e++) {
+            $counter = count($toArray);
+            for ($e = 0; $e < $counter; $e++) {
                 $alertMail->addTo($toArray[$e]);
             }
 
@@ -943,11 +943,7 @@ class CommonService
             $sQuery = $sql->select()->from('global_config')->where(array('global_name' => 'feedback-send-mailid'));
             $sQueryStr = $sql->buildSqlString($sQuery);
             $configValues = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-            if ($configValues) {
-                $sendmail = $configValues['global_value'];
-            } else {
-                $sendmail = $configResult["email"]["config"]["toMail"];
-            }
+            $sendmail = $configValues ? $configValues['global_value'] : $configResult["email"]["config"]["toMail"];
             $transport->setOptions($options);
             $alertMail = new Mail\Message();
 
@@ -958,7 +954,8 @@ class CommonService
             $alertMail->addReplyTo($fromEmail, $fromFullName);
 
             $toArray = explode(",", $sendmail);
-            for ($e = 0; $e < count($toArray); $e++) {
+            $counter = count($toArray);
+            for ($e = 0; $e < $counter; $e++) {
                 $alertMail->addTo($toArray[$e]);
             }
 
@@ -1031,7 +1028,6 @@ class CommonService
         $subject .= "$$".$mailTemplateDetails['mail_purpose'];
         $message .= "$$".$parameters['uniqueIds']."$$".$parameters['type_recipient']."$$".$parameters['name_recipient'];
         $tempmailDb = $this->sm->get('TempMailTable');
-        $tempId = $tempmailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
-        return $tempId;
+        return $tempmailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
     }
 }

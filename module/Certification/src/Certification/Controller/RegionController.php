@@ -53,7 +53,7 @@ class RegionController extends AbstractActionController
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('region', array(
                 'action' => 'index'
             ));
@@ -92,7 +92,7 @@ class RegionController extends AbstractActionController
     {
         $id = (int) $this->params()->fromRoute('id', 0);
 
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('region');
         } else {
             $forein_key = $this->regionTable->foreigne_key($id);

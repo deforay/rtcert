@@ -9,6 +9,9 @@ use Application\Model\GlobalTable;
 
 class ProviderForm extends Form {
 
+    public $regionLabel;
+    public $districtsLabel;
+    public $facilityLabel;
     protected $adapter;
 
     public function __construct(AdapterInterface $dbAdapter) {
@@ -299,7 +302,7 @@ class ProviderForm extends Form {
     public function getAllActiveCountries() {
         $logincontainer = new Container('credo');
         $countryWhere = 'WHERE country_status = "active"';
-        if(isset($logincontainer->country) && count($logincontainer->country) > 0){
+        if(property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0){
             $countryWhere = 'WHERE country_id IN('.implode(',',$logincontainer->country).') AND country_status = "active"';
         }
         $dbAdapter = $this->adapter;

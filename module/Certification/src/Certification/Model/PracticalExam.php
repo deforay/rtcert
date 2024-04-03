@@ -8,6 +8,30 @@ use Laminas\InputFilter\InputFilterAwareInterface;
 
 class PracticalExam implements InputFilterAwareInterface {
 
+    /**
+     * @var mixed
+     */
+    public $last_name;
+    /**
+     * @var mixed
+     */
+    public $first_name;
+    /**
+     * @var mixed
+     */
+    public $middle_name;
+    /**
+     * @var mixed
+     */
+    public $admin_last_name;
+    /**
+     * @var mixed
+     */
+    public $admin_first_name;
+    /**
+     * @var mixed
+     */
+    public $admin_middle_name;
     public $practice_exam_id;
     public $exam_type;
     public $exam_admin;
@@ -22,22 +46,22 @@ class PracticalExam implements InputFilterAwareInterface {
 
     public function exchangeArray($data) {
 
-        $this->practice_exam_id = (!empty($data['practice_exam_id'])) ? $data['practice_exam_id'] : null;
-        $this->exam_type = (!empty($data['exam_type'])) ? $data['exam_type'] : null;
-        $this->exam_admin = (!empty($data['exam_admin'])) ? $data['exam_admin'] : null;
-        $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
-        $this->provider_id = (!empty($data['provider_id'])) ? $data['provider_id'] : null;
-        $this->Sample_testing_score = (!empty($data['Sample_testing_score'])) ? $data['Sample_testing_score'] : null;
-        $this->direct_observation_score = (!empty($data['direct_observation_score'])) ? $data['direct_observation_score'] : null;
-        $this->practical_total_score = (!empty($data['practical_total_score'])) ? $data['practical_total_score'] : null;
-        $this->date = (!empty($data['date'])) ? $data['date'] : null;
-        $this->last_name = (!empty($data['last_name'])) ? $data['last_name'] : null;
-        $this->first_name = (!empty($data['first_name'])) ? $data['first_name'] : null;
-        $this->middle_name = (!empty($data['middle_name'])) ? $data['middle_name'] : null;
-        $this->admin_last_name = (!empty($data['admin_last_name'])) ? $data['admin_last_name'] : null;
-        $this->admin_first_name = (!empty($data['admin_first_name'])) ? $data['admin_first_name'] : null;
-        $this->admin_middle_name = (!empty($data['admin_middle_name'])) ? $data['admin_middle_name'] : null;
-        $this->training_id = (!empty($data['training_id'])) ? $data['training_id'] : null;
+        $this->practice_exam_id = (empty($data['practice_exam_id'])) ? null : $data['practice_exam_id'];
+        $this->exam_type = (empty($data['exam_type'])) ? null : $data['exam_type'];
+        $this->exam_admin = (empty($data['exam_admin'])) ? null : $data['exam_admin'];
+        $this->location_name = (empty($data['location_name'])) ? null : $data['location_name'];
+        $this->provider_id = (empty($data['provider_id'])) ? null : $data['provider_id'];
+        $this->Sample_testing_score = (empty($data['Sample_testing_score'])) ? null : $data['Sample_testing_score'];
+        $this->direct_observation_score = (empty($data['direct_observation_score'])) ? null : $data['direct_observation_score'];
+        $this->practical_total_score = (empty($data['practical_total_score'])) ? null : $data['practical_total_score'];
+        $this->date = (empty($data['date'])) ? null : $data['date'];
+        $this->last_name = (empty($data['last_name'])) ? null : $data['last_name'];
+        $this->first_name = (empty($data['first_name'])) ? null : $data['first_name'];
+        $this->middle_name = (empty($data['middle_name'])) ? null : $data['middle_name'];
+        $this->admin_last_name = (empty($data['admin_last_name'])) ? null : $data['admin_last_name'];
+        $this->admin_first_name = (empty($data['admin_first_name'])) ? null : $data['admin_first_name'];
+        $this->admin_middle_name = (empty($data['admin_middle_name'])) ? null : $data['admin_middle_name'];
+        $this->training_id = (empty($data['training_id'])) ? null : $data['training_id'];
     }
 
     public function getArrayCopy() {

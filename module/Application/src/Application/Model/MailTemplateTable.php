@@ -35,9 +35,9 @@ class MailTemplateTable extends AbstractTableGateway {
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -73,9 +73,11 @@ class MailTemplateTable extends AbstractTableGateway {
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -123,7 +125,7 @@ class MailTemplateTable extends AbstractTableGateway {
 
 
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -156,12 +158,12 @@ class MailTemplateTable extends AbstractTableGateway {
     }
     public function saveMailTemplate($params) {
         // Debug::dump($params);die;
-        $params['mainContent'] = str_replace("&nbsp;"," ",strval($params['mainContent']));
-        $params['mainContent'] = str_replace("&amp;nbsp;"," ",strval($params['mainContent']));
-        $params['subject'] = str_replace("&nbsp;"," ",strval($params['subject']));
-        $params['subject'] = str_replace("&amp;nbsp;"," ",strval($params['subject']));
-        $params['footer'] = str_replace("&nbsp;"," ",strval($params['footer']));
-        $params['footer'] = str_replace("&amp;nbsp;"," ",strval($params['footer']));
+        $params['mainContent'] = str_replace("&nbsp;"," ",(string) $params['mainContent']);
+        $params['mainContent'] = str_replace("&amp;nbsp;"," ",(string) $params['mainContent']);
+        $params['subject'] = str_replace("&nbsp;"," ",(string) $params['subject']);
+        $params['subject'] = str_replace("&amp;nbsp;"," ",(string) $params['subject']);
+        $params['footer'] = str_replace("&nbsp;"," ",(string) $params['footer']);
+        $params['footer'] = str_replace("&amp;nbsp;"," ",(string) $params['footer']);
 
         $data=array(
             'mail_title'    => $params['mailTitle'],

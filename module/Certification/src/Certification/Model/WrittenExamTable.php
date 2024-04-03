@@ -48,15 +48,13 @@ class WrittenExamTable extends AbstractTableGateway
             ->where(array('display' => 'yes'));
         $sqlSelect->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
 
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $sqlSelect->order('id_written_exam desc');
-
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     public function getWrittenExam($id_written_exam)
@@ -79,7 +77,7 @@ class WrittenExamTable extends AbstractTableGateway
         $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
 
         $data = array(
-            'test_id' => (isset($written_exam->test_id) && $written_exam->test_id != '') ? $written_exam->test_id : '',
+            'test_id' => ($written_exam->test_id !== null && $written_exam->test_id != '') ? $written_exam->test_id : '',
             'exam_type' => $written_exam->exam_type,
             'provider_id' => $written_exam->provider_id,
             'exam_admin' => strtoupper($written_exam->exam_admin),
@@ -106,14 +104,12 @@ class WrittenExamTable extends AbstractTableGateway
             $data['updated_on'] = \Application\Service\CommonService::getDateTime();
             $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
+        } elseif ($this->getWrittenExam($id_written_exam)) {
+            $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+            $data['updated_by'] = $sessionLogin->userId;
+            $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
         } else {
-            if ($this->getWrittenExam($id_written_exam)) {
-                $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-                $data['updated_by'] = $sessionLogin->userId;
-                $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
-            } else {
-                throw new \Exception('Written Exam id does not exist');
-            }
+            throw new \Exception('Written Exam id does not exist');
         }
     }
 
@@ -153,22 +149,19 @@ class WrittenExamTable extends AbstractTableGateway
             // $data['updated_on'] = \Application\Service\CommonService::getDateTime();
             // $data['updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
+        } elseif ($this->getWrittenExam($id_written_exam)) {
+            $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+            $data['updated_by'] = $written_exam->updated_by;
+            $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
         } else {
-            if ($this->getWrittenExam($id_written_exam)) {
-                $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-                $data['updated_by'] = $written_exam->updated_by;
-                $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
-            } else {
-                throw new \Exception('Written Exam id does not exist');
-            }
+            throw new \Exception('Written Exam id does not exist');
         }
     }
 
     public function last_id()
     {
-        $last_id = $this->tableGateway->lastInsertValue;
         //        die($last_id);
-        return $last_id;
+        return $this->tableGateway->lastInsertValue;
     }
 
     /**

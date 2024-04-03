@@ -107,7 +107,7 @@ namespace Certification\Form;
         $result = $statement->execute();
         $selectData = [];
         foreach ($result as $res) {
-            $providerRegID = (trim($res['professional_reg_no'])!= '')?'('.$res['professional_reg_no'].')':'';
+            $providerRegID = (trim($res['professional_reg_no']) != '')?'('.$res['professional_reg_no'].')':'';
             $selectData[$res['id'].'##'.$res['email'].'##'.$res['test_site_in_charge_email'].'##'.$res['facility_in_charge_email'].'##'.$res['last_name'].'##'.$res['first_name'].'##'.$res['middle_name'].'##'.$res['professional_reg_no'].'##'.$res['certification_id'].'##'.$res['date_certificate_issued'].'##'.$res['date_end_validity'].'##'.$res['certid']] = ucwords($res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name']).$providerRegID.' - '.$res['certification_id'];
         }
        return $selectData;

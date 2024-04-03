@@ -141,7 +141,8 @@ class FacilityService
                     //Move Attachement File(s)
                     $errorAttachement = 0;
                     if (isset($_FILES['attchement']['name']) && count($_FILES['attchement']['name']) > 0) {
-                        for ($attch = 0; $attch < count($_FILES['attchement']['name']); $attch++) {
+                        $counter = count($_FILES['attchement']['name']);
+                        for ($attch = 0; $attch < $counter; $attch++) {
                             if (trim($_FILES['attchement']['name'][$attch]) != '') {
                                 $extension = strtolower(pathinfo(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $_FILES['attchement']['name'][$attch], PATHINFO_EXTENSION));
                                 $fileName = \Application\Service\CommonService::generateRandomString(5) . "." . $extension;

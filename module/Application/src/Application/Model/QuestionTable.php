@@ -62,7 +62,7 @@ class QuestionTable extends AbstractTableGateway
 					}
 				}
 			}
-			if (!empty($correctOptionId)) {
+			if ($correctOptionId !== []) {
 				$correctOptionData = array('correct_option' => implode(",", $correctOptionId), 'correct_option_text' => implode("<br/>", $correctOptionText));
 				$updateResult = $this->update($correctOptionData, array('question_id' => $lastInsertedId));
 			}
@@ -76,7 +76,7 @@ class QuestionTable extends AbstractTableGateway
 
 		if (isset($param['deletedQuestionList']) && trim($param['deletedQuestionList']) != "") {
 			$questionIdList = explode(",", $param['deletedQuestionList']);
-			if (count($questionIdList) > 0) {
+			if ($questionIdList !== []) {
 				foreach ($questionIdList as $questionIds) {
 					$optionDb->delete("option_id=" . base64_decode($questionIds));
 				}
@@ -126,7 +126,7 @@ class QuestionTable extends AbstractTableGateway
 					}
 				}
 			}
-			if (!empty($correctOptionId)) {
+			if ($correctOptionId !== []) {
 				$correctOptionData = array('correct_option' => implode(",", $correctOptionId), 'correct_option_text' => implode("<br/>", $correctOptionText));
 				$updateResult = $this->update($correctOptionData, array('question_id' => base64_decode($param['questionId'])));
 			}
@@ -156,9 +156,9 @@ class QuestionTable extends AbstractTableGateway
 
 		$sOrder = "";
 		if (isset($parameters['iSortCol_0'])) {
-			for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-				if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-					$sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+			for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+				if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+					$sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
 				}
 			}
 			$sOrder = substr_replace($sOrder, "", -1);
@@ -194,9 +194,11 @@ class QuestionTable extends AbstractTableGateway
 			}
 			$sWhere .= $sWhereSub;
 		}
+  /* Individual column filtering */
+  $counter = count($aColumns);
 
 		/* Individual column filtering */
-		for ($i = 0; $i < count($aColumns); $i++) {
+		for ($i = 0; $i < $counter; $i++) {
 			if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
 				if ($sWhere == "") {
 					$sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -242,7 +244,7 @@ class QuestionTable extends AbstractTableGateway
 		/* Total data set length */
 		$iTotal = $this->select(array("question_id"))->count();
 		$output = array(
-			"sEcho" => intval($parameters['sEcho']),
+			"sEcho" => (int) $parameters['sEcho'],
 			"iTotalRecords" => $iTotal,
 			"iTotalDisplayRecords" => $iFilteredTotal,
 			"aaData" => array()
@@ -283,7 +285,7 @@ class QuestionTable extends AbstractTableGateway
 	{
 		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
-		$sQuery = $sql->select()->from(array('o' => 'test_options'), array('question', 'option', 'status'))
+		$sQuery = $sql->select()->from(array('o' => 'test_options'))
 			->join(array('q' => $this->table), 'o.question = q.question_id', array('question_id'))
 			->where(array('q.question_id' => $questionId));
 		$sQueryStr = $sql->buildSqlString($sQuery);
@@ -298,8 +300,7 @@ class QuestionTable extends AbstractTableGateway
 		$sql = new Sql($dbAdapter);
 		$tcQuery = $sql->select()->from('test_config');
 		$tcQueryStr = $sql->buildSqlString($tcQuery);
-		$testConfigResult = $dbAdapter->query($tcQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-		return $testConfigResult;
+		return $dbAdapter->query($tcQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 	}
 	public function insertQuestion()
 	{
@@ -316,7 +317,7 @@ class QuestionTable extends AbstractTableGateway
 		$testDb->insert($data);
 		$lastInsertedTestsId = $testDb->lastInsertValue;
 
-		$result['question'] = $this->getRandomQuestions(null, $testConfigResult[1]['test_config_value'], 'pretest_questions', 'pre_test_id');
+		$result['question'] = $this->getRandomQuestions('pretest_questions', 'pre_test_id', null, $testConfigResult[1]['test_config_value']);
 		
 		foreach ($result['question'] as $questionList) {
 			$preData = array(
@@ -343,30 +344,30 @@ class QuestionTable extends AbstractTableGateway
 		//global result
 		$testConfigResult = $testConfigDb->fetchTestConfigDetails();
 		if (!$testResult['testStatus']) {
-			$result = $this->insertQuestion();
-		} else if (isset($testResult['testStatus']['pre_test_status']) && $testResult['testStatus']['pre_test_status'] == 'completed' && $testConfigResult[2]['test_config_value'] == 'yes') {
-			$qQuery = $sql->select()->from('tests')->columns(array('total' => new \Laminas\Db\Sql\Expression('COUNT(*)')))->where(array('user_id'=>$logincontainer->userId));
-			$qQueryStr = $sql->buildSqlString($qQuery);
-			$testCountResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-			if($testCountResult){
-				$container = new Container('alert');
-				$container->alertMsg = "You are already attended the test in ".$testCountResult['total']." time.";
-			}
-			$result = $this->insertQuestion();
-		} else if (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['pre_test_status'] == NULL || $testResult['testStatus']['pre_test_status'] != 'completed')) {
-			$result['question'] = $this->getRandomQuestions($testResult['testStatus']['test_id'], null, 'pretest_questions', 'pre_test_id');
-			//get all inserted question option
-			$result['option'] = $this->getRandomQuestionsOptions($testResult['testStatus']['test_id'], 'pretest_questions', 'pre_test_id');
-		} else if (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['post_test_status'] == NULL || $testResult['testStatus']['post_test_status'] != 'completed')) {
-			$result['posttest-page'] = true;
-		} else {
+      $result = $this->insertQuestion();
+  } elseif (isset($testResult['testStatus']['pre_test_status']) && $testResult['testStatus']['pre_test_status'] == 'completed' && $testConfigResult[2]['test_config_value'] == 'yes') {
+      $qQuery = $sql->select()->from('tests')->columns(array('total' => new \Laminas\Db\Sql\Expression('COUNT(*)')))->where(array('user_id'=>$logincontainer->userId));
+      $qQueryStr = $sql->buildSqlString($qQuery);
+      $testCountResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
+      if($testCountResult){
+   				$container = new Container('alert');
+   				$container->alertMsg = "You are already attended the test in ".$testCountResult['total']." time.";
+   			}
+      $result = $this->insertQuestion();
+  } elseif (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['pre_test_status'] == NULL || $testResult['testStatus']['pre_test_status'] != 'completed')) {
+      $result['question'] = $this->getRandomQuestions('pretest_questions', 'pre_test_id', $testResult['testStatus']['test_id'], null);
+      //get all inserted question option
+      $result['option'] = $this->getRandomQuestionsOptions($testResult['testStatus']['test_id'], 'pretest_questions', 'pre_test_id');
+  } elseif (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['post_test_status'] == NULL || $testResult['testStatus']['post_test_status'] != 'completed')) {
+      $result['posttest-page'] = true;
+  } else {
 			$result['home-page'] = true;
 		}
 		$result['testResultStatus'] = $testResult;
 		return $result;
 	}
 
-	public function getRandomQuestions($testId = null, $limit = null, $tableName, $primary)
+	public function getRandomQuestions($tableName, $primary, $testId = null, $limit = null)
 	{
 		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
@@ -383,18 +384,18 @@ class QuestionTable extends AbstractTableGateway
 					$qQuery = $sql->select()->from(array('q' => 'test_questions'));
 					$secLimit += $cd['no_of_questions'];
 					if ($testId == null) {
-						$qQuery = $qQuery->order(new Expression('RAND()'))
-						->where(array('status' => 'active','section'=>$cd['section_id']));
-						if($secLimit<=$limit){
-							$qQuery->limit($cd['no_of_questions']);
-						}else{
-							return $questionResult;
-						}
-					} else if ($limit == null) {
-						$qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
-							->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
-							->order('pq.' . $primary . ' ASC');
-					}
+         $qQuery = $qQuery->order(new Expression('RAND()'))
+   						->where(array('status' => 'active','section'=>$cd['section_id']));
+         if($secLimit<=$limit){
+   							$qQuery->limit($cd['no_of_questions']);
+   						}else{
+   							return $questionResult;
+   						}
+     } elseif ($limit == null) {
+         $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
+   							->where(array('pq.test_id' => $testId,'section'=>$cd['section_id']))
+   							->order('pq.' . $primary . ' ASC');
+     }
 					$qQueryStr = $sql->buildSqlString($qQuery);
 					// die($qQueryStr);
 					$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
@@ -418,14 +419,14 @@ class QuestionTable extends AbstractTableGateway
 				//get list of all questions
 				$qQuery = $sql->select()->from(array('q' => 'test_questions'));
 				if ($testId == null) {
-					$qQuery = $qQuery->order(new Expression('RAND()'))
-						->where(array('status' => 'active'))
-						->limit(($limit-$secLimit));
-				} else if ($limit == null) {
-					$qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
-						->where(array('pq.test_id' => $testId))
-						->order('pq.' . $primary . ' ASC');
-				}
+        $qQuery = $qQuery->order(new Expression('RAND()'))
+   						->where(array('status' => 'active'))
+   						->limit(($limit-$secLimit));
+    } elseif ($limit == null) {
+        $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
+   						->where(array('pq.test_id' => $testId))
+   						->order('pq.' . $primary . ' ASC');
+    }
 				$qQueryStr = $sql->buildSqlString($qQuery);
 				$questions = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 				foreach($questions as $key=>$q){
@@ -447,14 +448,14 @@ class QuestionTable extends AbstractTableGateway
 			//get list of all questions
 			$qQuery = $sql->select()->from(array('q' => 'test_questions'));
 			if ($testId == null) {
-				$qQuery = $qQuery->order(new Expression('RAND()'))
-					->where(array('status' => 'active'))
-					->limit($limit);
-			} else if ($limit == null) {
-				$qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
-					->where(array('pq.test_id' => $testId))
-					->order('pq.' . $primary . ' ASC');
-			}
+       $qQuery = $qQuery->order(new Expression('RAND()'))
+   					->where(array('status' => 'active'))
+   					->limit($limit);
+   } elseif ($limit == null) {
+       $qQuery = $qQuery->join(array('pq' => $tableName), 'pq.question_id=q.question_id', array($primary, 'test_id', 'question_id', 'response_id'))
+   					->where(array('pq.test_id' => $testId))
+   					->order('pq.' . $primary . ' ASC');
+   }
 			$qQueryStr = $sql->buildSqlString($qQuery);
 			$questionResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 		}
@@ -469,8 +470,7 @@ class QuestionTable extends AbstractTableGateway
 			->where(array('o.status' => 'active'))
 			->where(array('pq.test_id' => $testId));
 		$oQueryStr = $sql->buildSqlString($oQuery);
-		$result = $dbAdapter->query($oQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-		return $result;
+		return $dbAdapter->query($oQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
 	}
 
 	public function fetchPostQuestionList()
@@ -482,17 +482,17 @@ class QuestionTable extends AbstractTableGateway
 		$logincontainer = new Container('credo');
 		$testResult = $testDb->getTestDataByUserId($logincontainer->userId);
 		$result = array();
-		$result['question'] = $this->getRandomQuestions($testResult['testStatus']['test_id'], null, 'posttest_questions', 'post_test_id');
+		$result['question'] = $this->getRandomQuestions('posttest_questions', 'post_test_id', $testResult['testStatus']['test_id'], null);
 		if (count($result['question']) == 0) {
 			//insert post test data
-			$result['question'] = $this->getRandomQuestions($testResult['testStatus']['test_id'], null, 'pretest_questions', 'pre_test_id');
+			$result['question'] = $this->getRandomQuestions('pretest_questions', 'pre_test_id', $testResult['testStatus']['test_id'], null);
 			foreach ($result['question'] as $preQuestion) {
 				$postTestDb->insert(array(
 					'question_id' => $preQuestion['question_id'],
 					'test_id' => $preQuestion['test_id']
 				));
 			}
-			$result['question'] = $this->getRandomQuestions($testResult['testStatus']['test_id'], null, 'posttest_questions', 'post_test_id');
+			$result['question'] = $this->getRandomQuestions('posttest_questions', 'post_test_id', $testResult['testStatus']['test_id'], null);
 			$result['option'] = $this->getRandomQuestionsOptions($testResult['testStatus']['test_id'], 'posttest_questions', 'post_test_id');
 		} else {
 			//get all inserted question option
@@ -515,9 +515,9 @@ class QuestionTable extends AbstractTableGateway
 
 		$sOrder = "";
 		if (isset($parameters['iSortCol_0'])) {
-			for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-				if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-					$sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+			for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+				if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+					$sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
 				}
 			}
 			$sOrder = substr_replace($sOrder, "", -1);
@@ -546,8 +546,10 @@ class QuestionTable extends AbstractTableGateway
 			}
 			$sWhere .= $sWhereSub;
 		}
+  /* Individual column filtering */
+  $counter = count($aColumns);
 		/* Individual column filtering */
-		for ($i = 0; $i < count($aColumns); $i++) {
+		for ($i = 0; $i < $counter; $i++) {
 			if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
 				if ($sWhere == "") {
 					$sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -606,7 +608,7 @@ class QuestionTable extends AbstractTableGateway
 		$iQuery = $sql->buildSqlString($iQuery);
 		$iTotal = $dbAdapter->query($iQuery, $dbAdapter::QUERY_MODE_EXECUTE);
 		$output = array(
-			"sEcho" => intval($parameters['sEcho']),
+			"sEcho" => (int) $parameters['sEcho'],
 			"iTotalRecords" => count($iTotal),
 			"iTotalDisplayRecords" => $iFilteredTotal,
 			"aaData" => array()

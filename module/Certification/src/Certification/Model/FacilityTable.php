@@ -30,8 +30,7 @@ class FacilityTable extends AbstractTableGateway
         $db = $this->adapter;
         $sql = 'SELECT * FROM certification_facilities as c_f LEFT JOIN location_details as l_d ON l_d.location_id=c_f.district ORDER BY facility_name ASC';
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function getFacility($id)
@@ -61,12 +60,10 @@ class FacilityTable extends AbstractTableGateway
         $id = (int) $facility->id;
         if ($id == 0) {
             $this->tableGateway->insert($data);
+        } elseif ($this->getFacility($id)) {
+            $this->tableGateway->update($data, array('id' => $id));
         } else {
-            if ($this->getFacility($id)) {
-                $this->tableGateway->update($data, array('id' => $id));
-            } else {
-                throw new \Exception('Facility id does not exist');
-            }
+            throw new \Exception('Facility id does not exist');
         }
     }
 

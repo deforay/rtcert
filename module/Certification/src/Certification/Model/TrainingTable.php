@@ -40,13 +40,12 @@ class TrainingTable extends AbstractTableGateway
         $sqlSelect->join('provider', 'provider.id = training.Provider_id', array('last_name', 'first_name', 'middle_name', 'professional_reg_no', 'certification_id', 'certification_reg_no'), 'left')
             ->join('training_organization', 'training_organization.training_organization_id = training.training_organization_id ', array('training_organization_name', 'type_organization'), 'left');
         $sqlSelect->order('training_id desc');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     public function getTraining($training_id)
@@ -64,12 +63,12 @@ class TrainingTable extends AbstractTableGateway
     {
         $newsdate = NULL;
         $newsdate2 = NULL;
-        if (isset($Training->last_training_date) && trim($Training->last_training_date) != "") {
+        if ($Training->last_training_date !== null && trim($Training->last_training_date) != "") {
             $date = $Training->last_training_date;
             $date_explode = explode("-", $date);
             $newsdate = $date_explode[2] . '-' . $date_explode[1] . '-' . $date_explode[0];
         }
-        if (isset($Training->date_certificate_issued) && trim($Training->date_certificate_issued) != "") {
+        if ($Training->date_certificate_issued !== null && trim($Training->date_certificate_issued) != "") {
             $date2 = $Training->date_certificate_issued;
             $date_explode2 = explode("-", $date2);
             $newsdate2 = $date_explode2[2] . '-' . $date_explode2[1] . '-' . $date_explode2[0];
@@ -92,24 +91,22 @@ class TrainingTable extends AbstractTableGateway
                 );
                 $this->tableGateway->insert($data);
             }
+        } elseif ($this->getTraining($training_id)) {
+            $data = array(
+                'Provider_id' => $Training->Provider_id,
+                'type_of_competency' => $Training->type_of_competency,
+                'last_training_date' => $newsdate,
+                'type_of_training' => $Training->type_of_training,
+                'length_of_training' => $Training->length_of_training,
+                'training_organization_id' => $Training->training_organization_id,
+                'facilitator' => strtoupper($Training->facilitator),
+                'training_certificate' => $Training->training_certificate,
+                'date_certificate_issued' => $newsdate2,
+                'Comments' => $Training->Comments,
+            );
+            $this->tableGateway->update($data, array('training_id' => $training_id));
         } else {
-            if ($this->getTraining($training_id)) {
-                $data = array(
-                    'Provider_id' => $Training->Provider_id,
-                    'type_of_competency' => $Training->type_of_competency,
-                    'last_training_date' => $newsdate,
-                    'type_of_training' => $Training->type_of_training,
-                    'length_of_training' => $Training->length_of_training,
-                    'training_organization_id' => $Training->training_organization_id,
-                    'facilitator' => strtoupper($Training->facilitator),
-                    'training_certificate' => $Training->training_certificate,
-                    'date_certificate_issued' => $newsdate2,
-                    'Comments' => $Training->Comments,
-                );
-                $this->tableGateway->update($data, array('training_id' => $training_id));
-            } else {
-                throw new \Exception('Training  id does not exist');
-            }
+            throw new \Exception('Training  id does not exist');
         }
     }
 
@@ -151,26 +148,20 @@ class TrainingTable extends AbstractTableGateway
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
         }
 
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
 
         if (!empty($facility)) {
@@ -179,8 +170,7 @@ class TrainingTable extends AbstractTableGateway
         //        die($sql);
 
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function getAllActiveCountries()
@@ -245,9 +235,9 @@ class TrainingTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -283,9 +273,11 @@ class TrainingTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -341,7 +333,7 @@ class TrainingTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -358,7 +350,7 @@ class TrainingTable extends AbstractTableGateway
 
             if (strcasecmp($aRow['training_certificate'], 'yes') == 0) {
                 $trainingCertificate = "<span style='color: green;' class='glyphicon glyphicon glyphicon-ok' >Yes</span>";
-            } else if (strcasecmp($aRow['training_certificate'], 'no') == 0) {
+            } elseif (strcasecmp($aRow['training_certificate'], 'no') == 0) {
                 $trainingCertificate = "<span style='color: red' class='glyphicon glyphicon glyphicon-remove'>No</span>";
             } else {
                 $trainingCertificate = '';
@@ -445,9 +437,9 @@ class TrainingTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -483,9 +475,11 @@ class TrainingTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -530,25 +524,18 @@ class TrainingTable extends AbstractTableGateway
         }
         if (!empty($parameters['country'])) {
             $sQuery->where(array('c.country_id' => $parameters['country']));
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
         if (!empty($parameters['region'])) {
             $sQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
         if (!empty($parameters['district'])) {
-
             $sQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
         if (!empty($parameters['facility'])) {
             $sQuery->where(array('certification_facilities.id' => $parameters['facility']));
@@ -612,25 +599,18 @@ class TrainingTable extends AbstractTableGateway
         }
         if (!empty($parameters['country'])) {
             $tQuery->where(array('c.country_id' => $parameters['country']));
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
         if (!empty($parameters['region'])) {
             $tQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
         if (!empty($parameters['district'])) {
-
             $tQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
         if (!empty($parameters['facility'])) {
             $tQuery->where(array('certification_facilities.id' => $parameters['facility']));
@@ -641,7 +621,7 @@ class TrainingTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iFilteredTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()

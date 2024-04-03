@@ -73,7 +73,7 @@ class TrainingController extends AbstractActionController
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
         $training_id = (int) base64_decode($this->params()->fromRoute('training_id', 0));
-        if (!$training_id) {
+        if ($training_id === 0) {
             return $this->redirect()->toRoute('training', array(
                 'action' => 'add'
             ));
@@ -126,7 +126,7 @@ class TrainingController extends AbstractActionController
     {
         $training_id = (int) $this->params()->fromRoute('training_id', 0);
 
-        if (!$training_id) {
+        if ($training_id === 0) {
             return $this->redirect()->toRoute('training');
         } else {
 

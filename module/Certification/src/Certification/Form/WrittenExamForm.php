@@ -186,22 +186,22 @@ class WrittenExamForm extends Form {
         foreach ($result as $res) {
             //$selectData[$res['id']] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
             $name = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
-            if(trim($res['professional_reg_no']) !=""){
+            if(trim($res['professional_reg_no']) != ""){
                 $name.=  ' ('.$res['professional_reg_no'].')';
             }
-            if(trim($res['phone']) !=""){
+            if(trim($res['phone']) != ""){
                 $name.=  ' - '.$res['phone'];
             }
             
-            if(trim($res['email'])!=""){
+            if(trim($res['email']) != ""){
                 $name.=  ' - '.$res['email'];
             }
 
-            if(trim($res['region_name'])!=""){
+            if(trim($res['region_name']) != ""){
                 $name.=  ' - '.$res['region_name'];
             }
 
-            if(trim($res['district_name'])!=""){
+            if(trim($res['district_name']) != ""){
                 $name.=  ' - '.$res['district_name'];
             }
             $selectData[$res['id']] = $name;
@@ -243,11 +243,11 @@ class WrittenExamForm extends Form {
             
             $name = $res['type_of_competency'];
             
-            if(trim($res['training_organization_name']) !=""){
+            if(trim($res['training_organization_name']) != ""){
                 $name.=  ' - '.$res['training_organization_name'];
             }
             
-            if(trim($res['type_organization'])!=""){
+            if(trim($res['type_organization']) != ""){
                 $name.=  ' - '.$res['type_organization'];
             }
             

@@ -39,11 +39,11 @@ class TestController extends AbstractActionController
                 if (((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) && (($questionResult['testResultStatus']['testStatus']['post_test_status'] == NULL) || ($questionResult['testResultStatus']['testStatus']['post_test_status'] == ""))) {
                     $container->alertMsg = "Your test was completed already.";
                     return $this->redirect()->toUrl('/test/result');
-                } else if ((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) {
+                } elseif ((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) {
                     $container->alertMsg = "Your test was completed already. Retest not activated.";
                     return $this->redirect()->toUrl('/test/result');
                 }
-            } else if (isset($questionResult['home-page'])) {
+            } elseif (isset($questionResult['home-page'])) {
                 $container->alertMsg = "Your test not started we'll announce to you once activated.";
                 return $this->redirect()->toUrl('/');
             }
@@ -88,7 +88,7 @@ class TestController extends AbstractActionController
     public function introAction()
     {
         $logincontainer = new Container('credo');
-        if ((isset($logincontainer->userId) || !isset($logincontainer->userId)) && $logincontainer->userId == "") {
+        if ((property_exists($logincontainer, 'userId') && $logincontainer->userId !== null || (!property_exists($logincontainer, 'userId') || $logincontainer->userId === null)) && $logincontainer->userId == "") {
             return $this->redirect()->toUrl("/provider/login");
         }
         return new ViewModel(array('name' => $this->commonService->getGlobalValue('country-name')));

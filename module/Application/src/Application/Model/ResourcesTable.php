@@ -32,8 +32,7 @@ class ResourcesTable extends AbstractTableGateway {
         $resourceQuery = $sql->select()->from('resources')
                                        ->order('display_name');
         $resourceQueryStr = $sql->buildSqlString($resourceQuery);
-        $resourceResult = $dbAdapter->query($resourceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $resourceResult;
+        return $dbAdapter->query($resourceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 
 }

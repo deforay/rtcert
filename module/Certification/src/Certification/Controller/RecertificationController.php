@@ -27,7 +27,7 @@ class RecertificationController extends AbstractActionController
         //        $reminder = $this->recertificationTable->fetchAll2();
         $certification_id = (int) base64_decode($this->params()->fromQuery(base64_encode('certification_id'), null));
         $key = base64_decode($this->params()->fromQuery(base64_encode('key'), null));
-        if (!empty($certification_id) && !empty($key)) {
+        if ($certification_id !== 0 && !empty($key)) {
             $this->recertificationTable->ReminderSent($certification_id);
             $container = new Container('alert');
             $container->alertMsg = 'Perform successfully';
@@ -79,7 +79,7 @@ class RecertificationController extends AbstractActionController
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $recertification_id = (int) base64_decode($this->params()->fromRoute('recertification_id', 0));
-        if (!$recertification_id) {
+        if ($recertification_id === 0) {
             return $this->redirect()->toRoute('recertification', array(
                 'action' => 'add'
             ));

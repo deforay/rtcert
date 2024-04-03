@@ -46,11 +46,7 @@ class PretestQuestionsTable extends AbstractTableGateway
             $questionData = $questionDb->fetchQuestionsListById(base64_decode($params['questionId']));
             $correctOptAry = explode(",", $questionData['correct_option']);
             $aryInter = array_intersect($params['optionId'], $correctOptAry);
-            if (count($aryInter) == count($params['optionId'])) {
-                $score = 1;
-            } else {
-                $score = 0;
-            }
+            $score = count($aryInter) === count($params['optionId']) ? 1 : 0;
 
             $preData = array(
                 'question_text' => $questionData['question'],
@@ -81,11 +77,7 @@ class PretestQuestionsTable extends AbstractTableGateway
                     'pre_test_status' => "completed",
                     'pre_test_score' => $preTestResult['score']
                 );
-                if ($preTotal >= $passPercent) {
-                    $data['user_test_status'] = 'pass';
-                } else {
-                    $data['user_test_status'] = 'fail';
-                }
+                $data['user_test_status'] = $preTotal >= $passPercent ? 'pass' : 'fail';
                 $testDb->update($data, array('test_id' => $testResult['testStatus']['test_id']));
                 $forWrittenQuery = $sql->select()->from(array('pt' => 'pretest_questions'))->columns(array('pre_test_id', 'score'))
                     ->join(array('t' => 'tests'), 't.test_id = pt.test_id', array('test_id', 'pre_test_score'))
@@ -158,8 +150,7 @@ class PretestQuestionsTable extends AbstractTableGateway
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from('pretest_questions');
         $sQueryStr = $sql->buildSqlString($sQuery);
-        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $sResult;
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 
     public function fetchPreResultDetails()
@@ -194,7 +185,6 @@ class PretestQuestionsTable extends AbstractTableGateway
             ->join(array('q' => 'test_questions'), 'q.question_id = ptq.question_id', array('correct_option_text'))
             ->where(array('ptq.test_id' => $testId));
         $sQueryStr = $sql->buildSqlString($sQuery);
-        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $sResult;
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 }

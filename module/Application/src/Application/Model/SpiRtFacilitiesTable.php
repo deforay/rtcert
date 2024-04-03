@@ -35,7 +35,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
                     ->where(array('id'=>$formId));
         $queryStr = $sql->buildSqlString($query);
         $result = $dbAdapter->query($queryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
-        if($result!=""){
+        if($result != ""){
 			$fQuery = $sql->select()->from('spi_rt_3_facilities')->where(array('facility_name'=>$result['facilityname']));
 			$fQueryStr = $sql->buildSqlString($fQuery);
 			$fResult = $dbAdapter->query($fQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -52,7 +52,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     }
     
     public function addFacilityDetails($params){
-        if(isset($params['facilityId']) && trim($params['facilityId'])!=""){
+        if(isset($params['facilityId']) && trim($params['facilityId']) != ""){
             $data = array(
                 'facility_id' => $params['facilityId'],
                 'facility_name' => $params['facilityName'],
@@ -69,7 +69,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     }
 	
     public function updateFacilityDetails($params){
-        if(isset($params['rowId']) && trim($params['rowId'])!=""){
+        if(isset($params['rowId']) && trim($params['rowId']) != ""){
 	    $dbAdapter = $this->adapter;
 	    $spiv3Db = new SpiFormVer3Table($dbAdapter);
             $rowId=base64_decode($params['rowId']);
@@ -115,9 +115,9 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -153,9 +153,11 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -208,7 +210,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-           "sEcho" => intval($parameters['sEcho']),
+           "sEcho" => (int) $parameters['sEcho'],
            "iTotalRecords" => $iTotal,
            "iTotalDisplayRecords" => $iFilteredTotal,
            "aaData" => array()
@@ -216,11 +218,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 		
 	$loginContainer = new Container('credo');
         $role = $loginContainer->roleCode;
-        if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'edit')) {
-            $update = true;
-        } else {
-            $update = false;
-        }
+        $update = (bool) $acl->isAllowed($role, 'Application\Controller\FacilityController', 'edit');
 		
 		foreach ($rResult as $aRow) {
 		 $row = array();
@@ -239,8 +237,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     }
     
     public function fetchFacility($id){
-        $row = $this->select(array('id' => (int) $id))->current();
-        return $row;
+        return $this->select(array('id' => (int) $id))->current();
     }
 	
     public function fetchFacilityList($strSearch){
@@ -298,7 +295,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     
     public function updateFacilityEmailAddress($params){
 	$result = 0;
-	if(isset($params['facilityName']) && trim($params['facilityName'])!= ''){
+	if(isset($params['facilityName']) && trim($params['facilityName']) != ''){
 	    $result = 1;
 	    $this->update(array('email'=>$params['emailAddress']),array('facility_name'=>$params['facilityName']));
 	}
@@ -311,7 +308,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
 	$auditsResult = array();
 	$dbAdapter = $this->adapter;
 	$sql = new Sql($dbAdapter);
-	if(isset($ids) && trim($ids)!= ''){
+	if(isset($ids) && trim($ids) != ''){
 	    $auditId = base64_decode($ids);
 	    $auditQuery = $sql->select()->from(array('spiv3'=>'spi_form_v_3'))
 	                                ->columns(array('facilityname'))
@@ -356,19 +353,18 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     
     public function mapProvince($params){
 	$result = 0;
-	if(isset($params['province']) && trim($params['province'])!= ''){
-	    if(isset($params['facility']) && count($params['facility']) >0){
-		$result = 1;
-		for($f=0;$f<count($params['facility']);$f++){
-		    $this->update(array('province'=>$params['province']),array('facility_name'=>$params['facility'][$f]));
-		}
-	    }
-	}
+	if (isset($params['province']) && trim($params['province']) != '' && (isset($params['facility']) && count($params['facility']) >0)) {
+     $result = 1;
+     $counter = count($params['facility']);
+     for($f=0;$f<$counter;$f++){
+   		    $this->update(array('province'=>$params['province']),array('facility_name'=>$params['facility'][$f]));
+   		}
+ }
       return $result;
     }
     
     public function fecthProvinceData($searchStr){
-	if(trim($searchStr)!=""){
+	if(trim($searchStr) != ""){
 	    $adapter = $this->adapter;
 	    $sql = new Sql($adapter);
 	    $sQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))
@@ -388,7 +384,7 @@ class SpiRtFacilitiesTable extends AbstractTableGateway {
     }
 	
     public function fecthDistrictData($searchStr){
-	if(trim($searchStr)!=""){
+	if(trim($searchStr) != ""){
 	    $adapter = $this->adapter;
 	    $sql = new Sql($adapter);
 	    $sQuery = $sql->select()->from(array('spirt3'=>'spi_rt_3_facilities'))

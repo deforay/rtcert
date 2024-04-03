@@ -8,6 +8,34 @@ use Laminas\InputFilter\InputFilterAwareInterface;
 
 class WrittenExam implements InputFilterAwareInterface {
 
+    /**
+     * @var mixed
+     */
+    public $last_name;
+    /**
+     * @var mixed
+     */
+    public $first_name;
+    /**
+     * @var mixed
+     */
+    public $middle_name;
+    /**
+     * @var mixed
+     */
+    public $name_exam_type;
+    /**
+     * @var mixed
+     */
+    public $admin_last_name;
+    /**
+     * @var mixed
+     */
+    public $admin_first_name;
+    /**
+     * @var mixed
+     */
+    public $admin_middle_name;
     public $id_written_exam;
     public $test_id;
     public $exam_type;
@@ -30,32 +58,32 @@ class WrittenExam implements InputFilterAwareInterface {
     protected $inputFilter;
 
     public function exchangeArray($data) {
-        $this->id_written_exam = (!empty($data['id_written_exam'])) ? $data['id_written_exam'] : null;
-        $this->test_id = (!empty($data['test_id'])) ? $data['test_id'] : null;
-        $this->exam_type = (!empty($data['exam_type'])) ? $data['exam_type'] : null;
-        $this->provider_id = (!empty($data['provider_id'])) ? $data['provider_id'] : null;
-        $this->exam_admin = (!empty($data['exam_admin'])) ? $data['exam_admin'] : null;
-        $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
-        $this->date = (!empty($data['date'])) ? $data['date'] : null;
-        $this->qa_point = (!empty($data['qa_point'])) ? $data['qa_point'] : 0;
-        $this->rt_point = (!empty($data['rt_point'])) ? $data['rt_point'] : 0;
-        $this->safety_point = (!empty($data['safety_point'])) ? $data['safety_point'] : 0;
-        $this->specimen_point = (!empty($data['specimen_point'])) ? $data['specimen_point'] : 0;
-        $this->testing_algo_point = (!empty($data['testing_algo_point'])) ? $data['testing_algo_point'] : 0;
-        $this->report_keeping_point = (!empty($data['report_keeping_point'])) ? $data['report_keeping_point'] : 0;
-        $this->EQA_PT_points = (!empty($data['EQA_PT_points'])) ? $data['EQA_PT_points'] : 0;
-        $this->ethics_point = (!empty($data['ethics_point'])) ? $data['ethics_point'] : 0;
-        $this->inventory_point = (!empty($data['inventory_point'])) ? $data['inventory_point'] : 0;
-        $this->last_name = (!empty($data['last_name'])) ? $data['last_name'] : null;
-        $this->first_name = (!empty($data['first_name'])) ? $data['first_name'] : null;
-        $this->middle_name = (!empty($data['middle_name'])) ? $data['middle_name'] : null;
-        $this->name_exam_type = (!empty($data['name_exam_type'])) ? $data['name_exam_type'] : null;
-        $this->admin_last_name = (!empty($data['admin_last_name'])) ? $data['admin_last_name'] : null;
-        $this->admin_first_name = (!empty($data['admin_first_name'])) ? $data['admin_first_name'] : null;
-        $this->admin_middle_name = (!empty($data['admin_middle_name'])) ? $data['admin_middle_name'] : null;
-        $this->total_points = (!empty($data['total_points'])) ? $data['total_points'] : 0;
-        $this->final_score = (!empty($data['final_score'])) ? $data['final_score'] : 0;
-        $this->training_id = (!empty($data['training_id'])) ? $data['training_id'] : null;
+        $this->id_written_exam = (empty($data['id_written_exam'])) ? null : $data['id_written_exam'];
+        $this->test_id = (empty($data['test_id'])) ? null : $data['test_id'];
+        $this->exam_type = (empty($data['exam_type'])) ? null : $data['exam_type'];
+        $this->provider_id = (empty($data['provider_id'])) ? null : $data['provider_id'];
+        $this->exam_admin = (empty($data['exam_admin'])) ? null : $data['exam_admin'];
+        $this->location_name = (empty($data['location_name'])) ? null : $data['location_name'];
+        $this->date = (empty($data['date'])) ? null : $data['date'];
+        $this->qa_point = (empty($data['qa_point'])) ? 0 : $data['qa_point'];
+        $this->rt_point = (empty($data['rt_point'])) ? 0 : $data['rt_point'];
+        $this->safety_point = (empty($data['safety_point'])) ? 0 : $data['safety_point'];
+        $this->specimen_point = (empty($data['specimen_point'])) ? 0 : $data['specimen_point'];
+        $this->testing_algo_point = (empty($data['testing_algo_point'])) ? 0 : $data['testing_algo_point'];
+        $this->report_keeping_point = (empty($data['report_keeping_point'])) ? 0 : $data['report_keeping_point'];
+        $this->EQA_PT_points = (empty($data['EQA_PT_points'])) ? 0 : $data['EQA_PT_points'];
+        $this->ethics_point = (empty($data['ethics_point'])) ? 0 : $data['ethics_point'];
+        $this->inventory_point = (empty($data['inventory_point'])) ? 0 : $data['inventory_point'];
+        $this->last_name = (empty($data['last_name'])) ? null : $data['last_name'];
+        $this->first_name = (empty($data['first_name'])) ? null : $data['first_name'];
+        $this->middle_name = (empty($data['middle_name'])) ? null : $data['middle_name'];
+        $this->name_exam_type = (empty($data['name_exam_type'])) ? null : $data['name_exam_type'];
+        $this->admin_last_name = (empty($data['admin_last_name'])) ? null : $data['admin_last_name'];
+        $this->admin_first_name = (empty($data['admin_first_name'])) ? null : $data['admin_first_name'];
+        $this->admin_middle_name = (empty($data['admin_middle_name'])) ? null : $data['admin_middle_name'];
+        $this->total_points = (empty($data['total_points'])) ? 0 : $data['total_points'];
+        $this->final_score = (empty($data['final_score'])) ? 0 : $data['final_score'];
+        $this->training_id = (empty($data['training_id'])) ? null : $data['training_id'];
     }
 
     public function getArrayCopy() {

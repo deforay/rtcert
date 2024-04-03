@@ -82,7 +82,7 @@ class UsersTable extends AbstractTableGateway
                         }
                     }
                 }
-            } else if (isset($sResult->access_level) && $sResult->access_level != null && trim($sResult->access_level) != '' && (int)$sResult->access_level == 3) {
+            } elseif (isset($sResult->access_level) && $sResult->access_level != null && trim($sResult->access_level) != '' && (int)$sResult->access_level == 3) {
                 $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
                     ->join(array('l_d' => 'location_details'), 'l_d.location_id=u_p_map.location_id', array('location_id', 'country'))
                     ->where(array('u_p_map.user_id' => $sResult->id))
@@ -97,7 +97,7 @@ class UsersTable extends AbstractTableGateway
                         }
                     }
                 }
-            } else if (isset($sResult->access_level) && $sResult->access_level != null && trim($sResult->access_level) != '' && (int)$sResult->access_level == 2) {
+            } elseif (isset($sResult->access_level) && $sResult->access_level != null && trim($sResult->access_level) != '' && (int)$sResult->access_level == 2) {
                 $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
                     ->where(array('u_c_map.user_id' => $sResult->id));
                 $userCountryQueryStr = $sql->buildSqlString($userCountryQuery);
@@ -155,21 +155,25 @@ class UsersTable extends AbstractTableGateway
                 //Add User-Token
                 if (isset($params['token']) && trim($params['token']) != '') {
                     $splitToken = explode(",", $params['token']);
-                    for ($t = 0; $t < count($splitToken); $t++) {
+                    $counter = count($splitToken);
+                    for ($t = 0; $t < $counter; $t++) {
                         $userTokenMap->insert(array('user_id' => $lastInsertId, 'token' => trim($splitToken[$t])));
                     }
                 }
                 //Add User-District, User-Province, User-Country
                 if (isset($params['district']) && !empty($params['district'])) {
-                    for ($i = 0; $i < count($params['district']); $i++) {
+                    $counter = count($params['district']);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userDistrictMap->insert(array('user_id' => $lastInsertId, 'location_id' => $params['district'][$i]));
                     }
-                } else if (isset($params['province']) && !empty($params['province'])) {
-                    for ($i = 0; $i < count($params['province']); $i++) {
+                } elseif (isset($params['province']) && !empty($params['province'])) {
+                    $counter = count($params['province']);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userProvinceMap->insert(array('user_id' => $lastInsertId, 'location_id' => $params['province'][$i]));
                     }
-                } else if (isset($params['country']) && !empty($params['country'])) {
-                    for ($i = 0; $i < count($params['country']); $i++) {
+                } elseif (isset($params['country']) && !empty($params['country'])) {
+                    $counter = count($params['country']);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userCountryMap->insert(array('user_id' => $lastInsertId, 'country_id' => $params['country'][$i]));
                     }
                 }
@@ -210,7 +214,8 @@ class UsersTable extends AbstractTableGateway
                 $userTokenMap->delete(array('user_id' => $userId));
                 if (isset($params['token']) && trim($params['token']) != '') {
                     $splitToken = explode(",", $params['token']);
-                    for ($t = 0; $t < count($splitToken); $t++) {
+                    $counter = count($splitToken);
+                    for ($t = 0; $t < $counter; $t++) {
                         $userTokenMap->insert(array('user_id' => $userId, 'token' => trim($splitToken[$t])));
                     }
                 }
@@ -221,16 +226,19 @@ class UsersTable extends AbstractTableGateway
                 //Add User-District, User-Province, User-Country
                 if (isset($params['districtReferecne']) && trim($params['districtReferecne']) != '') {
                     $districtArray = explode(',', $params['districtReferecne']);
-                    for ($i = 0; $i < count($districtArray); $i++) {
+                    $counter = count($districtArray);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userDistrictMap->insert(array('user_id' => $userId, 'location_id' => $districtArray[$i]));
                     }
-                } else if (isset($params['provinceReferecne']) && !empty($params['provinceReferecne'])) {
+                } elseif (isset($params['provinceReferecne']) && !empty($params['provinceReferecne'])) {
                     $provinceArray = explode(',', $params['provinceReferecne']);
-                    for ($i = 0; $i < count($provinceArray); $i++) {
+                    $counter = count($provinceArray);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userProvinceMap->insert(array('user_id' => $userId, 'location_id' => $provinceArray[$i]));
                     }
-                } else if (isset($params['country']) && !empty($params['country'])) {
-                    for ($i = 0; $i < count($params['country']); $i++) {
+                } elseif (isset($params['country']) && !empty($params['country'])) {
+                    $counter = count($params['country']);
+                    for ($i = 0; $i < $counter; $i++) {
                         $userCountryMap->insert(array('user_id' => $userId, 'country_id' => $params['country'][$i]));
                     }
                 }
@@ -264,9 +272,9 @@ class UsersTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -302,9 +310,11 @@ class UsersTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -356,7 +366,7 @@ class UsersTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -364,17 +374,13 @@ class UsersTable extends AbstractTableGateway
 
         $loginContainer = new Container('credo');
         $role = $loginContainer->roleCode;
-        if ($acl->isAllowed($role, 'Application\Controller\UsersController', 'edit')) {
-            $update = true;
-        } else {
-            $update = false;
-        }
+        $update = (bool) $acl->isAllowed($role, 'Application\Controller\UsersController', 'edit');
 
         foreach ($rResult as $aRow) {
             $accessLevel = '';
             if ($aRow['access_level'] == 1) {
                 $accessLevel = 'Global';
-            } else if ($aRow['access_level'] == 2) {
+            } elseif ($aRow['access_level'] == 2) {
                 $accessLevel = 'Country';
                 $userCountryQuery = $sql->select()->from(array('u_c_map' => 'user_country_map'))
                     ->join(array('c' => 'country'), "c.country_id=u_c_map.country_id", array('countryMaps' => new Expression("GROUP_CONCAT(country_name)")))
@@ -384,7 +390,7 @@ class UsersTable extends AbstractTableGateway
                 if (isset($userCountryResult) && trim($userCountryResult->countryMaps) != '') {
                     $accessLevel .= ' (' . $userCountryResult->countryMaps . ')';
                 }
-            } else if ($aRow['access_level'] == 3) {
+            } elseif ($aRow['access_level'] == 3) {
                 $accessLevel = 'Province/State';
                 $userProvinceQuery = $sql->select()->from(array('u_p_map' => 'user_province_map'))
                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_p_map.location_id", array('provinceMaps' => new Expression("GROUP_CONCAT(location_name)")))
@@ -394,7 +400,7 @@ class UsersTable extends AbstractTableGateway
                 if (isset($userProvinceResult) && trim($userProvinceResult->provinceMaps) != '') {
                     $accessLevel .= ' (' . $userProvinceResult->provinceMaps . ')';
                 }
-            } else if ($aRow['access_level'] == 4) {
+            } elseif ($aRow['access_level'] == 4) {
                 $accessLevel = 'District/City';
                 $userDistrictQuery = $sql->select()->from(array('u_d_map' => 'user_district_map'))
                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_d_map.location_id", array('districtMaps' => new Expression("GROUP_CONCAT(location_name)")))

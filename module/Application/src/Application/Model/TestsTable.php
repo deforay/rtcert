@@ -52,9 +52,9 @@ class TestsTable extends AbstractTableGateway {
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ( $parameters['sSortDir_' . $i] ) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -90,9 +90,11 @@ class TestsTable extends AbstractTableGateway {
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -112,7 +114,7 @@ class TestsTable extends AbstractTableGateway {
                                 ->join(array('p' => 'provider'), 'p.id=t.user_id', array('first_name','last_name'));
 
         /* Export Filder start */
-        if(isset($parameters['preTestDateRange']) && $parameters['preTestDateRange']!='')
+        if(isset($parameters['preTestDateRange']) && $parameters['preTestDateRange'] != '')
         {
             $preDate = explode(" to ",$parameters['preTestDateRange']);
             $preStartDate = date('Y-m-d', strtotime($preDate[0]));
@@ -157,7 +159,7 @@ class TestsTable extends AbstractTableGateway {
         $iTotal = $this->select()->count();
 
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -170,11 +172,11 @@ class TestsTable extends AbstractTableGateway {
 
         foreach ($rResult as $aRow) {
             $preStartDate = '';$preEndDate = '';$postStartDate = '';$postEndDate = '';
-            if($aRow['pretest_start_datetime']!=NULL && $aRow['pretest_start_datetime']!='0000-00-00 00:00:00' && $aRow['pretest_start_datetime']!=''){
+            if($aRow['pretest_start_datetime'] != NULL && $aRow['pretest_start_datetime'] != '0000-00-00 00:00:00' && $aRow['pretest_start_datetime'] != ''){
                 $preStartAry = explode(" ",$aRow['pretest_start_datetime']);
                 $preStartDate = \Application\Service\CommonService::humanReadableDateFormat($preStartAry[0])." ".$preStartAry[1];
             }
-            if($aRow['pretest_end_datetime']!=NULL && $aRow['pretest_end_datetime']!='0000-00-00 00:00:00' && $aRow['pretest_end_datetime']!=''){
+            if($aRow['pretest_end_datetime'] != NULL && $aRow['pretest_end_datetime'] != '0000-00-00 00:00:00' && $aRow['pretest_end_datetime'] != ''){
                 $preEndAry = explode(" ",$aRow['pretest_end_datetime']);
                 $preEndDate = \Application\Service\CommonService::humanReadableDateFormat($preEndAry[0])." ".$preEndAry[1];
             }
@@ -188,11 +190,11 @@ class TestsTable extends AbstractTableGateway {
             
             /* if($aRow['user_test_status']=='pass' && $acl->isAllowed($role, 'Certification\Controller\CertificationController', 'certificate-pdf')){
                 $row[] = '<a href="/provider/certificate-pdf/' . base64_encode($aRow['test_id']) . '" target="_blank" class="btn btn-success" style="width: auto;align-content: center;margin: auto;"><i class="fa fa-download">  Download Certificate</i></a>'; */
-            if($aRow['user_test_status']=='pass'){
+            if ($aRow['user_test_status']=='pass') {
                 $row[] = "Pass";
-            }else if($aRow['pre_test_status'] == 'completed'){
+            } elseif ($aRow['pre_test_status'] == 'completed') {
                 $row[] = "Fail";
-            }else{
+            } else{
                 $row[] = "";
             }
             $output['aaData'][] = $row;
@@ -233,8 +235,7 @@ class TestsTable extends AbstractTableGateway {
         $sQuery = $sql->select()->from('tests')->columns(array('test_id','pretest_end_datetime','pre_test_score','posttest_end_datetime','post_test_score','certificate_no','user_test_status'))
                                 ->where(array('user_id' => $logincontainer->userId));
         $sQueryStr = $sql->buildSqlString($sQuery);
-        $certificateField = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $certificateField;
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
     
     public function fetchTestsDetailsByTestId($testId){

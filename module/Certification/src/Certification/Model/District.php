@@ -16,12 +16,12 @@
 
      public function exchangeArray($data)
      {
-         $this->location_id     = (!empty($data['location_id'])) ? $data['location_id'] : null;
-         $this->parent_location  = (!empty($data['parent_location'])) ? $data['parent_location'] : null;
-         $this->location_name = (!empty($data['location_name'])) ? $data['location_name'] : null;
-         $this->location_code = (!empty($data['location_code'])) ? $data['location_code'] : null;
-         $this->latitude = (!empty($data['latitude'])) ? $data['latitude'] : null;
-         $this->longitude = (!empty($data['longitude'])) ? $data['longitude'] : null;
+         $this->location_id     = (empty($data['location_id'])) ? null : $data['location_id'];
+         $this->parent_location  = (empty($data['parent_location'])) ? null : $data['parent_location'];
+         $this->location_name = (empty($data['location_name'])) ? null : $data['location_name'];
+         $this->location_code = (empty($data['location_code'])) ? null : $data['location_code'];
+         $this->latitude = (empty($data['latitude'])) ? null : $data['latitude'];
+         $this->longitude = (empty($data['longitude'])) ? null : $data['longitude'];
      }
       public function getArrayCopy()
      {

@@ -57,32 +57,30 @@ class PracticalExamController extends AbstractActionController
                 return array(
                     'form' => $this->practicalExamForm
                 );
-            } else {
-                if ($practical_nb == 0) {
-                    if ($this->practicalExamForm->isValid() && empty($written)) {
-                        $practicalExam->exchangeArray($this->practicalExamForm->getData());
-                        $this->practicalExamTable->savePracticalExam($practicalExam);
-                        $last_id = $this->practicalExamTable->last_id();
+            } elseif ($practical_nb == 0) {
+                if ($this->practicalExamForm->isValid() && empty($written)) {
+                    $practicalExam->exchangeArray($this->practicalExamForm->getData());
+                    $this->practicalExamTable->savePracticalExam($practicalExam);
+                    $last_id = $this->practicalExamTable->last_id();
+                    $this->practicalExamTable->insertToExamination($last_id);
+                    $container->alertMsg = 'Practical exam added successfully';
+                    return $this->redirect()->toRoute('practical-exam', array('action' => 'add'));
+                } elseif ($this->practicalExamForm->isValid() && !empty($written)) {
+                    $practicalExam->exchangeArray($this->practicalExamForm->getData());
+                    $this->practicalExamTable->savePracticalExam($practicalExam);
+                    $last_id = $this->practicalExamTable->last_id();
+                    $nombre2 = $this->practicalExamTable->countWritten2($id_written);
+                    if ($nombre2 == 0) {
+                        $this->practicalExamTable->examination($written, $last_id);
+                    } else {
                         $this->practicalExamTable->insertToExamination($last_id);
-                        $container->alertMsg = 'Practical exam added successfully';
-                        return $this->redirect()->toRoute('practical-exam', array('action' => 'add'));
-                    } else if ($this->practicalExamForm->isValid() && !empty($written)) {
-                        $practicalExam->exchangeArray($this->practicalExamForm->getData());
-                        $this->practicalExamTable->savePracticalExam($practicalExam);
-                        $last_id = $this->practicalExamTable->last_id();
-                        $nombre2 = $this->practicalExamTable->countWritten2($id_written);
-                        if ($nombre2 == 0) {
-                            $this->practicalExamTable->examination($written, $last_id);
-                        } else {
-                            $this->practicalExamTable->insertToExamination($last_id);
-                        }
-                        $container->alertMsg = 'Practical exam added successfully';
-                        return $this->redirect()->toRoute('practical-exam', array('action' => 'add'));
                     }
-                } else {
-                    $container->alertMsg = 'Impossible to add !!!! Because this tester has already taken a practical exam, he is waiting to add the written exam';
-                    return array('form' => $this->practicalExamForm);
+                    $container->alertMsg = 'Practical exam added successfully';
+                    return $this->redirect()->toRoute('practical-exam', array('action' => 'add'));
                 }
+            } else {
+                $container->alertMsg = 'Impossible to add !!!! Because this tester has already taken a practical exam, he is waiting to add the written exam';
+                return array('form' => $this->practicalExamForm);
             }
         }
         $nombre = null;
@@ -102,7 +100,7 @@ class PracticalExamController extends AbstractActionController
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $practice_exam_id = (int) base64_decode($this->params()->fromRoute('practice_exam_id', 0));
-        if (!$practice_exam_id) {
+        if ($practice_exam_id === 0) {
             return $this->redirect()->toRoute('practical-exam', array(
                 'action' => 'add'
             ));
@@ -160,7 +158,7 @@ class PracticalExamController extends AbstractActionController
     {
         $practical_exam_id = (int) base64_decode($this->params()->fromRoute('practice_exam_id', 0));
 
-        if (!$practical_exam_id) {
+        if ($practical_exam_id === 0) {
             return $this->redirect()->toRoute('practical-exam');
         } else {
             $nb_practical = $this->practicalExamTable->CountPractical($practical_exam_id);

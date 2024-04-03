@@ -9,6 +9,9 @@ use Application\Model\GlobalTable;
 
 class FacilityForm extends Form {
 
+    public $adapter;
+    public $districtsLabel;
+    public $facilityLabel;
     public function __construct(AdapterInterface $dbAdapter) {
         $this->adapter = $dbAdapter;
         

@@ -73,7 +73,7 @@ class UsersController extends AbstractActionController
                 foreach ($result['userCountries'] as $country) {
                     $selectedCountries[] = $country['country_id'];
                 }
-            } else if (isset($result['selectedCountries']) && count($result['selectedCountries']) > 0) {
+            } elseif (isset($result['selectedCountries']) && count($result['selectedCountries']) > 0) {
                 $selectedCountries = $result['selectedCountries'];
             }
             $provinceResult = $this->commonService->getAllProvinces($selectedCountries);
@@ -82,7 +82,7 @@ class UsersController extends AbstractActionController
                 foreach ($result['userProvinces'] as $province) {
                     $selectedProvinces[] = $province['location_id'];
                 }
-            } else if (isset($result['selectedProvinces']) && count($result['selectedProvinces']) > 0) {
+            } elseif (isset($result['selectedProvinces']) && count($result['selectedProvinces']) > 0) {
                 $selectedProvinces = $result['selectedProvinces'];
             }
             $districtResult = $this->commonService->getAllDistricts($selectedProvinces);

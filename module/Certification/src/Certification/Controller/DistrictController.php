@@ -51,7 +51,7 @@ class DistrictController extends AbstractActionController
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $id = (int) base64_decode($this->params()->fromRoute('id', 0));
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('district', array(
                 'action' => 'index'
             ));
@@ -92,7 +92,7 @@ class DistrictController extends AbstractActionController
     public function deleteAction()
     {
         $id = (int) $this->params()->fromRoute('id', 0);
-        if (!$id) {
+        if ($id === 0) {
             return $this->redirect()->toRoute('district');
         } else {
             $forein_key = $this->districtTable->foreigne_key($id);

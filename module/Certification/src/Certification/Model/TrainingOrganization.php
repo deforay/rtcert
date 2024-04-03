@@ -17,12 +17,12 @@ class TrainingOrganization implements InputFilterAwareInterface {
     protected $inputFilter;
 
     public function exchangeArray($data) {
-        $this->training_organization_id     = (!empty($data['training_organization_id'])) ? $data['training_organization_id'] : null;
-        $this->training_organization_name   = (!empty($data['training_organization_name'])) ? $data['training_organization_name'] : null;
-        $this->abbreviation                 = (!empty($data['abbreviation'])) ? $data['abbreviation'] : null;
-        $this->type_organization            = (!empty($data['type_organization'])) ? $data['type_organization'] : null;
-        $this->address                      = (!empty($data['address'])) ? $data['address'] : null;
-        $this->phone                        = (!empty($data['phone'])) ? $data['phone'] : null;
+        $this->training_organization_id     = (empty($data['training_organization_id'])) ? null : $data['training_organization_id'];
+        $this->training_organization_name   = (empty($data['training_organization_name'])) ? null : $data['training_organization_name'];
+        $this->abbreviation                 = (empty($data['abbreviation'])) ? null : $data['abbreviation'];
+        $this->type_organization            = (empty($data['type_organization'])) ? null : $data['type_organization'];
+        $this->address                      = (empty($data['address'])) ? null : $data['address'];
+        $this->phone                        = (empty($data['phone'])) ? null : $data['phone'];
     }
 
     public function getArrayCopy() {

@@ -44,11 +44,7 @@ class PostTestQuestionsTable extends AbstractTableGateway
 
             $correctOptAry = explode(",", $questionData['correct_option']);
             $aryInter = array_intersect($params['optionId'], $correctOptAry);
-            if (count($aryInter) == count($params['optionId'])) {
-                $score = 1;
-            } else {
-                $score = 0;
-            }
+            $score = count($aryInter) === count($params['optionId']) ? 1 : 0;
 
             $postData = array(
                 'question_text' => $questionData['question'],
@@ -78,11 +74,7 @@ class PostTestQuestionsTable extends AbstractTableGateway
                     'post_test_status' => "completed",
                     'post_test_score' => $postTestResult['score']
                 );
-                if ($postTotal >= $passPercent) {
-                    $data['user_test_status'] = 'pass';
-                } else {
-                    $data['user_test_status'] = 'fail';
-                }
+                $data['user_test_status'] = $postTotal >= $passPercent ? 'pass' : 'fail';
                 $testDb->update($data, array('test_id' => $testResult['testStatus']['test_id']));
             }
         }
@@ -95,8 +87,7 @@ class PostTestQuestionsTable extends AbstractTableGateway
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from('posttest_questions');
         $sQueryStr = $sql->buildSqlString($sQuery);
-        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $sResult;
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 
     public function fetchPostResultDetails()
@@ -130,8 +121,7 @@ class PostTestQuestionsTable extends AbstractTableGateway
             ->join(array('q' => 'questions'), 'q.question_id = ptq.question_id', array('correct_option_text'))
             ->where(array('ptq.test_id' => $testId));
         $sQueryStr = $sql->buildSqlString($sQuery);
-        $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-        return $sResult;
+        return $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
     }
 
     public function fetchPostTestCompleteDetails()

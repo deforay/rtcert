@@ -63,9 +63,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -101,9 +101,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -127,9 +129,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
             ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $select1->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select2 = $sql->select()->from(array('e' => 'examination'))
@@ -139,9 +141,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
             ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $select2->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select1->combine($select2);
@@ -182,9 +184,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
             ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $select1->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select2 = $sql->select()->from(array('e' => 'examination'))
@@ -194,9 +196,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
             ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $select2->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $select1->combine($select2);
@@ -206,7 +208,7 @@ class ExaminationTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -268,9 +270,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -306,9 +308,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -329,9 +333,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
             ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
             ->where('c.approval_status IN("pending","Pending")');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         if (isset($sWhere) && $sWhere != "") {
@@ -366,16 +370,16 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
             ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
             ->where('c.approval_status IN("pending","Pending")');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -419,9 +423,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -457,9 +461,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -480,9 +486,9 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
             ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
             ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         if (isset($sWhere) && $sWhere != "") {
@@ -517,16 +523,16 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('c' => 'certification'), "c.examination=e.id", array('id', 'examination', 'final_decision', 'certification_issuer', 'date_certificate_issued', 'date_certificate_sent', 'certification_type'))
             ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'certification_id', 'certification_reg_no', 'professional_reg_no', 'email'))
             ->where('c.approval_status IS NOT NULL AND c.approval_status!= "" AND c.approval_status != "pending" AND c.approval_status != "Pending"');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -576,9 +582,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -614,9 +620,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -640,11 +648,11 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
             ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate' => 'date', 'final_score'), 'left')
             ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
-        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0) {
             $sQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
 
@@ -681,18 +689,18 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practicalExamDate' => 'date', 'practical_total_score'), 'left')
             ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('writenExamDate' => 'date', 'final_score'), 'left')
             ->where('e.id_written_exam IS NULL OR e.practical_exam_id IS NULL');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
-        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0) {
             $tQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -734,9 +742,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -772,9 +780,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -798,11 +808,11 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
             ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
             ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
-        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0) {
             $sQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
         if (isset($sWhere) && $sWhere != "") {
@@ -838,18 +848,18 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
             ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
             ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
-        } else if (isset($sessionLogin->country) && count($sessionLogin->country) > 0) {
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0) {
             $tQuery->where('l_d_r.country IN(' . implode(',', $sessionLogin->country) . ')');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -898,9 +908,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
                 $sQuery->where(array('p.district' => $params['District']));
-            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
+            } elseif (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+            } elseif (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
             $fQuery = $sql->buildSqlString($sQuery);
@@ -918,9 +928,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
                 $sQuery->where(array('p.district' => $params['District']));
-            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
+            } elseif (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+            } elseif (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
             $fQuery = $sql->buildSqlString($sQuery);
@@ -935,9 +945,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
             if (isset($params['District']) && count($params['District']) > 0 && trim($params['District']) != '') {
                 $sQuery->where(array('p.district' => $params['District']));
-            } else if (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
+            } elseif (isset($params['Region']) && count($params['Region']) > 0 && trim($params['Region']) != '') {
                 $sQuery->where(array('p.region' => $params['Region']));
-            } else if (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
+            } elseif (isset($params['Country']) && count($params['Country']) > 0 && trim($params['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $params['Country']));
             }
             $fQuery = $sql->buildSqlString($sQuery);
@@ -966,9 +976,9 @@ class ExaminationTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -1004,9 +1014,11 @@ class ExaminationTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -1033,9 +1045,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1051,9 +1063,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1066,9 +1078,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1108,9 +1120,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1126,9 +1138,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->group('p_ex.provider_id');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1141,9 +1153,9 @@ class ExaminationTable extends AbstractTableGateway
                 ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
             if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } else if (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } else if (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1151,7 +1163,7 @@ class ExaminationTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()

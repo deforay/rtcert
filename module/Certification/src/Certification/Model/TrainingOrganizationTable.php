@@ -32,8 +32,7 @@ class TrainingOrganizationTable extends AbstractTableGateway
 
         $select = new Select('training_organization');
         $select->order('training_organization_name asc');
-        $resultSet = $this->tableGateway->select();
-        return $resultSet;
+        return $this->tableGateway->select();
     }
 
     public function getTraining_organization($training_organization_id) {
@@ -58,12 +57,10 @@ class TrainingOrganizationTable extends AbstractTableGateway
         $training_organization_id = (int) $training_organization->training_organization_id;
         if ($training_organization_id == 0) {
             $this->tableGateway->insert($data);
+        } elseif ($this->getTraining_organization($training_organization_id)) {
+            $this->tableGateway->update($data, array('training_organization_id' => $training_organization_id));
         } else {
-            if ($this->getTraining_organization($training_organization_id)) {
-                $this->tableGateway->update($data, array('training_organization_id' => $training_organization_id));
-            } else {
-                throw new \Exception('Training organization id does not exist');
-            }
+            throw new \Exception('Training organization id does not exist');
         }
     }
 

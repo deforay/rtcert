@@ -59,7 +59,7 @@ class TrainingOrganizationController extends AbstractActionController
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
         $training_organization_id = (int) base64_decode($this->params()->fromRoute('training_organization_id', 0));
 
-        if (!$training_organization_id) {
+        if ($training_organization_id === 0) {
             return $this->redirect()->toRoute('training-organization', array('action' => 'add'));
         }
 
@@ -97,7 +97,7 @@ class TrainingOrganizationController extends AbstractActionController
     {
         $training_organization_id = (int) $this->params()->fromRoute('training_organization_id', 0);
 
-        if (!$training_organization_id) {
+        if ($training_organization_id === 0) {
             return $this->redirect()->toRoute('training-organization');
         } else {
             $forein_key = $this->trainingOrganizationTable->foreigne_key($training_organization_id);

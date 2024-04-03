@@ -84,8 +84,8 @@ class TestService{
                 $mainReplace = array($preResult['first_name'].' '.$preResult['last_name'], $testName ,$total);
                 
                 $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
-                $message = str_replace("&nbsp;", "", strval($message));
-                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $message = str_replace("&nbsp;", "", (string) $message);
+                $message = str_replace("&amp;nbsp;", "", (string) $message);
                 $footer = $mailTemplateDetails['mail_footer'];
                 $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
             }
@@ -100,8 +100,8 @@ class TestService{
                 $mainSearch = array('##USER##','##TESTNAME##', '##SCORE##');
                 $mainReplace = array($preResult['first_name'].$preResult['last_name'], $testName ,$total);
                 $message = str_replace($mainSearch, $mainReplace, $mailTemplateDetails['mail_content']);
-                $message = str_replace("&nbsp;", "", strval($message));
-                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $message = str_replace("&nbsp;", "", (string) $message);
+                $message = str_replace("&amp;nbsp;", "", (string) $message);
                 $footer = $mailTemplateDetails['mail_footer'];
                 $message = html_entity_decode($message . $footer, ENT_QUOTES, 'UTF-8');
             }
@@ -343,7 +343,7 @@ class TestService{
                             ),
                         )
                     );
-                if(isset($parameters['searchByEmployee']) && $parameters['searchByEmployee']!=''){
+                if(isset($parameters['searchByEmployee']) && $parameters['searchByEmployee'] != ''){
                     $cdate =  $parameters['searchByEmployee'];
                 }
                 // $sheet->setCellValue('A2', html_entity_decode('Biosafety Test Details', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);

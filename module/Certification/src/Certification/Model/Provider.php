@@ -8,6 +8,22 @@ use Laminas\InputFilter\InputFilterAwareInterface;
 
 class Provider {
 
+    /**
+     * @var mixed
+     */
+    public $facility_name;
+    /**
+     * @var mixed
+     */
+    public $facility_address;
+    /**
+     * @var mixed
+     */
+    public $region_name;
+    /**
+     * @var mixed
+     */
+    public $district_name;
     public $id;
     public $certification_reg_no;
     public $certification_id;
@@ -46,46 +62,46 @@ class Provider {
     protected $inputFilter;
 
     public function exchangeArray($data) {
-        $this->id = (!empty($data['id'])) ? $data['id'] : null;
-        $this->certification_reg_no = (!empty($data['certification_reg_no'])) ? $data['certification_reg_no'] : null;
-        $this->professional_reg_no = (!empty($data['professional_reg_no'])) ? $data['professional_reg_no'] : null;
-        $this->certification_id = (!empty($data['certification_id'])) ? $data['certification_id'] : null;
-        $this->last_name = (!empty($data['last_name'])) ? $data['last_name'] : null;
-        $this->first_name = (!empty($data['first_name'])) ? $data['first_name'] : null;
-        $this->middle_name = (!empty($data['middle_name'])) ? $data['middle_name'] : null;
-        $this->region = (!empty($data['region'])) ? $data['region'] : null;
-        $this->district = (!empty($data['district'])) ? $data['district'] : null;
-        $this->type_vih_test = (!empty($data['type_vih_test'])) ? $data['type_vih_test'] : null;
-        $this->phone = (!empty($data['phone'])) ? $data['phone'] : null;
-        $this->email = (!empty($data['email'])) ? $data['email'] : null;
-        $this->prefered_contact_method = (!empty($data['prefered_contact_method'])) ? $data['prefered_contact_method'] : null;
-        $this->current_jod = (!empty($data['current_jod'])) ? $data['current_jod'] : null;
-        $this->time_worked = (!empty($data['time_worked'])) ? $data['time_worked'] : null;
-        $this->username = (!empty($data['username'])) ? $data['username'] : null;
-        $this->password = (!empty($data['password'])) ? $data['password'] : null;
-        $this->test_site_in_charge_name = (!empty($data['test_site_in_charge_name'])) ? $data['test_site_in_charge_name'] : null;
-        $this->test_site_in_charge_phone = (!empty($data['test_site_in_charge_phone'])) ? $data['test_site_in_charge_phone'] : null;
-        $this->test_site_in_charge_email = (!empty($data['test_site_in_charge_email'])) ? $data['test_site_in_charge_email'] : null;
-        $this->facility_in_charge_name = (!empty($data['facility_in_charge_name'])) ? $data['facility_in_charge_name'] : null;
-        $this->facility_in_charge_phone = (!empty($data['facility_in_charge_phone'])) ? $data['facility_in_charge_phone'] : null;
-        $this->facility_in_charge_email = (!empty($data['facility_in_charge_email'])) ? $data['facility_in_charge_email'] : null;
-        $this->facility_id = (!empty($data['facility_id'])) ? $data['facility_id'] : null;
-        $this->facility_name = (!empty($data['facility_name'])) ? $data['facility_name'] : null;
-        $this->facility_address = (!empty($data['facility_address'])) ? $data['facility_address'] : null;
+        $this->id = (empty($data['id'])) ? null : $data['id'];
+        $this->certification_reg_no = (empty($data['certification_reg_no'])) ? null : $data['certification_reg_no'];
+        $this->professional_reg_no = (empty($data['professional_reg_no'])) ? null : $data['professional_reg_no'];
+        $this->certification_id = (empty($data['certification_id'])) ? null : $data['certification_id'];
+        $this->last_name = (empty($data['last_name'])) ? null : $data['last_name'];
+        $this->first_name = (empty($data['first_name'])) ? null : $data['first_name'];
+        $this->middle_name = (empty($data['middle_name'])) ? null : $data['middle_name'];
+        $this->region = (empty($data['region'])) ? null : $data['region'];
+        $this->district = (empty($data['district'])) ? null : $data['district'];
+        $this->type_vih_test = (empty($data['type_vih_test'])) ? null : $data['type_vih_test'];
+        $this->phone = (empty($data['phone'])) ? null : $data['phone'];
+        $this->email = (empty($data['email'])) ? null : $data['email'];
+        $this->prefered_contact_method = (empty($data['prefered_contact_method'])) ? null : $data['prefered_contact_method'];
+        $this->current_jod = (empty($data['current_jod'])) ? null : $data['current_jod'];
+        $this->time_worked = (empty($data['time_worked'])) ? null : $data['time_worked'];
+        $this->username = (empty($data['username'])) ? null : $data['username'];
+        $this->password = (empty($data['password'])) ? null : $data['password'];
+        $this->test_site_in_charge_name = (empty($data['test_site_in_charge_name'])) ? null : $data['test_site_in_charge_name'];
+        $this->test_site_in_charge_phone = (empty($data['test_site_in_charge_phone'])) ? null : $data['test_site_in_charge_phone'];
+        $this->test_site_in_charge_email = (empty($data['test_site_in_charge_email'])) ? null : $data['test_site_in_charge_email'];
+        $this->facility_in_charge_name = (empty($data['facility_in_charge_name'])) ? null : $data['facility_in_charge_name'];
+        $this->facility_in_charge_phone = (empty($data['facility_in_charge_phone'])) ? null : $data['facility_in_charge_phone'];
+        $this->facility_in_charge_email = (empty($data['facility_in_charge_email'])) ? null : $data['facility_in_charge_email'];
+        $this->facility_id = (empty($data['facility_id'])) ? null : $data['facility_id'];
+        $this->facility_name = (empty($data['facility_name'])) ? null : $data['facility_name'];
+        $this->facility_address = (empty($data['facility_address'])) ? null : $data['facility_address'];
     
-        $this->region_name = (!empty($data['region_name'])) ? $data['region_name'] : null;
-        $this->district_name = (!empty($data['district_name'])) ? $data['district_name'] : null;
+        $this->region_name = (empty($data['region_name'])) ? null : $data['region_name'];
+        $this->district_name = (empty($data['district_name'])) ? null : $data['district_name'];
         
-        $this->date_certificate_issued = (!empty($data['date_certificate_issued'])) ? $data['date_certificate_issued'] : null;
-        $this->date_end_validity = (!empty($data['date_end_validity'])) ? $data['date_end_validity'] : null;
-        $this->final_decision = (!empty($data['final_decision'])) ? $data['final_decision'] : null;
-        $this->certid = (!empty($data['certid'])) ? $data['certid'] : null;
-        $this->examid = (!empty($data['examid'])) ? $data['examid'] : null;
-        $this->link_send_count = (!empty($data['link_send_count'])) ? $data['link_send_count'] : null;
-        $this->link_send_on = (!empty($data['link_send_on'])) ? $data['link_send_on'] : null;
-        $this->link_send_by = (!empty($data['link_send_by'])) ? $data['link_send_by'] : null;
-        $this->link_token = (!empty($data['link_token'])) ? $data['link_token'] : null;
-        $this->profile_picture = (!empty($data['profile_picture'])) ? $data['profile_picture'] : null;
+        $this->date_certificate_issued = (empty($data['date_certificate_issued'])) ? null : $data['date_certificate_issued'];
+        $this->date_end_validity = (empty($data['date_end_validity'])) ? null : $data['date_end_validity'];
+        $this->final_decision = (empty($data['final_decision'])) ? null : $data['final_decision'];
+        $this->certid = (empty($data['certid'])) ? null : $data['certid'];
+        $this->examid = (empty($data['examid'])) ? null : $data['examid'];
+        $this->link_send_count = (empty($data['link_send_count'])) ? null : $data['link_send_count'];
+        $this->link_send_on = (empty($data['link_send_on'])) ? null : $data['link_send_on'];
+        $this->link_send_by = (empty($data['link_send_by'])) ? null : $data['link_send_by'];
+        $this->link_token = (empty($data['link_token'])) ? null : $data['link_token'];
+        $this->profile_picture = (empty($data['profile_picture'])) ? null : $data['profile_picture'];
     }
 
     public function getArrayCopy() {

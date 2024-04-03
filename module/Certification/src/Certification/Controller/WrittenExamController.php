@@ -57,33 +57,30 @@ class WrittenExamController extends AbstractActionController
                 return array(
                     'form' => $this->writtenExamform,
                 );
-            } else {
-
-                if ($written == 0) {
-                    if ($this->writtenExamform->isValid() && empty($practical)) {
-                        $writtenExam->exchangeArray($this->writtenExamform->getData());
-                        $this->writtenExamTable->saveWrittenExam($writtenExam);
-                        $last_id = $this->writtenExamTable->last_id();
+            } elseif ($written == 0) {
+                if ($this->writtenExamform->isValid() && empty($practical)) {
+                    $writtenExam->exchangeArray($this->writtenExamform->getData());
+                    $this->writtenExamTable->saveWrittenExam($writtenExam);
+                    $last_id = $this->writtenExamTable->last_id();
+                    $this->writtenExamTable->insertToExamination($last_id);
+                    $container->alertMsg = 'Written exam added successfully';
+                    return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
+                } elseif ($this->writtenExamform->isValid() && !empty($practical)) {
+                    $writtenExam->exchangeArray($this->writtenExamform->getData());
+                    $this->writtenExamTable->saveWrittenExam($writtenExam);
+                    $last_id = $this->writtenExamTable->last_id();
+                    $nombre2 = $this->writtenExamTable->countPractical2($practical);
+                    if ($nombre2 == 0) {
+                        $this->writtenExamTable->examination($last_id, $practical);
+                    } else {
                         $this->writtenExamTable->insertToExamination($last_id);
-                        $container->alertMsg = 'Written exam added successfully';
-                        return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
-                    } else if ($this->writtenExamform->isValid() && !empty($practical)) {
-                        $writtenExam->exchangeArray($this->writtenExamform->getData());
-                        $this->writtenExamTable->saveWrittenExam($writtenExam);
-                        $last_id = $this->writtenExamTable->last_id();
-                        $nombre2 = $this->writtenExamTable->countPractical2($practical);
-                        if ($nombre2 == 0) {
-                            $this->writtenExamTable->examination($last_id, $practical);
-                        } else {
-                            $this->writtenExamTable->insertToExamination($last_id);
-                        }
-                        $container->alertMsg = 'written exam added successfully';
-                        return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
                     }
-                } else {
-                    $container->alertMsg = 'Unable to process this request. This tester has already taken a written exam.';
-                    return array('form' => $this->writtenExamform);
+                    $container->alertMsg = 'written exam added successfully';
+                    return $this->redirect()->toRoute('written-exam', array('action' => 'add'));
                 }
+            } else {
+                $container->alertMsg = 'Unable to process this request. This tester has already taken a written exam.';
+                return array('form' => $this->writtenExamform);
             }
         }
         $nombre = null;
@@ -104,7 +101,7 @@ class WrittenExamController extends AbstractActionController
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
 
         $id_written_exam = (int) base64_decode($this->params()->fromRoute('id_written_exam', 0));
-        if (!$id_written_exam) {
+        if ($id_written_exam === 0) {
             return $this->redirect()->toRoute('written-exam', array(
                 'action' => 'add'
             ));
@@ -163,7 +160,7 @@ class WrittenExamController extends AbstractActionController
     {
         $id_written_exam = (int) base64_decode($this->params()->fromRoute('id_written_exam', 0));
 
-        if (!$id_written_exam) {
+        if ($id_written_exam === 0) {
             return $this->redirect()->toRoute('written-exam');
         } else {
             $nb_written = $this->writtenExamTable->CountWritten($id_written_exam);

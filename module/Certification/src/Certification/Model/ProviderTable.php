@@ -50,15 +50,14 @@ class ProviderTable extends AbstractTableGateway
         //->group('e.provider');
         $sqlSelect->order('provider.added_on desc')
             ->order('c.date_certificate_issued desc');
-        if (isset($logincontainer->district) && count($logincontainer->district) > 0) {
+        if (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0) {
             $sqlSelect->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
-        } else if (isset($logincontainer->region) && count($logincontainer->region) > 0) {
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0) {
             $sqlSelect->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
-        } else if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $sqlSelect->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     public function getProvider($id)
@@ -83,7 +82,7 @@ class ProviderTable extends AbstractTableGateway
         $test_site_in_charge_name = strtoupper($provider->test_site_in_charge_name);
         $facility_in_charge_name = strtoupper($provider->facility_in_charge_name);
         $password = '';
-        if (isset($provider->password) && $provider->password != '') {
+        if ($provider->password !== null && $provider->password != '') {
             $config = new \Laminas\Config\Reader\Ini();
             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
             $password = sha1($provider->password . $configResult["password"]["salt"]);
@@ -138,15 +137,13 @@ class ProviderTable extends AbstractTableGateway
             $data['last_updated_by'] = $sessionLogin->userId;
             $this->tableGateway->insert($data);
             $id = $this->tableGateway->lastInsertValue;
+        } elseif ($this->getProvider($id)) {
+            $data['certification_id'] = $provider->certification_id;
+            $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+            $data['last_updated_by'] = $sessionLogin->userId;
+            $this->tableGateway->update($data, array('id' => $id));
         } else {
-            if ($this->getProvider($id)) {
-                $data['certification_id'] = $provider->certification_id;
-                $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
-                $data['last_updated_by'] = $sessionLogin->userId;
-                $this->tableGateway->update($data, array('id' => $id));
-            } else {
-                throw new \Exception('Provider id does not exist');
-            }
+            throw new \Exception('Provider id does not exist');
         }
         if (isset($provider->profile_picture['name']) && $provider->profile_picture['name'] != '') {
             $pathname = UPLOAD_PATH . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'pic';
@@ -154,7 +151,7 @@ class ProviderTable extends AbstractTableGateway
                 mkdir($pathname, 0777, true);
             }
             $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $provider->profile_picture['name'], PATHINFO_EXTENSION));
-            $imageName = \Application\Service\CommonService::generateRandomString(4, 'alphanum') . "." . $extension;
+            $imageName = \Application\Service\CommonService::generateRandomString(4) . "." . $extension;
 
             if (move_uploaded_file($provider->profile_picture['tmp_name'], $pathname . DIRECTORY_SEPARATOR . $imageName)) {
                 $this->tableGateway->update(array('profile_picture' => $imageName), "id=" . $id);
@@ -171,29 +168,27 @@ class ProviderTable extends AbstractTableGateway
     {
         $logincontainer = new Container('credo');
         $regionWhere = '';
-        if (isset($logincontainer->region) && count($logincontainer->region) > 0) {
+        if (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0) {
             $regionWhere = ' AND location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
         $db = $this->adapter;
         $sql = "SELECT location_id, location_name FROM location_details WHERE parent_location = 0 AND country ='" . $params['q'] . "'" . $regionWhere;
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function getDistrict($q)
     {
         $logincontainer = new Container('credo');
         $districtWhere = '';
-        if (isset($logincontainer->district) && count($logincontainer->district) > 0) {
+        if (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0) {
             $districtWhere = ' AND location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
         $db = $this->adapter;
         $sql = "SELECT location_id, location_name FROM location_details WHERE parent_location = '" . $q . "'" . $districtWhere;
         $statement = $db->query($sql);
-        $result = $statement->execute();
         //        print_r($result);
-        return $result;
+        return $statement->execute();
     }
 
     public function getFacility($q)
@@ -201,8 +196,7 @@ class ProviderTable extends AbstractTableGateway
         $db = $this->adapter;
         $sql = "SELECT id, facility_name, district FROM certification_facilities where district='" . $q . "'";
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function getCountryIdbyRegion($location)
@@ -222,14 +216,13 @@ class ProviderTable extends AbstractTableGateway
     {
         $logincontainer = new Container('credo');
         $countryWhere = 'WHERE country_status = "active"';
-        if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        if (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $countryWhere = 'WHERE country_id IN(' . implode(',', $logincontainer->country) . ') AND country_status = "active"';
         }
         $db = $this->adapter;
         $sql = 'SELECT country_id, country_name FROM country ' . $countryWhere . ' ORDER by country_name asc';
         $statement = $db->query($sql);
-        $countryResult = $statement->execute();
-        return $countryResult;
+        return $statement->execute();
     }
 
     public function deleteProvider($id)
@@ -276,26 +269,20 @@ class ProviderTable extends AbstractTableGateway
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
         }
 
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
 
         if (!empty($facility)) {
@@ -316,8 +303,7 @@ class ProviderTable extends AbstractTableGateway
 
         //die($sql);
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function fetchTesters($parameters)
@@ -343,9 +329,9 @@ class ProviderTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -381,9 +367,11 @@ class ProviderTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -409,9 +397,9 @@ class ProviderTable extends AbstractTableGateway
             ->join(array('c_f' => 'certification_facilities'), ' c_f.id = p.facility_id ', array('facility_name'));
         //->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
         //->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'));
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
 
@@ -454,9 +442,9 @@ class ProviderTable extends AbstractTableGateway
             ->join(array('c_f' => 'certification_facilities'), ' c_f.id = p.facility_id ', array('facility_name'));
         //->join(array('l_d_r'=>'location_details'), 'l_d_r.location_id = p.region', array('region_name'=>'location_name'))
         //->join(array('l_d_d'=>'location_details'), 'l_d_d.location_id = p.district', array('district_name'=>'location_name'));
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $tQuery->where('p.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         if (isset($parameters['fromSource']) && trim($parameters['fromSource']) == 'up-for-recertificate') {
@@ -468,7 +456,7 @@ class ProviderTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -490,10 +478,8 @@ class ProviderTable extends AbstractTableGateway
                 if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) {
                     $row[] = "<a href='/certification-mail/index?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('provider_id')) . "=" . base64_encode($aRow['provider']) . "&" . urlencode(base64_encode('email')) . "=" . base64_encode($aRow['email']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('provider_name')) . "=" . base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name']) . "&" . urlencode(base64_encode('date_certificate_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "&" . urlencode(base64_encode('date_end_validity')) . "=" . base64_encode($aRow['date_end_validity']) . "&" . urlencode(base64_encode('facility_in_charge_email')) . "=" . base64_encode($aRow['facility_in_charge_email']) . "'><span class='glyphicon glyphicon-envelope'></span>&nbsp; Send Reminder </a>";
                 }
-            } else {
-                if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) {
-                    $row[] = "<a href='/certification-mail/index?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('provider_id')) . "=" . base64_encode($aRow['provider']) . "&" . urlencode(base64_encode('email')) . "=" . base64_encode($aRow['email']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('provider_name')) . "=" . base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name']) . "&" . urlencode(base64_encode('facility_in_charge_email')) . "=" . base64_encode($aRow['facility_in_charge_email']) . "&" . urlencode(base64_encode('test_site_in_charge_email')) . "=" . base64_encode($aRow['test_site_in_charge_email']) . "&" . urlencode(base64_encode('date_certificate_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "&" . urlencode(base64_encode('date_end_validity')) . "=" . base64_encode($aRow['date_end_validity']) . "&" . urlencode(base64_encode('key2')) . "=" . base64_encode('key') . "'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
-                }
+            } elseif ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) {
+                $row[] = "<a href='/certification-mail/index?" . urlencode(base64_encode('id')) . "=" . base64_encode($aRow['id']) . "&" . urlencode(base64_encode('provider_id')) . "=" . base64_encode($aRow['provider']) . "&" . urlencode(base64_encode('email')) . "=" . base64_encode($aRow['email']) . "&" . urlencode(base64_encode('certification_id')) . "=" . base64_encode($aRow['certification_id']) . "&" . urlencode(base64_encode('professional_reg_no')) . "=" . base64_encode($aRow['professional_reg_no']) . "&" . urlencode(base64_encode('provider_name')) . "=" . base64_encode($aRow['last_name'] . " " . $aRow['first_name'] . " " . $aRow['middle_name']) . "&" . urlencode(base64_encode('facility_in_charge_email')) . "=" . base64_encode($aRow['facility_in_charge_email']) . "&" . urlencode(base64_encode('test_site_in_charge_email')) . "=" . base64_encode($aRow['test_site_in_charge_email']) . "&" . urlencode(base64_encode('date_certificate_issued')) . "=" . base64_encode($aRow['date_certificate_issued']) . "&" . urlencode(base64_encode('date_end_validity')) . "=" . base64_encode($aRow['date_end_validity']) . "&" . urlencode(base64_encode('key2')) . "=" . base64_encode('key') . "'><span class='glyphicon glyphicon-envelope'></span>&nbsp;Send Certificate</a>";
             }
 
             $output['aaData'][] = $row;
@@ -535,11 +521,7 @@ class ProviderTable extends AbstractTableGateway
         }
         $config = new \Laminas\Config\Reader\Ini();
         $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-        if ($type == 'token') {
-            $password = $params['password'];
-        } else {
-            $password = sha1($params['password'] . $configResult["password"]["salt"]);
-        }
+        $password = $type == 'token' ? $params['password'] : sha1($params['password'] . $configResult["password"]["salt"]);
         $loginQuery = $sql->select()->from('provider')->where(array('username' => $params['username'], 'password' => $password));
         $loginStr = $sql->buildSqlString($loginQuery);
         $response = $dbAdapter->query($loginStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
@@ -687,8 +669,8 @@ class ProviderTable extends AbstractTableGateway
                 $mailContent = trim($mailTemplatesDetals['mail_content']);
 
                 $message = str_replace($mainSearch, $mailReplace, $mailContent);
-                $message = str_replace("&nbsp;", "", strval($message));
-                $message = str_replace("&amp;nbsp;", "", strval($message));
+                $message = str_replace("&nbsp;", "", (string) $message);
+                $message = str_replace("&amp;nbsp;", "", (string) $message);
                 $message = html_entity_decode($message . $mailTemplatesDetals['mail_footer'], ENT_QUOTES, 'UTF-8');
                 $common->insertTempMail($to, $subject, $message, $fromMail, $fromName, $cc, $bcc);
                 $certifyId[] = $provider['certifyId'];
@@ -751,136 +733,129 @@ class ProviderTable extends AbstractTableGateway
                 mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "tester");
             }
 
-            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-
-                if (move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-
-                    $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
-                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-                    // Debug::dump($sheetData);die;
-                    $count = count($sheetData);
-                    $j = 0;
-                    for ($i = 2; $i <= $count; ++$i) {
-                        $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
-                        $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
-                        $facility = $this->getFacilityByName($sheetData[$i]['K']);
-                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['K'] == '') {
-                            $response['data']['mandatory'][]  = array(
-                                'professional_reg_no'       => $sheetData[$i]['A'],
-                                'first_name'                => $sheetData[$i]['B'],
-                                'middle_name'               => $sheetData[$i]['C'],
-                                'last_name'                 => $sheetData[$i]['D'],
-                                'region'                    => $sheetData[$i]['E'],
-                                'district'                  => $sheetData[$i]['F'],
-                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                                'phone'                     => $sheetData[$i]['H'],
-                                'email'                     => $sheetData[$i]['I'],
-                                'current_jod'               => $sheetData[$i]['J'],
-                                'facility_id'               => $sheetData[$i]['K'],
-                                'time_worked'               => $sheetData[$i]['L'],
-                                'username'                  => $sheetData[$i]['M'],
-                                'password'                  => $sheetData[$i]['N'],
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                                'facility_in_charge_email'  => $sheetData[$i]['T'],
-                            );
-                        } else if (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['K'] != '')) {
-                            $password = '';
-                            if (isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != '') {
-                                $config = new \Laminas\Config\Reader\Ini();
-                                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-                                $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
-                            }
-
-                            $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
-                            $statement = $dbAdapter->query($sql);
-                            $result = $statement->execute();
-                            foreach ($result as $res) {
-                                $max = $res['max'];
-                            }
-                            $array = explode("R", $max);
-                            $array2 = explode("-", $max);
-
-                            if (date('Y') > $array2[0]) {
-                                $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
-                            } else {
-                                $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
-                            }
-                            $region = $this->getLocationByName($sheetData[$i]['E']);
-                            $district = $this->getLocationByName($sheetData[$i]['F']);
-
-                            $data = array(
-                                'professional_reg_no'       => $sheetData[$i]['A'],
-                                'first_name'                => $sheetData[$i]['B'],
-                                'middle_name'               => $sheetData[$i]['C'],
-                                'last_name'                 => $sheetData[$i]['D'],
-                                'region'                    => (isset($region['location_id']) && $region) ? $region['location_id'] : '',
-                                'district'                  => (isset($district['location_id']) && $district) ? $district['location_id'] : '',
-                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                                'phone'                     => $sheetData[$i]['H'],
-                                'email'                     => $sheetData[$i]['I'],
-                                'prefered_contact_method'   => 'Phone',
-                                'current_jod'               => $sheetData[$i]['J'],
-                                'facility_id'               => $facility['id'],
-                                'time_worked'               => $sheetData[$i]['L'],
-                                'username'                  => $sheetData[$i]['M'],
-                                'password'                  => $password,
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                                'facility_in_charge_email'  => $sheetData[$i]['T'],
-                                'certification_reg_no'      => $certification_reg_no,
-                                'added_on'                  => \Application\Service\CommonService::getDateTime(),
-                                'added_by'                  => $loginContainer->userId,
-                                'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
-                                'last_updated_by'           => $loginContainer->userId,
-                            );
-                            $response['data']['imported'][$j] = $data;
-                            $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
-                            $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                            $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                            $this->tableGateway->insert($data);
-                            $status = true;
-                        } else {
-                            $response['data']['duplicate'][] = array(
-                                'professional_reg_no'       => $sheetData[$i]['A'],
-                                'first_name'                => $sheetData[$i]['B'],
-                                'middle_name'               => $sheetData[$i]['C'],
-                                'last_name'                 => $sheetData[$i]['D'],
-                                'region'                    => $sheetData[$i]['E'],
-                                'district'                  => $sheetData[$i]['F'],
-                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                                'phone'                     => $sheetData[$i]['H'],
-                                'email'                     => $sheetData[$i]['I'],
-                                'current_jod'               => $sheetData[$i]['J'],
-                                'facility_id'               => $sheetData[$i]['K'],
-                                'time_worked'               => $sheetData[$i]['L'],
-                                'username'                  => $sheetData[$i]['M'],
-                                'password'                  => $sheetData[$i]['N'],
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                                'facility_in_charge_email'  => $sheetData[$i]['T'],
-                            );
+            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+                $objPHPExcel = \PHPExcel_IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                // Debug::dump($sheetData);die;
+                $count = count($sheetData);
+                $j = 0;
+                for ($i = 2; $i <= $count; ++$i) {
+                    $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
+                    $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
+                    $facility = $this->getFacilityByName($sheetData[$i]['K']);
+                    if ($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['K'] == '') {
+                        $response['data']['mandatory'][]  = array(
+                            'professional_reg_no'       => $sheetData[$i]['A'],
+                            'first_name'                => $sheetData[$i]['B'],
+                            'middle_name'               => $sheetData[$i]['C'],
+                            'last_name'                 => $sheetData[$i]['D'],
+                            'region'                    => $sheetData[$i]['E'],
+                            'district'                  => $sheetData[$i]['F'],
+                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                            'phone'                     => $sheetData[$i]['H'],
+                            'email'                     => $sheetData[$i]['I'],
+                            'current_jod'               => $sheetData[$i]['J'],
+                            'facility_id'               => $sheetData[$i]['K'],
+                            'time_worked'               => $sheetData[$i]['L'],
+                            'username'                  => $sheetData[$i]['M'],
+                            'password'                  => $sheetData[$i]['N'],
+                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                            'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                            'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                            'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                            'facility_in_charge_email'  => $sheetData[$i]['T'],
+                        );
+                    } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['K'] != '')) {
+                        $password = '';
+                        if (isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != '') {
+                            $config = new \Laminas\Config\Reader\Ini();
+                            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                            $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
                         }
-                        $j++;
+                        $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
+                        $statement = $dbAdapter->query($sql);
+                        $result = $statement->execute();
+                        foreach ($result as $res) {
+                            $max = $res['max'];
+                        }
+                        $array = explode("R", $max);
+                        $array2 = explode("-", $max);
+                        if (date('Y') > $array2[0]) {
+                            $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
+                        } else {
+                            $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
+                        }
+                        $region = $this->getLocationByName($sheetData[$i]['E']);
+                        $district = $this->getLocationByName($sheetData[$i]['F']);
+                        $data = array(
+                            'professional_reg_no'       => $sheetData[$i]['A'],
+                            'first_name'                => $sheetData[$i]['B'],
+                            'middle_name'               => $sheetData[$i]['C'],
+                            'last_name'                 => $sheetData[$i]['D'],
+                            'region'                    => (isset($region['location_id']) && $region) ? $region['location_id'] : '',
+                            'district'                  => (isset($district['location_id']) && $district) ? $district['location_id'] : '',
+                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                            'phone'                     => $sheetData[$i]['H'],
+                            'email'                     => $sheetData[$i]['I'],
+                            'prefered_contact_method'   => 'Phone',
+                            'current_jod'               => $sheetData[$i]['J'],
+                            'facility_id'               => $facility['id'],
+                            'time_worked'               => $sheetData[$i]['L'],
+                            'username'                  => $sheetData[$i]['M'],
+                            'password'                  => $password,
+                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                            'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                            'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                            'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                            'facility_in_charge_email'  => $sheetData[$i]['T'],
+                            'certification_reg_no'      => $certification_reg_no,
+                            'added_on'                  => \Application\Service\CommonService::getDateTime(),
+                            'added_by'                  => $loginContainer->userId,
+                            'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
+                            'last_updated_by'           => $loginContainer->userId,
+                        );
+                        $response['data']['imported'][$j] = $data;
+                        $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                        $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                        $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                        $this->tableGateway->insert($data);
+                        $status = true;
+                    } else {
+                        $response['data']['duplicate'][] = array(
+                            'professional_reg_no'       => $sheetData[$i]['A'],
+                            'first_name'                => $sheetData[$i]['B'],
+                            'middle_name'               => $sheetData[$i]['C'],
+                            'last_name'                 => $sheetData[$i]['D'],
+                            'region'                    => $sheetData[$i]['E'],
+                            'district'                  => $sheetData[$i]['F'],
+                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                            'phone'                     => $sheetData[$i]['H'],
+                            'email'                     => $sheetData[$i]['I'],
+                            'current_jod'               => $sheetData[$i]['J'],
+                            'facility_id'               => $sheetData[$i]['K'],
+                            'time_worked'               => $sheetData[$i]['L'],
+                            'username'                  => $sheetData[$i]['M'],
+                            'password'                  => $sheetData[$i]['N'],
+                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                            'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                            'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                            'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                            'facility_in_charge_email'  => $sheetData[$i]['T'],
+                        );
                     }
-                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
+                    $j++;
                 }
+                unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
             }
         }
-        if (count($response['data']) > 0) {
+        if ($response['data'] !== []) {
             $container = new Container('alert');
             $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields below to ensure the Tester Profession number is not duplicated.';
             return $response;
-        } else if ($status) {
+        } elseif ($status) {
             $container = new Container('alert');
             $container->alertMsg = 'Tester details imported successfully';
             return $response;
@@ -968,15 +943,14 @@ class ProviderTable extends AbstractTableGateway
         //->group('e.provider');
         $sqlSelect->order('provider.added_on desc')
             ->order('c.date_certificate_issued desc');
-        if (isset($logincontainer->district) && count($logincontainer->district) > 0) {
+        if (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0) {
             $sqlSelect->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
-        } else if (isset($logincontainer->region) && count($logincontainer->region) > 0) {
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0) {
             $sqlSelect->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
-        } else if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $sqlSelect->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
 
@@ -1006,9 +980,9 @@ class ProviderTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -1044,9 +1018,11 @@ class ProviderTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -1073,11 +1049,11 @@ class ProviderTable extends AbstractTableGateway
         $sQuery->order('c.last_updated_on DESC');
         $sQuery->order('c.date_certificate_issued desc');
 
-        if (isset($logincontainer->district) && count($logincontainer->district) > 0) {
+        if (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0) {
             $sQuery->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
-        } else if (isset($logincontainer->region) && count($logincontainer->region) > 0) {
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0) {
             $sQuery->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
-        } else if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $sQuery->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
 
@@ -1117,18 +1093,18 @@ class ProviderTable extends AbstractTableGateway
 
         $tQuery->order('c.last_updated_on DESC');
         $tQuery->order('c.date_certificate_issued desc');
-        if (isset($logincontainer->district) && count($logincontainer->district) > 0) {
+        if (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0) {
             $tQuery->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
-        } else if (isset($logincontainer->region) && count($logincontainer->region) > 0) {
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0) {
             $tQuery->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
-        } else if (isset($logincontainer->country) && count($logincontainer->country) > 0) {
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0) {
             $tQuery->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the Select-instance
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()
@@ -1161,31 +1137,27 @@ class ProviderTable extends AbstractTableGateway
             }
             ;";
             $DeleteId = '';
-            if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'delete')) {
-                if (!isset($aRow['examid'])) {
-                    $DeleteId = '<a class="btn btn-primary"  onclick="' . $deleteconfirm . '" href="/provider/delete/' . $aRow['id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
-                }
+            if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'delete') && !isset($aRow['examid'])) {
+                $DeleteId = '<a class="btn btn-primary"  onclick="' . $deleteconfirm . '" href="/provider/delete/' . $aRow['id'] . '"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>';
             }
             $PDFId = '';
-            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) {
-                if (isset($aRow['final_decision']) && $aRow['final_decision'] != null && trim($aRow['final_decision']) != '') {
-                    if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
-                        /* $val = array(
-                        base64_encode('id') => base64_encode($aRow['certid']), 
-                        base64_encode('last') => base64_encode($aRow['last_name']), 
-                        base64_encode('first') => base64_encode($aRow['first_name']), 
-                        base64_encode('middle') => base64_encode($aRow['middle_name']), 
-                        base64_encode('professional_reg_no') => base64_encode($aRow['professional_reg_no']), 
-                        base64_encode('certification_id') => base64_encode($aRow['certification_id']), 
-                        base64_encode('date_issued') => base64_encode($aRow['date_certificate_issued'])
-                    );
-                    $arrayVal=$this->url('certification', array('action' => 'pdf'), array(
-                        'query' => $val
-                        )
-                    ); */
-                        $val = base64_encode('id') . '=' . base64_encode($aRow['certid']) . '&' . base64_encode('last') . '=' . base64_encode($aRow['last_name']) . '&' . base64_encode('first') . '=' . base64_encode($aRow['first_name']) . '&' . base64_encode('middle') . '=' . base64_encode($aRow['middle_name']) . '&' . base64_encode('professional_reg_no') . '=' . base64_encode($aRow['professional_reg_no']) . '&' . base64_encode('certification_id') . '=' . base64_encode($aRow['certification_id']) . '&' . base64_encode('date_issued') . '=' . base64_encode($aRow['date_certificate_issued']);
-                        $PDFId = '<a class="btn btn-primary" href="/certification/pdf?query=' . $val . '" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>';
-                    }
+            if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf') && (isset($aRow['final_decision']) && $aRow['final_decision'] != null && trim($aRow['final_decision']) != '')) {
+                if (strcasecmp($aRow['final_decision'], 'Certified') == 0) {
+                    /* $val = array(
+                    base64_encode('id') => base64_encode($aRow['certid']), 
+                    base64_encode('last') => base64_encode($aRow['last_name']), 
+                    base64_encode('first') => base64_encode($aRow['first_name']), 
+                    base64_encode('middle') => base64_encode($aRow['middle_name']), 
+                    base64_encode('professional_reg_no') => base64_encode($aRow['professional_reg_no']), 
+                    base64_encode('certification_id') => base64_encode($aRow['certification_id']), 
+                    base64_encode('date_issued') => base64_encode($aRow['date_certificate_issued'])
+                );
+                $arrayVal=$this->url('certification', array('action' => 'pdf'), array(
+                    'query' => $val
+                    )
+                ); */
+                    $val = base64_encode('id') . '=' . base64_encode($aRow['certid']) . '&' . base64_encode('last') . '=' . base64_encode($aRow['last_name']) . '&' . base64_encode('first') . '=' . base64_encode($aRow['first_name']) . '&' . base64_encode('middle') . '=' . base64_encode($aRow['middle_name']) . '&' . base64_encode('professional_reg_no') . '=' . base64_encode($aRow['professional_reg_no']) . '&' . base64_encode('certification_id') . '=' . base64_encode($aRow['certification_id']) . '&' . base64_encode('date_issued') . '=' . base64_encode($aRow['date_certificate_issued']);
+                    $PDFId = '<a class="btn btn-primary" href="/certification/pdf?query=' . $val . '" target="_blank"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;PDF</a>';
                 }
             }
             $sendLink = '';
@@ -1264,9 +1236,9 @@ class ProviderTable extends AbstractTableGateway
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -1302,9 +1274,11 @@ class ProviderTable extends AbstractTableGateway
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -1330,28 +1304,20 @@ class ProviderTable extends AbstractTableGateway
 
         if (!empty($parameters['country'])) {
             $sQuery->where(array('c.country_id' => $parameters['country']));
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
 
         if (!empty($parameters['region'])) {
             $sQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-
-                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
 
         if (!empty($parameters['district'])) {
-
             $sQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
 
 
@@ -1406,28 +1372,20 @@ class ProviderTable extends AbstractTableGateway
 
         if (!empty($parameters['country'])) {
             $tQuery->where(array('c.country_id' => $parameters['country']));
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
 
         if (!empty($parameters['region'])) {
             $tQuery->where(array('l_d_r.location_id' => $parameters['region']));
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-
-                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
 
         if (!empty($parameters['district'])) {
-
             $tQuery->where(array('l_d_d.location_id' => $parameters['district']));
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
 
 
@@ -1451,7 +1409,7 @@ class ProviderTable extends AbstractTableGateway
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()

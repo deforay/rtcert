@@ -39,8 +39,7 @@ class LocationDetailsTable extends AbstractTableGateway {
         $id = (int) $region->location_id;
         if ($id == 0) {
             $this->insert($data);
-            $lastInsertId=$this->lastInsertValue;
-            return $lastInsertId;
+            return $this->lastInsertValue;
         }else{
             $this->update($data,array('location_id'=>$id));
             return $id;
@@ -61,8 +60,7 @@ class LocationDetailsTable extends AbstractTableGateway {
         $id = (int) $district->location_id;
         if ($id == 0) {
             $this->insert($data);
-            $lastInsertId=$this->lastInsertValue;
-            return $lastInsertId;
+            return $this->lastInsertValue;
         }else{
             $this->update($data,array('location_id'=>$id));
             return $id;

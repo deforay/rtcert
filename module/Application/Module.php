@@ -53,7 +53,9 @@ class Module
 
         //no need to call presetter if request is from CLI
         if (php_sapi_name() != 'cli') {
-            $eventManager->attach('dispatch', array($this, 'preSetter'), 100);
+            $eventManager->attach('dispatch', function (\Laminas\Mvc\MvcEvent $e) {
+                return $this->preSetter($e);
+            }, 100);
         }
     }
 
@@ -78,13 +80,11 @@ class Module
         /** @var \Laminas\Http\Request $request */
         $request = $e->getRequest();
 
-        if (
-            !$request->isXmlHttpRequest() &&
-            $e->getRouteMatch()->getParam('controller') != 'Application\Controller\LoginController'
-            && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\IndexController'
-            && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController'
-        ) {
-            if (empty($session) || !isset($session->userId) || empty($session->userId)) {
+        if (!$request->isXmlHttpRequest() &&
+        $e->getRouteMatch()->getParam('controller') != 'Application\Controller\LoginController'
+        && $e->getRouteMatch()->getParam('controller') != 'Application\Controller\IndexController'
+        && $e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController') {
+            if (empty($session) || (!property_exists($session, 'userId') || $session->userId === null) || empty($session->userId)) {
                 if ($e->getRouteMatch()->getParam('controller') != 'Certification\Controller\ProviderController') {
                     $url = $e->getRouter()->assemble(array(), array('name' => 'provider'));
                 } else {
@@ -141,14 +141,12 @@ class Module
                     return $response;
                 }
             }
-        } else {
-            if (isset($session->userId)) {
-                $diContainer = $e->getApplication()->getServiceManager();
-                $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
-                $acl = $diContainer->get('AppAcl');
-                $viewModel->acl = $acl;
-                $session->acl = serialize($acl);
-            }
+        } elseif (property_exists($session, 'userId') && $session->userId !== null) {
+            $diContainer = $e->getApplication()->getServiceManager();
+            $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
+            $acl = $diContainer->get('AppAcl');
+            $viewModel->acl = $acl;
+            $session->acl = serialize($acl);
         }
     }
 

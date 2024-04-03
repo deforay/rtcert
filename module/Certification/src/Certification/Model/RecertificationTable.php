@@ -35,15 +35,14 @@ class RecertificationTable
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array('recertification_id', 'due_date', 'reminder_type', 'reminder_sent_to', 'name_of_recipient', 'date_reminder_sent', 'provider_id'))
             ->join('provider', 'provider.id=recertification.provider_id', array('id', 'certification_id', 'last_name', 'first_name', 'middle_name'), 'left');
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
         }
         $sqlSelect->order('recertification_id desc');
-        $resultSet = $this->tableGateway->selectWith($sqlSelect);
         //        die(print_r($resultSet));
-        return $resultSet;
+        return $this->tableGateway->selectWith($sqlSelect);
     }
 
     public function getRecertification($recertification_id)
@@ -79,12 +78,10 @@ class RecertificationTable
         $recertification_id = (int) $recertification->recertification_id;
         if ($recertification_id == 0) {
             $this->tableGateway->insert($data);
+        } elseif ($this->getRecertification($recertification_id)) {
+            $this->tableGateway->update($data, array('recertification_id' => $recertification_id));
         } else {
-            if ($this->getRecertification($recertification_id)) {
-                $this->tableGateway->update($data, array('recertification_id' => $recertification_id));
-            } else {
-                throw new \Exception('Recertification id does not exist');
-            }
+            throw new \Exception('Recertification id does not exist');
         }
     }
 
@@ -101,16 +98,15 @@ class RecertificationTable
             . " certification_reg_no, professional_reg_no,email,date_certificate_issued,date_end_validity,facility_in_charge_email from certification, examination, provider where "
             . "examination.id = certification.examination and provider.id = examination.provider and final_decision='certified' and certificate_sent = 'yes' and reminder_sent='no' and"
             . " datediff(now(),date_end_validity) >=-60";
-        if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
+        if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
             $sqlSelect = $sqlSelect . ' and provider.district IN(' . implode(',', $sessionLogin->district) . ')';
-        } else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
             $sqlSelect = $sqlSelect . ' and provider.region IN(' . implode(',', $sessionLogin->region) . ')';
         }
-        $sqlSelect = $sqlSelect . ' order by certification.id asc';
+        $sqlSelect .= ' order by certification.id asc';
         $statement = $db->query($sqlSelect);
-        $resultSet = $statement->execute();
 
-        return $resultSet;
+        return $statement->execute();
     }
 
     public function ReminderSent($certification_id)
@@ -163,26 +159,20 @@ class RecertificationTable
 
         if (!empty($country)) {
             $sql = $sql . ' and c.country_id=' . $country;
-        } else {
-            if (isset($logincontainer->country) && count($logincontainer->country) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'country') && $logincontainer->country !== null && count($logincontainer->country) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
         }
 
         if (!empty($region)) {
             $sql = $sql . ' and l_d_r.location_id=' . $region;
-        } else {
-            if (isset($logincontainer->region) && count($logincontainer->region) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'region') && $logincontainer->region !== null && count($logincontainer->region) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
 
         if (!empty($district)) {
             $sql = $sql . ' and l_d_d.location_id=' . $district;
-        } else {
-            if (isset($logincontainer->district) && count($logincontainer->district) > 0 && $roleCode != 'AD') {
-                $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
-            }
+        } elseif (property_exists($logincontainer, 'district') && $logincontainer->district !== null && count($logincontainer->district) > 0 && $roleCode != 'AD') {
+            $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
 
         if (!empty($facility)) {
@@ -203,8 +193,7 @@ class RecertificationTable
         //        die($sql);
 
         $statement = $db->query($sql);
-        $result = $statement->execute();
-        return $result;
+        return $statement->execute();
     }
 
     public function getAllActiveCountries()
@@ -295,9 +284,9 @@ class RecertificationTable
 
         $sOrder = "";
         if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < intval($parameters['iSortingCols']); $i++) {
-                if ($parameters['bSortable_' . intval($parameters['iSortCol_' . $i])] == "true") {
-                    $sOrder .= $orderColumns[intval($parameters['iSortCol_' . $i])] . " " . ($parameters['sSortDir_' . $i]) . ",";
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $orderColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
                 }
             }
             $sOrder = substr_replace($sOrder, "", -1);
@@ -333,9 +322,11 @@ class RecertificationTable
             }
             $sWhere .= $sWhereSub;
         }
+        /* Individual column filtering */
+        $counter = count($aColumns);
 
         /* Individual column filtering */
-        for ($i = 0; $i < count($aColumns); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
@@ -366,7 +357,7 @@ class RecertificationTable
             ->join(array('rc' => 'recertification'), 'p.id =rc.provider_id ', array('reminder_type', 'reminder_sent_to', 'name_of_recipient', 'date_reminder_sent'))
             ->join(array('cert' => 'certification'), 'rc.due_date=cert.date_end_validity', array('date_end_validity'));
 
-        if (!empty($startDate) && !empty($endDate)) {
+        if ($startDate !== '' && $endDate !== '') {
             $sQuery->where('rc.due_date >="' . $startDate . '" and rc.due_date <="' . $endDate . '"');
         }
         if (!empty($decision)) {
@@ -389,24 +380,18 @@ class RecertificationTable
         }
         if (!empty($country)) {
             $sQuery->where(array('c.country_id' => $country));
-        } else {
-            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
         }
         if (!empty($region)) {
             $sQuery->where(array('l_d_r.location_id' => $region));
-        } else {
-            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
         }
         if (!empty($district)) {
             $sQuery->where(array('l_d_d.location_id' => $district));
-        } else {
-            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-                $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+            $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
         }
 
         if (isset($sWhere) && $sWhere != "") {
@@ -450,7 +435,7 @@ class RecertificationTable
             ->join(array('rc' => 'recertification'), 'p.id =rc.provider_id ', array('reminder_type', 'reminder_sent_to', 'name_of_recipient', 'date_reminder_sent'))
             ->join(array('cert' => 'certification'), 'rc.due_date=cert.date_end_validity', array('date_end_validity'));
 
-        if (!empty($startDate) && !empty($endDate)) {
+        if ($startDate !== '' && $endDate !== '') {
             $sQuery->where('rc.due_date >="' . $startDate . '" and rc.due_date <="' . $endDate . '"');
         }
         if (!empty($decision)) {
@@ -473,30 +458,24 @@ class RecertificationTable
         }
         if (!empty($country)) {
             $tQuery->where(array('c.country_id' => $country));
-        } else {
-            if (isset($sessionLogin->country) && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'country') && $sessionLogin->country !== null && count($sessionLogin->country) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
         }
         if (!empty($region)) {
             $tQuery->where(array('l_d_r.location_id' => $region));
-        } else {
-            if (isset($sessionLogin->region) && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
         }
         if (!empty($district)) {
             $tQuery->where(array('l_d_d.location_id' => $district));
-        } else {
-            if (isset($sessionLogin->district) && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
-                $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
-            }
+        } elseif (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0 && $roleCode != 'AD') {
+            $tQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
         }
         $tQueryStr = $sql->buildSqlString($tQuery); // Get the string of the Sql, instead of the 
         $tResult = $dbAdapter->query($tQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
         $iTotal = count($tResult);
         $output = array(
-            "sEcho" => intval($parameters['sEcho']),
+            "sEcho" => (int) $parameters['sEcho'],
             "iTotalRecords" => $iTotal,
             "iTotalDisplayRecords" => $iFilteredTotal,
             "aaData" => array()

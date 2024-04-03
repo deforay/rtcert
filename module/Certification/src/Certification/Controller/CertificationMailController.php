@@ -100,14 +100,14 @@ class CertificationMailController extends AbstractActionController
                     $certid = $testerArray[11];
                     $due_date = $testerArray[10];
 
-                    if ($parmas['type'] == 1 && !empty($certid)) {
+                    if ($parmas['type'] == 1 && $certid !== '') {
                         $this->certificationMailTable->dateCertificateSent($certid);
                     } elseif ($parmas['type'] == 2) {
                         $reminder_type = 'Email';
                         $reminder_sent_to = $this->getRequest()->getpost('type_recipient', null);
                         $name_reminder = $this->getRequest()->getpost('name_recipient', null);
                         $date_reminder_sent = date('Y-m-d');
-                        if (!empty($certid)) {
+                        if ($certid !== '') {
                             $this->certificationMailTable->insertRecertification($due_date, $provider_id, $reminder_type, $reminder_sent_to, $name_reminder, $date_reminder_sent);
                             $this->certificationMailTable->reminderSent($certid);
                         }

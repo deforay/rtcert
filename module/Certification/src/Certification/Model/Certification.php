@@ -8,6 +8,38 @@ use Laminas\InputFilter\InputFilterInterface;
 
 class Certification {
 
+    /**
+     * @var mixed
+     */
+    public $certification_reg_no;
+    /**
+     * @var mixed
+     */
+    public $last_name;
+    /**
+     * @var mixed
+     */
+    public $first_name;
+    /**
+     * @var mixed
+     */
+    public $middle_name;
+    /**
+     * @var mixed
+     */
+    public $professional_reg_no;
+    /**
+     * @var mixed
+     */
+    public $certification_id;
+    /**
+     * @var mixed
+     */
+    public $email;
+    /**
+     * @var mixed
+     */
+    public $facility_in_charge_email;
     public $id;
     public $provider;
     public $examination;
@@ -19,22 +51,22 @@ class Certification {
     protected $inputFilter;
 
     public function exchangeArray($data) {
-        $this->id = (!empty($data['id'])) ? $data['id'] : null;
-        $this->provider = (!empty($data['provider'])) ? $data['provider'] : null;
-        $this->examination = (!empty($data['examination'])) ? $data['examination'] : null;
-        $this->final_decision = (!empty($data['final_decision'])) ? $data['final_decision'] : null;
-        $this->certification_issuer = (!empty($data['certification_issuer'])) ? $data['certification_issuer'] : null;
-        $this->date_certificate_issued = (!empty($data['date_certificate_issued'])) ? $data['date_certificate_issued'] : null;
-        $this->date_certificate_sent = (!empty($data['date_certificate_sent'])) ? $data['date_certificate_sent'] : null;
-        $this->certification_type = (!empty($data['certification_type'])) ? $data['certification_type'] : null;
-        $this->certification_reg_no = (!empty($data['certification_reg_no'])) ? $data['certification_reg_no'] : null;
-        $this->last_name = (!empty($data['last_name'])) ? $data['last_name'] : null;
-        $this->first_name = (!empty($data['first_name'])) ? $data['first_name'] : null;
-        $this->middle_name = (!empty($data['middle_name'])) ? $data['middle_name'] : null;
-        $this->professional_reg_no = (!empty($data['professional_reg_no'])) ? $data['professional_reg_no'] : null;
-        $this->certification_id = (!empty($data['certification_id'])) ? $data['certification_id'] : null;
-        $this->email = (!empty($data['email'])) ? $data['email'] : null;
-        $this->facility_in_charge_email = (!empty($data['facility_in_charge_email'])) ? $data['facility_in_charge_email'] : null;
+        $this->id = (empty($data['id'])) ? null : $data['id'];
+        $this->provider = (empty($data['provider'])) ? null : $data['provider'];
+        $this->examination = (empty($data['examination'])) ? null : $data['examination'];
+        $this->final_decision = (empty($data['final_decision'])) ? null : $data['final_decision'];
+        $this->certification_issuer = (empty($data['certification_issuer'])) ? null : $data['certification_issuer'];
+        $this->date_certificate_issued = (empty($data['date_certificate_issued'])) ? null : $data['date_certificate_issued'];
+        $this->date_certificate_sent = (empty($data['date_certificate_sent'])) ? null : $data['date_certificate_sent'];
+        $this->certification_type = (empty($data['certification_type'])) ? null : $data['certification_type'];
+        $this->certification_reg_no = (empty($data['certification_reg_no'])) ? null : $data['certification_reg_no'];
+        $this->last_name = (empty($data['last_name'])) ? null : $data['last_name'];
+        $this->first_name = (empty($data['first_name'])) ? null : $data['first_name'];
+        $this->middle_name = (empty($data['middle_name'])) ? null : $data['middle_name'];
+        $this->professional_reg_no = (empty($data['professional_reg_no'])) ? null : $data['professional_reg_no'];
+        $this->certification_id = (empty($data['certification_id'])) ? null : $data['certification_id'];
+        $this->email = (empty($data['email'])) ? null : $data['email'];
+        $this->facility_in_charge_email = (empty($data['facility_in_charge_email'])) ? null : $data['facility_in_charge_email'];
     }
 
     public function getArrayCopy() {

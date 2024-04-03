@@ -43,15 +43,13 @@ class PracticalExamTable extends AbstractTableGateway
 		$sqlSelect->join('provider', ' provider.id = practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
 			->join('location_details', ' provider.district = location_details.location_id ', array('location_name'), 'left')
 			->where(array('display' => 'yes'));
-		if (isset($sessionLogin->district) && count($sessionLogin->district) > 0) {
-			$sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-		} else if (isset($sessionLogin->region) && count($sessionLogin->region) > 0) {
-			$sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
-		}
+		if (property_exists($sessionLogin, 'district') && $sessionLogin->district !== null && count($sessionLogin->district) > 0) {
+      $sqlSelect->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
+  } elseif (property_exists($sessionLogin, 'region') && $sessionLogin->region !== null && count($sessionLogin->region) > 0) {
+      $sqlSelect->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
+  }
 		$sqlSelect->order('practice_exam_id desc');
-
-		$resultSet = $this->tableGateway->selectWith($sqlSelect);
-		return $resultSet;
+		return $this->tableGateway->selectWith($sqlSelect);
 	}
 
 	public function getPracticalExam($practice_exam_id)
@@ -85,20 +83,18 @@ class PracticalExamTable extends AbstractTableGateway
 		//        print_r($data);
 		$practice_exam_id = (int)$practicalExam->practice_exam_id;
 		if ($practice_exam_id == 0) {
-			$data['added_on'] = \Application\Service\CommonService::getDateTime();
-			$data['added_by'] = $sessionLogin->userId;
-			$data['updated_on'] = \Application\Service\CommonService::getDateTime();
-			$data['updated_by'] = $sessionLogin->userId;
-			$this->tableGateway->insert($data);
-		} else {
-			if ($this->getPracticalExam($practice_exam_id)) {
-				$data['updated_on'] = \Application\Service\CommonService::getDateTime();
-				$data['updated_by'] = $sessionLogin->userId;
-				$this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
-			} else {
+      $data['added_on'] = \Application\Service\CommonService::getDateTime();
+      $data['added_by'] = $sessionLogin->userId;
+      $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+      $data['updated_by'] = $sessionLogin->userId;
+      $this->tableGateway->insert($data);
+  } elseif ($this->getPracticalExam($practice_exam_id)) {
+      $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+      $data['updated_by'] = $sessionLogin->userId;
+      $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
+  } else {
 				throw new \Exception('Practical Exam id does not exist');
 			}
-		}
 	}
 
 	/**
@@ -107,8 +103,7 @@ class PracticalExamTable extends AbstractTableGateway
 	 */
 	public function last_id()
 	{
-		$last_id = $this->tableGateway->lastInsertValue;
-		return $last_id;
+		return $this->tableGateway->lastInsertValue;
 	}
 
 	/**
