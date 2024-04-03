@@ -1,11 +1,15 @@
 <?php
 namespace Application\Service;
 
-use PHPExcel;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Session\Container;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PrintTestPdfService {
 
@@ -90,16 +94,11 @@ class PrintTestPdfService {
     public function exportPdfDataDetails(){
         try{
             $querycontainer = new Container('query');
-            $excel = new PHPExcel();
-            $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
-            $cacheSettings = array('memoryCacheSize' => '80MB');
-            \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
-            $output = array();
+            $excel = new Spreadsheet();
             $sheet = $excel->getActiveSheet();
             $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sResult = $dbAdapter->query($querycontainer->printTestPdfQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-            
-            $output= array();
+            $output = array();
             if(count($sResult) > 0) {
                 foreach($sResult as $aRow) {
                     $row = array();
@@ -116,62 +115,46 @@ class PrintTestPdfService {
                         'size'=>12,
                     ),
                     'alignment' => array(
-                        'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ),
                     'borders' => array(
                         'outline' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_THIN,
+                            'style' => Border::BORDER_THICK,
                         ),
                     )
                 );
-
-                $borderStyle = array(
-                        'alignment' => array(
-                            'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                        ),
-                        'borders' => array(
-                            'outline' => array(
-                                'style' => \PHPExcel_Style_Border::BORDER_THIN,
-                            ),
-                        )
-                    );
                 
-                $sheet->setCellValue('A1', html_entity_decode('Title', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('B1', html_entity_decode('Number of Participants', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('C1', html_entity_decode('Number of Variants', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('D1', html_entity_decode('Test Created By', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('E1', html_entity_decode('Created On', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('A1', html_entity_decode('Title', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('B1', html_entity_decode('Number of Participants', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('C1', html_entity_decode('Number of Variants', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('D1', html_entity_decode('Test Created By', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('E1', html_entity_decode('Created On', ENT_QUOTES, 'UTF-8'));
 
-                $sheet->getStyle('A1')->applyFromArray($styleArray);
-                $sheet->getStyle('B1')->applyFromArray($styleArray);
-                $sheet->getStyle('C1')->applyFromArray($styleArray);
-                $sheet->getStyle('D1')->applyFromArray($styleArray);
-                $sheet->getStyle('E1')->applyFromArray($styleArray);
+                $sheet->getStyle('A1:E1')->applyFromArray($styleArray);
 
                 foreach ($output as $rowNo => $rowData) {
-                    $colNo = 0;
+                    $colNo = 1;
+                    $rRowCount = $rowNo + 2;
                     foreach ($rowData as $field => $value) {
                         if (!isset($value)) {
                             $value = "";
                         }
                         if (is_numeric($value)) {
-                            $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
                         } else {
-                            $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode((string) $value));
                         }
-                        $rRowCount = $rowNo + 2;
-                        $cellName = $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->getColumn();
-                        $sheet->getStyle($cellName . $rRowCount)->applyFromArray($borderStyle);
+                        $cellName = Coordinate::stringFromColumnIndex($colNo) . $rRowCount;
                         $sheet->getDefaultRowDimension()->setRowHeight(18);
                         $sheet->getColumnDimensionByColumn($colNo)->setWidth(20);
-                        $sheet->getStyleByColumnAndRow($colNo, $rowNo + 2)->getAlignment()->setWrapText(true);
+                        $sheet->getStyle($cellName)->getAlignment()->setWrapText(true);
                         $colNo++;
                     }
                 }
 
-                $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-                $filename = 'print-test-pdf-report-(' . date('d-M-Y_H:i_a') . ').xls';
+                $writer = IOFactory::createWriter($excel, IOFactory::READER_XLSX);
+                $filename = 'print-test-pdf-report-(' . date('d-M-Y_H:i_a') . ').xlsx';
                 $directoryName = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'print-test-pdf';
 
                 if(!is_dir($directoryName)){
