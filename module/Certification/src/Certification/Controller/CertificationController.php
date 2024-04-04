@@ -7,6 +7,9 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Json\Json;
 use Laminas\View\Model\ViewModel;
 use Certification\Model\Certification;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class CertificationController extends AbstractActionController
 {
@@ -624,14 +627,10 @@ class CertificationController extends AbstractActionController
             $country = $request->getPost('country_id');
             $region = $request->getPost('region');
             $district = $request->getPost('district');
-            $examination = $this->certificationTable->expiryReport($expirydata, $country, $region, $district);
+            $sResult = $this->certificationTable->expiryReport($expirydata, $country, $region, $district);
 
-            $objPHPExcel = new \PHPExcel();
-            $objPHPExcel->setActiveSheetIndex(0);
-            $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:F1'); //merge some column
-
-            $objPHPExcel->getActiveSheet()->setCellValue('A1', 'Certification Expiry');
-
+            $excel = new Spreadsheet();
+            $sheet = $excel->getActiveSheet();
             $styleArray = array(
                 'font' => array(
                     'bold' => true,
@@ -639,45 +638,64 @@ class CertificationController extends AbstractActionController
                     'name' => 'Verdana',
                 )
             );
-            $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->applyFromArray($styleArray); //apply style from array style array
-            $objPHPExcel->getActiveSheet()->getStyle('A1:V2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
+            $sheet->mergeCells('A1:G1'); //merge some column
+            $sheet->setCellValue('A1', 'Certification Expiry');
+            $sheet->getStyle('A1:G2')->applyFromArray($styleArray); //apply style from array style array
+            $sheet->getStyle('A1:G2')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK); // set cell border
 
-            $objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(17); // row dimension
-            $objPHPExcel->getActiveSheet()->getRowDimension(2)->setRowHeight(30);
+            $sheet->getRowDimension(1)->setRowHeight(17); // row dimension
+            $sheet->getRowDimension(2)->setRowHeight(30);
 
-            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
+            $sheet->getDefaultColumnDimension()->setWidth(25);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:F2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
+            $sheet->getStyle('A1:G2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
 
 
-            $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Tester');
-            $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Final Decision');
-            $objPHPExcel->getActiveSheet()->SetCellValue('C2', 'Region');
-            $objPHPExcel->getActiveSheet()->SetCellValue('D2', 'District');
-            $objPHPExcel->getActiveSheet()->SetCellValue('E2', 'Facility');
-            $objPHPExcel->getActiveSheet()->SetCellValue('F2', 'Type HIV testing modality/point');
-            $objPHPExcel->getActiveSheet()->SetCellValue('G2', 'Current job title');
-            $ligne = 3;
-            foreach ($examination as $examination) {
+            $sheet->SetCellValue('A2', 'Tester');
+            $sheet->SetCellValue('B2', 'Final Decision');
+            $sheet->SetCellValue('C2', 'Region');
+            $sheet->SetCellValue('D2', 'District');
+            $sheet->SetCellValue('E2', 'Facility');
+            $sheet->SetCellValue('F2', 'Type HIV testing modality/point');
+            $sheet->SetCellValue('G2', 'Current job title');
 
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['first_name'] . ' ' . $examination['last_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, $examination['final_decision']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, $examination['region_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, $examination['district_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, $examination['facility_name']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, $examination['type_vih_test']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, $examination['current_jod']);
-                $ligne++;
+            $output = array();
+            foreach($sResult as $aRow) {
+                $row = array();
+                $row[] = $aRow['first_name'] . ' ' . $aRow['last_name'];
+                $row[] = $aRow['final_decision'];
+                $row[] = $aRow['region_name'];
+                $row[] = $aRow['district_name'];
+                $row[] = $aRow['facility_name'];
+                $row[] = $aRow['type_vih_test'];
+                $row[] = $aRow['current_jod'];
+                $output[] = $row;
             }
-            $objPHPExcel->getActiveSheet()->getStyle('A2:U2')->getAlignment()->setWrapText(true); // make a new line in cell
-            $objPHPExcel->getActiveSheet()->getStyle($objPHPExcel->getActiveSheet()->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //center column contain
+            foreach ($output as $rowNo => $rowData) {
+                $colNo = 1;
+                $rRowCount = $rowNo + 3;
+                foreach ($rowData as $field => $value) {
+                    if (!isset($value)) {
+                        $value = "";
+                    }
+                    if (is_numeric($value)) {
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+                    } else {
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode((string) $value));
+                    }
+                    $colNo++;
+                }
+            }
 
-            $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+            $sheet->getStyle('A2:U2')->getAlignment()->setWrapText(true); // make a new line in cell
+            $sheet->getStyle($sheet->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);  //center column contain
+
+            $writer = IOFactory::createWriter($excel, IOFactory::READER_XLSX);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_list of all ' . $expirydata . '.xlsx"');
             header('Cache-Control: max-age=0');
-            $objWriter->save('php://output');
+            $writer->save('php://output');
             exit;
         }
         return array('country' => $this->commonService->getAllActiveCountries());
