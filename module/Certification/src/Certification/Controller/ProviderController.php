@@ -330,8 +330,6 @@ class ProviderController extends AbstractActionController
             $sheet->SetCellValue('U2', 'Facility in charge phone');
             $sheet->SetCellValue('V2', 'Facility in charge email');
 
-
-            $ligne = 3;
             $output = array();
             foreach($sResult as $aRow) {
                 $row = array();
