@@ -19,6 +19,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'carbonphp/carbon-doctrine-types' => array(
+            'pretty_version' => '3.2.0',
+            'version' => '3.2.0.0',
+            'reference' => '18ba5ddfec8976260ead6e866180bd5d2f71aa1d',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../carbonphp/carbon-doctrine-types',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'container-interop/container-interop' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -185,9 +194,9 @@
             'dev_requirement' => false,
         ),
         'laminas/laminas-filter' => array(
-            'pretty_version' => '2.35.0',
-            'version' => '2.35.0.0',
-            'reference' => '31e4b76263a4fc4cd205790bd2df324e2e84040b',
+            'pretty_version' => '2.35.1',
+            'version' => '2.35.1.0',
+            'reference' => 'a03ad6a4976df7e6f6026ce8b2d1e9c53f6a99c4',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laminas/laminas-filter',
             'aliases' => array(),
@@ -230,9 +239,9 @@
             'dev_requirement' => false,
         ),
         'laminas/laminas-inputfilter' => array(
-            'pretty_version' => '2.30.0',
-            'version' => '2.30.0.0',
-            'reference' => '05b00b64df72083ec2cc1a634b545f6fd1f56dd6',
+            'pretty_version' => '2.30.1',
+            'version' => '2.30.1.0',
+            'reference' => 'f07a908df1052f28b18904d3745cdd5b183938c9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laminas/laminas-inputfilter',
             'aliases' => array(),
@@ -517,6 +526,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'nesbot/carbon' => array(
+            'pretty_version' => '3.2.4',
+            'version' => '3.2.4.0',
+            'reference' => '82c28278c1c8f7b82dcdab25692237f052ffc8d8',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../nesbot/carbon',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'nikic/php-parser' => array(
             'pretty_version' => 'v4.19.1',
             'version' => '4.19.1.0',
@@ -576,6 +594,12 @@
             'install_path' => __DIR__ . '/../psr/clock',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'psr/clock-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '1.0',
+            ),
         ),
         'psr/container' => array(
             'pretty_version' => '1.1.2',
@@ -712,6 +736,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'symfony/clock' => array(
+            'pretty_version' => 'v7.0.5',
+            'version' => '7.0.5.0',
+            'reference' => '8b9d08887353d627d5f6c3bf3373b398b49051c2',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/clock',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/console' => array(
             'pretty_version' => 'v7.0.6',
             'version' => '7.0.6.0',
@@ -826,6 +859,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'symfony/polyfill-php83' => array(
+            'pretty_version' => 'v1.29.0',
+            'version' => '1.29.0.0',
+            'reference' => '86fcae159633351e5fd145d1c47de6c528f8caff',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/polyfill-php83',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/service-contracts' => array(
             'pretty_version' => 'v3.4.2',
             'version' => '3.4.2.0',
@@ -843,6 +885,30 @@
             'install_path' => __DIR__ . '/../symfony/string',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'symfony/translation' => array(
+            'pretty_version' => 'v7.0.4',
+            'version' => '7.0.4.0',
+            'reference' => '5b75e872f7d135d7abb4613809fadc8d9f3d30a0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/translation',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/translation-contracts' => array(
+            'pretty_version' => 'v3.4.2',
+            'version' => '3.4.2.0',
+            'reference' => '43810bdb2ddb5400e5c5e778e27b210a0ca83b6b',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/translation-contracts',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/translation-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '2.3|3.0',
+            ),
         ),
         'tecnickcom/tcpdf' => array(
             'pretty_version' => '6.7.4',

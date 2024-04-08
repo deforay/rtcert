@@ -4,7 +4,7 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
+
 ?>
 <div class="am-content">
 	<div class="page-head">
@@ -13,7 +13,7 @@ $acl = $this->layout()->acl;
 				<h2>Online Test Config</h2>
 			</div>
 			<div class="col-sm-4">
-				<?php if ($acl->isAllowed($role, 'Application\Controller\TestConfigController', 'edit')) { ?>
+				<?php if ($this->isAllowed($role, 'Application\Controller\TestConfigController', 'edit')) { ?>
 					<a href="<?php echo $this->url('test-config', array('action' => 'edit')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;">&nbsp;Edit Test Config</a>
 				<?php } ?>
 			</div>

@@ -26,6 +26,7 @@ class UsersTable extends AbstractTableGateway
 {
 
     protected $table = 'users';
+    protected $adapter;
 
     public function __construct(Adapter $adapter)
     {
@@ -347,7 +348,7 @@ class UsersTable extends AbstractTableGateway
             $sQuery->offset($sOffset);
         }
 
-        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
         //echo $sQueryStr;die;
         $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 

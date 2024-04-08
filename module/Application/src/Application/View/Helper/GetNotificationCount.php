@@ -3,10 +3,11 @@
 namespace Application\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
+use Certification\Model\CertificationTable;
 
-class GetNotificationCount extends AbstractHelper
+class getNotificationCount extends AbstractHelper
 {
-    public \Certification\Model\CertificationTable $certificationTable;
+    public CertificationTable $certificationTable;
     public function __construct($certificationTable)
     {
         $this->certificationTable = $certificationTable;

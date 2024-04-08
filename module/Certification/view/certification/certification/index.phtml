@@ -4,7 +4,7 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
+
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
@@ -15,16 +15,19 @@ $acl = $this->layout()->acl;
         text-align: center;
     }
 
-    #shBtnRecommendedManageColumns, #shBtnCertificateSent, #shBtnCertifiedTable, #shBtnPendingManageColumns {
+    #shBtnRecommendedManageColumns,
+    #shBtnCertificateSent,
+    #shBtnCertifiedTable,
+    #shBtnPendingManageColumns {
         font-size: 17px;
         font-weight: 600;
     }
-    .alert-danger{
-        background-color :#f2dede;
-        border-color : #ebccd1;
-        color : #a94442;
-    }
 
+    .alert-danger {
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        color: #a94442;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -62,7 +65,7 @@ $acl = $this->layout()->acl;
                 <table id="recommendedTable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget" style="width:100% !important;">
                     <thead>
                         <tr class="allreminders">
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
                                 <th>#</th>
                             <?php } ?>
                             <th style="width:10%;">Tester</th>
@@ -95,57 +98,57 @@ $acl = $this->layout()->acl;
                         <div class="box box-primary">
                             <form class="form-horizontal" action="<?php echo $this->url('certification', array('action' => 'send-multiple-certification-mail')); ?>" name="form" id="certificationMailForm" method="post" enctype="multipart/form-data">
                                 <div class="box-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="col-lg-2 control-label"></label>
-                                            <div class="col-lg-4" id="selectedCount"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="col-lg-2 control-label">To Mail <span class="mandatory">*</span></label>
-                                            <div class="col-lg-10">
-                                            <input type="mail"  id="to_mail" name="to_mail" class="form-control" placeholder="Enter the to mail" value="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="remainderDiv" style="display:none;">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="col-lg-2 control-label">Reminder Sent To<span class="mandatory">*</span></label>
-                                                <div class="col-lg-10">
-                                                <select name='type_recipient'id='type_recipient' class='form-control' onclick='emptyInput(type_recipient)'>
-                                                    <option value=''>please select an recipient</option>
-                                                    <option value='District focal person'>District focal person</option>
-                                                    <option value='HTS focal person'>HTS focal person</option>
-                                                    <option value='Implementing partner'>Implementing partner</option>
-                                                    <option value='Facility in charge'>Facility in charge</option>
-                                                    <option value='Provider'>Provider</option>
-                                                    <option value='QA/QI focal person'>QA/QI focal person</option>
-                                                <select>
-                                                </div>
+                                                <label class="col-lg-2 control-label"></label>
+                                                <div class="col-lg-4" id="selectedCount"></div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="col-lg-2 control-label">Name Of Recipient</label>
+                                                <label class="col-lg-2 control-label">To Mail <span class="mandatory">*</span></label>
                                                 <div class="col-lg-10">
-                                                <input type="text"  id="name_recipient" name="name_recipient" class="form-control" placeholder="Enter the recipient" value="">
+                                                    <input type="mail" id="to_mail" name="to_mail" class="form-control" placeholder="Enter the to mail" value="">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <input type="hidden" id="mailPurpose" name="mailPurpose" value="">
-                                <input type="hidden" id="type" name="type" value="">
-                                <input type="hidden" id="uniqueIds" name="uniqueIds" value="">
+                                    <div id="remainderDiv" style="display:none;">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label">Reminder Sent To<span class="mandatory">*</span></label>
+                                                    <div class="col-lg-10">
+                                                        <select name='type_recipient' id='type_recipient' class='form-control' onclick='emptyInput(type_recipient)'>
+                                                            <option value=''>please select an recipient</option>
+                                                            <option value='District focal person'>District focal person</option>
+                                                            <option value='HTS focal person'>HTS focal person</option>
+                                                            <option value='Implementing partner'>Implementing partner</option>
+                                                            <option value='Facility in charge'>Facility in charge</option>
+                                                            <option value='Provider'>Provider</option>
+                                                            <option value='QA/QI focal person'>QA/QI focal person</option>
+                                                            <select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label">Name Of Recipient</label>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" id="name_recipient" name="name_recipient" class="form-control" placeholder="Enter the recipient" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="mailPurpose" name="mailPurpose" value="">
+                                    <input type="hidden" id="type" name="type" value="">
+                                    <input type="hidden" id="uniqueIds" name="uniqueIds" value="">
                                 </div><!-- /.box-body -->
                                 <div class="box-footer">
                                     <input type="button" class="btn btn-primary" value="Send Mail" onclick="validateForm();return false;">
@@ -168,13 +171,13 @@ $acl = $this->layout()->acl;
                             <th style="width:10%;">Date Certificate Issued</th>
                             <th style="width:10%;">Date Certificate Sent</th>
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                                 <th style="width:5%;">Download PDF</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                                 <th style="width:5%;">E-Mail Certificate</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                                 <th style="width:5%;">Update Status</th>
                             <?php } ?>
                         </tr>
@@ -204,10 +207,10 @@ $acl = $this->layout()->acl;
                             <th style="width:10%;">Date Certificate Issued</th>
                             <th style="width:10%;">Date Certificate Sent</th>
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
                                 <th style="width:5%;">Edit</th>
                             <?php } ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                                 <th style="width:5%;">PDF</th>
                             <?php } ?>
                         </tr>
@@ -237,7 +240,7 @@ $acl = $this->layout()->acl;
                             <!--<th  style="width:10%;">Date Certificate Issued</th>-->
                             <!--<th style="width:10%;">Date Certificate Sent</th>-->
                             <th style="width:10%;">Type of Certification</th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?>
                                 <th style="width:5%;">Edit</th>
                             <?php } ?>
                         </tr>
@@ -383,7 +386,7 @@ $acl = $this->layout()->acl;
             "bDestroy": true,
             "pageLength": 50,
             "aoColumns": [
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?> {
                         "sClass": "center",
                         "bSortable": false
                     },
@@ -415,7 +418,7 @@ $acl = $this->layout()->acl;
                     "sClass": "center"
                 }
             ],
-            //"aaSorting": [[ < ?php echo ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval'))?3:2; ?>, "asc" ]],
+            //"aaSorting": [[ < ?php echo ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'approval'))?3:2; ?>, "asc" ]],
             "aaSorting": [],
             "fnDrawCallback": function(oSettings) {
                 $('input:checkbox').each(function() {
@@ -480,22 +483,22 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
             ],
             "aaSorting": [],
             "fnDrawCallback": function() {
-               
+
                 var checkBoxes = document.getElementsByName("subchk[]");
                 var len = checkBoxes.length;
                 for (var c = 0; c < len; c++) {
@@ -504,7 +507,7 @@ $acl = $this->layout()->acl;
                         checkBoxes[c].checked = true;
                     }
                     var currentCheckbox = checkBoxes[c];
-                    if(firstCheckboxValue != ""){
+                    if (firstCheckboxValue != "") {
                         if (currentCheckbox.value === firstCheckboxValue) {
                             currentCheckbox.disabled = false;
                         } else {
@@ -562,11 +565,11 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
@@ -612,7 +615,7 @@ $acl = $this->layout()->acl;
                 {
                     "sClass": ""
                 },
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'edit')) { ?> {
                         "sClass": "center"
                     },
                 <?php } ?>
@@ -709,22 +712,22 @@ $acl = $this->layout()->acl;
             return false;
         }
     }
-    <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
+    <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'approval')) { ?>
         //Insert a raw HTML into data table
         var count_elem = document.getElementById('recommendedTable');
         var div = document.createElement('div');
         div.innerHTML = '<a class="btn btn-dark selectdeselect" href="javascript:void(0);" onclick="selectForAllApproval();" style="padding:4px;margin-bottom: 1vh;">Select All</a>&nbsp;&nbsp;&nbsp;&nbsp;<span class="selectedRows">0 Row(s) Selected</span>&nbsp;&nbsp;&nbsp;&nbsp;<select id="status" title="Select Status" style="display:none;margin-right:1%;"><option value=""> -- Select -- </optin><option value="approved">Approve</optin><option value="rejected">Reject</optin></select><a class="btn btn-primary manageApproval" href="javascript:void(0);" onclick="manageApproval();" style="display:none;padding:4px;margin-bottom: 1vh;">Submit</a>';
         count_elem.parentNode.insertBefore(div, count_elem);
     <?php } ?>
-    
+
     var chosenOnes = new Array();
     var firstCheckboxValue = '';
+
     function checkChoice(id, obj) {
-        var mailPurpose = $("#"+id).val();
-        
-        if (obj.checked == true){
-            if (jQuery.inArray(obj.id, chosenOnes) == -1)
-            {
+        var mailPurpose = $("#" + id).val();
+
+        if (obj.checked == true) {
+            if (jQuery.inArray(obj.id, chosenOnes) == -1) {
                 chosenOnes.push(id);
             }
 
@@ -746,12 +749,12 @@ $acl = $this->layout()->acl;
                 chosenOnes.splice(index, 1);
             }
         }
-        
+
         if (chosenOnes.length > 0) {
             $("#mailPurpose").val(mailPurpose);
-            if(mailPurpose == "send-certificate"){
+            if (mailPurpose == "send-certificate") {
                 $("#type").val(1);
-            }else if(mailPurpose == "send-reminder"){
+            } else if (mailPurpose == "send-reminder") {
                 $("#type").val(2);
                 $("#remainderDiv").show();
             }
@@ -765,7 +768,8 @@ $acl = $this->layout()->acl;
             document.getElementById("selectedCount").innerHTML = "";
         }
         document.getElementById("uniqueIds").value = chosenOnes.join(",");
-	}
+    }
+
     function validateForm() {
         var type = document.getElementById('type').value;
         if (document.getElementById('to_mail').value == '') {
@@ -781,8 +785,8 @@ $acl = $this->layout()->acl;
         $.blockUI();
         document.getElementById('certificationMailForm').submit();
     }
+
     function emptyInput(input) {
         input.style.boxShadow = 'none';
     }
-
 </script>

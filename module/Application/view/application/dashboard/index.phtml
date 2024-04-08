@@ -1,12 +1,13 @@
 <?php
+
 use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
-$configResult = $this->GlobalConfigHelper();
+
+$configResult = $this->globalConfigHelper();
 $isClickable = false;
-if ($acl->isAllowed($role, 'Application\Controller\DashboardController', 'testers')) {
+if ($this->isAllowed($role, 'Application\Controller\DashboardController', 'testers')) {
     $isClickable = true;
 }
 ?>
@@ -492,14 +493,14 @@ if ($acl->isAllowed($role, 'Application\Controller\DashboardController', 'tester
                 <div class="header">
                     <h4 class="title">Overview</h4>
                     <p class="category">RT Tester Certification</p>
-                    
+
                 </div>
                 <div class="content" style="max-height:480px;min-height:480px;">
                     <div id="testContainer">
-                    <br><br><br><br><br><br><br>
-                    <h3>Information on RT Tester Certification coming soon here</h3>
-                    <br><br><br><br><br><br><br><br><br><br>
-                    <br><br>
+                        <br><br><br><br><br><br><br>
+                        <h3>Information on RT Tester Certification coming soon here</h3>
+                        <br><br><br><br><br><br><br><br><br><br>
+                        <br><br>
                     </div>
                     <div class="footer">
                         <hr>

@@ -4,8 +4,8 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
-$config = $this->GlobalConfigHelper();
+
+$config = $this->globalConfigHelper();
 $regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucwords($config['region']) : 'Regions';
 ?>
 
@@ -85,29 +85,34 @@ $regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucw
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('country')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('country')); ?>
-                            <?php // $this->formElementErrors($form->get('country')); ?>
+                            <?php // $this->formElementErrors($form->get('country'));
+                            ?>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('location_name')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('location_name')); ?>
-                            <?php // $this->formElementErrors($form->get('location_name')); ?>
+                            <?php // $this->formElementErrors($form->get('location_name'));
+                            ?>
                         </div>
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('location_code')); ?>
                             <?= $this->formElement($form->get('location_code')); ?>
-                            <?php // $this->formElementErrors($form->get('location_code')); ?>
+                            <?php // $this->formElementErrors($form->get('location_code'));
+                            ?>
                         </div>
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('latitude')); ?>
                             <?= $this->formElement($form->get('latitude')); ?>
-                            <?php // $this->formElementErrors($form->get('latitude')); ?>
+                            <?php // $this->formElementErrors($form->get('latitude'));
+                            ?>
                         </div>
                         <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('longitude')); ?>
                             <?= $this->formElement($form->get('longitude')); ?>
-                            <?php // $this->formElementErrors($form->get('longitude')); ?>
+                            <?php // $this->formElementErrors($form->get('longitude'));
+                            ?>
                         </div>
                     </div>
                     <div class="col-sm-3" style="margin-top: 30px; margin-left: 5px">
@@ -127,10 +132,10 @@ $regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucw
                             <th style="width:50%"><?php echo $regionLabel; ?> Name </th>
                             <th style="width:50%">Country Name </th>
                             <th style="width:50%">Province Code </th>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\RegionController', 'edit')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\RegionController', 'edit')) { ?>
                                 <th>Edit</th>
                             <?php }   ?>
-                            <?php if ($acl->isAllowed($role, 'Certification\Controller\RegionController', 'delete')) { ?>
+                            <?php if ($this->isAllowed($role, 'Certification\Controller\RegionController', 'delete')) { ?>
                                 <th>Delete</th>
                             <?php } ?>
                         </tr>
@@ -148,12 +153,12 @@ $regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucw
                                 <td>
                                     <div style="width:200px;overflow:auto;"><?php echo $this->escapeHtml($region['location_code']); ?></div>
                                 </td>
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\RegionController', 'edit')) { ?>
+                                <?php if ($this->isAllowed($role, 'Certification\Controller\RegionController', 'edit')) { ?>
                                     <td>
                                         <div style="width:80px;overflow:auto;"><a href="<?php echo $this->url('region', array('action' => 'edit', 'id' => base64_encode($region['location_id']))); ?>"> <span class="glyphicon glyphicon-pencil"> Edit</span></a></div>
                                     </td>
                                 <?php } ?>
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\RegionController', 'delete')) { ?>
+                                <?php if ($this->isAllowed($role, 'Certification\Controller\RegionController', 'delete')) { ?>
                                     <td>
                                         <div style="width:80px;overflow:auto;">
                                             <a onclick="if (!confirm('Do you really want to remove '+'<?php echo $this->escapeHtml($region['location_name']); ?> '+'?')) {

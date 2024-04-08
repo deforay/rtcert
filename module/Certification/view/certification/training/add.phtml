@@ -4,11 +4,11 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css" />
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css" />
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="/resources/demos/style.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -17,11 +17,12 @@ $sessionLogin = new Container('credo');
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
 <style>
-    .select2-container .select2-selection--single{
-        height:44px;
+    .select2-container .select2-selection--single {
+        height: 44px;
     }
-    .select2-container--default .select2-selection--single .select2-selection__arrow b:after{
-        content:'';
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
+        content: '';
     }
 </style>
 <div class="am-content">
@@ -34,9 +35,11 @@ $sessionLogin = new Container('credo');
             </div>
 
             <div class="col-sm-4 ">
-                <?php // if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {   ?>
+                <?php // if ($this->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {   
+                ?>
                 <a href="<?php echo $this->url('training', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Trainings</a>
-                <?php // }   ?>
+                <?php // }   
+                ?>
 
             </div>
         </div>
@@ -48,7 +51,7 @@ $sessionLogin = new Container('credo');
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-default">
-                        <div class="panel-body" >
+                        <div class="panel-body">
                             <form action="<?php $this->url('training', array('action' => 'add')); ?>" name="form" id="form" method="post" onsubmit="return validateForm();">
                                 <?php
                                 $form->prepare();
@@ -121,86 +124,97 @@ $sessionLogin = new Container('credo');
                                     'placeholder' => 'Comments',
                                     'autocomplete' => 'off',
                                     'id' => 'Comments',
-                                    'onclick' => 'emptyInput(this)']);
-                                
-                               
+                                    'onclick' => 'emptyInput(this)'
+                                ]);
+
+
                                 echo $this->form()->openTag($form);
                                 ?>
                                 <?php echo $this->formHidden($form->get('training_id')->setAttribute('class', 'form-control')) ?>
-                                <div class="form-group col-lg-6"> 
+                                <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('Provider_id')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('Provider_id')); ?>
-                                    <?php // $this->formElementErrors($form->get('Provider_id')); ?>
+                                    <?php // $this->formElementErrors($form->get('Provider_id')); 
+                                    ?>
                                 </div>
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('type_of_competency')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('type_of_competency')); ?>
-                                    <?php // $this->formElementErrors($form->get('type_of_competency')); ?>
+                                    <?php // $this->formElementErrors($form->get('type_of_competency')); 
+                                    ?>
                                 </div>
-                                
+
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('last_training_date')); ?>
                                     <?= $this->formElement($form->get('last_training_date')); ?>
-                                    <?php // $this->formElementErrors($form->get('last_training_date')); ?>
+                                    <?php // $this->formElementErrors($form->get('last_training_date')); 
+                                    ?>
                                 </div>
 
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('type_of_training')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('type_of_training')); ?>
-                                    <?php // $this->formElementErrors($form->get('type_of_training')); ?>
+                                    <?php // $this->formElementErrors($form->get('type_of_training')); 
+                                    ?>
                                 </div>
-                                
-                                <div class = " form-group col-lg-6">
-                                    <div class = "input-group">
+
+                                <div class=" form-group col-lg-6">
+                                    <div class="input-group">
                                         <?= $this->formLabel($form->get('length_of_training')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('length_of_training')); ?>
-                                        <?php // $this->formElementErrors($form->get('length_of_training')); ?>
-                                        <div class = "input-group-btn">
-                                            <select class="form-control" style="margin-bottom: -28px; width: 100px;" name="select_time" id="Time" onclick = 'emptyInput(this)'> 
+                                        <?php // $this->formElementErrors($form->get('length_of_training')); 
+                                        ?>
+                                        <div class="input-group-btn">
+                                            <select class="form-control" style="margin-bottom: -28px; width: 100px;" name="select_time" id="Time" onclick='emptyInput(this)'>
                                                 <option value="">--Select--</option>
                                                 <option id="Years" value="Years">Year(s)</option>
                                                 <option id="Months" value="Months">Month(s)</option>
-                                                <option id="Weeks"value="Weeks">Week(s)</option>
+                                                <option id="Weeks" value="Weeks">Week(s)</option>
                                                 <option id="Days" value="Days">Day(s)</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-6">  
+                                <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('training_organization_id')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('training_organization_id')); ?>
-                                    <?php // $this->formElementErrors($form->get('training_organization_id')); ?>
+                                    <?php // $this->formElementErrors($form->get('training_organization_id')); 
+                                    ?>
                                 </div>
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('facilitator')); ?><span class="mandatory">*</span>
                                     <?= $this->formElement($form->get('facilitator')); ?>
-                                    <?php // $this->formElementErrors($form->get('facilitator')); ?>
+                                    <?php // $this->formElementErrors($form->get('facilitator')); 
+                                    ?>
                                 </div>
 
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('training_certificate')); ?>
                                     <?= $this->formElement($form->get('training_certificate')); ?>
-                                    <?php // $this->formElementErrors($form->get('training_certificate')); ?>       
+                                    <?php // $this->formElementErrors($form->get('training_certificate')); 
+                                    ?>
                                 </div>
                                 <div class="form-group col-lg-6">
                                     <?= $this->formLabel($form->get('Comments')); ?>
                                     <?= $this->formElement($form->get('Comments')); ?>
-                                    <?php // $this->formElementErrors($form->get('Comments')); ?>
+                                    <?php // $this->formElementErrors($form->get('Comments')); 
+                                    ?>
                                 </div>
-                                <div class="form-group col-lg-6" id="date_issued" >
+                                <div class="form-group col-lg-6" id="date_issued">
 
                                     <?= $this->formLabel($form->get('date_certificate_issued')); ?>
                                     <?= $this->formElement($form->get('date_certificate_issued')); ?>
-                                    <?php // $this->formElementErrors($form->get('date_certificate_issued')); ?>
-
-                                </div>
-
-                                <div class="form-group col-lg-4" >
-                                    <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('training', array('action' => 'index')); ?>" >CANCEL</a>
-                                </div>
-                                    <?php echo $this->form()->closeTag();
+                                    <?php // $this->formElementErrors($form->get('date_certificate_issued')); 
                                     ?>
+
+                                </div>
+
+                                <div class="form-group col-lg-4">
+                                    <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
+                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('training', array('action' => 'index')); ?>">CANCEL</a>
+                                </div>
+                                <?php echo $this->form()->closeTag();
+                                ?>
                             </form>
                         </div>
                     </div>
@@ -238,8 +252,4 @@ $sessionLogin = new Container('credo');
             allowClear: true,
         });
     });
-    
-   
 </script>
-
-
