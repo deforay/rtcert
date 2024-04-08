@@ -103,20 +103,20 @@ $editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{
                                     </br>
                                     <div id="upForRecertificationData">
                                     <table id="upForRecertification-table" class="datatables table table-bordered table-responsive table-condensed table-striped table-hover table-fw-widget" style="width:100%;">
-                                        <thead>
-                                        <tr class="allColumnsTab1">
-                                            <th style="width:10%;">Tester</th>
-                                                        <th style="width:10%;">Final Decision</th>
-                                                        <th style="width:10%;">Region</th>
-                                                        <th style="width:10%;">District</th>
-                                                        <th style="width:10%;">Facility</th>
-                                                        <th style="width:10%;">Type HIV testing modality/point</th>
-                                                        <th style="width:10%;">Current job title</th>
-                                                    </tr>
-                                            </thead>
-                                            <tbody>
+                                        <thead class="frezz">
+                                            <tr class="allColumnsTab1">
+                                                <th style="width:10%;">Tester</th>
+                                                <th style="width:10%;">Final Decision</th>
+                                                <th style="width:10%;">Region</th>
+                                                <th style="width:10%;">District</th>
+                                                <th style="width:10%;">Facility</th>
+                                                <th style="width:10%;">Type HIV testing modality/point</th>
+                                                <th style="width:10%;">Current job title</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                      
-                                            </tbody>
+                                        </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -343,10 +343,9 @@ $editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{
 
         $('a.toggle-vis-allColumnsTab1').on( 'click', function (e) {
             e.preventDefault(); 
-            // Get the column API object
-            var column = aTable.column( $(this).attr('data-column') ); 
-            // Toggle the visibility
-            column.visible( ! column.visible() );
+            var columnIdx = $(this).data('column');
+            var column = aTable.fnSettings().aoColumns[columnIdx];
+            aTable.fnSetColumnVis(columnIdx, !column.bVisible);
             $("#provider_wrapper").css("overflow-x","scroll");
         });
         $("#manageColumnstab1").hide();
@@ -392,12 +391,11 @@ $editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{
         
 
         $('a.toggle-vis-allColumnsTab2').on( 'click', function (e) {
-        e.preventDefault(); 
-        // Get the column API object
-        var columnTab2 = bTable.column( $(this).attr('data-column') ); 
-        // Toggle the visibility
-        columnTab2.visible( ! columnTab2.visible() );
-        $("#provider_wrapper").css("overflow-x","scroll");
+            e.preventDefault(); 
+            var columnIdx2 = $(this).attr('data-column');
+            var columnTab2 = bTable.fnSettings().aoColumns[columnIdx2];
+            bTable.fnSetColumnVis(columnIdx2, !columnTab2.bVisible);
+            $("#provider_wrapper").css("overflow-x","scroll");
         });
         $("#manageColumnsTab2").hide();
         $("#shBtnManageColumnsTab2").click(function(){
@@ -440,12 +438,11 @@ $editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{
                 });
 
         $('a.toggle-vis-allColumnsTab3').on( 'click', function (e) {
-        e.preventDefault(); 
-        // Get the column API object
-        var columnTab3 = cTable.column( $(this).attr('data-column') ); 
-        // Toggle the visibility
-        columnTab3.visible( ! columnTab3.visible() );
-        $("#provider_wrapper").css("overflow-x","scroll");
+            e.preventDefault(); 
+            var columnIdx3 = $(this).attr('data-column');
+            var columnTab3 = cTable.fnSettings().aoColumns[columnIdx3];
+            cTable.fnSetColumnVis(columnIdx3, !columnTab3.bVisible);
+            $("#provider_wrapper").css("overflow-x","scroll");
         });
         $("#manageColumnsTab3").hide();
         $("#shBtnManageColumnsTab3").click(function(){

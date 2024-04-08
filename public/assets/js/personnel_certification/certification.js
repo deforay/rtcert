@@ -15,12 +15,15 @@ function emptyInput(input) {
     input.style.boxShadow = 'none';
 }
 function issued(){
-        var decision= document.getElementById("decision").value;   
-        var issued= document.getElementById("issued");
+        var decision= document.getElementById("decision");
+        if (decision !== null) {
+            var decisionValue = decision.value;
+            var issued= document.getElementById("issued");
                 
-                if(decision != 'Certified'){
+                if(decisionValue != 'Certified'){
                     issued.innerHTML='';
                 }
+        }
 }
 issued();
 

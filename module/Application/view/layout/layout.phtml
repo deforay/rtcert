@@ -30,10 +30,9 @@ $adminMenu = '';
 $trainingMenu = '';
 $testerMenu = '';
 $testerExamMenu = '';
-$testerExamSubMenu = '';
-$testerReminderMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
+$manageMenu = '';
 if (isset($acl) && $acl->isAllowed($role, 'Certification\Controller\RegionController', "index")) {
 	$geoGraphicalMenu .= "<li><a href=" . $this->url('region', array('action' => 'index')) . ">" . $regionLabel . "</a></li>";
 }
@@ -55,42 +54,38 @@ if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestSectionCon
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\TestQuestionController", "index")) {
 	$onlineTestConfig .= "<li><a href=" . $this->url('test-question', array('action' => 'index')) . ">Online Test Questions</a></li>";
 }
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganizationController", "index")) {
+	$manageMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
+	$manageMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
+	$manageMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
+}
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\RolesController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('roles', array('action' => 'index')) . ">Roles</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\UsersController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('users', array('action' => 'index')) . ">Users</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganizationController", "index")) {
-	$adminMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
-}
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\MailTemplateController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('mail-template', array('action' => 'index')) . ">Mail Template</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
-	$adminMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
-}
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
-	$adminMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
 }
 
 if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdfController", "index")) {
 	$testerMenu .= "<li><a href=" . $this->url('print-test-pdf', array('action' => 'index')) . ">Print Written Test</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\WrittenExamController", "add")) {
-	$testerExamSubMenu .= "<li><a href=" . $this->url('written-exam', array('action' => 'add')) . ">Written Examinations</a></li>";
+	$testerExamMenu .= "<li><a href=" . $this->url('written-exam', array('action' => 'add')) . ">Written Examinations</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\PracticalExamController", "add")) {
-	$testerExamSubMenu .= "<li><a href=" . $this->url('practical-exam', array('action' => 'add')) . ">Practical Examinations</a></li>";
+	$testerExamMenu .= "<li><a href=" . $this->url('practical-exam', array('action' => 'add')) . ">Practical Examinations</a></li>";
 }
 
 //if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ExaminationController", "pending")) {
 //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
 //}
-
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
-	$testerReminderMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";
-}
 
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\CertificationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('certification', array('action' => 'index')) . ">Certifications</a></li>";
@@ -100,6 +95,9 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\Certificatio
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ExaminationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('examination', array('action' => 'index')) . ">Recommendations</a></li>";
+}
+if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
+	$certificateMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";
 }
 if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "xls")) {
 	$reportMenu .= "<li><a href=" . $this->url('provider', array('action' => 'xls')) . "> Tester Reports</a></li>";
@@ -315,30 +313,26 @@ if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderCont
 											<?php } ?>
 											<li class="divider"></li>
 										<?php }  ?>
-										<?php echo $adminMenu; ?>
+										<?php if ($manageMenu != '') {
+											echo $manageMenu; 
+										}
+										if ($adminMenu != '') { ?>
+											<li class="divider"></li>
+											<?php echo $adminMenu; 
+										} ?>
 									</ul>
 								</li>
 							<?php }
-							if ($testerMenu != '' || $testerExamMenu != '' || $testerReminderMenu != '' || $testerExamSubMenu != '') { ?>
+							if ($testerMenu != '' || $testerExamMenu != '') { ?>
 								<li class="dropdown"><a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="dropdown-toggle">Tester Evaluation<span class="caret"></span></a>
 									<ul role="menu" class="dropdown-menu">
 										<?php if ($testerMenu != '') {
 											echo $testerMenu; ?>
 											<li class="divider"></li>
 										<?php }
-										if($testerExamSubMenu != ''){
-											echo '<li class="dropdown dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Record Test Results</a>
-												<ul class="dropdown-menu">
-													'.$testerExamSubMenu.'
-												</ul>
-											</li>';
-										}
 										if ($testerExamMenu != '') {
 											echo $testerExamMenu; ?>
-											<li class="divider"></li>
 										<?php } ?>
-										<!--<li><a href="javascript:alert('Under active development');">Issued Certificates</a></li>-->
-										<?php echo $testerReminderMenu; ?>
 									</ul>
 								</li>
 							<?php } ?>
