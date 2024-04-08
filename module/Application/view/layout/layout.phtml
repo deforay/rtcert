@@ -33,7 +33,7 @@ $testerExamMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
 $manageMenu = '';
-if (isset($acl) && $acl->isAllowed($role, 'Certification\Controller\RegionController', "index")) {
+if ($this->isAllowed($role, 'Certification\Controller\RegionController', "index")) {
 	$geoGraphicalMenu .= "<li><a href=" . $this->url('region', array('action' => 'index')) . ">" . $regionLabel . "</a></li>";
 }
 if ($this->isAllowed($role, 'Certification\Controller\DistrictController', "index")) {
@@ -54,13 +54,13 @@ if ($this->isAllowed($role, "Application\Controller\TestSectionController", "ind
 if ($this->isAllowed($role, "Application\Controller\TestQuestionController", "index")) {
 	$onlineTestConfig .= "<li><a href=" . $this->url('test-question', array('action' => 'index')) . ">Online Test Questions</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingOrganizationController", "index")) {
+if ($this->isAllowed($role, "Certification\Controller\TrainingOrganizationController", "index")) {
 	$manageMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
+if ($this->isAllowed($role, "Certification\Controller\ProviderController", "index")) {
 	$manageMenu .= "<li><a href=" . $this->url('provider', array('action' => 'index')) . ">Manage Testers</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
+if ($this->isAllowed($role, "Certification\Controller\TrainingController", "index")) {
 	$manageMenu .= "<li><a href=" . $this->url('training', array('action' => 'index')) . ">Manage Trainings</a></li>";
 }
 if ($this->isAllowed($role, "Application\Controller\RolesController", "index")) {
@@ -69,11 +69,11 @@ if ($this->isAllowed($role, "Application\Controller\RolesController", "index")) 
 if ($this->isAllowed($role, "Application\Controller\UsersController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('users', array('action' => 'index')) . ">Users</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\MailTemplateController", "index")) {
+if ($this->isAllowed($role, "Application\Controller\MailTemplateController", "index")) {
 	$adminMenu .= "<li><a href=" . $this->url('mail-template', array('action' => 'index')) . ">Mail Template</a></li>";
 }
 
-if (isset($acl) && $acl->isAllowed($role, "Application\Controller\PrintTestPdfController", "index")) {
+if ($this->isAllowed($role, "Application\Controller\PrintTestPdfController", "index")) {
 	$testerMenu .= "<li><a href=" . $this->url('print-test-pdf', array('action' => 'index')) . ">Print Written Test</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\WrittenExamController", "add")) {
@@ -87,7 +87,7 @@ if ($this->isAllowed($role, "Certification\Controller\PracticalExamController", 
 //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
 //}
 
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\CertificationController", "index")) {
+if ($this->isAllowed($role, "Certification\Controller\CertificationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('certification', array('action' => 'index')) . ">Certifications</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\CertificationMailController", "index")) {
@@ -96,7 +96,7 @@ if ($this->isAllowed($role, "Certification\Controller\CertificationMailControlle
 if ($this->isAllowed($role, "Certification\Controller\ExaminationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('examination', array('action' => 'index')) . ">Recommendations</a></li>";
 }
-if (isset($acl) && $acl->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
+if ($this->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\ProviderController", "xls")) {
