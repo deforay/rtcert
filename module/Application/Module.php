@@ -27,17 +27,21 @@ use Application\Model\FeedbackMailTable;
 use Application\Model\MailTemplateTable;
 use Application\Model\PrintTestPdfTable;
 use Application\Model\UserTokenMapTable;
+use Application\View\Helper\GlobalConfig;
 use Application\Model\UserCountryMapTable;
 use Application\Model\LocationDetailsTable;
+
+
 use Application\Model\UserDistrictMapTable;
-
-
 use Application\Model\UserProvinceMapTable;
 use Application\Model\PretestQuestionsTable;
-use Application\Model\PostTestQuestionsTable;
 
+use Application\Model\PostTestQuestionsTable;
 use Application\Model\TestConfigDetailsTable;
 use Application\Model\PrintTestPdfDetailsTable;
+use Application\View\Helper\GetNotificationCount;
+use Application\View\Helper\HumanReadableDateFormat;
+use Application\View\Helper\IsAllowed;
 
 class Module
 {
@@ -146,7 +150,7 @@ class Module
                     return $response;
                 }
             }
-        } elseif (empty($session->userId)) {
+        } elseif (!empty($session->userId)) {
             $diContainer = $e->getApplication()->getServiceManager();
             $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
             $acl = $diContainer->get('AppAcl');
@@ -458,29 +462,37 @@ class Module
     {
         return array(
             'factories' => array(
-                'GetNotificationCount'         => new class
+                'getNotificationCount'         => new class
                 {
                     public function __invoke($diContainer)
                     {
                         $certificationTable = $diContainer->get('Certification\Model\CertificationTable');
-                        return new \Application\View\Helper\GetNotificationCount($certificationTable);
+                        return new GetNotificationCount($certificationTable);
                     }
                 },
-                'GlobalConfigHelper'         => new class
+                'globalConfigHelper'         => new class
                 {
                     public function __invoke($diContainer)
                     {
                         $globalTable = $diContainer->get('GlobalTable');
-                        return new \Application\View\Helper\GlobalConfig($globalTable);
+                        return new GlobalConfig($globalTable);
                     }
                 },
                 'humanReadableDateFormat'         => new class
                 {
                     public function __invoke($diContainer)
                     {
-                        return new \Application\View\Helper\HumanReadableDateFormat();
+                        return new HumanReadableDateFormat();
                     }
-                }
+                },
+                'isAllowed'         => new class
+                {
+                    public function __invoke($diContainer)
+                    {
+                        $acl = $diContainer->get('AppAcl');
+                        return new IsAllowed($acl);
+                    }
+                },
             ),
         );
     }

@@ -1310,16 +1310,16 @@
         },
         {
             "name": "laminas/laminas-filter",
-            "version": "2.35.0",
+            "version": "2.35.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-filter.git",
-                "reference": "31e4b76263a4fc4cd205790bd2df324e2e84040b"
+                "reference": "a03ad6a4976df7e6f6026ce8b2d1e9c53f6a99c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-filter/zipball/31e4b76263a4fc4cd205790bd2df324e2e84040b",
-                "reference": "31e4b76263a4fc4cd205790bd2df324e2e84040b",
+                "url": "https://api.github.com/repos/laminas/laminas-filter/zipball/a03ad6a4976df7e6f6026ce8b2d1e9c53f6a99c4",
+                "reference": "a03ad6a4976df7e6f6026ce8b2d1e9c53f6a99c4",
                 "shasum": ""
             },
             "require": {
@@ -1385,7 +1385,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2024-04-01T00:01:17+00:00"
+            "time": "2024-04-04T09:13:02+00:00"
         },
         {
             "name": "laminas/laminas-form",
@@ -1713,16 +1713,16 @@
         },
         {
             "name": "laminas/laminas-inputfilter",
-            "version": "2.30.0",
+            "version": "2.30.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-inputfilter.git",
-                "reference": "05b00b64df72083ec2cc1a634b545f6fd1f56dd6"
+                "reference": "f07a908df1052f28b18904d3745cdd5b183938c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-inputfilter/zipball/05b00b64df72083ec2cc1a634b545f6fd1f56dd6",
-                "reference": "05b00b64df72083ec2cc1a634b545f6fd1f56dd6",
+                "url": "https://api.github.com/repos/laminas/laminas-inputfilter/zipball/f07a908df1052f28b18904d3745cdd5b183938c9",
+                "reference": "f07a908df1052f28b18904d3745cdd5b183938c9",
                 "shasum": ""
             },
             "require": {
@@ -1783,7 +1783,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2024-03-26T17:19:08+00:00"
+            "time": "2024-04-03T15:14:05+00:00"
         },
         {
             "name": "laminas/laminas-json",

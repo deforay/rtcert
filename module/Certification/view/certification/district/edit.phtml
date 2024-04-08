@@ -3,18 +3,18 @@
 use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
-$config = $this->GlobalConfigHelper();
-$districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?ucwords($config['districts']):'Districts';
-$regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucwords($config['region']):'Region';
+$config = $this->globalConfigHelper();
+$districtLabel = (isset($config['districts']) && trim($config['districts']) != '') ? ucwords($config['districts']) : 'Districts';
+$regionLabel = (isset($config['region']) && trim($config['region']) != '') ? ucwords($config['region']) : 'Region';
 ?>
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css" />
 
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css" />
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
@@ -37,49 +37,49 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
 
             <div>
 
-                <form action="<?php $this->url('district', array('action' => 'edit','id' => $this->id)); ?>" name="form" method="post" onsubmit="return validateForm()">
+                <form action="<?php $this->url('district', array('action' => 'edit', 'id' => $this->id)); ?>" name="form" method="post" onsubmit="return validateForm()">
                     <?php
                     $form->prepare();
 
                     $form->get('parent_location')->setAttributes([
                         'class' => 'form-control',
                         'id' => 'Region',
-                        'onclick' => 'emptyInput(this)',                          
+                        'onclick' => 'emptyInput(this)',
                     ]);
 
                     $form->get('location_name')->setAttributes([
                         'class' => 'form-control',
-                        'placeholder' => 'Name of '.$districtLabel,
+                        'placeholder' => 'Name of ' . $districtLabel,
                         'autocomplete' => 'off',
                         'id' => 'District Name',
                         'onclick' => 'emptyInput(this)',
-                        'onblur' => 'checkNameValidation("location_details","location_name", this, "location_id##'.$this->location_id.'", "The district name that you entered already exist..Please enter different district name")'
+                        'onblur' => 'checkNameValidation("location_details","location_name", this, "location_id##' . $this->location_id . '", "The district name that you entered already exist..Please enter different district name")'
                     ]);
-                    
+
                     $form->get('location_code')->setAttributes([
                         'class' => 'form-control',
                         'placeholder' => 'District Code',
                         'autocomplete' => 'off',
                         'id' => 'District Name',
                         'onclick' => 'emptyInput(this)',
-                        'onblur' => 'checkNameValidation("location_details","location_code", this, "location_id##'.$this->location_id.'", "The district code that you entered already exist..Please enter different district code")'
+                        'onblur' => 'checkNameValidation("location_details","location_code", this, "location_id##' . $this->location_id . '", "The district code that you entered already exist..Please enter different district code")'
                     ]);
-                    
+
                     $form->get('latitude')->setAttributes([
                         'class' => 'form-control',
                         'placeholder' => 'Latitude',
                         'autocomplete' => 'off',
                         'id' => 'latitude',
                         'onclick' => 'emptyInput(this)',
-                           
+
                     ]);
-                    
+
                     $form->get('longitude')->setAttributes([
                         'class' => 'form-control',
                         'placeholder' => 'Longitude',
                         'autocomplete' => 'off',
                         'id' => 'Longitude',
-                        'onclick' => 'emptyInput(this)',                           
+                        'onclick' => 'emptyInput(this)',
                     ]);
                     $form->get('submit')->setAttributes([]);
 
@@ -87,44 +87,49 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
                     echo $this->form()->openTag($form);
                     ?>
                     <?php echo $this->formHidden($form->get('location_id')->setAttribute('class', 'form-control')) ?>
-                     <div class="row">
-                        <div class="form-group col-lg-6"> 
+                    <div class="row">
+                        <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('parent_location')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('parent_location')); ?>
-                            <?php // $this->formElementErrors($form->get('parent_location')); ?>
+                            <?php // $this->formElementErrors($form->get('parent_location')); 
+                            ?>
                         </div>
-                        <div class="form-group col-lg-6"> 
+                        <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('location_name')); ?><span class="mandatory">*</span>
                             <?= $this->formElement($form->get('location_name')); ?>
-                            <?php // $this->formElementErrors($form->get('location_name')); ?>
+                            <?php // $this->formElementErrors($form->get('location_name')); 
+                            ?>
                         </div>
                     </div>
-                    
+
                     <div class="row">
-                        <div class="form-group col-lg-6"> 
+                        <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('location_code')); ?>
                             <?= $this->formElement($form->get('location_code')); ?>
-                            <?php // $this->formElementErrors($form->get('location_code')); ?>
+                            <?php // $this->formElementErrors($form->get('location_code')); 
+                            ?>
                         </div>
-                        <div class="form-group col-lg-6"> 
+                        <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('latitude')); ?>
                             <?= $this->formElement($form->get('latitude')); ?>
-                            <?php // $this->formElementErrors($form->get('latitude')); ?>
+                            <?php // $this->formElementErrors($form->get('latitude')); 
+                            ?>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-lg-6"> 
+                        <div class="form-group col-lg-6">
                             <?= $this->formLabel($form->get('longitude')); ?>
                             <?= $this->formElement($form->get('longitude')); ?>
-                            <?php // $this->formElementErrors($form->get('longitude')); ?>
+                            <?php // $this->formElementErrors($form->get('longitude')); 
+                            ?>
                         </div>
                     </div>
-                   
+
                     <div class="row col-sm-3" style="margin-top: 10px;">
                         <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                        <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('district', array('action' => 'index')); ?>" >CANCEL</a> 
+                        <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('district', array('action' => 'index')); ?>">CANCEL</a>
                     </div>
-                    <?php echo $this->form()->closeTag();?>
+                    <?php echo $this->form()->closeTag(); ?>
 
                 </form>
             </div>
@@ -135,12 +140,12 @@ $regionLabel = (isset($config['region']) && trim($config['region'])!= '')?ucword
     </div>
 </div>
 <script>
-regionLabel = '<?php echo $regionLabel; ?>';
-districtLabel = '<?php echo $districtLabel; ?>';
+    regionLabel = '<?php echo $regionLabel; ?>';
+    districtLabel = '<?php echo $districtLabel; ?>';
 </script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhZa4hDifE6p2sbaxJehS7gcrZOJScIqM&libraries=drawing,geometry,places"></script>
 
-<script src = "<?php echo $this->basePath('assets/js/maplace.min.js'); ?>" type = "text/javascript"></script>
+<script src="<?php echo $this->basePath('assets/js/maplace.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
@@ -151,20 +156,22 @@ districtLabel = '<?php echo $districtLabel; ?>';
 <script src="<?php echo $this->basePath('assets/js/daterangepicker.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/personnel_certification/district.js'); ?>" type="text/javascript"></script>
 <script>
-    function checkNameValidation(tableName, fieldName, obj, fnct, msg)
-    {
+    function checkNameValidation(tableName, fieldName, obj, fnct, msg) {
         checkValue = document.getElementById(obj.id).value;
-        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {tableName: tableName, fieldName: fieldName, value: checkValue, fnct: fnct},
-        function(data) {
-            if (data > 0)
-            {
-                alert(msg);
-                duplicateName = false;
-                document.getElementById(obj.id).value = "";
-            }
-            else {
-                duplicateName = true;
-            }
-        });
+        $.post("<?php echo $this->url('common', array('action' => 'index')); ?>", {
+                tableName: tableName,
+                fieldName: fieldName,
+                value: checkValue,
+                fnct: fnct
+            },
+            function(data) {
+                if (data > 0) {
+                    alert(msg);
+                    duplicateName = false;
+                    document.getElementById(obj.id).value = "";
+                } else {
+                    duplicateName = true;
+                }
+            });
     }
 </script>

@@ -1,20 +1,22 @@
 <?php
+
 use Laminas\Session\Container;
+
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
-$config = $this->GlobalConfigHelper();
-$districtLabel = (isset($config['districts']) && trim($config['districts'])!= '')?ucwords($config['districts']):'District';
-$facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= '')?ucwords($config['facilities']):'Facilities';
+
+$config = $this->globalConfigHelper();
+$districtLabel = (isset($config['districts']) && trim($config['districts']) != '') ? ucwords($config['districts']) : 'District';
+$facilityLabel = (isset($config['facilities']) && trim($config['facilities']) != '') ? ucwords($config['facilities']) : 'Facilities';
 ?>
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css" />
 
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css" />
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
@@ -43,15 +45,15 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'class' => 'form-control',
                             'id' => 'District',
                             'onclick' => 'emptyInput(this)',
-//                           
+                            //
                         ]);
                         $form->get('facility_name')->setAttributes([
                             'class' => 'form-control',
-                            'placeholder' => $facilityLabel.' Name',
+                            'placeholder' => $facilityLabel . ' Name',
                             'autocomplete' => 'off',
                             'id' => 'Facility Name',
                             'onclick' => 'emptyInput(this)',
-//                           
+                            //
                         ]);
                         $form->get('contact_person_name')->setAttributes([
                             'class' => 'form-control',
@@ -59,7 +61,7 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'autocomplete' => 'off',
                             'id' => 'Contact Person Name',
                             'onclick' => 'emptyInput(this)',
-    //                           
+                            //
                         ]);
                         $form->get('phone_no')->setAttributes([
                             'class' => 'form-control checkNum',
@@ -67,7 +69,7 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'autocomplete' => 'off',
                             'id' => 'Phone Number',
                             'onclick' => 'emptyInput(this)',
-    //                           
+                            //
                         ]);
                         $form->get('email_id')->setAttributes([
                             'class' => 'form-control isEmail',
@@ -75,14 +77,14 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'autocomplete' => 'off',
                             'id' => 'Email ID',
                             'onclick' => 'emptyInput(this)',
-    //                           
+                            //
                         ]);
                         $form->get('facility_address')->setAttributes([
                             'class' => 'form-control',
-                            'placeholder' => $facilityLabel.' Address',
+                            'placeholder' => $facilityLabel . ' Address',
                             'autocomplete' => 'off',
                             'id' => 'Facility Address',
-//                           
+                            //
                         ]);
                         $form->get('latitude')->setAttributes([
                             'class' => 'form-control',
@@ -90,7 +92,7 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'autocomplete' => 'off',
                             'id' => 'latitude',
                             'onclick' => 'emptyInput(this)',
-    //                           
+                            //
                         ]);
                         $form->get('longitude')->setAttributes([
                             'class' => 'form-control',
@@ -98,11 +100,11 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                             'autocomplete' => 'off',
                             'id' => 'Longitude',
                             'onclick' => 'emptyInput(this)',
-    //                           
+                            //
                         ]);
 
                         $form->get('submit')->setAttributes([
-//                            
+                            //
                         ]);
 
 
@@ -110,56 +112,64 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                         ?>
                         <?php echo $this->formHidden($form->get('id')->setAttribute('class', 'form-control')) ?>
                         <div class="row">
-                            <div class="form-group col-lg-6"> 
+                            <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('district')); ?><span class="mandatory">*</span>
                                 <?= $this->formElement($form->get('district')); ?>
-                                <?php // $this->formElementErrors($form->get('district')); ?>
+                                <?php // $this->formElementErrors($form->get('district'));
+                                ?>
                             </div>
-                            <div class="form-group col-lg-6"> 
+                            <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('facility_name')); ?><span class="mandatory">*</span>
                                 <?= $this->formElement($form->get('facility_name')); ?>
-                                <?php // $this->formElementErrors($form->get('facility_name')); ?>
+                                <?php // $this->formElementErrors($form->get('facility_name'));
+                                ?>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('contact_person_name')); ?>
                                 <?= $this->formElement($form->get('contact_person_name')); ?>
-                                <?php // $this->formElementErrors($form->get('contact_person_name')); ?>
+                                <?php // $this->formElementErrors($form->get('contact_person_name'));
+                                ?>
                             </div>
                             <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('phone_no')); ?>
                                 <?= $this->formElement($form->get('phone_no')); ?>
-                                <?php // $this->formElementErrors($form->get('phone_no')); ?>
+                                <?php // $this->formElementErrors($form->get('phone_no'));
+                                ?>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('email_id')); ?>
                                 <?= $this->formElement($form->get('email_id')); ?>
-                                <?php // $this->formElementErrors($form->get('email_id')); ?>
+                                <?php // $this->formElementErrors($form->get('email_id'));
+                                ?>
                             </div>
-                            <div class="form-group col-lg-6"> 
+                            <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('facility_address')); ?>
                                 <?= $this->formElement($form->get('facility_address')); ?>
-                                <?php // $this->formElementErrors($form->get('facility_address')); ?>
+                                <?php // $this->formElementErrors($form->get('facility_address'));
+                                ?>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-lg-6"> 
+                            <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('latitude')); ?>
                                 <?= $this->formElement($form->get('latitude')); ?>
-                                <?php // $this->formElementErrors($form->get('latitude')); ?>
+                                <?php // $this->formElementErrors($form->get('latitude'));
+                                ?>
                             </div>
                             <div class="form-group col-lg-6">
                                 <?= $this->formLabel($form->get('longitude')); ?>
                                 <?= $this->formElement($form->get('longitude')); ?>
-                                <?php // $this->formElementErrors($form->get('longitude')); ?>
+                                <?php // $this->formElementErrors($form->get('longitude'));
+                                ?>
                             </div>
                         </div>
                         <div class="row col-sm-3" style="margin-top: 10px;">
                             <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                            <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('facility', array('action' => 'index')); ?>" >Cancel</a> 
+                            <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('facility', array('action' => 'index')); ?>">Cancel</a>
                         </div>
                         <?php echo $this->form()->closeTag(); ?>
                     </form>
@@ -173,37 +183,44 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
                                 <th style="width:33%;"><?php echo $facilityLabel; ?> Address</th>
                                 <th style="width:33%;"><?php echo $districtLabel; ?></th>
 
-                                <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
+                                <?php if ($this->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
                                     <th>Edit</th>
                                 <?php } ?>
-                                     <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
-                                        <th>Delete</th>
-                                    <?php } ?>
+                                <?php if ($this->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
+                                    <th>Delete</th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($facilities as $facility) : ?>
                                 <tr>
-                                    <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_name'])); ?></div></td>
-                                    <td><div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_address'])); ?></div></td>
-                                    <td><div style="width:200px;overflow:auto;"><?php echo (isset($facility['location_name']))?ucfirst($this->escapeHtml($facility['location_name'])):''; ?></div></td>
-                                    <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
+                                    <td>
+                                        <div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_name'])); ?></div>
+                                    </td>
+                                    <td>
+                                        <div style="width:200px;overflow:auto;"><?php echo ucfirst($this->escapeHtml($facility['facility_address'])); ?></div>
+                                    </td>
+                                    <td>
+                                        <div style="width:200px;overflow:auto;"><?php echo (isset($facility['location_name'])) ? ucfirst($this->escapeHtml($facility['location_name'])) : ''; ?></div>
+                                    </td>
+                                    <?php if ($this->isAllowed($role, 'Certification\Controller\FacilityController', 'edit')) { ?>
                                         <td>
                                             <div style="width:80px;overflow:auto;"><a href="<?php echo $this->url('facility', array('action' => 'edit', 'id' => base64_encode($facility['id']))); ?>"> <span class="glyphicon glyphicon-pencil">Edit</span></a> </div>
                                         </td>
                                     <?php } ?>
-                                        <?php if ($acl->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
-                                <td><div style="width:80px;overflow:auto;">
-                                         <a onclick="if (!confirm('Do you really want to remove '+'<?php echo $this->escapeHtml($facility['facility_name']); ?> '+'?')) {
+                                    <?php if ($this->isAllowed($role, 'Certification\Controller\FacilityController', 'delete')) { ?>
+                                        <td>
+                                            <div style="width:80px;overflow:auto;">
+                                                <a onclick="if (!confirm('Do you really want to remove '+'<?php echo $this->escapeHtml($facility['facility_name']); ?> '+'?')) {
                                                     alert('Canceled!');
-                                                    return false;};"  href="<?php echo $this->url('facility', array('action' => 'delete', 'id' => $facility['id'])); ?>"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a> 
-                                  </div>
-                                </td>
-                            <?php } ?>
-                                   
+                                                    return false;};" href="<?php echo $this->url('facility', array('action' => 'delete', 'id' => $facility['id'])); ?>"> <span class="glyphicon glyphicon-trash">&nbsp;Delete</span></a>
+                                            </div>
+                                        </td>
+                                    <?php } ?>
+
 
                                 </tr>
-                            <?php endforeach; ?>               
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -213,12 +230,12 @@ $facilityLabel = (isset($config['facilities']) && trim($config['facilities'])!= 
 </div>
 </div>
 <script>
-districtLabel = '<?php echo $districtLabel; ?>';
-facilityLabel = '<?php echo $facilityLabel; ?>';
+    districtLabel = '<?php echo $districtLabel; ?>';
+    facilityLabel = '<?php echo $facilityLabel; ?>';
 </script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhZa4hDifE6p2sbaxJehS7gcrZOJScIqM&libraries=drawing,geometry,places"></script>
 
-<script src = "<?php echo $this->basePath('assets/js/maplace.min.js'); ?>" type = "text/javascript"></script>
+<script src="<?php echo $this->basePath('assets/js/maplace.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/jquery-1.12.4.js'); ?>"></script>
@@ -230,7 +247,7 @@ facilityLabel = '<?php echo $facilityLabel; ?>';
 <script src="<?php echo $this->basePath('assets/js/personnel_certification/facility.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript" language="javascript">
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('#facility').dataTable({
             "aProcessing": true,
             "aServerSide": true,

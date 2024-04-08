@@ -2,11 +2,12 @@
 
 namespace Application\View\Helper;
 
+use Application\Model\GlobalTable;
 use Laminas\View\Helper\AbstractHelper;
 
 class GlobalConfig extends AbstractHelper
 {
-    public \Application\Model\GlobalTable $globalTable;
+    public GlobalTable $globalTable;
     public function __construct($globalTable)
     {
         $this->globalTable = $globalTable;

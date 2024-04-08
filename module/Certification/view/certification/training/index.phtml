@@ -4,21 +4,18 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
 
 
-if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit') && $acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) { 
-    
+
+if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'edit') && $this->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) {
+
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
-    
-}else if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) {
-    
-    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
-    
-}else if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) {
-    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+} else if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) {
 
-}else{
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+} else if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) {
+    $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
+} else {
 
     $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false},{"sClass":"center","bSortable":false}';
 }
@@ -26,23 +23,26 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
 
 ?>
 
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/daterangepicker-bs3.css'); ?>" type="text/css" />
 
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
 
-<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css"/>
+<link rel="stylesheet" href="<?php echo $this->basePath('assets/css/jquery.multiselect.css'); ?>" type="text/css" />
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery.multiselect.js'); ?>" type="text/javascript"></script>
 <style>
-    #shBtnManageColumns{
+    #shBtnManageColumns {
         font-size: 17px;
         font-weight: 600;
     }
-    .well{ width: 100%;}
+
+    .well {
+        width: 100%;
+    }
 </style>
 <div class="am-content">
     <div class="page-head">
@@ -52,7 +52,7 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
                 <h2>List of Trainings</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'add')) { ?>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'add')) { ?>
                     <a href="<?php echo $this->url('training', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Training</a>
                 <?php } ?>
 
@@ -61,12 +61,12 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
     </div>
     <div class="main-content">
         <div class="widget widget-fullwidth widget-small" style="padding:5px;">
-        <div class="well container">
-            <div class="row" style="margin-bottom:15px;margin-left:9px;">
-            <h3>Manage Columns  &nbsp;<a href="javascript:void(0)" id="shBtnManageColumns">Show/hide</a></h3> 
-            </div>
-            <div id="manageColumns">
-            </div>
+            <div class="well container">
+                <div class="row" style="margin-bottom:15px;margin-left:9px;">
+                    <h3>Manage Columns &nbsp;<a href="javascript:void(0)" id="shBtnManageColumns">Show/hide</a></h3>
+                </div>
+                <div id="manageColumns">
+                </div>
             </div>
             <table id="trainingDatatable" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
@@ -79,17 +79,17 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
                         <th>Type of Activity/Training</th>
                         <th>Date of last Training/Activity</th>
                         <th>Length of Training/Activity</th>
-                        <th  style="width: 10%;">Training organization</th> 
-                        <th  style="width: 10%;">Type of Training organization</th> 
+                        <th style="width: 10%;">Training organization</th>
+                        <th style="width: 10%;">Type of Training organization</th>
                         <th style="width: 10%;">Name of Facilitator(s)</th>
-                        <th  style="width: 6%;" >Training certificate(if available)</th>
-                        <th  >Date certificate issued (if available)</th>
+                        <th style="width: 6%;">Training certificate(if available)</th>
+                        <th>Date certificate issued (if available)</th>
 
-<!--<th style="width: 10%;" >Comments</th>-->
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) { ?>
-                            <th >Edit</th>
+                        <!--<th style="width: 10%;" >Comments</th>-->
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'edit')) { ?>
+                            <th>Edit</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) { ?>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\TrainingController', 'delete')) { ?>
                             <th>Delete</th>
                         <?php } ?>
                     </tr>
@@ -97,13 +97,13 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
                 </thead>
                 <tbody>
 
-                    
-                <tr>
+
+                    <tr>
                         <td colspan="15" class="dataTables_empty">Loading data from server</td>
                     </tr>
                 </tbody>
             </table>
-                   </div>
+        </div>
     </div>
 </div>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhZa4hDifE6p2sbaxJehS7gcrZOJScIqM&libraries=drawing,geometry,places"></script>
@@ -119,17 +119,17 @@ if ($acl->isAllowed($role, 'Certification\Controller\TrainingController', 'edit'
 
 <script src="<?php echo $this->basePath('assets/js/daterangepicker.js'); ?>" type="text/javascript"></script>
 
-<script type="text/javascript" language="javascript" >
-oTable=null;
-    $(document).ready(function () {
+<script type="text/javascript" language="javascript">
+    oTable = null;
+    $(document).ready(function() {
 
- 
-    var listOfColumns = '';
-        $('tr.alltraining').each(function(){  
-            $(this).find('th').each(function(index){
-                listOfColumns+='<a class="toggle-vis btn btn-primary btn-sm" data-column="'+index+'" style="margin-top: 5px;" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> '+$(this).text()+'</a> &nbsp;'
+
+        var listOfColumns = '';
+        $('tr.alltraining').each(function() {
+            $(this).find('th').each(function(index) {
+                listOfColumns += '<a class="toggle-vis btn btn-primary btn-sm" data-column="' + index + '" style="margin-top: 5px;" onclick="toggleBtnClass(this)"> <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span> ' + $(this).text() + '</a> &nbsp;'
             });
-        }); 
+        });
         $("#manageColumns").html(listOfColumns);
 
         oTable = $('#trainingDatatable').DataTable({
@@ -162,31 +162,26 @@ oTable=null;
         //     "aaSorting": [],
         // });
 
-        $('a.toggle-vis').on( 'click', function (e) {
-            e.preventDefault(); 
+        $('a.toggle-vis').on('click', function(e) {
+            e.preventDefault();
             // Get the column API object
-            var column = oTable.column( $(this).attr('data-column') ); 
+            var column = oTable.column($(this).attr('data-column'));
             // Toggle the visibility
-            column.visible( ! column.visible() );
-            $("#provider_wrapper").css("overflow-x","scroll");
+            column.visible(!column.visible());
+            $("#provider_wrapper").css("overflow-x", "scroll");
         });
         $("#manageColumns").hide();
-        $("#shBtnManageColumns").click(function(){
-            $("#manageColumns").toggle('fast','linear');
+        $("#shBtnManageColumns").click(function() {
+            $("#manageColumns").toggle('fast', 'linear');
         });
-                      
+
     });
-    
+
     /* Toggles Color of button */
-    function toggleBtnClass(btnObj){
+    function toggleBtnClass(btnObj) {
         $(btnObj).toggleClass("btn-default");
         var children = btnObj.childNodes;
         var iconTag = children[1].firstChild;
         $(iconTag).toggleClass("glyphicon-remove");
     }
 </script>
-
-
-
-
-

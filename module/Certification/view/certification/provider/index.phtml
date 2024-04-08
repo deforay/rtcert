@@ -4,7 +4,6 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
 
 $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sClass":"center"}';
 ?>
@@ -61,10 +60,10 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 <span class="text-success"></span> -->
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'import-excel')) { ?>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'import-excel')) { ?>
                     <a href="<?php echo $this->url('provider', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Tester</a>
                 <?php }
-                if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'add')) { ?>
+                if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'add')) { ?>
                     <a href="<?php echo $this->url('provider', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Tester</a>
                 <?php } ?>
             </div>
@@ -110,14 +109,14 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                         <th>Facility In charge Phone</th>
                         <th>Facility In charge Email</th>
 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'edit')) { ?>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'edit')) { ?>
                             <th style="width:5%;">Edit</th>
                         <?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'delete')) { ?>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'delete')) { ?>
                             <th>Delete</th><?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationController', 'pdf')) { ?>
                             <th>PDF</th><?php } ?>
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'send-test-link')) { ?>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'send-test-link')) { ?>
                             <th>Send Test Link</th><?php } ?>
                     </tr>
 
@@ -125,7 +124,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 </thead>
                 <tbody class="frezz">
 
-                <tr>
+                    <tr>
                         <td colspan="25" class="dataTables_empty">Loading data from server</td>
                     </tr>
                 </tbody>
@@ -172,7 +171,7 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                 });
             }
         });
-        /* 
+        /*
             The below snippet dynamically list toggleable button.
             It can show/hide columns
         */

@@ -21,10 +21,10 @@ $sessionLogin = new Container('credo');
                 <h2>Add A new Training organization</h2>
             </div>
             <div class="col-sm-4 ">
-                <?php // if ($acl->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {  
+                <?php // if ($this->isAllowed($role, 'Application\Controller\FacilityController', 'add')) {
                 ?>
                 <a href="<?php echo $this->url('training-organization', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Trainings Organizations</a>
-                <?php // }  
+                <?php // }
                 ?>
 
             </div>
@@ -49,7 +49,7 @@ $sessionLogin = new Container('credo');
                                     'id' => 'Training Organization Name',
                                     'onclick' => 'inputOrgaName()',
                                 ]);
-                                
+
                                 $form->get('abbreviation')->setAttributes([
                                     'class' => 'form-control',
                                     'placeholder' => 'Abbreviation',
@@ -71,7 +71,7 @@ $sessionLogin = new Container('credo');
                                     'id' => 'Address & Contact Information',
                                     'for' => 'Address & Contact Information',
                                 ]);
-                                
+
                                 $form->get('phone')->setAttributes([
                                     'class' => 'form-control',
                                     'placeholder' => 'Phone Number',
@@ -81,7 +81,7 @@ $sessionLogin = new Container('credo');
                                 ]);
 
                                 $form->get('submit')->setAttributes([
-                                    //                            
+                                    //
                                 ]);
 
 
@@ -92,36 +92,42 @@ $sessionLogin = new Container('credo');
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('training_organization_name')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('training_organization_name')); ?>
-                                        <?php // $this->formElementErrors($form->get('training_organization_name')); ?>
+                                        <?php // $this->formElementErrors($form->get('training_organization_name')); 
+                                        ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('abbreviation')); ?>
                                         <?= $this->formElement($form->get('abbreviation')); ?>
-                                        <?php // $this->formElementErrors($form->get('abbreviation')); ?>
+                                        <?php // $this->formElementErrors($form->get('abbreviation')); 
+                                        ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('type_organization')); ?><span class="mandatory">*</span>
                                         <?= $this->formElement($form->get('type_organization')); ?>
-                                        <?php // $this->formElementErrors($form->get('type_organization')); ?>
+                                        <?php // $this->formElementErrors($form->get('type_organization')); 
+                                        ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('address')); ?>
                                         <?= $this->formElement($form->get('address')); ?>
-                                        <?php // $this->formElementErrors($form->get('address')); ?>
+                                        <?php // $this->formElementErrors($form->get('address')); 
+                                        ?>
                                     </div>
 
                                     <div class="form-group col-lg-6">
                                         <?= $this->formLabel($form->get('phone')); ?>
                                         <?= $this->formElement($form->get('phone')); ?>
-                                        <?php // $this->formElementErrors($form->get('phone')); ?>
+                                        <?php // $this->formElementErrors($form->get('phone')); 
+                                        ?>
                                     </div>
                                 </div>
                                 <br>
                                 <div class="row" style="margin-left: 18px;"><?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('training-organization', array('action' => 'index')); ?>">CANCEL</a> </div>
+                                    <a class="btn  btn-space btn-default" role="button" href="<?php echo $this->url('training-organization', array('action' => 'index')); ?>">CANCEL</a>
+                                </div>
                                 <?php echo $this->form()->closeTag(); ?>
                             </form>
                         </div>

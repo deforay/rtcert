@@ -1,15 +1,17 @@
 <?php
+
 use Laminas\Session\Container;
+
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
+
 $fromSource = 'certified';
-if(isset($frmSrc) && trim($frmSrc)!= ''){
-   $fromSource = $frmSrc;
+if (isset($frmSrc) && trim($frmSrc) != '') {
+    $fromSource = $frmSrc;
 }
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/dataTables.bootstrap.min.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/responsive.bootstrap.min.css'); ?>" />
 
 <script src="<?php echo $this->basePath('assets/js/jquery.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo $this->basePath('assets/js/jquery-ui.min.js'); ?>" type="text/javascript"></script>
@@ -18,26 +20,26 @@ if(isset($frmSrc) && trim($frmSrc)!= ''){
     <div class="page-head">
         <div class="row">
             <div class="col-sm-12">
-                <h2>List of  Testers</h2>
+                <h2>List of Testers</h2>
             </div>
         </div>
     </div>
 
     <div class="main-content">
-        <div class="widget widget-fullwidth widget-small" style="padding:5px;" >
+        <div class="widget widget-fullwidth widget-small" style="padding:5px;">
             <table id="provider" class="datatables table table-bordered table-condensed table-striped table-hover table-fw-widget">
                 <thead>
                     <tr>
-                        <th  style="width:10%;">Professional Registration No <br> (if available) </th>
-                        <th  style="width:10%;">Certification Registration no </th>
-                        <th  style="width:10%;">Certification ID  </th>
-                        <th  style="width:10%;">Provider</th>
-                        <th  style="width:10%;">Facility</th>
-                        <th  style="width:10%;">Certificate Issuer</th>
-                        <th  style="width:10%;">Date Certificate Issued</th>
+                        <th style="width:10%;">Professional Registration No <br> (if available) </th>
+                        <th style="width:10%;">Certification Registration no </th>
+                        <th style="width:10%;">Certification ID </th>
+                        <th style="width:10%;">Provider</th>
+                        <th style="width:10%;">Facility</th>
+                        <th style="width:10%;">Certificate Issuer</th>
+                        <th style="width:10%;">Date Certificate Issued</th>
                         <th style="width:5%;">Date Certificate Sent</th>
-                        <th style="width:5%;">Type of Certification</th> 
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
+                        <th style="width:5%;">Type of Certification</th>
+                        <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
                             <th style="width:10%;"> E-Mail</th>
                         <?php } ?>
                     </tr>
@@ -56,32 +58,56 @@ if(isset($frmSrc) && trim($frmSrc)!= ''){
 <script type="text/javascript" src="<?php echo $this->basePath('assets/js/responsive.bootstrap.min.js'); ?>"></script>
 <script type="text/javascript" language="javascript">
     dTable = null;
-    $(document).ready(function () {
+    $(document).ready(function() {
         dTable = $('#provider').DataTable({
             "bScrollCollapse": false,
             "bRetrieve": false,
             "bDestroy": true,
-	    "pageLength": 50,
-            "aoColumns": [
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                {"sClass":"center noWrap"},
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?>
-                 {"sClass":"center noWrap","bSortable":false}
+            "pageLength": 50,
+            "aoColumns": [{
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                {
+                    "sClass": "center noWrap"
+                },
+                <?php if ($this->isAllowed($role, 'Certification\Controller\CertificationMailController', 'index')) { ?> {
+                        "sClass": "center noWrap",
+                        "bSortable": false
+                    }
                 <?php } ?>
             ],
-            "aaSorting": [[ 2, "desc" ]],
+            "aaSorting": [
+                [2, "desc"]
+            ],
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": "<?php echo $this->url('dashboard',array('action' => 'testers')); ?>",
-            "fnServerData": function ( sSource, aoData, fnCallback ) {
-		aoData.push({"name": "fromSource", "value": '<?php echo $fromSource; ?>'});
+            "sAjaxSource": "<?php echo $this->url('dashboard', array('action' => 'testers')); ?>",
+            "fnServerData": function(sSource, aoData, fnCallback) {
+                aoData.push({
+                    "name": "fromSource",
+                    "value": '<?php echo $fromSource; ?>'
+                });
                 $.ajax({
                     "dataType": 'json',
                     "type": "POST",

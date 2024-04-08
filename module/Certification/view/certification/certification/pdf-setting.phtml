@@ -4,7 +4,7 @@ use Laminas\Session\Container;
 
 $sessionLogin = new Container('credo');
 $role = $sessionLogin->roleCode;
-$acl = $this->layout()->acl;
+
 ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/jasny-bootstrap.min.css'); ?>" />
 
@@ -23,7 +23,7 @@ $acl = $this->layout()->acl;
                 <h2>PDF Settings</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($acl->isAllowed($role, 'Certification\Controller\ProviderController', 'add')) { ?>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'add')) { ?>
                     <a href="<?php echo $this->url('certification', array('action' => 'pdf'), array('query' => array(base64_encode('last') => base64_encode('SARRI'), base64_encode('first') => base64_encode('HUBERT'), base64_encode('middle') => base64_encode('JASSIE JAMES'), base64_encode('professional_reg_no') => base64_encode('Ab-37-eg'), base64_encode('certification_id') => base64_encode(date('Y') . '-C000'), base64_encode('date_issued') => base64_encode(date('Y-m-d'))))); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Test a PDF</a>
                 <?php } ?>
 
@@ -135,7 +135,7 @@ $acl = $this->layout()->acl;
                     htmlDoc.async = false;
                     htmlDoc.load(text);
                 }
-                //                                                       
+                //
                 var data = htmlDoc.getElementById("header_text").value;
                 document.getElementById("header_text").innerHTML = data;
             }
