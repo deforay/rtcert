@@ -5,6 +5,9 @@ namespace Certification\Controller;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Json\Json;
 use Laminas\View\Model\ViewModel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ExaminationController extends AbstractActionController
 {
@@ -81,24 +84,22 @@ class ExaminationController extends AbstractActionController
         /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
         if ($request->isPost()) {
+            $excludeTesterName = $request->getPost('exclude_tester_name');
             $params = $request->getPost();
-            // print_r($params['Exam']);die;
-            $examination = $this->examinationTable->report($params);
-            $objPHPExcel = new \PHPExcel();
-            $objPHPExcel->setActiveSheetIndex(0);
-            $objPHPExcel->setActiveSheetIndex()->mergeCells('A1:D1'); //merge some column
-            $objPHPExcel->setActiveSheetIndex()->mergeCells('E1:I1');
+            $sResult = $this->examinationTable->report($params);
+            $excel = new Spreadsheet();
+            $sheet = $excel->getActiveSheet();
+            $sheet->mergeCells('A1:D1'); //merge some column
+            $sheet->mergeCells('E1:I1');
             if ($params['Exam'] == 'online-exam') {
-                $objPHPExcel->setActiveSheetIndex()->mergeCells('K1:R1');
+                $sheet->mergeCells('K1:R1');
             } else {
-                $objPHPExcel->setActiveSheetIndex()->mergeCells('K1:N1');
+                $sheet->mergeCells('K1:N1');
             }
-            // $objPHPExcel->setActiveSheetIndex()->mergeCells('T1:V1');
 
-            $objPHPExcel->getActiveSheet()->setCellValue('A1', 'Tester Identification');
-            $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Tester Contact Information');
-            $objPHPExcel->getActiveSheet()->SetCellValue('K1', 'Test Details');
-            // $objPHPExcel->getActiveSheet()->SetCellValue('T1', 'Facility In Charge');
+            $sheet->setCellValue('A1', 'Tester Identification');
+            $sheet->SetCellValue('E1', 'Tester Contact Information');
+            $sheet->SetCellValue('K1', 'Test Details');
 
             $styleArray = array(
                 'font' => array(
@@ -108,93 +109,105 @@ class ExaminationController extends AbstractActionController
                 )
             );
             if ($params['Exam'] == 'online-exam') {
-                $objPHPExcel->getActiveSheet()->getStyle('A1:R2')->applyFromArray($styleArray); //apply style from array style array
-                $objPHPExcel->getActiveSheet()->getStyle('A1:R2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
+                $sheet->getStyle('A1:R2')->applyFromArray($styleArray); //apply style from array style array
+                $sheet->getStyle('A1:R2')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK); // set cell border
             } else {
-                $objPHPExcel->getActiveSheet()->getStyle('A1:N2')->applyFromArray($styleArray); //apply style from array style array
-                $objPHPExcel->getActiveSheet()->getStyle('A1:N2')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK); // set cell border
+                $sheet->getStyle('A1:N2')->applyFromArray($styleArray); //apply style from array style array
+                $sheet->getStyle('A1:N2')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK); // set cell border
             }
-            $objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(17); // row dimension
-            $objPHPExcel->getActiveSheet()->getRowDimension(2)->setRowHeight(30);
+            $sheet->getRowDimension(1)->setRowHeight(17); // row dimension
+            $sheet->getRowDimension(2)->setRowHeight(30);
 
-            $objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(25);
+            $sheet->getDefaultColumnDimension()->setWidth(25);
 
-            $objPHPExcel->getActiveSheet()->getStyle('A1:E2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
-            $objPHPExcel->getActiveSheet()->getStyle('E1:I2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('E6E6FA');
-            // $objPHPExcel->getActiveSheet()->getStyle('N1:N2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('F5DEB3');
+            $sheet->getStyle('A1:E2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('FFF8DC'); //column fill
+            $sheet->getStyle('E1:I2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('E6E6FA');
             if ($params['Exam'] == 'online-exam') {
-                $objPHPExcel->getActiveSheet()->getStyle('K1:R2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
+                $sheet->getStyle('K1:R2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
             } else {
-                $objPHPExcel->getActiveSheet()->getStyle('K1:N2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
+                $sheet->getStyle('K1:N2')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('A9A9A9');
             }
-            // $objPHPExcel->getActiveSheet()->getStyle('T1:V2')->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('7FFFD4');
 
-            $objPHPExcel->getActiveSheet()->SetCellValue('A2', 'Professional registration no');
-            $objPHPExcel->getActiveSheet()->SetCellValue('B2', 'Last name');
-            $objPHPExcel->getActiveSheet()->SetCellValue('C2', 'First name');
-            $objPHPExcel->getActiveSheet()->SetCellValue('D2', 'Middle name');
-            $objPHPExcel->getActiveSheet()->SetCellValue('E2', 'Country');
-            $objPHPExcel->getActiveSheet()->SetCellValue('F2', 'Region');
-            $objPHPExcel->getActiveSheet()->SetCellValue('G2', 'District');
-            $objPHPExcel->getActiveSheet()->SetCellValue('H2', 'Phone');
-            $objPHPExcel->getActiveSheet()->SetCellValue('I2', 'Email');
-            $objPHPExcel->getActiveSheet()->SetCellValue('J2', 'Facility');
+            $sheet->SetCellValue('A2', 'Professional registration no');
+            $sheet->SetCellValue('B2', 'Last name');
+            $sheet->SetCellValue('C2', 'First name');
+            $sheet->SetCellValue('D2', 'Middle name');
+            $sheet->SetCellValue('E2', 'Country');
+            $sheet->SetCellValue('F2', 'Region');
+            $sheet->SetCellValue('G2', 'District');
+            $sheet->SetCellValue('H2', 'Phone');
+            $sheet->SetCellValue('I2', 'Email');
+            $sheet->SetCellValue('J2', 'Facility');
             if ($params['Exam'] == 'online-exam') {
-                $objPHPExcel->getActiveSheet()->SetCellValue('K2', 'Pre test start date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('L2', 'Pre test end date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('M2', 'Pre test score');
-                $objPHPExcel->getActiveSheet()->SetCellValue('N2', 'Pre test status');
-                $objPHPExcel->getActiveSheet()->SetCellValue('O2', 'Post test start date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('P2', 'Post test end date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('Q2', 'Post test score');
-                $objPHPExcel->getActiveSheet()->SetCellValue('R2', 'Post test status');
+                $sheet->SetCellValue('K2', 'Pre test start date');
+                $sheet->SetCellValue('L2', 'Pre test end date');
+                $sheet->SetCellValue('M2', 'Pre test score');
+                $sheet->SetCellValue('N2', 'Pre test status');
+                $sheet->SetCellValue('O2', 'Post test start date');
+                $sheet->SetCellValue('P2', 'Post test end date');
+                $sheet->SetCellValue('Q2', 'Post test score');
+                $sheet->SetCellValue('R2', 'Post test status');
             } else {
-                $objPHPExcel->getActiveSheet()->SetCellValue('K2', 'Practical exam date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('L2', 'Practical total score');
-                $objPHPExcel->getActiveSheet()->SetCellValue('M2', 'Written exam date');
-                $objPHPExcel->getActiveSheet()->SetCellValue('N2', 'Final score');
+                $sheet->SetCellValue('K2', 'Practical exam date');
+                $sheet->SetCellValue('L2', 'Practical total score');
+                $sheet->SetCellValue('M2', 'Written exam date');
+                $sheet->SetCellValue('N2', 'Final score');
             }
 
-
-            $ligne = 3;
-            foreach ($examination as $examination) {
-
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $ligne, $examination['professional_reg_no']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['last_name'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['first_name'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $ligne, (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $examination['middle_name'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(4, $ligne, (isset($examination['country_name'])) ? $examination['country_name'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(5, $ligne, (isset($examination['regionName'])) ? $examination['regionName'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6, $ligne, (isset($examination['districtName'])) ? $examination['districtName'] : '');
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(7, $ligne, $examination['phone']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(8, $ligne, $examination['email']);
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(9, $ligne, $examination['facility_name']);
+            $output = array();
+            foreach($sResult as $aRow) {
+                $row = array();
+                $row[] = $aRow['professional_reg_no'];
+                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['last_name'] : '';
+                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['first_name'] : '';
+                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['middle_name'] : '';
+                $row[] = (isset($aRow['country_name'])) ? $aRow['country_name'] : '';
+                $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
+                $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
+                $row[] = $aRow['phone'];
+                $row[] = $aRow['email'];
+                $row[] = $aRow['facility_name'];
                 if ($params['Exam'] == 'online-exam') {
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['pretest_start_datetime']) && $examination['pretest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['pretest_start_datetime'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, (isset($examination['pretest_end_datetime']) && $examination['pretest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['pretest_end_datetime'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, $examination['pre_test_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['pre_test_status']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(14, $ligne, (isset($examination['posttest_start_datetime']) && $examination['posttest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['posttest_start_datetime'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(15, $ligne, (isset($examination['posttest_end_datetime']) && $examination['posttest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($examination['posttest_end_datetime'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(16, $ligne, $examination['post_test_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(17, $ligne, $examination['post_test_status']);
+                    $row[] = (isset($aRow['pretest_start_datetime']) && $aRow['pretest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($aRow['pretest_start_datetime'])) : '';
+                    $row[] = (isset($aRow['pretest_end_datetime']) && $aRow['pretest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($aRow['pretest_end_datetime'])) : '';
+                    $row[] = $aRow['pre_test_score'];
+                    $row[] = $aRow['pre_test_status'];
+                    $row[] = (isset($aRow['posttest_start_datetime']) && $aRow['posttest_start_datetime'] != NULL) ? date("d-M-Y", strtotime($aRow['posttest_start_datetime'])) : '';
+                    $row[] = (isset($aRow['posttest_end_datetime']) && $aRow['posttest_end_datetime'] != NULL) ? date("d-M-Y", strtotime($aRow['posttest_end_datetime'])) : '';
+                    $row[] = $aRow['post_test_score'];
+                    $row[] = $aRow['post_test_status'];
                 } else {
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(10, $ligne, (isset($examination['practicalExamDate']) && $examination['practicalExamDate'] != NULL) ? date("d-M-Y", strtotime($examination['practicalExamDate'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(11, $ligne, $examination['practical_total_score']);
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(12, $ligne, (isset($examination['writenExamDate']) && $examination['writenExamDate'] != NULL) ? date("d-M-Y", strtotime($examination['writenExamDate'])) : '');
-                    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(13, $ligne, $examination['final_score']);
+                    $row[] = (isset($aRow['practicalExamDate']) && $aRow['practicalExamDate'] != NULL) ? date("d-M-Y", strtotime($aRow['practicalExamDate'])) : '';
+                    $row[] = $aRow['practical_total_score'];
+                    $row[] = (isset($aRow['writenExamDate']) && $aRow['writenExamDate'] != NULL) ? date("d-M-Y", strtotime($aRow['writenExamDate'])) : '';
+                    $row[] = $aRow['practical_total_score'];
                 }
-                $ligne++;
+                $output[] = $row;
             }
-            $objPHPExcel->getActiveSheet()->getStyle('A2:U2')->getAlignment()->setWrapText(true); // make a new line in cell
-            $objPHPExcel->getActiveSheet()->getStyle($objPHPExcel->getActiveSheet()->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //center column contain
+            foreach ($output as $rowNo => $rowData) {
+                $colNo = 1;
+                $rRowCount = $rowNo + 3;
+                foreach ($rowData as $field => $value) {
+                    if (!isset($value)) {
+                        $value = "";
+                    }
+                    if (is_numeric($value)) {
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+                    } else {
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode((string) $value));
+                    }
+                    $colNo++;
+                }
+            }
+            $sheet->getStyle('A2:U2')->getAlignment()->setWrapText(true); // make a new line in cell
+            $sheet->getStyle($sheet->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);  //center column contain
 
-            $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+            $writer = IOFactory::createWriter($excel, IOFactory::READER_XLSX);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment;filename="' . date('d-m-Y') . '_list of all testers.xlsx"');
             header('Cache-Control: max-age=0');
-            $objWriter->save('php://output');
+            $writer->save('php://output');
             exit;
         }
         return array('country' => $this->commonService->getAllActiveCountries());

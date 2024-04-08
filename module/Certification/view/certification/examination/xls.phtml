@@ -515,17 +515,17 @@ $editActionTab3 = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{
 
 
     function searchAllOrderData(){
-     $.blockUI();
-     aTable.fnDraw();
-     bTable.fnDraw();
-     cTable.fnDraw();
-      $.unblockUI();
-}
+        $.blockUI();
+        aTable.draw();
+        bTable.draw();
+        cTable.draw();
+        $.unblockUI();
+    }
 
 
 
            /* Toggles Color of button */
-           function toggleBtnClassTab1(btnObj){
+    function toggleBtnClassTab1(btnObj){
         $(btnObj).toggleClass("btn-default");
         var children = btnObj.childNodes;
         var iconTag = children[1].firstChild;

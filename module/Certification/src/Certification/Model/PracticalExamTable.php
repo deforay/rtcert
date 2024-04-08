@@ -26,7 +26,6 @@ class PracticalExamTable extends AbstractTableGateway
 
 	public function __construct(Adapter $adapter, $sm = null)
 	{
-		$this->tableGateway = $tableGateway;
 		$this->adapter = $adapter;
 		$this->sm = $sm;
 

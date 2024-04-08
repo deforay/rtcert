@@ -1,7 +1,6 @@
 <?php
 namespace Application\Service;
 
-use PHPExcel;
 use Laminas\Db\Sql\Sql;
 use Laminas\Session\Container;
 use Laminas\Db\Adapter\Adapter;
@@ -14,6 +13,12 @@ use Laminas\Mail;
 use Laminas\Mime\Message as MimeMessage;
 use Laminas\Mime\Part as MimePart;
 use Laminas\Mime\Mime as Mime;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 class TestService{
 
@@ -261,11 +266,7 @@ class TestService{
     public function exportTestDetails(){
         try{
             $querycontainer = new Container('query');
-            $excel = new PHPExcel();
-            $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
-            $cacheSettings = array('memoryCacheSize' => '80MB');
-            \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
-            $output = array();
+            $excel = new Spreadsheet();
             $sheet = $excel->getActiveSheet();
             $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
@@ -323,23 +324,23 @@ class TestService{
                         'size'=>12,
                     ),
                     'alignment' => array(
-                        'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ),
                     'borders' => array(
                         'outline' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_THIN,
+                            'style' => Border::BORDER_THIN,
                         ),
                     )
                 );
 
                 $borderStyle = array(
                         'alignment' => array(
-                            'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
                         ),
                         'borders' => array(
                             'outline' => array(
-                                'style' => \PHPExcel_Style_Border::BORDER_THIN,
+                                'style' => Border::BORDER_THIN,
                             ),
                         )
                     );
@@ -348,18 +349,18 @@ class TestService{
                 }
                 // $sheet->setCellValue('A2', html_entity_decode('Biosafety Test Details', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 
-                $sheet->setCellValue('A1', html_entity_decode('Name', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('B1', html_entity_decode('Profession', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('C1', html_entity_decode('Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('D1', html_entity_decode('Test End Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('E1', html_entity_decode('Test Score', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('F1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('A1', html_entity_decode('Name', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('B1', html_entity_decode('Profession', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('C1', html_entity_decode('Test Start Time', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('D1', html_entity_decode('Test End Time', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('E1', html_entity_decode('Test Score', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('F1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'));
                 /* $sheet->setCellValue('G1', html_entity_decode('Post Test Start Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('H1', html_entity_decode('Post Test End Time', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('J1', html_entity_decode('Post Test Score', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
                 $sheet->setCellValue('I1', html_entity_decode('Post Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING); */
-                $sheet->setCellValue('G1', html_entity_decode('Certificate No', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-                $sheet->setCellValue('H1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                $sheet->setCellValue('G1', html_entity_decode('Certificate No', ENT_QUOTES, 'UTF-8'));
+                $sheet->setCellValue('H1', html_entity_decode('Test Status', ENT_QUOTES, 'UTF-8'));
 
 
                 // $sheet->mergeCells('A2:B2');
@@ -380,27 +381,27 @@ class TestService{
 
 
                 foreach ($output as $rowNo => $rowData) {
-                    $colNo = 0;
+                    $colNo = 1;
+                    $rRowCount = $rowNo + 2;
                     foreach ($rowData as $field => $value) {
                         if (!isset($value)) {
                             $value = "";
                         }
                         if (is_numeric($value)) {
-                            $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
                         } else {
-                            $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode((string) $value));
                         }
-                        $rRowCount = $rowNo + 2;
-                        $cellName = $sheet->getCellByColumnAndRow($colNo, $rowNo + 2)->getColumn();
-                        $sheet->getStyle($cellName . $rRowCount)->applyFromArray($borderStyle);
+                        $cellName = Coordinate::stringFromColumnIndex($colNo) . $rRowCount;
+                        $sheet->getStyle($cellName)->applyFromArray($borderStyle);
                         $sheet->getDefaultRowDimension()->setRowHeight(18);
                         $sheet->getColumnDimensionByColumn($colNo)->setWidth(20);
-                        $sheet->getStyleByColumnAndRow($colNo, $rowNo + 2)->getAlignment()->setWrapText(true);
+                        $sheet->getStyle($cellName)->getAlignment()->setWrapText(true);
                         $colNo++;
                     }
                 }
 
-                $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+                $writer = IOFactory::createWriter($excel, IOFactory::READER_XLSX);
                 $filename = 'provider-test-list' . date('d-M-Y-H-i-s') . '.xls';
                 //The name of the directory that we need to create.
                 $directoryName = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'provider-test';

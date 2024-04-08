@@ -6,7 +6,11 @@ use Laminas\Session\Container;
 use Application\Service\CommonService;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Sql;
-use PHPExcel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class FacilityService
 {
@@ -207,49 +211,34 @@ class FacilityService
         try {
             $common = new \Application\Service\CommonService();
             $queryContainer = new Container('query');
-            $excel = new PHPExcel();
-            $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
-            $cacheSettings = array('memoryCacheSize' => '80MB');
-            \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
-            $output = array();
-            $outputScore = array();
+            $excel = new Spreadsheet();
             $sheet = $excel->getActiveSheet();
             $dbAdapter = $this->sm->get('Laminas\Db\Adapter\Adapter');
             $sql = new Sql($dbAdapter);
             $sQueryStr = $sql->buildSqlString($queryContainer->exportAllFacilityQuery);
             $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
-            if (count($sResult) > 0) {
-                foreach ($sResult as $aRow) {
-                    $row = array();
-                    $row[] = $aRow['facility_id'];
-                    $row[] = $aRow['facility_name'];
-                    $row[] = $aRow['email'];
-                    $row[] = $aRow['contact_person'];
-                    $output[] = $row;
-                }
-            }
             $styleArray = array(
                 'font' => array(
                     'bold' => true,
                     'size' => 12,
                 ),
                 'alignment' => array(
-                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
                 ),
                 'borders' => array(
                     'outline' => array(
-                        'style' => \PHPExcel_Style_Border::BORDER_THICK,
+                        'style' => Border::BORDER_THICK,
                     ),
                 )
             );
             $borderStyle = array(
                 'alignment' => array(
-                    'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ),
                 'borders' => array(
                     'outline' => array(
-                        'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                        'style' => Border::BORDER_MEDIUM,
                     ),
                 )
             );
@@ -261,12 +250,12 @@ class FacilityService
             $sheet->mergeCells('C4:C5');
             $sheet->mergeCells('D4:D5');
 
-            $sheet->setCellValue('A1', html_entity_decode('Facility Report', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+            $sheet->setCellValue('A1', html_entity_decode('Facility Report', ENT_QUOTES, 'UTF-8'));
 
-            $sheet->setCellValue('A4', html_entity_decode('Facility Id', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-            $sheet->setCellValue('B4', html_entity_decode('Facility Name', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-            $sheet->setCellValue('C4', html_entity_decode('Email', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
-            $sheet->setCellValue('D4', html_entity_decode('Contact Person', ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+            $sheet->setCellValue('A4', html_entity_decode('Facility Id', ENT_QUOTES, 'UTF-8'));
+            $sheet->setCellValue('B4', html_entity_decode('Facility Name', ENT_QUOTES, 'UTF-8'));
+            $sheet->setCellValue('C4', html_entity_decode('Email', ENT_QUOTES, 'UTF-8'));
+            $sheet->setCellValue('D4', html_entity_decode('Contact Person', ENT_QUOTES, 'UTF-8'));
 
             $sheet->getStyle('A1:B1')->getFont()->setBold(TRUE)->setSize(16);
 
@@ -274,31 +263,38 @@ class FacilityService
             $sheet->getStyle('B4:B5')->applyFromArray($styleArray);
             $sheet->getStyle('C4:C5')->applyFromArray($styleArray);
             $sheet->getStyle('D4:D5')->applyFromArray($styleArray);
-
-
-            $start = 0;
+            $output = array();
+            if (count($sResult) > 0) {
+                foreach ($sResult as $aRow) {
+                    $row = array();
+                    $row[] = $aRow['facility_id'];
+                    $row[] = $aRow['facility_name'];
+                    $row[] = $aRow['email'];
+                    $row[] = $aRow['contact_person'];
+                    $output[] = $row;
+                }
+            }
             foreach ($output as $rowNo => $rowData) {
-                $colNo = 0;
+                $colNo = 1;
+                $rRowCount = $rowNo + 6;
                 foreach ($rowData as $field => $value) {
                     if (!isset($value)) {
                         $value = "";
                     }
                     if (is_numeric($value)) {
-                        $sheet->getCellByColumnAndRow($colNo, $rowNo + 6)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
                     } else {
-                        $sheet->getCellByColumnAndRow($colNo, $rowNo + 6)->setValueExplicit(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), \PHPExcel_Cell_DataType::TYPE_STRING);
+                        $sheet->setCellValue(Coordinate::stringFromColumnIndex($colNo) . $rRowCount, html_entity_decode((string) $value));
                     }
-                    $rRowCount = $rowNo + 6;
-                    $cellName = $sheet->getCellByColumnAndRow($colNo, $rowNo + 6)->getColumn();
+                    $cellName = Coordinate::stringFromColumnIndex($colNo) . $rRowCount;
                     $sheet->getStyle($cellName . $rRowCount)->applyFromArray($borderStyle);
                     $sheet->getDefaultRowDimension()->setRowHeight(18);
                     $sheet->getColumnDimensionByColumn($colNo)->setWidth(20);
-                    $sheet->getStyleByColumnAndRow($colNo, $rowNo + 6)->getAlignment()->setWrapText(true);
+                    $sheet->getStyle($cellName)->getAlignment()->setWrapText(true);
                     $colNo++;
                 }
             }
-
-            $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+            $writer = IOFactory::createWriter($excel, IOFactory::READER_XLSX);
             $filename = 'facility-list-report-' . date('d-M-Y-H-i-s') . '.xls';
             $writer->save(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $filename);
             return $filename;

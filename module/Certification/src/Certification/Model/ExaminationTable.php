@@ -1043,11 +1043,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
                 ->group('p_ex.provider_id');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1061,11 +1061,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
                 ->group('p_ex.provider_id');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1076,11 +1076,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $sQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $sQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $sQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1118,11 +1118,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(w_ex.provider_id LIKE "" OR w_ex.provider_id IS NULL OR w_ex.provider_id = "")')
                 ->group('p_ex.provider_id');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1136,11 +1136,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(p_ex.provider_id LIKE "" OR p_ex.provider_id IS NULL OR p_ex.provider_id = "")')
                 ->group('p_ex.provider_id');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }
@@ -1151,11 +1151,11 @@ class ExaminationTable extends AbstractTableGateway
                 ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
                 ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
                 ->where('(t.pre_test_status LIKE "not completed" OR t.pre_test_status = "not completed")');
-            if (isset($parameters['District']) && count($parameters['District']) > 0 && trim($parameters['District']) != '') {
+            if (isset($parameters['District']) && trim($parameters['District']) != '') {
                 $tQuery->where(array('p.district' => $parameters['District']));
-            } elseif (isset($parameters['Region']) && count($parameters['Region']) > 0 && trim($parameters['Region']) != '') {
+            } elseif (isset($parameters['Region']) && trim($parameters['Region']) != '') {
                 $tQuery->where(array('p.region' => $parameters['Region']));
-            } elseif (isset($parameters['Country']) && count($parameters['Country']) > 0 && trim($parameters['Country']) != '') {
+            } elseif (isset($parameters['Country']) && trim($parameters['Country']) != '') {
                 $tQuery->where(array('l_d_r.country' => $parameters['Country']));
             }
         }

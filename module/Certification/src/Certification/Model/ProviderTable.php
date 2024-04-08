@@ -17,7 +17,6 @@ use Laminas\Db\Sql\Ddl\Column\Datetime;
 use Zend\Debug\Debug;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\TableGateway\TableGateway;
-use PHPExcel;
 
 class ProviderTable extends AbstractTableGateway
 {

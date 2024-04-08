@@ -66,13 +66,14 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
                         <th style="width:30%;">End Time</th>
                         <th style="width:10%;">Percentage</th>
                         <th style="width:20%;">Completion Status</th>
+                        <th style="width:20%;">Completion Status</th>
                         <!-- <th>Start Time(Post Test)</th>
                         <th>End Time(Post Test)</th>
                         <th>Score(Post Test)</th>
                         <th>Completion Status(Post Test)</th> -->
-                        <?php if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'certificate-pdf')) { ?>
-                        <th style="width:10%;">Certificate</th>
-                        <?php } ?>
+                        <?php // if ($acl->isAllowed($role, 'Certification\Controller\CertificationController', 'certificate-pdf')) { ?>
+                        <!--<th style="width:10%;">Certificate</th> -->
+                        <?php // } ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -201,13 +202,13 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
 
     }
     function reDraw(){
-        oTable.fnDraw();
+        oTable.draw();
     }
 
     $("#resetValues").click(function(){ 
         $("#preTestDateRange").val(''); 
         $("#postTestDateRange").val(''); 
-        oTable.fnDraw();
+        oTable.draw();
     });
 
     /* Toggles Color of button */
