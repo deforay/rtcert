@@ -2,19 +2,18 @@
 
 namespace Application\Service;
 
-use DateTimeImmutable;
-use Laminas\Session\Container;
 use Exception;
-use Laminas\Db\Sql\Sql;
-use Laminas\Mail\Transport\Smtp as SmtpTransport;
-use Laminas\Mail\Transport\SmtpOptions;
 use Laminas\Mail;
-use Laminas\Mime\Message as MimeMessage;
-use Laminas\Mime\Part as MimePart;
-use Laminas\Mime\Mime;
-use Laminas\Mail\Transport\Sendmail;
-use Laminas\Db\Sql\Expression;
+use Carbon\Carbon;
 use TCPDF as MYPDF;
+use DateTimeImmutable;
+use Laminas\Mime\Mime;
+use Laminas\Db\Sql\Sql;
+use Laminas\Session\Container;
+use Laminas\Mime\Part as MimePart;
+use Laminas\Mail\Transport\SmtpOptions;
+use Laminas\Mime\Message as MimeMessage;
+use Laminas\Mail\Transport\Smtp as SmtpTransport;
 
 class CommonService
 {
@@ -33,87 +32,80 @@ class CommonService
 
     public static function getCurrentWeekStartAndEndDate()
     {
-        $cDate = date('Y-m-d');
-        $date = new \DateTime($cDate);
-        $week = $date->format("W");
-        $year = date('Y');
-        $dto = new \DateTime();
-        $dto->setISODate($year, $week);
-        $ret['weekStart'] = $dto->format('Y-m-d');
-        $dto->modify('+6 days');
-        $ret['weekEnd'] = $dto->format('Y-m-d');
-        return $ret;
+        $startOfWeek = date('Y-m-d', strtotime('Monday this week'));
+        $endOfWeek = date('Y-m-d', strtotime('Sunday this week'));
+
+        return ['weekStart' => $startOfWeek, 'weekEnd' => $endOfWeek];
     }
+
 
     public static function generateRandomString($length = 8)
     {
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $number = random_int(0, 36);
-            $character = base_convert($number, 10, 36);
-            $randomString .= $character;
+        if ($length % 2 != 0) {
+            $length++;
         }
-        return $randomString;
+        return substr(bin2hex(random_bytes($length / 2)), 0, $length);
     }
 
-
-    public static function verifyIfDateValid($date): bool
+    private static function parseDate(string $dateStr, ?array $formats = null, $ignoreTime = true): ?Carbon
     {
-        $date = trim($date);
-        $response = false;
-
-        if ($date === '' || 'undefined' === $date || 'null' === $date) {
-            $response = false;
-        } else {
-            try {
-                $dateTime = new DateTimeImmutable($date);
-                $errors = DateTimeImmutable::getLastErrors();
-                if (empty($dateTime) || $dateTime === false || !empty($errors['warning_count']) || !empty($errors['error_count'])) {
-                    //error_log("Invalid date :: $date");
-                    $response = false;
-                } else {
-                    $response = true;
+        if ($ignoreTime) {
+            $dateStr = explode(' ', $dateStr)[0]; // Extract only the date part
+        }
+        if ($formats) {
+            foreach ($formats as $format) {
+                try {
+                    return Carbon::createFromFormat($format, $dateStr);
+                } catch (Exception $e) {
+                    error_log("Invalid or unparseable date $dateStr : " . $e->getMessage());
+                    continue;
                 }
-            } catch (Exception $e) {
-                //error_log("Invalid date :: $date :: " . $e->getMessage());
-                $response = false;
             }
         }
+        try {
+            return Carbon::parse($dateStr);
+        } catch (Exception $e) {
+            error_log("Invalid or unparseable date $dateStr : " . $e->getMessage());
+        }
 
-        return $response;
+        return null;
+    }
+
+    public static function isDateValid($date): bool
+    {
+        $date = trim((string) $date);
+
+        if (empty($date) || 'undefined' === $date || 'null' === $date) {
+            return false;
+        }
+
+        return self::parseDate($date) !== null;
     }
 
     // Returns the given date in Y-m-d format
     public static function isoDateFormat($date, $includeTime = false)
     {
-        $date = trim($date);
-        if (false === self::verifyIfDateValid($date)) {
+        if (!self::isDateValid($date)) {
             return null;
-        } else {
-            $format = "Y-m-d";
-            if ($includeTime === true) {
-                $format .= " H:i:s";
-            }
-            return (new DateTimeImmutable($date))->format($format);
         }
+
+        $format = $includeTime ? "Y-m-d H:i:s" : "Y-m-d";
+        return Carbon::parse($date)->format($format);
     }
 
 
     // Returns the given date in d-M-Y format
     // (with or without time depending on the $includeTime parameter)
-    public static function humanReadableDateFormat($date, $includeTime = false, $format = "d-M-Y")
+    public static function humanReadableDateFormat($date, $includeTime = false, $format = null)
     {
-        $date = trim($date);
-        if (false === self::verifyIfDateValid($date)) {
+        if (!self::isDateValid($date)) {
             return null;
-        } else {
-
-            if ($includeTime === true) {
-                $format .= " H:i";
-            }
-
-            return (new DateTimeImmutable($date))->format($format);
         }
+
+        $format = $format ?? 'd-M-Y';
+
+        $format = $includeTime ? $format . " H:i" : $format;
+        return Carbon::parse($date)->format($format);
     }
 
     public function checkFieldValidations($params)
@@ -215,8 +207,8 @@ class CommonService
                     $subject_content = $subjectArray[0];
                     $mail_purpose = $subjectArray[1];
                     $alertMail->setSubject($subject_content);
-                    if($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder'){
-                        if($result['message'] != ''){
+                    if ($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder') {
+                        if ($result['message'] != '') {
                             $messageArray = explode("$$", $result['message']);
                             $message_content = $messageArray[0];
                             $unique_ids = $messageArray[1];
@@ -227,13 +219,13 @@ class CommonService
                             $certificateMailDb = $this->sm->get('Certification\Model\CertificationMailTable');
                             $header_text = $certificateMailDb->SelectTexteHeader();
                             $message = '';
-                            foreach($results as $data){
-                                $tester_name = strtoupper($data['first_name']).' '. strtoupper($data['middle_name']).' '. strtoupper($data['last_name']);
-                            
-                                if ($mail_purpose == 'send-certificate'){
+                            foreach ($results as $data) {
+                                $tester_name = strtoupper($data['first_name']) . ' ' . strtoupper($data['middle_name']) . ' ' . strtoupper($data['last_name']);
+
+                                if ($mail_purpose == 'send-certificate') {
                                     $message = str_replace("##USER##", $tester_name, $message_content);
                                 }
-                                if ($mail_purpose == 'send-reminder'){
+                                if ($mail_purpose == 'send-reminder') {
                                     if ($type_recipient  == '') {
                                         $message = '';
                                     } elseif ($type_recipient  == 'Provider') {
@@ -243,7 +235,7 @@ class CommonService
                                     }
                                 }
                                 $filename = '';
-                                if($mail_purpose == 'send-certificate'){
+                                if ($mail_purpose == 'send-certificate') {
                                     // create new PDF document
                                     $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
@@ -294,17 +286,17 @@ class CommonService
                                     $certificate_title = '<div style="width=10px; height=10px; text-align:center;"><span style="font-size:200%; line-height: 0.0">Certificate of Competency</span><br>
                                     <span style="line-height: 0.0">is issued to</span></div>';
 
-                                    $tester='<div style="color:#4B77BE; font-size:170%; text-align:center;">&nbsp;&nbsp;'.$tester_name.'&nbsp;&nbsp;</div>';
-                                    
-                                    $text_content='<div style="font-size:85%;text-align:center;">For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council<br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
-                                    <br><span style="font-size:65%; font-style: normal;"> Note : This certificate is <span style="Font-Weight: Bold">only </span>issued for HIV Rapid Testing and does not allow to perform any other test.</span>   
+                                    $tester = '<div style="color:#4B77BE; font-size:170%; text-align:center;">&nbsp;&nbsp;' . $tester_name . '&nbsp;&nbsp;</div>';
+
+                                    $text_content = '<div style="font-size:85%;text-align:center;">For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council<br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
+                                    <br><span style="font-size:65%; font-style: normal;"> Note : This certificate is <span style="Font-Weight: Bold">only </span>issued for HIV Rapid Testing and does not allow to perform any other test.</span>
 
                                     <br><br>
-                                    Professional Registration Number : <span style=" color:#4B77BE;">'.$data['professional_reg_no'].'</span>
+                                    Professional Registration Number : <span style=" color:#4B77BE;">' . $data['professional_reg_no'] . '</span>
                                     <br>
-                                    Certification Number : <span style=" color:#4B77BE; ">'.$data['certification_id'].'</span>
+                                    Certification Number : <span style=" color:#4B77BE; ">' . $data['certification_id'] . '</span>
                                     <br>
-                                    <span style="font-size:90%; font-style: normal;">Validity : <span> '.date("d-M-Y", strtotime($data['date_certificate_issued'])).' to '.date("d-M-Y", strtotime($data['date_end_validity'])) .'</span>
+                                    <span style="font-size:90%; font-style: normal;">Validity : <span> ' . date("d-M-Y", strtotime($data['date_certificate_issued'])) . ' to ' . date("d-M-Y", strtotime($data['date_end_validity'])) . '</span>
                                     <br><br><br><br><br>
                                     <table style="width:900px;">
                                     <tr>
@@ -322,11 +314,11 @@ class CommonService
                                     $pdf->writeHTMLCell(0, 0, 10, 88, $text_content, 0, 0, 0, true, 'J', true);
 
                                     $img_file = $img_file2 = "";
-                                    if(file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert1.png')){
+                                    if (file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert1.png')) {
                                         $img_file = dirname(__CLASS__) . '/public/assets/img/logo_cert1.png';
                                     }
 
-                                    if(file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert2.png')){
+                                    if (file_exists(dirname(__CLASS__) . '/public/assets/img/logo_cert2.png')) {
                                         $img_file2 = dirname(__CLASS__) . '/public/assets/img/logo_cert2.png';
                                     }
 
@@ -341,9 +333,9 @@ class CommonService
                                         mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal);
                                     }
                                     $pathFront = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal;
-                                    $filename = ucfirst($data['first_name']).''. ucfirst($data['middle_name']).''. ucfirst($data['last_name']).'_HIVRT_Certification_' . date('Y') . '.pdf';
-                                    $pdf->Output($pathFront. DIRECTORY_SEPARATOR . $filename,"F");
-                                    $filename = $alertContainer->rVal.'##'.$filename;
+                                    $filename = ucfirst($data['first_name']) . '' . ucfirst($data['middle_name']) . '' . ucfirst($data['last_name']) . '_HIVRT_Certification_' . date('Y') . '.pdf';
+                                    $pdf->Output($pathFront . DIRECTORY_SEPARATOR . $filename, "F");
+                                    $filename = $alertContainer->rVal . '##' . $filename;
                                     $alertContainer->rVal = '';
                                 }
                                 //$original_message = substr($message, 0, strpos($message, "$$"));
@@ -376,7 +368,7 @@ class CommonService
                                 $alertMail->setBody($body);
                                 $hasSent = $transport->send($alertMail);
 
-                                if ($hasSent || $hasSent==NULL) {
+                                if ($hasSent || $hasSent == NULL) {
                                     $cert_id = $data['id'];
                                     $provider_id = $data['provider'];
                                     $due_date = $data['date_end_validity'];
@@ -402,10 +394,9 @@ class CommonService
                                     $certificateMailDb->saveCertificationMail($save_mail);
                                     $tempMailDb->deleteTempMail($id);
                                 }
-                                
                             }
                         }
-                    }else{
+                    } else {
                         $html = new MimePart($result['message']);
                         $html->type = "text/html";
 
@@ -442,7 +433,6 @@ class CommonService
                         $transport->send($alertMail);
                         $tempMailDb->deleteTempMail($id);
                     }
-                    
                 }
             }
         } catch (Exception $e) {
@@ -452,22 +442,19 @@ class CommonService
         }
     }
 
-    public static function getDate($timezone = 'Asia/Calcutta')
+    public static function getDate($timezone = 'UTC', $format = 'Y-m-d')
     {
-        $date = new \DateTime(date('Y-m-d'), new \DateTimeZone($timezone));
-        return $date->format('Y-m-d');
+        return Carbon::now($timezone)->format($format);
     }
 
-    public static function getDateTime($timezone = 'Asia/Calcutta')
+    public static function getDateTime($timezone = 'UTC', $format = 'Y-m-d H:i:s')
     {
-        $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone($timezone));
-        return $date->format('Y-m-d H:i:s');
+        return Carbon::now($timezone)->format($format);
     }
 
-    public static function getCurrentTime($timezone = 'Asia/Calcutta')
+    public static function getCurrentTime($timezone = 'UTC', $format = 'H:i')
     {
-        $date = new \DateTime(date('Y-m-d H:i:s'), new \DateTimeZone($timezone));
-        return $date->format('H:i');
+        return Carbon::now($timezone)->format($format);
     }
 
     public function checkMultipleFieldValidations($params)
@@ -834,7 +821,7 @@ class CommonService
 
             $alertMail->setBody($body);
             $result = $transport->send($alertMail);
-            if ($result || $result==NULL) {
+            if ($result || $result == NULL) {
                 return true;
             } else {
                 return false;
@@ -1025,8 +1012,8 @@ class CommonService
         $toMail = $parameters['to_mail'];
         $cc = '';
         $bcc = '';
-        $subject .= "$$".$mailTemplateDetails['mail_purpose'];
-        $message .= "$$".$parameters['uniqueIds']."$$".$parameters['type_recipient']."$$".$parameters['name_recipient'];
+        $subject .= "$$" . $mailTemplateDetails['mail_purpose'];
+        $message .= "$$" . $parameters['uniqueIds'] . "$$" . $parameters['type_recipient'] . "$$" . $parameters['name_recipient'];
         $tempmailDb = $this->sm->get('TempMailTable');
         return $tempmailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
     }

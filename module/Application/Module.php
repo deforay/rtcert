@@ -115,9 +115,9 @@ class Module
                 return $response;
             } else {
                 $diContainer = $e->getApplication()->getServiceManager();
-                $viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
+                //$viewModel = $e->getApplication()->getMvcEvent()->getViewModel();
                 $acl = $diContainer->get('AppAcl');
-                $viewModel->acl = $acl;
+                //$viewModel->acl = $acl;
                 $session->acl = serialize($acl);
 
                 $params = $e->getRouteMatch()->getParams();
