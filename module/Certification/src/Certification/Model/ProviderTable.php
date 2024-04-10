@@ -1049,9 +1049,9 @@ class ProviderTable extends AbstractTableGateway
         $sQuery->order('c.date_certificate_issued desc');
 
         if (!empty($logincontainer->district)) {
-            $sQuery->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
+            $sQuery->where('p.district IN(' . implode(',', $logincontainer->district) . ')');
         } elseif (!empty($logincontainer->region)) {
-            $sQuery->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
+            $sQuery->where('p.region IN(' . implode(',', $logincontainer->region) . ')');
         } elseif (!empty($logincontainer->country)) {
             $sQuery->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
@@ -1093,9 +1093,9 @@ class ProviderTable extends AbstractTableGateway
         $tQuery->order('c.last_updated_on DESC');
         $tQuery->order('c.date_certificate_issued desc');
         if (!empty($logincontainer->district)) {
-            $tQuery->where('provider.district IN(' . implode(',', $logincontainer->district) . ')');
+            $tQuery->where('p.district IN(' . implode(',', $logincontainer->district) . ')');
         } elseif (!empty($logincontainer->region)) {
-            $tQuery->where('provider.region IN(' . implode(',', $logincontainer->region) . ')');
+            $tQuery->where('p.region IN(' . implode(',', $logincontainer->region) . ')');
         } elseif (!empty($logincontainer->country)) {
             $tQuery->where('l_d_r.country IN(' . implode(',', $logincontainer->country) . ')');
         }
