@@ -948,3 +948,7 @@ To print this certificate ensure that the paper size selected by the
 printer is A4 and that the orientation is landscape</div>', NULL, 'active');
 
 INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (10, 'Send Reminder', 'send-reminder', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate Reminder', '<div>This is a reminder that your HIV tester certificate will expire on ##CERTIFICATE_EXPIRY_DATE## . Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of your certificate.</div>', NULL, 'active');
+
+-- Brindha 09-Apr-2024
+UPDATE resources SET resource_id = CONCAT(resource_id , 'Controller') where resource_id NOT LIKE '%Controller';
+UPDATE privileges SET resource_id = CONCAT(resource_id , 'Controller') where resource_id NOT LIKE '%Controller';

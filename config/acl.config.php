@@ -471,7 +471,7 @@ return array(
             'add' => 'deny',
             'approval' => 'deny',
             'edit' => 'deny',
-            'pdf' => 'deny',
+            'pdf' => 'allow',
             'xls' => 'deny',
             'header-text' => 'deny',
             'recommend' => 'deny',
@@ -483,7 +483,7 @@ return array(
             'audit-locations' => 'deny',
         ),
         'Certification\\Controller\\ExaminationController' => array(
-            'index' => 'deny',
+            'index' => 'allow',
             'add' => 'deny',
             'edit' => 'deny',
             'pending' => 'deny',
@@ -496,7 +496,7 @@ return array(
             'index' => 'deny',
         ),
         'Application\\Controller\\DashboardController' => array(
-            'index' => 'deny',
+            'index' => 'allow',
             'audi-details' => 'deny',
             'testers' => 'deny',
         ),

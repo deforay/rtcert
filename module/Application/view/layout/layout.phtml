@@ -311,10 +311,10 @@ if ($this->isAllowed($role, "Certification\Controller\ProviderController", "freq
 													</ul>
 												</li>
 											<?php } ?>
-											<li class="divider"></li>
 										<?php }  ?>
-										<?php if ($manageMenu != '') {
-											echo $manageMenu; 
+										<?php if ($manageMenu != '') { ?>
+											<li class="divider"></li>
+											<?php echo $manageMenu; 
 										}
 										if ($adminMenu != '') { ?>
 											<li class="divider"></li>
