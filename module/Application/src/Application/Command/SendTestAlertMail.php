@@ -17,9 +17,9 @@ class SendTestAlertMail extends Command
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->providerTable->sendAutoTestLink();
-        return 1;
+        return Command::SUCCESS;
     }
 }

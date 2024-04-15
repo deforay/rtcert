@@ -194,9 +194,9 @@
             'dev_requirement' => false,
         ),
         'laminas/laminas-filter' => array(
-            'pretty_version' => '2.35.1',
-            'version' => '2.35.1.0',
-            'reference' => 'a03ad6a4976df7e6f6026ce8b2d1e9c53f6a99c4',
+            'pretty_version' => '2.35.2',
+            'version' => '2.35.2.0',
+            'reference' => '3e821b33a787253d56046f9258174a22de1bd267',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laminas/laminas-filter',
             'aliases' => array(),
@@ -909,6 +909,15 @@
             'provided' => array(
                 0 => '2.3|3.0',
             ),
+        ),
+        'symfony/var-dumper' => array(
+            'pretty_version' => 'v7.0.6',
+            'version' => '7.0.6.0',
+            'reference' => '66d13dc207d5dab6b4f4c2b5460efe1bea29dbfb',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/var-dumper',
+            'aliases' => array(),
+            'dev_requirement' => true,
         ),
         'tecnickcom/tcpdf' => array(
             'pretty_version' => '6.7.4',

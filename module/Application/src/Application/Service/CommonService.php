@@ -204,8 +204,14 @@ class CommonService
                         $alertMail->addBcc($result['bcc']);
                     }
                     $subjectArray = explode("$$", $result['subject']);
-                    $subject_content = $subjectArray[0];
-                    $mail_purpose = $subjectArray[1];
+                    if (isset($subjectArray[1])) {
+                        $subject_content = $subjectArray[0];
+                        $mail_purpose = $subjectArray[1];
+                    } else {
+                        // Handle the case where the delimiter " $$ " is not found
+                        $subject_content = $result['subject']; // Assign the entire subject to $subject_content
+                        $mail_purpose = ''; // Or handle it in another way based on your requirements
+                    }
                     $alertMail->setSubject($subject_content);
                     if ($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder') {
                         if ($result['message'] != '') {
