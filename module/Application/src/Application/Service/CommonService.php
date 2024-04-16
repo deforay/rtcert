@@ -227,6 +227,7 @@ class CommonService
                             foreach ($results as $data) {
                                 $tester_name = strtoupper($data['first_name']) . ' ' . strtoupper($data['middle_name']) . ' ' . strtoupper($data['last_name']);
                                 $subject = str_replace("##USER##", $tester_name, $subject_content);
+                                $dateEndValidity = (isset($data['date_end_validity']) && $data['date_end_validity'] != null && $data['date_end_validity'] != '' && $data['date_end_validity'] != '0000-00-00') ? date("d-M-Y", strtotime($data['date_end_validity'])) : '';
                                 if ($mail_purpose == 'send-certificate') {
                                     $message = str_replace("##USER##", $tester_name, $message_content);
                                 }
@@ -234,9 +235,9 @@ class CommonService
                                     if ($type_recipient  == '') {
                                         $message = '';
                                     } elseif ($type_recipient  == 'Provider') {
-                                        $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $data['date_end_validity'], $message_content);
+                                        $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $dateEndValidity, $message_content);
                                     } elseif ($type_recipient != 'Provider') {
-                                        $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $data['date_end_validity'] . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
+                                        $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $dateEndValidity . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
                                     }
                                 }
                                 $filename = '';
