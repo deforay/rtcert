@@ -212,7 +212,6 @@ class CommonService
                         $subject_content = $result['subject']; // Assign the entire subject to $subject_content
                         $mail_purpose = ''; // Or handle it in another way based on your requirements
                     }
-                    $alertMail->setSubject($subject_content);
                     if ($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder') {
                         if ($result['message'] != '') {
                             $messageArray = explode("$$", $result['message']);
@@ -227,7 +226,7 @@ class CommonService
                             $message = '';
                             foreach ($results as $data) {
                                 $tester_name = strtoupper($data['first_name']) . ' ' . strtoupper($data['middle_name']) . ' ' . strtoupper($data['last_name']);
-
+                                $subject = str_replace("##USER##", $tester_name, $subject_content);
                                 if ($mail_purpose == 'send-certificate') {
                                     $message = str_replace("##USER##", $tester_name, $message_content);
                                 }
@@ -370,7 +369,7 @@ class CommonService
                                         $this->removeDirectory($dirPath);
                                     }
                                 }
-
+                                $alertMail->setSubject($subject);
                                 $alertMail->setBody($body);
                                 $hasSent = $transport->send($alertMail);
 
@@ -403,6 +402,7 @@ class CommonService
                             }
                         }
                     } else {
+                        $subject = str_replace("##USER##", "", $subject_content);
                         $html = new MimePart($result['message']);
                         $html->type = "text/html";
 
@@ -433,7 +433,7 @@ class CommonService
                             closedir($dh);
                             $this->removeDirectory($dirPath);
                         }
-
+                        $alertMail->setSubject($subject);
                         $alertMail->setBody($body);
 
                         $transport->send($alertMail);

@@ -401,8 +401,10 @@ if (isset($provider_name) && trim($provider_name) != '') {
                     return false;
                 } else {
                     if (choice == 1) {
+                        replacedSubject = data.subject.replace("##USER##", provider);
                         replacedMessage = data.message.replace("##USER##", provider);
                     }else if(choice == 2){
+                        replacedSubject = data.subject.replace("##USER##", provider);
                         if(type_recipient == '') {
                             replacedMessage = '';
                         }else if(type_recipient == 'Provider') {
@@ -411,7 +413,7 @@ if (isset($provider_name) && trim($provider_name) != '') {
                             replacedMessage = ' This is a reminder that the HIV tester certificate of ' + provider + ' will expire on ' + due_date + '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
                         }
                     }
-                    document.getElementById("Subject").innerHTML = data.subject;
+                    document.getElementById("Subject").innerHTML = replacedSubject;
                     document.getElementById("Message").innerHTML = replacedMessage;
                 }
             });
