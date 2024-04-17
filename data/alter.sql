@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `event_log` (
 
 ALTER TABLE `event_log`
   ADD CONSTRAINT `event_log_ibfk_1` FOREIGN KEY (`actor`) REFERENCES `users` (`id`);
-  
+
 --ilahir 10-MAY-2016
 
 CREATE TABLE IF NOT EXISTS `resources` (
@@ -200,10 +200,10 @@ CREATE TABLE `audit_mails` (
 
 ALTER TABLE `audit_mails`
   ADD PRIMARY KEY (`mail_id`);
-  
+
 ALTER TABLE `audit_mails`
   MODIFY `mail_id` int(11) NOT NULL AUTO_INCREMENT;
-  
+
 --Pal 25th-Aug-2016
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Header', 'header', NULL), (NULL, 'Logo', 'logo', NULL);
 
@@ -241,10 +241,10 @@ CREATE TABLE `r_spi_form_v_3_download` (
 
 ALTER TABLE `r_spi_form_v_3_download`
   ADD PRIMARY KEY (`r_download_id`);
-  
+
 ALTER TABLE `r_spi_form_v_3_download`
   MODIFY `r_download_id` int(11) NOT NULL AUTO_INCREMENT;
-  
+
 ALTER TABLE `r_spi_form_v_3_download` ADD `user` INT(11) NOT NULL AFTER `r_download_id`;
 
 --saravanan 05-apr-2017
@@ -494,7 +494,7 @@ ALTER TABLE `spi_form_v_3_duplicate`
 
 ALTER TABLE `spi_form_v_3_duplicate`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
-  
+
 
 --Pal 06-Apr-2017
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Application\\Controller\\SpiV3', 'download-files', 'Download Zipped Files');
@@ -539,10 +539,10 @@ CREATE TABLE `country` (
 
 ALTER TABLE `country`
   ADD PRIMARY KEY (`country_id`);
-  
+
 ALTER TABLE `country`
   MODIFY `country_id` int(11) NOT NULL AUTO_INCREMENT
-  
+
 CREATE TABLE `location_details` (
   `location_id` int(11) NOT NULL,
   `parent_location` int(11) DEFAULT '0',
@@ -556,10 +556,10 @@ CREATE TABLE `location_details` (
 ALTER TABLE `location_details`
   ADD PRIMARY KEY (`location_id`),
   ADD KEY `country` (`country`);
-  
+
 ALTER TABLE `location_details`
   MODIFY `location_id` int(11) NOT NULL AUTO_INCREMENT
-  
+
 alter table location_details add FOREIGN key(country) REFERENCES country(country_id)
 
 CREATE TABLE `user_country_map` (
@@ -570,10 +570,10 @@ CREATE TABLE `user_country_map` (
 
 ALTER TABLE `user_country_map`
   ADD PRIMARY KEY (`map_id`);
-  
+
 ALTER TABLE `user_country_map`
   MODIFY `map_id` int(11) NOT NULL AUTO_INCREMENT
-  
+
 CREATE TABLE `user_province_map` (
   `map_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -582,10 +582,10 @@ CREATE TABLE `user_province_map` (
 
 ALTER TABLE `user_province_map`
   ADD PRIMARY KEY (`map_id`);
-  
+
 ALTER TABLE `user_province_map`
   MODIFY `map_id` int(11) NOT NULL AUTO_INCREMENT
-  
+
 CREATE TABLE `user_district_map` (
   `map_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -594,16 +594,16 @@ CREATE TABLE `user_district_map` (
 
 ALTER TABLE `user_district_map`
   ADD PRIMARY KEY (`map_id`);
-  
+
 ALTER TABLE `user_district_map`
   MODIFY `map_id` int(11) NOT NULL AUTO_INCREMENT
-  
- -- Pal 11 Jan 2018 
+
+ -- Pal 11 Jan 2018
 alter table provider drop FOREIGN key fk_provider_district
 
 alter table provider drop FOREIGN key fk_provider_region
 
--- Pal 12 Jan 2018 
+-- Pal 12 Jan 2018
 alter table certification_facilities drop FOREIGN key fk_facility_district
 
 
@@ -646,7 +646,7 @@ INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global
 -- Pal 22 Feb 2018
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'approval', 'Approval');
 
-INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'recommend', 'Recommend'); 
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Certification', 'recommend', 'Recommend');
 -- saravanan 23-feb-2018
 INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) VALUES ('Certification\\Controller\\Examination', 'pending', 'Pending tests');
 
@@ -692,26 +692,26 @@ ALTER TABLE `pdf_header_texte`  ADD `header_font_size` VARCHAR(255) NULL  AFTER 
 
 ALTER TABLE `global_config` ADD UNIQUE(`global_name`);
 
-INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`)
 VALUES (NULL, 'Registrar Name', 'registrar-name', NULL);
 
-INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`)
 VALUES (NULL, 'Registrar Title', 'registrar-title', NULL);
 
-INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`)
 VALUES (NULL, 'Registrar Digital Signature', 'registrar-digital-signature', NULL);
 
-INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) 
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`)
 VALUES (NULL, 'Translate Register Title', 'translate-register-title', NULL);
 
 -- Thanaseelan 03 Feb, 2020
-INSERT INTO `resources` (`resource_id`, `display_name`) 
-VALUES ('Application\\Controller\\TestConfig', 'Online Test Config'), 
-('Application\\Controller\\TestSection', 'Online Question Categories'), 
+INSERT INTO `resources` (`resource_id`, `display_name`)
+VALUES ('Application\\Controller\\TestConfig', 'Online Test Config'),
+('Application\\Controller\\TestSection', 'Online Question Categories'),
 ('Application\\Controller\\TestQuestion', 'Online Tests');
-INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`) 
+INSERT INTO `privileges` (`resource_id`, `privilege_name`, `display_name`)
 VALUES ('Application\\Controller\\TestConfig', 'index', 'Access'), ('Application\\Controller\\TestConfig', 'edit', 'Edit'),
-('Application\\Controller\\TestSection', 'index', 'Access'), ('Application\\Controller\\TestSection', 'add', 'Add'),('Application\\Controller\\TestSection', 'edit', 'Edit'), 
+('Application\\Controller\\TestSection', 'index', 'Access'), ('Application\\Controller\\TestSection', 'add', 'Add'),('Application\\Controller\\TestSection', 'edit', 'Edit'),
 ('Application\\Controller\\TestQuestion', 'index', 'Access'),('Application\\Controller\\TestQuestion', 'add', 'Add'), ('Application\\Controller\\TestQuestion', 'edit', 'Edit');
 
 CREATE TABLE `test_config` (
@@ -722,8 +722,8 @@ CREATE TABLE `test_config` (
  PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
-INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES 
-(NULL, 'Passing Percentage', 'passing-percentage', '80'), 
+INSERT INTO `test_config` (`config_id`, `display_name`, `test_config_name`, `test_config_value`) VALUES
+(NULL, 'Passing Percentage', 'passing-percentage', '80'),
 (NULL, 'Maximum question per test', 'maximum-question-per-test', '80'),
 (NULL, 'Allow Retest', 'allow-retest', '80'),
 (NULL, 'Months certification is valid', 'month-valid', '48');
@@ -833,7 +833,7 @@ CREATE TABLE `print_test_pdf` (
  `ptp_create_on` datetime DEFAULT NULL,
  `ptp_create_by` int DEFAULT NULL,
  PRIMARY KEY (`ptp_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `print_test_pdf_details` (
  `ptpd_id` int NOT NULL AUTO_INCREMENT,
@@ -848,7 +848,7 @@ CREATE TABLE `print_test_pdf_details` (
  CONSTRAINT `print_test_pdf_details_ibfk_1` FOREIGN KEY (`ptp_id`) REFERENCES `print_test_pdf` (`ptp_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
  CONSTRAINT `print_test_pdf_details_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `test_questions` (`question_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
  CONSTRAINT `print_test_pdf_details_ibfk_3` FOREIGN KEY (`response_id`) REFERENCES `test_options` (`option_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- Thana 14 Apr, 2020
 ALTER TABLE `test_questions` ADD `question_code` VARCHAR(50) NULL DEFAULT NULL AFTER `question_id`;
 ALTER TABLE `training_organization` ADD `abbreviation` TEXT NULL DEFAULT NULL AFTER `training_organization_name`;
@@ -932,19 +932,19 @@ CREATE TABLE `feedback_mail` (
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Show Tester Photo In Certificate', 'show-tester-photo-in-certificate', 'no');
 
 -- Brindha 09-June-2023
-INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (9, 'Send Certificate', 'send-certificate', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate of Competency', '<div>Congratulations ##USER##! You have successfully fulfilled the 
-requirements of the national HIV tester certification program and are 
-deemed competent to perform HIV  Rapid Testing.  This certificate of 
-competency is delivered to you for a two year period from the date of 
+INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (9, 'Send Certificate', 'send-certificate', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate of Competency', '<div>Congratulations ##USER##! You have successfully fulfilled the
+requirements of the national HIV tester certification program and are
+deemed competent to perform HIV  Rapid Testing.  This certificate of
+competency is delivered to you for a two year period from the date of
 issuance.
 
-Important Note!!! 
+Important Note!!!
 
 This certificate is only issued for HIV Rapid Testing and does not allow
  to perform any other test.
 
 Note for printing the certificate!!!
-To print this certificate ensure that the paper size selected by the 
+To print this certificate ensure that the paper size selected by the
 printer is A4 and that the orientation is landscape</div>', NULL, 'active');
 
 INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from_name`, `mail_from`, `mail_subject`, `mail_content`, `mail_footer`, `mail_status`) VALUES (10, 'Send Reminder', 'send-reminder', 'RTCQI PERSONNEL CERTIFICATION PROGRAM', NULL, 'HIV Tester Certificate Reminder', '<div>This is a reminder that your HIV tester certificate will expire on ##CERTIFICATE_EXPIRY_DATE## . Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of your certificate.</div>', NULL, 'active');
@@ -956,3 +956,10 @@ UPDATE privileges SET resource_id = CONCAT(resource_id , 'Controller') where res
 -- Brindha 15-Apr-2024
 UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate of Competency for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-certificate';
 UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate Reminder for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-reminder';
+
+
+-- Amit 17-Apr-2024
+
+ALTER TABLE `global_config` CHANGE `config_id` `config_id` INT NOT NULL AUTO_INCREMENT, CHANGE `display_name` `display_name` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL, CHANGE `global_name` `global_name` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL, CHANGE `global_value` `global_value` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+ALTER TABLE `global_config` ADD UNIQUE(`global_name`);
+
