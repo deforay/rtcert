@@ -294,7 +294,7 @@ if (isset($provider_name) && trim($provider_name) != '') {
 <script src="<?php echo $this->basePath('assets/lib/select2/js/select2.min.js'); ?>" type="text/javascript"></script>
 <script type="text/javascript" language="javascript">
     provider = '<?php echo (isset($provider_name)) ? $provider_name : ''; ?>';
-    due_date = '<?php echo (isset($due_date)) ? $due_date : ''; ?>';
+    due_date = '<?php echo (isset($due_date) && $due_date != null && $due_date != '' && $due_date != '0000-00-00') ? date("d-M-Y", strtotime($due_date)) : ''; ?>';
     to = '<?php echo (isset($email)) ? $email : ''; ?>';
     cc = '<?php echo (isset($facility_in_charge_email)) ? $facility_in_charge_email : ''; ?>';
     headerTxt = '<?php echo (isset($header_text)) ? $header_text : ''; ?>';
@@ -334,7 +334,7 @@ if (isset($provider_name) && trim($provider_name) != '') {
             var emailArray = tester.split('##');
             toEmails += emailArray[1];
             provider = emailArray[4] + " " + emailArray[5] + " " + emailArray[6];
-            due_date = emailArray[10];
+            due_date = ($emailArray[10] != null && $emailArray[10] != '' && $emailArray[10] != '0000-00-00') ? date("d-M-Y", strtotime($emailArray[10])) : '';
             getMailTemplate();
             //setChoice();
             //$("input[name='add_to[]']:checked").each( function () {
@@ -401,8 +401,10 @@ if (isset($provider_name) && trim($provider_name) != '') {
                     return false;
                 } else {
                     if (choice == 1) {
+                        replacedSubject = data.subject.replace("##USER##", provider);
                         replacedMessage = data.message.replace("##USER##", provider);
                     }else if(choice == 2){
+                        replacedSubject = data.subject.replace("##USER##", provider);
                         if(type_recipient == '') {
                             replacedMessage = '';
                         }else if(type_recipient == 'Provider') {
@@ -411,7 +413,7 @@ if (isset($provider_name) && trim($provider_name) != '') {
                             replacedMessage = ' This is a reminder that the HIV tester certificate of ' + provider + ' will expire on ' + due_date + '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
                         }
                     }
-                    document.getElementById("Subject").innerHTML = data.subject;
+                    document.getElementById("Subject").innerHTML = replacedSubject;
                     document.getElementById("Message").innerHTML = replacedMessage;
                 }
             });

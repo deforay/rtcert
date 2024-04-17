@@ -952,3 +952,7 @@ INSERT INTO `mail_template` (`mail_temp_id`, `mail_title`, `mail_purpose`, `from
 -- Brindha 09-Apr-2024
 UPDATE resources SET resource_id = CONCAT(resource_id , 'Controller') where resource_id NOT LIKE '%Controller';
 UPDATE privileges SET resource_id = CONCAT(resource_id , 'Controller') where resource_id NOT LIKE '%Controller';
+
+-- Brindha 15-Apr-2024
+UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate of Competency for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-certificate';
+UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate Reminder for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-reminder';

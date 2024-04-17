@@ -203,9 +203,14 @@ class CommonService
                         $alertMail->addBcc($result['bcc']);
                     }
                     $subjectArray = explode("$$", $result['subject']);
-                    $subject_content = $subjectArray[0];
-                    $mail_purpose = $subjectArray[1];
-                    $alertMail->setSubject($subject_content);
+                    if (isset($subjectArray[1])) {
+                        $subject_content = $subjectArray[0];
+                        $mail_purpose = $subjectArray[1];
+                    } else {
+                        // Handle the case where the delimiter " $$ " is not found
+                        $subject_content = $result['subject']; // Assign the entire subject to $subject_content
+                        $mail_purpose = ''; // Or handle it in another way based on your requirements
+                    }
                     if ($mail_purpose == 'send-certificate' || $mail_purpose == 'send-reminder') {
                         if ($result['message'] != '') {
                             $messageArray = explode("$$", $result['message']);
@@ -220,7 +225,8 @@ class CommonService
                             $message = '';
                             foreach ($results as $data) {
                                 $tester_name = strtoupper($data['first_name']) . ' ' . strtoupper($data['middle_name']) . ' ' . strtoupper($data['last_name']);
-
+                                $subject = str_replace("##USER##", $tester_name, $subject_content);
+                                $dateEndValidity = (isset($data['date_end_validity']) && $data['date_end_validity'] != null && $data['date_end_validity'] != '' && $data['date_end_validity'] != '0000-00-00') ? date("d-M-Y", strtotime($data['date_end_validity'])) : '';
                                 if ($mail_purpose == 'send-certificate') {
                                     $message = str_replace("##USER##", $tester_name, $message_content);
                                 }
@@ -228,9 +234,9 @@ class CommonService
                                     if ($type_recipient  == '') {
                                         $message = '';
                                     } elseif ($type_recipient  == 'Provider') {
-                                        $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $data['date_end_validity'], $message_content);
+                                        $message = str_replace("##CERTIFICATE_EXPIRY_DATE##", $dateEndValidity, $message_content);
                                     } elseif ($type_recipient != 'Provider') {
-                                        $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $data['date_end_validity'] . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
+                                        $message = ' This is a reminder that the HIV tester certificate of ' . $tester_name . ' will expire on ' . $dateEndValidity . '. Please contact your national certification organization to schedule both the written and practical examinations. Any delay in completing these assessments will automatically result in the withdrawal of the certificate.';
                                     }
                                 }
                                 $filename = '';
@@ -363,7 +369,7 @@ class CommonService
                                         $this->removeDirectory($dirPath);
                                     }
                                 }
-
+                                $alertMail->setSubject($subject);
                                 $alertMail->setBody($body);
                                 $hasSent = $transport->send($alertMail);
 
@@ -396,6 +402,7 @@ class CommonService
                             }
                         }
                     } else {
+                        $subject = str_replace("##USER##", "", $subject_content);
                         $html = new MimePart($result['message']);
                         $html->type = "text/html";
 
@@ -426,7 +433,7 @@ class CommonService
                             closedir($dh);
                             $this->removeDirectory($dirPath);
                         }
-
+                        $alertMail->setSubject($subject);
                         $alertMail->setBody($body);
 
                         $transport->send($alertMail);

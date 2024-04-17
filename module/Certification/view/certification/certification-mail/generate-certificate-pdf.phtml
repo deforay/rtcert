@@ -1,9 +1,7 @@
 <?php
-
+use TCPDF as MYPDF;
+use Laminas\Session\Container;
 // Extend the TCPDF class to create custom Header and Footer
-class MYPDF extends TCPDF {
-    
-}
 
 // create new PDF document
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -103,6 +101,7 @@ $pdf->Image($img_file, 20, 35, 50, 35, '', '', '', false, 300, '', false, false,
 $pdf->Image($img_file2, 225, 35, 50, 35, '', '', '', false, 300, '', false, false, 0);
 
 ///---------------------------------------------------------
+$alertContainer = new Container('alert');
 $alertContainer->rVal = \Application\Service\CommonService::generateRandomString(6);
 if (!file_exists(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal) && !is_dir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal)) {
    mkdir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $alertContainer->rVal);
