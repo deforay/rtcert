@@ -2,26 +2,14 @@
 
 namespace Application\Model;
 
-use Laminas\Session\Container;
-use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\Sql\Expression;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Service\CommonService;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
 use Application\Model\UserRoleMapTable;
 use Application\Model\UserTokenMapTable;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of Countries
- *
- * @author amit
- */
 class UsersTable extends AbstractTableGateway
 {
 
@@ -50,6 +38,7 @@ class UsersTable extends AbstractTableGateway
             ->join(array('r' => 'roles'), 'r.role_id=urm.role_id', array('role_name', 'role_code', 'access_level'))
             ->where(array('login' => $username, 'password' => $password, 'u.status' => 'active'));
         $sQueryStr = $sql->buildSqlString($sQuery);
+        /** @var \Laminas\Db\Adapter\Driver\ResultInterface $sResult */
         $sResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
         if ($sResult) {
             $token = array();
@@ -387,6 +376,7 @@ class UsersTable extends AbstractTableGateway
                     ->join(array('c' => 'country'), "c.country_id=u_c_map.country_id", array('countryMaps' => new Expression("GROUP_CONCAT(country_name)")))
                     ->where(array('u_c_map.user_id' => $aRow['id']));
                 $userCountryQueryStr = $sql->buildSqlString($userCountryQuery);
+                /** @var \Laminas\Db\Adapter\Driver\ResultInterface $userCountryResult */
                 $userCountryResult = $dbAdapter->query($userCountryQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
                 if (isset($userCountryResult) && trim($userCountryResult->countryMaps) != '') {
                     $accessLevel .= ' (' . $userCountryResult->countryMaps . ')';
@@ -397,6 +387,7 @@ class UsersTable extends AbstractTableGateway
                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_p_map.location_id", array('provinceMaps' => new Expression("GROUP_CONCAT(location_name)")))
                     ->where(array('u_p_map.user_id' => $aRow['id']));
                 $userProvinceQueryStr = $sql->buildSqlString($userProvinceQuery);
+                /** @var \Laminas\Db\Adapter\Driver\ResultInterface $userProvinceResult */
                 $userProvinceResult = $dbAdapter->query($userProvinceQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
                 if (isset($userProvinceResult) && trim($userProvinceResult->provinceMaps) != '') {
                     $accessLevel .= ' (' . $userProvinceResult->provinceMaps . ')';
@@ -407,6 +398,7 @@ class UsersTable extends AbstractTableGateway
                     ->join(array('l_d' => 'location_details'), "l_d.location_id=u_d_map.location_id", array('districtMaps' => new Expression("GROUP_CONCAT(location_name)")))
                     ->where(array('u_d_map.user_id' => $aRow['id']));
                 $userDistrictQueryStr = $sql->buildSqlString($userDistrictQuery);
+                /** @var \Laminas\Db\Adapter\Driver\ResultInterface $userDistrictResult */
                 $userDistrictResult = $dbAdapter->query($userDistrictQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
                 if (isset($userDistrictResult) && trim($userDistrictResult->districtMaps) != '') {
                     $accessLevel .= ' (' . $userDistrictResult->districtMaps . ')';
