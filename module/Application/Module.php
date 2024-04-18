@@ -17,9 +17,9 @@ use Application\Model\EventLogTable;
 use Application\Model\QuestionTable;
 use Application\Model\TempMailTable;
 use Laminas\Mvc\ModuleRouteListener;
-use Application\Model\AuditMailTable;
 use Application\Model\ResourcesTable;
 use Application\Model\TestConfigTable;
+use Application\View\Helper\IsAllowed;
 use Application\Model\TestOptionsTable;
 use Application\Model\TestSectionTable;
 use Application\Model\UserRoleMapTable;
@@ -29,19 +29,18 @@ use Application\Model\PrintTestPdfTable;
 use Application\Model\UserTokenMapTable;
 use Application\View\Helper\GlobalConfig;
 use Application\Model\UserCountryMapTable;
+
+
 use Application\Model\LocationDetailsTable;
-
-
 use Application\Model\UserDistrictMapTable;
 use Application\Model\UserProvinceMapTable;
-use Application\Model\PretestQuestionsTable;
 
+use Application\Model\PretestQuestionsTable;
 use Application\Model\PostTestQuestionsTable;
 use Application\Model\TestConfigDetailsTable;
 use Application\Model\PrintTestPdfDetailsTable;
 use Application\View\Helper\GetNotificationCount;
 use Application\View\Helper\HumanReadableDateFormat;
-use Application\View\Helper\IsAllowed;
 
 class Module
 {
@@ -71,8 +70,6 @@ class Module
 
     public function preSetter(MvcEvent $e)
     {
-
-
         $session = new Container('credo');
         $diContainer = $e->getApplication()->getServiceManager();
         $commonService = $diContainer->get('CommonService');
@@ -125,13 +122,6 @@ class Module
                 $privilege = $params['action'];
 
                 $role = $session->roleCode;
-
-                //\Zend\Debug\Debug::dump($role);
-                //\Zend\Debug\Debug::dump($resource);
-                //\Zend\Debug\Debug::dump($acl->isAllowed($role, $resource, $privilege));
-                //\Zend\Debug\Debug::dump($privilege);
-                //die;
-                //if($e->getRequest()->isXmlHttpRequest() || $role == 'SA') {
 
                 if (!$acl->hasResource($resource) || (!$acl->isAllowed($role, $resource, $privilege))) {
                     /** @var \Laminas\Http\Response $response */

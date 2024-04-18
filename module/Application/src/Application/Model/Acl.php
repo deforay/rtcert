@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Application\Model;
 
 use Laminas\Config\Factory;
@@ -18,9 +12,11 @@ use Laminas\Permissions\Acl\Role\GenericRole;
  *
  * @author amit
  */
-class Acl extends LaminasAcl {
+class Acl extends LaminasAcl
+{
 
-    public function __construct($resourceList,$rolesList) {
+    public function __construct($resourceList, $rolesList)
+    {
         foreach ($resourceList as $res) {
             if (!$this->hasResource($res['resource_id'])) {
                 $this->addResource(new GenericResource($res['resource_id']));
@@ -53,5 +49,4 @@ class Acl extends LaminasAcl {
 
         $this->allow('AD');
     }
-
 }
