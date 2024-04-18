@@ -662,7 +662,7 @@ return array(
             'edit' => 'deny',
         ),
         'Application\\Controller\\DashboardController' => array(
-            'index' => 'deny',
+            'index' => 'allow',
             'audi-details' => 'deny',
             'testers' => 'deny',
         ),

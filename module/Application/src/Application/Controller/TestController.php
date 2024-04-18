@@ -40,7 +40,7 @@ class TestController extends AbstractActionController
                     $container->alertMsg = "Your test was completed already.";
                     return $this->redirect()->toUrl('/test/result');
                 } elseif ((isset($redirect['testSatatus']['pre_test_status']) && trim($redirect['testSatatus']['pre_test_status']) != "") || ($redirect['testSatatus']['pre_test_status'] == 'completed')) {
-                    $container->alertMsg = "Your test was completed already. Retest not activated.";
+                    $container->alertMsg = "You are not allowed to take this test again. Please contact your Coordinator.";
                     return $this->redirect()->toUrl('/test/result');
                 }
             } elseif (isset($questionResult['home-page'])) {

@@ -351,7 +351,7 @@ class QuestionTable extends AbstractTableGateway
       $testCountResult = $dbAdapter->query($qQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->current();
       if($testCountResult){
    				$container = new Container('alert');
-   				$container->alertMsg = "You are already attended the test in ".$testCountResult['total']." time.";
+				$container->alertMsg = "You have already attended this test ".$testCountResult['total']." times.";
    			}
       $result = $this->insertQuestion();
   } elseif (isset($testResult['testStatus']['test_id']) && ($testResult['testStatus']['pre_test_status'] == NULL || $testResult['testStatus']['pre_test_status'] != 'completed')) {

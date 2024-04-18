@@ -183,7 +183,7 @@ return array(
             'dashboard-content' => array(
                 'type' => 'segment',
                 'options' => array(
-                    'route' => '/config[/:action][/][:id]',
+                    'route' => '/dashboard-content[/:action][/][:id]',
                     'defaults' => array(
                         'controller' => 'Application\Controller\ConfigController',
                         'action' => 'dashboard-content',
