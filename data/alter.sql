@@ -956,3 +956,6 @@ UPDATE privileges SET resource_id = CONCAT(resource_id , 'Controller') where res
 -- Brindha 15-Apr-2024
 UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate of Competency for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-certificate';
 UPDATE `mail_template` SET `mail_subject` = 'HIV Tester Certificate Reminder for ##USER##' WHERE `mail_template`.`mail_purpose` = 'send-reminder';
+
+-- Brindha 17-Apr-2024
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Dashboard Content', 'dashboard-content', '<span>Dear <b>USER, <br><br></b></span><div> RTCQI <b>CERT_NUMBER </b> <br><span>is expiring on <b>EXPIRY_DATE <br></b></span></div>Thanks.');

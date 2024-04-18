@@ -232,4 +232,25 @@ class GlobalTable extends AbstractTableGateway
     {
         return array('textHeader' => $this->certificationTable->SelectTexteHeader(), 'HeaderTextFont' => $this->certificationTable->SelectHeaderTextFontSize());
     }
+    
+    public function getConfigByGlobalName($globalName)
+    {
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from('global_config')->where(array('global_name' => $globalName));
+        $sQueryStr = $sql->buildSqlString($sQuery);
+        $configResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE)->toArray();
+        return $configResult[0];
+    }
+    
+
+    public function updateDashboardContent($params)
+    {
+        $dashboardContent = $params['dashboardContent'];
+        //$dashboardContent = str_replace("&nbsp;"," ",(string) $params['dashboardContent']);
+        if(isset($params['configId']) && $params['configId'] != ''){
+            return $this->update(array('global_value' => $dashboardContent), "config_id=".base64_decode($params['configId']));
+        }
+        return 0;
+    }
 }

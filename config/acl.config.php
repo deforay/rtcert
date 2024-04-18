@@ -628,7 +628,7 @@ return array(
             'index' => 'deny',
             'add' => 'deny',
             'approval' => 'deny',
-            'certification-expiry' => 'allow',
+            'certificate-pdf' => 'deny',
             'edit' => 'deny',
             'pdf' => 'deny',
             'xls' => 'deny',
@@ -650,6 +650,7 @@ return array(
         ),
         'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
+            'dashboard-content' => 'allow',
             'edit-global' => 'deny',
         ),
         'Application\\Controller\\IndexController' => array(
@@ -673,13 +674,14 @@ return array(
             'add' => 'deny',
             'edit' => 'deny',
             'export-facility' => 'deny',
-            'map-province' => 'deny',
             'get-province-list' => 'deny',
+            'map-province' => 'deny',
             'get-facility-name' => 'deny',
         ),
         'Certification\\Controller\\ProviderController' => array(
             'index' => 'deny',
             'add' => 'deny',
+            'import-excel' => 'deny',
             'certificate-pdf' => 'deny',
             'delete' => 'deny',
             'district' => 'deny',

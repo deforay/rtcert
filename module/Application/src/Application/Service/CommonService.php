@@ -1024,4 +1024,34 @@ class CommonService
         $tempmailDb = $this->sm->get('TempMailTable');
         return $tempmailDb->insertTempMailDetails($toMail, $subject, $message, $fromMail, $fromName, $cc, $bcc);
     }
+
+    public function getConfigByGlobalName($globalName)
+    {
+        $globalDb = $this->sm->get('GlobalTable');
+        return $globalDb->getConfigByGlobalName($globalName);
+    }
+
+    public function updateDashboardContent($params)
+    {
+        $container = new Container('alert');
+        $adapter = $this->sm->get('Laminas\Db\Adapter\Adapter')->getDriver()->getConnection();
+        $adapter->beginTransaction();
+        try {
+            $globalDb = $this->sm->get('GlobalTable');
+            $updateRes = $globalDb->updateDashboardContent($params);
+            if($updateRes){
+                $subject = '';
+                $eventType = 'dashboard-content-update';
+                $action = 'updated dashboard content';
+                $resourceName = 'dashboard-content-update';
+                $eventLogDb = $this->sm->get('EventLogTable');
+                $eventLogDb->addEventLog($subject, $eventType, $action, $resourceName);
+                $adapter->commit();
+                $container->alertMsg = "Dashboard Content Updated Successfully.";
+            }
+        } catch (Exception $exc) {
+            error_log($exc->getMessage());
+            error_log($exc->getTraceAsString());
+        }
+    }
 }

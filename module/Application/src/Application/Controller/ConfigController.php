@@ -150,4 +150,20 @@ class ConfigController extends AbstractActionController
             );
         }
     }
+
+    public function dashboardContentAction()
+    {
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $this->commonService->updateDashboardContent($params);
+            return $this->redirect()->toRoute('dashboard-content');
+        } else {
+            $result = $this->commonService->getConfigByGlobalName('dashboard-content');
+            return new ViewModel(array(
+                'result' => $result,
+            ));
+        }
+    }
 }

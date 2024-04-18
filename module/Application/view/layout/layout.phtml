@@ -33,6 +33,7 @@ $testerExamMenu = '';
 $certificateMenu = '';
 $reportMenu = '';
 $manageMenu = '';
+$dashboardContentMenu = '';
 if ($this->isAllowed($role, 'Certification\Controller\RegionController', "index")) {
 	$geoGraphicalMenu .= "<li><a href=" . $this->url('region', array('action' => 'index')) . ">" . $regionLabel . "</a></li>";
 }
@@ -53,6 +54,9 @@ if ($this->isAllowed($role, "Application\Controller\TestSectionController", "ind
 }
 if ($this->isAllowed($role, "Application\Controller\TestQuestionController", "index")) {
 	$onlineTestConfig .= "<li><a href=" . $this->url('test-question', array('action' => 'index')) . ">Online Test Questions</a></li>";
+}
+if ($this->isAllowed($role, "Application\Controller\ConfigController", "dashboard-content")) {
+	$dashboardContentMenu .= "<li><a href=" . $this->url('config', array('action' => 'dashboard-content')) . ">Dashboard Content</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\TrainingOrganizationController", "index")) {
 	$manageMenu .= "<li><a href=" . $this->url('training-organization', array('action' => 'index')) . ">Training Organizations</a></li>";
@@ -312,7 +316,10 @@ if ($this->isAllowed($role, "Certification\Controller\ProviderController", "freq
 												</li>
 											<?php } ?>
 										<?php }  ?>
-										<?php if ($manageMenu != '') { ?>
+										<?php if ($dashboardContentMenu != '') { ?>
+											<?php echo $dashboardContentMenu; 
+										}
+										if ($manageMenu != '') { ?>
 											<li class="divider"></li>
 											<?php echo $manageMenu; 
 										}

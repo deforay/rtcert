@@ -180,6 +180,16 @@ return array(
                     ),
                 ),
             ),
+            'dashboard-content' => array(
+                'type' => 'segment',
+                'options' => array(
+                    'route' => '/config[/:action][/][:id]',
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\ConfigController',
+                        'action' => 'dashboard-content',
+                    ),
+                ),
+            ),
         ),
     ),
     'service_manager' => array(
