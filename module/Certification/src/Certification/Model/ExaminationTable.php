@@ -123,9 +123,9 @@ class ExaminationTable extends AbstractTableGateway
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $globaclConfigDB = new GlobalTable($dbAdapter);
-        $globalFinalScore = $globaclConfigDB->getGlobalValue('w_ex_final_score');
-        $globalObservationScore = $globaclConfigDB->getGlobalValue('p_ex_direct_observation_score');
-        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('p_ex_Sample_testing_score');
+        $globalFinalScore = $globaclConfigDB->getGlobalValue('written_passing_score');
+        $globalObservationScore = $globaclConfigDB->getGlobalValue('practical_direct_observation_passing_score');
+        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('practical_sample_testing_passing_score');
 
         $select1 = $sql->select()->from(array('e' => 'examination'))
             ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
@@ -810,9 +810,9 @@ class ExaminationTable extends AbstractTableGateway
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $globaclConfigDB = new GlobalTable($dbAdapter);
-        $globalFinalScore = $globaclConfigDB->getGlobalValue('w_ex_final_score');
-        $globalObservationScore = $globaclConfigDB->getGlobalValue('p_ex_direct_observation_score');
-        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('p_ex_Sample_testing_score');
+        $globalFinalScore = $globaclConfigDB->getGlobalValue('written_passing_score');
+        $globalObservationScore = $globaclConfigDB->getGlobalValue('practical_direct_observation_passing_score');
+        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('practical_sample_testing_passing_score');
 
         $sQuery = $sql->select()->from(array('e' => 'examination'))
             ->columns(array())
