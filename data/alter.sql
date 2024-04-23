@@ -965,3 +965,5 @@ ALTER TABLE `global_config` ADD UNIQUE(`global_name`);
 
 -- Brindha 17-Apr-2024
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Dashboard Content', 'dashboard-content', '<span>Dear <b>USER, <br><br></b></span><div> RTCQI <b>CERT_NUMBER </b> <br><span>is expiring on <b>EXPIRY_DATE <br></b></span></div>Thanks.');
+
+INSERT INTO `roles` (`role_id`, `category_id`, `role_code`, `role_name`, `access_level`, `description`, `status`) VALUES (NULL, '1', 'PARTNER', 'Partner Organization', '1', '', 'active');
