@@ -966,4 +966,8 @@ ALTER TABLE `global_config` ADD UNIQUE(`global_name`);
 -- Brindha 17-Apr-2024
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Dashboard Content', 'dashboard-content', '<span>Dear <b>USER, <br><br></b></span><div> RTCQI <b>CERT_NUMBER </b> <br><span>is expiring on <b>EXPIRY_DATE <br></b></span></div>Thanks.');
 
+-- Brindha 23-Apr-2024
 INSERT INTO `roles` (`role_id`, `category_id`, `role_code`, `role_name`, `access_level`, `description`, `status`) VALUES (NULL, '1', 'PARTNER', 'Partner Organization', '1', '', 'active');
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'written Exam Final Score', 'w_ex_final_score', '80');
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Practical Exam Direct Observation Score', 'p_ex_direct_observation_score', '90');
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Practical Exam Sample Testing Score', 'p_ex_Sample_testing_score', '100');

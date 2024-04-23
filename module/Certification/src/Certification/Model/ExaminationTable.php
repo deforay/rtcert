@@ -14,6 +14,7 @@ use Laminas\Db\TableGateway\TableGateway;
 use Zend\Debug\Debug;
 use Laminas\Paginator\Adapter\DbSelect;
 use Laminas\Paginator\Paginator;
+use Application\Model\GlobalTable;
 
 class ExaminationTable extends AbstractTableGateway
 {
@@ -121,6 +122,10 @@ class ExaminationTable extends AbstractTableGateway
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        $globaclConfigDB = new GlobalTable($dbAdapter);
+        $globalFinalScore = $globaclConfigDB->getGlobalValue('w_ex_final_score');
+        $globalObservationScore = $globaclConfigDB->getGlobalValue('p_ex_direct_observation_score');
+        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('p_ex_Sample_testing_score');
 
         $select1 = $sql->select()->from(array('e' => 'examination'))
             ->columns(array('id', 'provider', 'id_written_exam', 'practical_exam_id'))
@@ -128,7 +133,8 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'updated_on' => new Expression('NULL')), 'left')
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
-            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null')
+            ->where('w_ex.final_score >= ' . $globalFinalScore . ' AND (p_ex.direct_observation_score >= ' . $globalObservationScore . ' OR p_ex.Sample_testing_score = ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
@@ -140,7 +146,8 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'date' => 'updated_on'), 'left')
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
-            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null')
+            ->where('w_ex.final_score >= ' . $globalFinalScore . ' AND (p_ex.direct_observation_score >= ' . $globalObservationScore . ' OR p_ex.Sample_testing_score = ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
@@ -183,7 +190,8 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'updated_on' => new Expression('NULL')), 'left')
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
-            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null')
+            ->where('w_ex.final_score >= ' . $globalFinalScore . ' AND (p_ex.direct_observation_score >= ' . $globalObservationScore . ' OR p_ex.Sample_testing_score = ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $select1->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
@@ -195,7 +203,8 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('p_ex' => 'practical_exam'), "p_ex.practice_exam_id=e.practical_exam_id", array('practical_total_score', 'Sample_testing_score', 'direct_observation_score', 'date' => 'updated_on'), 'left')
             ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_id', 'professional_reg_no', 'last_name', 'first_name', 'middle_name', 'certification_reg_no'), 'left')
             ->where(array('add_to_certification' => 'no'))
-            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null');
+            ->where('e.id_written_exam is not null AND e.practical_exam_id is not null')
+            ->where('w_ex.final_score >= ' . $globalFinalScore . ' AND (p_ex.direct_observation_score >= ' . $globalObservationScore . ' OR p_ex.Sample_testing_score = ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $select2->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
@@ -222,9 +231,9 @@ class ExaminationTable extends AbstractTableGateway
             $written_score = $aRow['final_score'];
             $sample_testing = $aRow['Sample_testing_score'];
             $direct_observation = $aRow['direct_observation_score'];
-            if ($written_score >= 80 && $direct_observation >= 90 && $sample_testing = 100) {
+            if ($written_score >= $globalFinalScore && $direct_observation >= $globalObservationScore && $sample_testing = $globalSampleTestingScore) {
                 $final_decision = 'Certified';
-            } elseif ($written_score < 80 && ($direct_observation < 90 || $sample_testing < 100)) {
+            } elseif ($written_score < $globalFinalScore && ($direct_observation < $globalObservationScore || $sample_testing < $globalSampleTestingScore)) {
                 $final_decision = 'Failed';
             } else {
                 $final_decision = 'Pending';
@@ -800,6 +809,11 @@ class ExaminationTable extends AbstractTableGateway
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
+        $globaclConfigDB = new GlobalTable($dbAdapter);
+        $globalFinalScore = $globaclConfigDB->getGlobalValue('w_ex_final_score');
+        $globalObservationScore = $globaclConfigDB->getGlobalValue('p_ex_direct_observation_score');
+        $globalSampleTestingScore = $globaclConfigDB->getGlobalValue('p_ex_Sample_testing_score');
+
         $sQuery = $sql->select()->from(array('e' => 'examination'))
             ->columns(array())
             ->join(array('p' => 'provider'), "p.id=e.provider", array('last_name', 'first_name', 'middle_name', 'phone', 'email'))
@@ -807,7 +821,7 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate' => 'date', 'final_score'))
             ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
             ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
-            ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
+            ->where('w_ex.final_score < ' . $globalFinalScore . ' AND (p_ex.direct_observation_score < ' . $globalObservationScore . ' OR p_ex.Sample_testing_score < ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $sQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
@@ -847,7 +861,7 @@ class ExaminationTable extends AbstractTableGateway
             ->join(array('w_ex' => 'written_exam'), "w_ex.id_written_exam=e.id_written_exam", array('practicalExamDate' => 'date', 'final_score'))
             ->join(array('l_d_r' => 'location_details'), "l_d_r.location_id=p.region", array('regionName' => 'location_name'), 'left')
             ->join(array('l_d_d' => 'location_details'), "l_d_d.location_id=p.district", array('districtName' => 'location_name'), 'left')
-            ->where('w_ex.final_score < 80 AND (p_ex.direct_observation_score < 90 OR p_ex.Sample_testing_score < 100)');
+            ->where('w_ex.final_score < ' . $globalFinalScore . ' AND (p_ex.direct_observation_score < ' . $globalObservationScore . ' OR p_ex.Sample_testing_score < ' . $globalSampleTestingScore . ')');
         if (!empty($sessionLogin->district)) {
             $tQuery->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
         } elseif (!empty($sessionLogin->region)) {
