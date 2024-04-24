@@ -1,3 +1,54 @@
+<style>
+	.switch-field {
+		display: flex;
+		overflow: hidden;
+	}
+
+	.switch-field input {
+		position: absolute !important;
+		clip: rect(0, 0, 0, 0);
+		height: 1px;
+		width: 1px;
+		border: 0;
+		overflow: hidden;
+	}
+
+	.switch-field label {
+		background-color: #e4e4e4;
+		color: rgba(0, 0, 0, 0.6);
+		font-size: 14px;
+		line-height: 1;
+		text-align: center;
+		padding: 8px 16px;
+		margin-right: -1px;
+		border: 1px solid rgba(0, 0, 0, 0.2);
+		box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+		transition: all 0.1s ease-in-out;
+	}
+
+	.switch-field label:hover {
+		cursor: pointer;
+	}
+
+	.switch-field input:checked+label {
+		box-shadow: none;
+	}
+
+	.switch-field label:first-of-type {
+		border-radius: 4px 0 0 4px;
+	}
+
+	.switch-field label:last-of-type {
+		border-radius: 0 4px 4px 0;
+	}
+    .pull-right {
+        float: right !important;
+    }
+
+    .deny-label{ background-color: #d9534f !important; color : white !important; }
+	.allow-label{ background-color: #398439 !important; color : white !important; }
+	.normal-label{ background-color: #e4e4e4 !important; color : black !important; }
+</style>
 <?php
 $resourceResult = $resourceResult->{$result->role_code};
 ?>
@@ -45,54 +96,82 @@ $resourceResult = $resourceResult->{$result->role_code};
 						<option value="inactive" <?php if($result->status=='inactive'){echo 'selected=selected';}?>>Inactive</option>
 					  </select>
                     </div>
-						<div class="form-group col-sm-12">
-								<div class="form-group">
+					<div class="form-group col-sm-12">
+						<div class="form-group">
 							<label class="col-sm-1 control-label">Note :</label>
 							<div class="col-sm-10">
 								<p class="">Unless you choose "access" the people belonging to this role will not be able to access other rights like "add", "edit" etc.</p>
 							</div>
 						</div>
 						<div class="form-group col-sm-12" style="padding-left:14px;">
-                            <strong>Select All</strong>
-							<a style="color: #333;" href="javascript:void(0);" id="cekAllPrivileges"><input type='radio' class='layCek' name='cekUnCekAll'/> <i class='fa fa-check'></i></a>
-							&nbsp<strong>
-							Unselect All</strong> <a style="color: #333;" href="javascript:void(0);" id="unCekAllPrivileges"><input type='radio' class='layCek' name='cekUnCekAll' checked='checked'/> <i class='fa fa-times'></i></a>
+							<div class="switch-field">
+                                <input type="radio" class='' id="allowAllPrivileges" name='cekUnCekAll'
+                                    value="yes" />
+                                <label for="allowAllPrivileges">
+                                    <?php echo _("Select All"); ?>
+                                </label>
+                                <input type="radio" class='' id="denyAllPrivileges" name='cekUnCekAll' 
+                                     value="no" />
+                                <label for="denyAllPrivileges">
+                                    <?php echo _("Unselect All"); ?>
+                                </label>
+                            </div>
                         </div>
 						<table class="table table-striped table-hover table-bordered responsive-utilities jambo_table">
                         <?php
-                        foreach ($rolesresult as $value) {
-echo "<tr class=''>";
-echo "<td><strong>" . ucwords($value['display_name']) . "</strong></td>";
+							$role = $result->role_code;
+							foreach ($rolesresult as $value) {
+								echo "<tr>";
+									echo "<th>";
+									?>
+									<small class="toggler">
+										<h4 style="font-weight: bold;">
+											<?= _(ucwords($value['display_name'])); ?>
+										</h4>
+										<div class="switch-field pull-right">
+											<input type='radio' class='display_name' id='all<?= str_replace(' ', '', $value['display_name']); ?>'
+												name='<?= str_replace(' ', '', $value['display_name']); ?>'
+												onclick='togglePrivilegesForThisResource("<?= str_replace(' ', '', $value['display_name']); ?>",true);'>
+											<label for='all<?= str_replace(' ', '', $value['display_name']); ?>'><?= _("All"); ?></label>
+											<input type='radio' class='display_name' id='none<?= str_replace(' ', '', $value['display_name']); ?>'
+												name='<?= str_replace(' ', '', $value['display_name']); ?>'
+												onclick='togglePrivilegesForThisResource("<?= str_replace(' ', '', $value['display_name']); ?>",false);'>
+											<label for='none<?= str_replace(' ', '', $value['display_name']); ?>'><?= _("None"); ?></label>
+										</div>
+									</small>
+									<?php
+									echo "</th>";
+								echo "</tr>";
+								echo "<tr class=''>";
+								echo "<td style='text-align:center;vertical-align:middle;' class='privilegesNode' id='" . str_replace(' ', '', $value['display_name']) . "'>";
 
-foreach ($value['privileges'] as $privilege) {
-if(isset($resourceResult[$value['resource_id']][$privilege['privilege_name']]) && $resourceResult[$value['resource_id']][$privilege['privilege_name']] == 'allow'){
-                       $allowActive = ' active ';
-                       $allowChecked = " checked='' ";
-                       $denyActive = "";
-                       $denyChecked = "";
-                   }else{
-                       $denyActive = ' active ';
-                       $denyChecked = " checked='' ";
-                       $allowActive = "";
-                       $allowChecked = "";
-                   }
-echo "<td>"
-. "<label class='labelName'>" . ucwords($privilege['display_name']) . "</label> <br>
-		
-								<label>
-										<input type='radio' class='cekAll layCek'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='allow' $allowChecked> <i class='fa fa-check'></i>
-								</label> &nbsp; 
-								<label>
-										<input type='radio' class='unCekAll layCek'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='deny' $denyChecked>  <i class='fa fa-times'></i>
-								</label>
-												   
-						</td>";
-						}
-						echo "</tr>";
-				}
-				?>	
+								foreach ($value['privileges'] as $privilege) {
+									if(isset($resourceResult[$value['resource_id']][$privilege['privilege_name']]) && $resourceResult[$value['resource_id']][$privilege['privilege_name']] == 'allow'){
+										$allowChecked = " checked='' ";
+										$denyChecked = "";
+										$allowStyle = "allow-label";
+										$denyStyle = "";
+										
+									}else{
+										$allowChecked = "";
+										$denyChecked = " checked='' ";
+										$allowStyle = "";
+										$denyStyle = "deny-label";
+									}
+									echo "<div class='col-lg-3' style='float: left; margin-top:5px;border:1px solid #eee;padding:10px; width: 25%;'>
+											<strong>" . _($privilege['display_name']) . "</strong>
+											<br>
+											<div class='switch-field' style='margin: 30px 0 36px 80px;'>
+												<input type='radio' class='cekAll'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='allow' $allowChecked> <label for='radio-one[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$allowStyle'>Yes</label>
+												<input type='radio' class='unCekAll'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='deny' $denyChecked>  <label for='radio-two[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$denyStyle'> No</label>
+											</div>
+										</div>";
+								}
+								echo "</td></tr>";
+							}
+						?>	
                         </table>
-						</div>
+					</div>
                     <div class="spacer  col-lg-12">
                       <button type="button" onclick="validateNow()" class="btn btn-space btn-primary">Submit</button>
                      <a href="<?php echo $this->url('roles', array('action' => 'index')); ?>" class="btn btn-space btn-default">Cancel</a> 
@@ -139,13 +218,80 @@ echo "<td>"
 				}
 			});
 		}
-		$("#cekAllPrivileges").click(function(){
-		$('.unCekAll').prop('checked', false);
-		$(".cekAll").prop( "checked", true );
+
+		$("#allowAllPrivileges").click(function() {
+			$('.unCekAll').prop('checked', false);
+			$('.cekAll').prop('checked', true);
+			$('.unCekAll').next('label').addClass('normal-label');
+			$('.cekAll').next('label').addClass('allow-label');
+			$(this).next('label').addClass('allow-label');
+			$("#denyAllPrivileges").next('label').addClass('normal-label');
+
+			$('.unCekAll').next('label').removeClass('deny-label');
+			$('.cekAll').next('label').removeClass('normal-label');
+			$(this).next('label').removeClass('deny-label');
+			$("#allowAllPrivileges").next('label').removeClass('normal-label');
 		});
-	
-		$("#unCekAllPrivileges").click(function(){
-		$('.unCekAll').prop('checked', true);
-		$(".cekAll").prop( "checked", false );
+
+		$("#denyAllPrivileges").click(function() {
+			$('.cekAll').prop('checked', false);
+			$('.unCekAll').prop('checked', true);
+			$('.unCekAll').next('label').addClass('deny-label');
+			$('.cekAll').next('label').addClass('normal-label');
+			$(this).next('label').addClass('deny-label');
+			$("#allowAllPrivileges").next('label').addClass('normal-label');
+
+			$('.unCekAll').next('label').removeClass('normal-label');
+			$('.cekAll').next('label').removeClass('allow-label');
+			$(this).next('label').removeClass('allow-label');
+			$("#denyAllPrivileges").next('label').removeClass('normal-label');
+
 		});
+
+		$('.switch-field input').click(function() {
+			val = $(this).val();
+			if (val == "deny") {
+				$(this).closest('.switch-field').find('.unCekAll').next('label').addClass('deny-label');
+				$(this).closest('.switch-field').find('.cekAll').next('label').addClass('normal-label');
+				$(this).closest('.switch-field').find('.unCekAll').next('label').removeClass('normal-label');
+				$(this).closest('.switch-field').find('.cekAll').next('label').removeClass('allow-label');
+				//$(this).closest('.switch-field').find('.unCekAll').next('label').css('background-color', '#d9534f');
+				//$(this).closest('.switch-field').find('.cekAll').next('label').css('background-color', '#e4e4e4');
+			} else if (val == "allow") {
+				$(this).closest('.switch-field').find('.unCekAll').next('label').addClass('normal-label');
+				$(this).closest('.switch-field').find('.cekAll').next('label').addClass('allow-label');
+				$(this).closest('.switch-field').find('.unCekAll').next('label').removeClass('deny-label');
+				$(this).closest('.switch-field').find('.cekAll').next('label').removeClass('normal-label');
+			}
+		});
+
+		function togglePrivilegesForThisResource(obj, checked) {
+			if (checked == true) {
+				$("#" + obj).find('.cekAll').prop('checked', true);
+				$("#" + obj).find('.unCekAll').prop('checked', false);
+				$("#" + obj).find('.unCekAll').next('label').addClass('normal-label');
+				$("#" + obj).find('.cekAll').next('label').addClass('allow-label');
+				$("#all" + obj).next('label').addClass('allow-label');
+				$("#none" + obj).next('label').addClass('normal-label');
+
+				$("#" + obj).find('.unCekAll').next('label').removeClass('deny-label');
+				$("#" + obj).find('.cekAll').next('label').removeClass('normal-label');
+				$("#all" + obj).next('label').removeClass('normal-label');
+				$("#none" + obj).next('label').removeClass('deny-label');
+
+			} else if (checked == false) {
+				$("#" + obj).find('.cekAll').prop('checked', false);
+				$("#" + obj).find('.unCekAll').prop('checked', true);
+				$("#" + obj).find('.unCekAll').next('label').addClass('deny-label');
+				$("#" + obj).find('.cekAll').next('label').addClass('normal-label');
+				$("#all" + obj).next('label').addClass('normal-label');
+				$("#none" + obj).next('label').addClass('deny-label');
+
+				$("#" + obj).find('.unCekAll').next('label').removeClass('normal-label');
+				$("#" + obj).find('.cekAll').next('label').removeClass('allow-label');
+				$("#all" + obj).next('label').removeClass('allow-label');
+				$("#none" + obj).next('label').removeClass('normal-label');
+
+			}
+		}
 </script>
