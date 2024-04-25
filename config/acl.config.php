@@ -792,10 +792,10 @@ return array(
             'pdf' => 'allow',
             'xls' => 'deny',
             'header-text' => 'deny',
-            'recommend' => 'deny',
+            'recommend' => 'allow',
         ),
         'Certification\\Controller\\CertificationMailController' => array(
-            'index' => 'deny',
+            'index' => 'allow',
         ),
         'Application\\Controller\\CommonController' => array(
             'audit-locations' => 'deny',

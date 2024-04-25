@@ -334,7 +334,12 @@ if (isset($provider_name) && trim($provider_name) != '') {
             var emailArray = tester.split('##');
             toEmails += emailArray[1];
             provider = emailArray[4] + " " + emailArray[5] + " " + emailArray[6];
-            due_date = ($emailArray[10] != null && $emailArray[10] != '' && $emailArray[10] != '0000-00-00') ? date("d-M-Y", strtotime($emailArray[10])) : '';
+            dueDate = emailArray[10];
+            if (dueDate != null && dueDate != '' && dueDate != '0000-00-00') {
+                due_date = formatDate(dueDate);
+            } else {
+                due_date = ''; // Handle empty or invalid date
+            }
             getMailTemplate();
             //setChoice();
             //$("input[name='add_to[]']:checked").each( function () {
@@ -347,6 +352,16 @@ if (isset($provider_name) && trim($provider_name) != '') {
             //});
         }
         $('#to').val(toEmails);
+    }
+
+    function formatDate(dateString) {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var dateParts = dateString.split('-');
+        var day = dateParts[2];
+        var monthIndex = parseInt(dateParts[1], 10) - 1;
+        var year = dateParts[0];
+
+        return day + '-' + months[monthIndex] + '-' + year;
     }
 
     function generatePDF() {
