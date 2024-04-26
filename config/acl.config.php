@@ -6,6 +6,7 @@ return array(
             'index' => 'allow',
             'add' => 'allow',
             'approval' => 'allow',
+            'certificate-pdf' => 'deny',
             'edit' => 'allow',
             'pdf' => 'allow',
             'xls' => 'allow',
@@ -22,14 +23,21 @@ return array(
             'index' => 'allow',
             'add' => 'allow',
             'edit' => 'allow',
+            'xls' => 'deny',
             'pending' => 'allow',
         ),
         'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
+            'dashboard-content' => 'deny',
             'edit-global' => 'deny',
         ),
         'Application\\Controller\\IndexController' => array(
             'index' => 'allow',
+        ),
+        'Application\\Controller\\MailTemplateController' => array(
+            'index' => 'deny',
+            'add' => 'deny',
+            'edit' => 'deny',
         ),
         'Application\\Controller\\DashboardController' => array(
             'index' => 'allow',
@@ -44,18 +52,25 @@ return array(
             'add' => 'deny',
             'edit' => 'deny',
             'export-facility' => 'deny',
-            'map-province' => 'deny',
             'get-province-list' => 'deny',
+            'map-province' => 'deny',
             'get-facility-name' => 'deny',
         ),
         'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
+            'import-excel' => 'allow',
+            'certificate-pdf' => 'deny',
             'delete' => 'allow',
             'district' => 'allow',
             'edit' => 'allow',
             'xls' => 'allow',
             'facility' => 'allow',
+            'frequency-question' => 'deny',
+            'login' => 'deny',
+            'logout' => 'deny',
+            'send-test-link' => 'deny',
+            'test-frequency' => 'deny',
         ),
         'Application\\Controller\\RolesController' => array(
             'index' => 'deny',
@@ -66,6 +81,25 @@ return array(
             'index' => 'deny',
             'add' => 'deny',
             'edit' => 'deny',
+        ),
+        'Application\\Controller\\TestSectionController' => array(
+            'index' => 'deny',
+            'add' => 'deny',
+            'edit' => 'deny',
+        ),
+        'Application\\Controller\\TestConfigController' => array(
+            'index' => 'deny',
+            'edit' => 'deny',
+        ),
+        'Application\\Controller\\TestQuestionController' => array(
+            'index' => 'deny',
+            'add' => 'deny',
+            'edit' => 'deny',
+        ),
+        'Application\\Controller\\TestController' => array(
+            'index' => 'deny',
+            'intro' => 'deny',
+            'result' => 'deny',
         ),
         'Certification\\Controller\\DistrictController' => array(
             'index' => 'deny',
@@ -88,6 +122,15 @@ return array(
             'attempt' => 'allow',
             'delete' => 'allow',
             'edit' => 'allow',
+        ),
+        'Application\\Controller\\PrintTestPdfController' => array(
+            'index' => 'deny',
+            'add' => 'deny',
+            'answer-key-one' => 'deny',
+            'answer-key-two' => 'deny',
+            'examination' => 'deny',
+            'print-pdf-question' => 'deny',
+            'view-pdf-question' => 'deny',
         ),
         'Certification\\Controller\\RecertificationController' => array(
             'index' => 'allow',
@@ -492,6 +535,7 @@ return array(
         ),
         'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
+            'dashboard-content' => 'deny',
             'edit-global' => 'deny',
         ),
         'Application\\Controller\\IndexController' => array(
@@ -522,7 +566,7 @@ return array(
         'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
-            'import-excel' => 'deny',
+            'import-excel' => 'allow',
             'certificate-pdf' => 'deny',
             'delete' => 'allow',
             'district' => 'deny',
@@ -809,6 +853,7 @@ return array(
         ),
         'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
+            'dashboard-content' => 'deny',
             'edit-global' => 'deny',
         ),
         'Application\\Controller\\IndexController' => array(
@@ -839,7 +884,7 @@ return array(
         'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
-            'import-excel' => 'deny',
+            'import-excel' => 'allow',
             'certificate-pdf' => 'deny',
             'delete' => 'allow',
             'district' => 'deny',
@@ -967,6 +1012,7 @@ return array(
         ),
         'Application\\Controller\\ConfigController' => array(
             'index' => 'deny',
+            'dashboard-content' => 'deny',
             'edit-global' => 'deny',
         ),
         'Application\\Controller\\IndexController' => array(
@@ -997,7 +1043,7 @@ return array(
         'Certification\\Controller\\ProviderController' => array(
             'index' => 'allow',
             'add' => 'allow',
-            'import-excel' => 'deny',
+            'import-excel' => 'allow',
             'certificate-pdf' => 'deny',
             'delete' => 'allow',
             'district' => 'deny',

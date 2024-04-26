@@ -662,6 +662,8 @@ $editAction = '{"sClass":"center"},{"sClass":"center"},{"sClass":"center"},{"sCl
         middle = document.getElementById("Middle Name").value.trim();
         if (last && !first && !middle) {
             input = last;
+        } else if (!last && first && !middle) {
+            input = first;
         } else if (last && first && !middle) {
             input = last + ' ' + first;
 

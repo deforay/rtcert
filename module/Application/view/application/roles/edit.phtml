@@ -159,15 +159,16 @@ $resourceResult = $resourceResult->{$result->role_code};
 										$denyStyle = "deny-label";
 									}
 									echo "<div class='col-lg-3' style='float: left; margin-top:5px;border:1px solid #eee;padding:10px; width: 25%;'>
-											<strong>" . _($privilege['display_name']) . "</strong>
-											<br>
-											<div class='switch-field' style='margin: 30px 0 36px 80px;'>
-												<input type='radio' class='cekAll'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='allow' $allowChecked> <label for='radio-one[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$allowStyle'>Yes</label>
-												<input type='radio' class='unCekAll'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "' value='deny' $denyChecked>  <label for='radio-two[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$denyStyle'> No</label>
-											</div>
-										</div>";
-								}
-								echo "</td></tr>";
+                                            <strong>" . _($privilege['display_name']) . "</strong>
+                                            <br>
+                                            <div class='switch-field' style='margin: 30px 0 36px 80px;'>
+                                                <input type='radio' class='cekAll layCek'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" ."'id='radio-one[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]". "' value='allow' $allowChecked><label for='radio-one[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$allowStyle'>Yes</label>
+                                                <input type='radio' class='unCekAll layCek'  name='resource[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]" . "'id='radio-two[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' value='deny' $denyChecked> <label for='radio-two[" . $value['resource_id'] . "][" . $privilege['privilege_name'] . "]"."' class='$denyStyle'> No</label>
+                                            </div>
+                                        </div>";
+                                }
+                            echo "</td></tr>";
+									
 							}
 						?>	
                         </table>
