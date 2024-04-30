@@ -120,9 +120,9 @@ $imported = (isset($result['data']['imported']) && count($result['data']['import
                                         <input class="form-control isRequired" type="file" name="tester_excel" title="Please Select File" />
                                     </div>
                                     <div class="form-group col-lg-8">
-                                        <?php if (file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . 'Tester_Bulk_Upload_Excel_format.xlsx')) { ?>
+                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . 'Tester_Bulk_Upload_Excel_format.xlsx')) { ?>
                                             <div class="form-group col-lg-4">
-                                                <a href="/uploads/tester/Tester_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
+                                                <a href="/files/tester/Tester_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
                                             </div>
                                         <?php } ?>
                                         <div class="form-group col-lg-4">

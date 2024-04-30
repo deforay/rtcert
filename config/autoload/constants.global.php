@@ -18,6 +18,9 @@ defined('BACKUP_PATH')
 defined('CONFIG_PATH')
     || define('CONFIG_PATH', APPLICATION_PATH . DIRECTORY_SEPARATOR . 'config');
 
+defined('FILE_PATH')
+    || define('FILE_PATH', WEB_ROOT . DIRECTORY_SEPARATOR . 'files');
+
 
 // returning this empty array to avoid error in config merging
 return [];
