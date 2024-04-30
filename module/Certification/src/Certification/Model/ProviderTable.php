@@ -711,6 +711,7 @@ class ProviderTable extends AbstractTableGateway
     public function uploadTesterExcel($params)
     {
         $loginContainer    = new Container('credo');
+        $container = new Container('alert');
         $dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
         $sql               = new Sql($dbAdapter);
         $status = false;
@@ -732,167 +733,215 @@ class ProviderTable extends AbstractTableGateway
                 mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "tester");
             }
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-                $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
-                $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-                // Debug::dump($sheetData);die;
-                $count = count($sheetData);
-                $userRegion = [];
-                $userDistrict = [];
-                if (!empty($loginContainer->region)) {
-                    $userRegion = $loginContainer->region;
-                }
-                if (!empty($loginContainer->district)) {
-                    $userDistrict = $loginContainer->district;
-                }
+                $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
+                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'tester'. DIRECTORY_SEPARATOR . 'Tester_Bulk_Upload_Excel_format.xlsx';
+
+                $validate = $this->validateUploadedFile($uploadedFilePath, $templateFilePath);
                 
-                $j = 0;
-                for ($i = 2; $i <= $count; ++$i) {
-                    $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
-                    $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
-                    $facility = $this->getFacilityByName($sheetData[$i]['L']);
-                    if ($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['L'] == '') {
-                        $response['data']['mandatory'][]  = array(
-                            'professional_reg_no'       => $sheetData[$i]['A'],
-                            'first_name'                => $sheetData[$i]['B'],
-                            'middle_name'               => $sheetData[$i]['C'],
-                            'last_name'                 => $sheetData[$i]['D'],
-                            'region'                    => $sheetData[$i]['E'],
-                            'district'                  => $sheetData[$i]['F'],
-                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                            'phone'                     => $sheetData[$i]['H'],
-                            'email'                     => $sheetData[$i]['I'],
-                            'prefered_contact_method'   => $sheetData[$i]['J'],
-                            'current_jod'               => $sheetData[$i]['K'],
-                            'facility_id'               => $sheetData[$i]['L'],
-                            'time_worked'               => $sheetData[$i]['M'],
-                            'username'                  => $sheetData[$i]['N'],
-                            'password'                  => $sheetData[$i]['O'],
-                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
-                            'test_site_in_charge_phone' => $sheetData[$i]['Q'],
-                            'test_site_in_charge_email' => $sheetData[$i]['R'],
-                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
-                            'facility_in_charge_phone'  => $sheetData[$i]['T'],
-                            'facility_in_charge_email'  => $sheetData[$i]['U'],
-                        );
-                    } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['L'] != '')) {
-                        $mappedRegion = false;
-                        $mappedDistrict = false;
-                        $region = $this->getLocationByName($sheetData[$i]['E']);
-                        $regionLocId = ($region && isset($region['location_id'])) ? $region['location_id'] : '';
-                        $district = $this->getLocationByName($sheetData[$i]['F']);
-                        $districtLocId = ($district && isset($district['location_id'])) ? $district['location_id'] : '';
-                        $password = '';
-                        if (isset($sheetData[$i]['O']) && $sheetData[$i]['O'] != '') {
-                            $config = new \Laminas\Config\Reader\Ini();
-                            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
-                            $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
-                        }
-                        $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
-                        $statement = $dbAdapter->query($sql);
-                        $result = $statement->execute();
-                        foreach ($result as $res) {
-                            $max = $res['max'];
-                        }
-                        $array = explode("R", $max);
-                        $array2 = explode("-", $max);
-                        if (date('Y') > $array2[0]) {
-                            $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
-                        } else {
-                            $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
-                        }
-                        $data = array(
-                            'professional_reg_no'       => $sheetData[$i]['A'],
-                            'first_name'                => $sheetData[$i]['B'],
-                            'middle_name'               => $sheetData[$i]['C'],
-                            'last_name'                 => $sheetData[$i]['D'],
-                            'region'                    => $regionLocId,
-                            'district'                  => $districtLocId,
-                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                            'phone'                     => $sheetData[$i]['H'],
-                            'email'                     => $sheetData[$i]['I'],
-                            'prefered_contact_method'   => $sheetData[$i]['J'],
-                            'current_jod'               => $sheetData[$i]['K'],
-                            'facility_id'               => $facility['id'],
-                            'time_worked'               => $sheetData[$i]['M'],
-                            'username'                  => $sheetData[$i]['N'],
-                            'password'                  => $password,
-                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
-                            'test_site_in_charge_phone' => $sheetData[$i]['Q'],
-                            'test_site_in_charge_email' => $sheetData[$i]['R'],
-                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
-                            'facility_in_charge_phone'  => $sheetData[$i]['T'],
-                            'facility_in_charge_email'  => $sheetData[$i]['U'],
-                            'certification_reg_no'      => $certification_reg_no,
-                            'added_on'                  => \Application\Service\CommonService::getDateTime(),
-                            'added_by'                  => $loginContainer->userId,
-                            'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
-                            'last_updated_by'           => $loginContainer->userId,
-                        );
-                        if(!empty($userRegion) || !empty($userDistrict)){
-                            if(!empty($userRegion)){
-                                if($regionLocId != '' && in_array($regionLocId, $userRegion)){
-                                    $mappedRegion == true;
-                                }
+                if($validate) {
+                    $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    // Debug::dump($sheetData);die;
+                    $count = count($sheetData);
+                    $userRegion = [];
+                    $userDistrict = [];
+                    if (!empty($loginContainer->region)) {
+                        $userRegion = $loginContainer->region;
+                    }
+                    if (!empty($loginContainer->district)) {
+                        $userDistrict = $loginContainer->district;
+                    }
+                    
+                    $j = 0;
+                    for ($i = 2; $i <= $count; ++$i) {
+                        $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
+                        $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
+                        $facility = $this->getFacilityByName($sheetData[$i]['L']);
+                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['L'] == '') {
+                            $response['data']['mandatory'][]  = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => $sheetData[$i]['E'],
+                                'district'                  => $sheetData[$i]['F'],
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'prefered_contact_method'   => $sheetData[$i]['J'],
+                                'current_jod'               => $sheetData[$i]['K'],
+                                'facility_id'               => $sheetData[$i]['L'],
+                                'time_worked'               => $sheetData[$i]['M'],
+                                'username'                  => $sheetData[$i]['N'],
+                                'password'                  => $sheetData[$i]['O'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['Q'],
+                                'test_site_in_charge_email' => $sheetData[$i]['R'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['T'],
+                                'facility_in_charge_email'  => $sheetData[$i]['U'],
+                            );
+                        } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['L'] != '')) {
+                            $mappedRegion = false;
+                            $mappedDistrict = false;
+                            $region = $this->getLocationByName($sheetData[$i]['E']);
+                            $regionLocId = ($region && isset($region['location_id'])) ? $region['location_id'] : '';
+                            $district = $this->getLocationByName($sheetData[$i]['F']);
+                            $districtLocId = ($district && isset($district['location_id'])) ? $district['location_id'] : '';
+                            $password = '';
+                            if (isset($sheetData[$i]['O']) && $sheetData[$i]['O'] != '') {
+                                $config = new \Laminas\Config\Reader\Ini();
+                                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                                $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
                             }
-                            if(!empty($userDistrict)){
-                                if($districtLocId != '' && in_array($districtLocId, $userDistrict)){
-                                    $mappedDistrict == true;
-                                }
+                            $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
+                            $statement = $dbAdapter->query($sql);
+                            $result = $statement->execute();
+                            foreach ($result as $res) {
+                                $max = $res['max'];
                             }
-                            if($mappedRegion || $mappedDistrict){       
+                            $array = explode("R", $max);
+                            $array2 = explode("-", $max);
+                            if (date('Y') > $array2[0]) {
+                                $certification_reg_no = date('Y') . '-R' . substr_replace("0000", 1, -strlen(1));
+                            } else {
+                                $certification_reg_no = $array2[0] . '-R' . substr_replace("0000", ($array[1] + 1), -strlen(($array[1] + 1)));
+                            }
+                            $data = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => $regionLocId,
+                                'district'                  => $districtLocId,
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'prefered_contact_method'   => $sheetData[$i]['J'],
+                                'current_jod'               => $sheetData[$i]['K'],
+                                'facility_id'               => $facility['id'],
+                                'time_worked'               => $sheetData[$i]['M'],
+                                'username'                  => $sheetData[$i]['N'],
+                                'password'                  => $password,
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['Q'],
+                                'test_site_in_charge_email' => $sheetData[$i]['R'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['T'],
+                                'facility_in_charge_email'  => $sheetData[$i]['U'],
+                                'certification_reg_no'      => $certification_reg_no,
+                                'added_on'                  => \Application\Service\CommonService::getDateTime(),
+                                'added_by'                  => $loginContainer->userId,
+                                'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
+                                'last_updated_by'           => $loginContainer->userId,
+                            );
+                            if(!empty($userRegion) || !empty($userDistrict)){
+                                if(!empty($userRegion)){
+                                    if($regionLocId != '' && in_array($regionLocId, $userRegion)){
+                                        $mappedRegion == true;
+                                    }
+                                }
+                                if(!empty($userDistrict)){
+                                    if($districtLocId != '' && in_array($districtLocId, $userDistrict)){
+                                        $mappedDistrict == true;
+                                    }
+                                }
+                                if($mappedRegion || $mappedDistrict){       
+                                    $response['data']['imported'][$j] = $data;
+                                    $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                    $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                    $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                                    $this->tableGateway->insert($data);
+                                    $status = true;
+                                }
+                            }else{
                                 $response['data']['imported'][$j] = $data;
                                 $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
                                 $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
                                 $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
                                 $this->tableGateway->insert($data);
                                 $status = true;
-                            }
-                        }else{
-                            $response['data']['imported'][$j] = $data;
-                            $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
-                            $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                            $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                            $this->tableGateway->insert($data);
-                            $status = true;
-                        }           
-                    } else {
-                        $response['data']['duplicate'][] = array(
-                            'professional_reg_no'       => $sheetData[$i]['A'],
-                            'first_name'                => $sheetData[$i]['B'],
-                            'middle_name'               => $sheetData[$i]['C'],
-                            'last_name'                 => $sheetData[$i]['D'],
-                            'region'                    => $sheetData[$i]['E'],
-                            'district'                  => $sheetData[$i]['F'],
-                            'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                            'phone'                     => $sheetData[$i]['H'],
-                            'email'                     => $sheetData[$i]['I'],
-                            'current_jod'               => $sheetData[$i]['J'],
-                            'facility_id'               => $sheetData[$i]['K'],
-                            'time_worked'               => $sheetData[$i]['L'],
-                            'username'                  => $sheetData[$i]['M'],
-                            'password'                  => $sheetData[$i]['N'],
-                            'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                            'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                            'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                            'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                            'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                            'facility_in_charge_email'  => $sheetData[$i]['T'],
-                        );
+                            }           
+                        } else {
+                            $response['data']['duplicate'][] = array(
+                                'professional_reg_no'       => $sheetData[$i]['A'],
+                                'first_name'                => $sheetData[$i]['B'],
+                                'middle_name'               => $sheetData[$i]['C'],
+                                'last_name'                 => $sheetData[$i]['D'],
+                                'region'                    => $sheetData[$i]['E'],
+                                'district'                  => $sheetData[$i]['F'],
+                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                'phone'                     => $sheetData[$i]['H'],
+                                'email'                     => $sheetData[$i]['I'],
+                                'current_jod'               => $sheetData[$i]['J'],
+                                'facility_id'               => $sheetData[$i]['K'],
+                                'time_worked'               => $sheetData[$i]['L'],
+                                'username'                  => $sheetData[$i]['M'],
+                                'password'                  => $sheetData[$i]['N'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
+                            );
+                        }
+                        $j++;
                     }
-                    $j++;
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
+                }else{
+                    $container->alertMsg = 'Uploaded file column mismatched'; 
+                    return $response;
                 }
-                unlink($uploadPath . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . $fileName);
             }
         }
         if ($response['data'] !== [] && ($response['data']['mandatory'] !== [] || $response['data']['duplicate'] !== [])) {
-            $container = new Container('alert');
             $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields below to ensure the Tester Profession number is not duplicated.';
             return $response;
         } elseif ($status) {
-            $container = new Container('alert');
             $container->alertMsg = 'Tester details imported successfully';
             return $response;
         }
+    }
+
+    public function validateUploadedFile($uploadedFilePath, $templateFilePath)
+    {
+        // Load the uploaded Excel file
+        $uploadedSpreadsheet = IOFactory::load($uploadedFilePath);
+
+        // Load the template Excel file
+        $templateSpreadsheet = IOFactory::load($templateFilePath);
+
+        // Get the first sheet of the uploaded file
+        $uploadedSheet = $uploadedSpreadsheet->getSheet(0);
+
+        // Get the first sheet of the template file
+        $templateSheet = $templateSpreadsheet->getSheet(0);
+
+        // Extract headers from both sheets for comparison
+        $uploadedHeaders = $uploadedSheet->rangeToArray('A1:Z1')[0];  // Adjust range as needed
+        $templateHeaders = $templateSheet->rangeToArray('A1:Z1')[0];  // Adjust range as needed
+
+        // Normalize headers for case-insensitive comparison and remove spaces/newlines
+        $normalizedUploadedHeaders = array_map(function ($header) {
+            return strtolower(preg_replace('/\s+/', '', $header));
+        }, $uploadedHeaders);
+
+        $normalizedTemplateHeaders = array_map(function ($header) {
+            return strtolower(preg_replace('/\s+/', '', $header));
+        }, $templateHeaders);
+
+        // Compare the column headers
+        if ($normalizedUploadedHeaders !== $normalizedTemplateHeaders) {
+            // The column headers do not match the template
+            return false;
+        }
+
+        // Compare additional formatting, data types, or any other specific requirements
+        // ...
+
+        // If all checks pass, return true
+        return true;
     }
 
     public function importManuallyData($params)
