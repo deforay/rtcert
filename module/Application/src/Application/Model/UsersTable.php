@@ -98,7 +98,7 @@ class UsersTable extends AbstractTableGateway
                     }
                 }
             }
-
+            $logincontainer->email = $sResult->email;
             $logincontainer->userId = $sResult->id;
             $logincontainer->login = $sResult->login;
             $logincontainer->roleId = $sResult->role_id;

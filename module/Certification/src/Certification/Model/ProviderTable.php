@@ -757,7 +757,7 @@ class ProviderTable extends AbstractTableGateway
                         $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
                         $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
                         $facility = $this->getFacilityByName($sheetData[$i]['L']);
-                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['L'] == '') {
+                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['L'] == '') {
                             $response['data']['mandatory'][]  = array(
                                 'professional_reg_no'       => $sheetData[$i]['A'],
                                 'first_name'                => $sheetData[$i]['B'],
@@ -772,16 +772,15 @@ class ProviderTable extends AbstractTableGateway
                                 'current_jod'               => $sheetData[$i]['K'],
                                 'facility_id'               => $sheetData[$i]['L'],
                                 'time_worked'               => $sheetData[$i]['M'],
-                                'username'                  => $sheetData[$i]['N'],
-                                'password'                  => $sheetData[$i]['O'],
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['Q'],
-                                'test_site_in_charge_email' => $sheetData[$i]['R'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['T'],
-                                'facility_in_charge_email'  => $sheetData[$i]['U'],
+                                'password'                  => $sheetData[$i]['N'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
                             );
-                        } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] != '' && $sheetData[$i]['I'] != '' && $sheetData[$i]['L'] != '')) {
+                        } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '')){
                             $mappedRegion = false;
                             $mappedDistrict = false;
                             $region = $this->getLocationByName($sheetData[$i]['E']);
@@ -789,10 +788,12 @@ class ProviderTable extends AbstractTableGateway
                             $district = $this->getLocationByName($sheetData[$i]['F']);
                             $districtLocId = ($district && isset($district['location_id'])) ? $district['location_id'] : '';
                             $password = '';
-                            if (isset($sheetData[$i]['O']) && $sheetData[$i]['O'] != '') {
-                                $config = new \Laminas\Config\Reader\Ini();
-                                $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                            $config = new \Laminas\Config\Reader\Ini();
+                            $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
+                            if (isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != '') {
                                 $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
+                            }else{
+                                $password = sha1('12345' . $configResult["password"]["salt"]);
                             }
                             $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
                             $statement = $dbAdapter->query($sql);
@@ -821,14 +822,14 @@ class ProviderTable extends AbstractTableGateway
                                 'current_jod'               => $sheetData[$i]['K'],
                                 'facility_id'               => $facility['id'],
                                 'time_worked'               => $sheetData[$i]['M'],
-                                'username'                  => $sheetData[$i]['N'],
+                                'username'                  => (!empty($loginContainer->email)) ? $loginContainer->email : '',
                                 'password'                  => $password,
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['P']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['Q'],
-                                'test_site_in_charge_email' => $sheetData[$i]['R'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['S']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['T'],
-                                'facility_in_charge_email'  => $sheetData[$i]['U'],
+                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                'facility_in_charge_email'  => $sheetData[$i]['T'],
                                 'certification_reg_no'      => $certification_reg_no,
                                 'added_on'                  => \Application\Service\CommonService::getDateTime(),
                                 'added_by'                  => $loginContainer->userId,
@@ -873,10 +874,10 @@ class ProviderTable extends AbstractTableGateway
                                 'type_vih_test'             => strtoupper($sheetData[$i]['G']),
                                 'phone'                     => $sheetData[$i]['H'],
                                 'email'                     => $sheetData[$i]['I'],
-                                'current_jod'               => $sheetData[$i]['J'],
-                                'facility_id'               => $sheetData[$i]['K'],
-                                'time_worked'               => $sheetData[$i]['L'],
-                                'username'                  => $sheetData[$i]['M'],
+                                'prefered_contact_method'   => $sheetData[$i]['J'],
+                                'current_jod'               => $sheetData[$i]['K'],
+                                'facility_id'               => $sheetData[$i]['L'],
+                                'time_worked'               => $sheetData[$i]['M'],
                                 'password'                  => $sheetData[$i]['N'],
                                 'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
                                 'test_site_in_charge_phone' => $sheetData[$i]['P'],
