@@ -726,6 +726,8 @@ class ProviderTable extends AbstractTableGateway
         $response['data']['mandatory'] = []; // Initialize as an empty array
         $response['data']['duplicate'] = []; // Initialize as an empty array
         $response['data']['imported'] = []; // Initialize as an empty array
+        $response['data']['notimported'] = []; // Initialize as an empty array
+        $uploadOption = $params['uploadOption'];
 
         if (in_array($extension, $allowedExtensions)) {
             $uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'tester';
@@ -754,10 +756,11 @@ class ProviderTable extends AbstractTableGateway
                     
                     $j = 0;
                     for ($i = 2; $i <= $count; ++$i) {
-                        $rowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
                         $regrowset = $this->tableGateway->select(array('professional_reg_no' => $sheetData[$i]['A']))->current();
+                        $phonerowset = $this->tableGateway->select(array('phone' => $sheetData[$i]['H']))->current();
+                        $emailrowset = $this->tableGateway->select(array('email' => $sheetData[$i]['I']))->current();
                         $facility = $this->getFacilityByName($sheetData[$i]['L']);
-                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['L'] == '') {
+                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['L'] == '' || $sheetData[$i]['H'] == '' || $sheetData[$i]['I'] == '' ) {                            
                             $response['data']['mandatory'][]  = array(
                                 'professional_reg_no'       => $sheetData[$i]['A'],
                                 'first_name'                => $sheetData[$i]['B'],
@@ -780,7 +783,7 @@ class ProviderTable extends AbstractTableGateway
                                 'facility_in_charge_phone'  => $sheetData[$i]['S'],
                                 'facility_in_charge_email'  => $sheetData[$i]['T'],
                             );
-                        } elseif (!$rowset && !$regrowset && isset($facility) && $facility != '' && ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '')){
+                        } else {
                             $mappedRegion = false;
                             $mappedDistrict = false;
                             $region = $this->getLocationByName($sheetData[$i]['E']);
@@ -792,7 +795,7 @@ class ProviderTable extends AbstractTableGateway
                             $configResult = $config->fromFile(CONFIG_PATH . '/custom.config.ini');
                             if (isset($sheetData[$i]['N']) && $sheetData[$i]['N'] != '') {
                                 $password = sha1($sheetData[$i]['N'] . $configResult["password"]["salt"]);
-                            }else{
+                            } else {
                                 $password = sha1('12345' . $configResult["password"]["salt"]);
                             }
                             $sql = 'SELECT MAX(certification_reg_no) as max FROM provider';
@@ -822,7 +825,6 @@ class ProviderTable extends AbstractTableGateway
                                 'current_jod'               => $sheetData[$i]['K'],
                                 'facility_id'               => $facility['id'],
                                 'time_worked'               => $sheetData[$i]['M'],
-                                'username'                  => (!empty($loginContainer->email)) ? $loginContainer->email : '',
                                 'password'                  => $password,
                                 'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
                                 'test_site_in_charge_phone' => $sheetData[$i]['P'],
@@ -836,18 +838,53 @@ class ProviderTable extends AbstractTableGateway
                                 'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
                                 'last_updated_by'           => $loginContainer->userId,
                             );
-                            if(!empty($userRegion) || !empty($userDistrict)){
-                                if(!empty($userRegion)){
-                                    if($regionLocId != '' && in_array($regionLocId, $userRegion)){
-                                        $mappedRegion == true;
-                                    }
+
+                            if ((!$regrowset || !$phonerowset || !$emailrowset) && $uploadOption == "update"){
+                                if (!empty($regrowset)) {
+                                    $db->where("id", $regrowset['id']);
+                                    $db->update('provider', $data);
                                 }
-                                if(!empty($userDistrict)){
-                                    if($districtLocId != '' && in_array($districtLocId, $userDistrict)){
-                                        $mappedDistrict == true;
-                                    }
+                                if (!empty($phonerowset)) {
+                                    $db->where("id", $phonerowset['id']);
+                                    $db->update('provider', $data);
                                 }
-                                if($mappedRegion || $mappedDistrict){       
+                                if (!empty($emailrowset)) {
+                                    $db->where("id", $emailrowset['id']);
+                                    $db->update('provider', $data);
+                                }
+                                $response['data']['imported'][$j] = $data;
+                                $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                                $status = true;
+
+                            } else if(($regrowset && $phonerowset && $emailrowset) && isset($facility) && $facility != ''){
+                                if (!empty($userRegion) || !empty($userDistrict)){
+                                    if (!empty($userRegion)){
+                                        if ($regionLocId != '' && in_array($regionLocId, $userRegion)){
+                                            $mappedRegion == true;
+                                        }
+                                    }
+                                    if (!empty($userDistrict)) {
+                                        if ($districtLocId != '' && in_array($districtLocId, $userDistrict)){
+                                            $mappedDistrict == true;
+                                        }
+                                    }
+                                    if ($mappedRegion || $mappedDistrict) {       
+                                        $response['data']['imported'][$j] = $data;
+                                        $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                        $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                        $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                                        $this->tableGateway->insert($data);
+                                        $status = true;
+                                    } else {
+                                        $response['data']['notimported'][$j] = $data;
+                                        $response['data']['notimported'][$j]['region'] = $sheetData[$i]['E'];
+                                        $response['data']['notimported'][$j]['district'] = $sheetData[$i]['F'];
+                                        $response['data']['notimported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                                        $status = true;
+                                    }
+                                } else {
                                     $response['data']['imported'][$j] = $data;
                                     $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
                                     $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
@@ -855,37 +892,31 @@ class ProviderTable extends AbstractTableGateway
                                     $this->tableGateway->insert($data);
                                     $status = true;
                                 }
-                            }else{
-                                $response['data']['imported'][$j] = $data;
-                                $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
-                                $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                                $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                                $this->tableGateway->insert($data);
+                            } else {
+                                $response['data']['duplicate'][] = array(
+                                    'professional_reg_no'       => $sheetData[$i]['A'],
+                                    'first_name'                => $sheetData[$i]['B'],
+                                    'middle_name'               => $sheetData[$i]['C'],
+                                    'last_name'                 => $sheetData[$i]['D'],
+                                    'region'                    => $sheetData[$i]['E'],
+                                    'district'                  => $sheetData[$i]['F'],
+                                    'type_vih_test'             => strtoupper($sheetData[$i]['G']),
+                                    'phone'                     => $sheetData[$i]['H'],
+                                    'email'                     => $sheetData[$i]['I'],
+                                    'prefered_contact_method'   => $sheetData[$i]['J'],
+                                    'current_jod'               => $sheetData[$i]['K'],
+                                    'facility_id'               => $sheetData[$i]['L'],
+                                    'time_worked'               => $sheetData[$i]['M'],
+                                    'password'                  => $sheetData[$i]['N'],
+                                    'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
+                                    'test_site_in_charge_phone' => $sheetData[$i]['P'],
+                                    'test_site_in_charge_email' => $sheetData[$i]['Q'],
+                                    'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
+                                    'facility_in_charge_phone'  => $sheetData[$i]['S'],
+                                    'facility_in_charge_email'  => $sheetData[$i]['T'],
+                                );
                                 $status = true;
-                            }           
-                        } else {
-                            $response['data']['duplicate'][] = array(
-                                'professional_reg_no'       => $sheetData[$i]['A'],
-                                'first_name'                => $sheetData[$i]['B'],
-                                'middle_name'               => $sheetData[$i]['C'],
-                                'last_name'                 => $sheetData[$i]['D'],
-                                'region'                    => $sheetData[$i]['E'],
-                                'district'                  => $sheetData[$i]['F'],
-                                'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                                'phone'                     => $sheetData[$i]['H'],
-                                'email'                     => $sheetData[$i]['I'],
-                                'prefered_contact_method'   => $sheetData[$i]['J'],
-                                'current_jod'               => $sheetData[$i]['K'],
-                                'facility_id'               => $sheetData[$i]['L'],
-                                'time_worked'               => $sheetData[$i]['M'],
-                                'password'                  => $sheetData[$i]['N'],
-                                'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                                'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                                'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                                'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                                'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                                'facility_in_charge_email'  => $sheetData[$i]['T'],
-                            );
+                            }
                         }
                         $j++;
                     }
@@ -896,8 +927,8 @@ class ProviderTable extends AbstractTableGateway
                 }
             }
         }
-        if ($response['data'] !== [] && ($response['data']['mandatory'] !== [] || $response['data']['duplicate'] !== [])) {
-            $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields below to ensure the Tester Profession number is not duplicated.';
+        if ($response['data'] !== [] && $response['data']['mandatory'] !== [] ) {
+            $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields.';
             return $response;
         } elseif ($status) {
             $container->alertMsg = 'Tester details imported successfully';
