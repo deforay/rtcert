@@ -559,50 +559,61 @@ class WrittenExamTable extends AbstractTableGateway
                                 'EQA_PT_points' => $sheetData[$i]['J'],
                                 'ethics_point' => $sheetData[$i]['K'],
                                 'inventory_point' => $sheetData[$i]['L'],
-                                'total_points' => $sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L'],
-                                'final_score' => (($sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L']) * 100) / 25,
                                 'training_id' => $sheetData[$i]['M'],
                             );
-                            $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
-                            $attemptNumArray = explode('##',$attemptNum);
-                            if(count($attemptNumArray) > 1){
-                                $data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
-                                //You cannot do re-certification
+                            
+                            $keysToCheck = ['qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point'];
+                            $numericReason = $this->validateNumericKeys($data, $keysToCheck);
+                            if (!empty($numericReason)) {
+                                $data['reason'] = $numericReason;
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
-                            }else{
-                                if($attemptNum==0){
-                                    $attemptvalue="1st attempt";
-                                }elseif($attemptNum==1){
-                                    $attemptvalue="2nd attempt";
-                                }elseif($attemptNum==2){
-                                    $attemptvalue="3rd attempt";
-                                } elseif ($attemptNum>=3) {
-                                    $attemptNum=$attemptNum+1;
-                                    $attemptvalue=$attemptNum;
-                                    $data['exam_type'] = $attemptvalue;
-                                    $data['reason'] = 'This tester has already made three unsuccessful attempts';
-                                    //Already made three unsuccessful attempts
+                            }
+                            
+                            if($dataValidate) {
+                                $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
+                                $attemptNumArray = explode('##',$attemptNum);
+                                if(count($attemptNumArray) > 1){
+                                    $data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
+                                    //You cannot do re-certification
                                     $response['data']['notimported'][$j] = $data;
                                     $dataValidate = false;
+                                }else{
+                                    if($attemptNum==0){
+                                        $attemptvalue="1st attempt";
+                                    }elseif($attemptNum==1){
+                                        $attemptvalue="2nd attempt";
+                                    }elseif($attemptNum==2){
+                                        $attemptvalue="3rd attempt";
+                                    } elseif ($attemptNum>=3) {
+                                        $attemptNum=$attemptNum+1;
+                                        $attemptvalue=$attemptNum;
+                                        $data['exam_type'] = $attemptvalue;
+                                        $data['reason'] = 'This tester has already made three unsuccessful attempts';
+                                        //Already made three unsuccessful attempts
+                                        $response['data']['notimported'][$j] = $data;
+                                        $dataValidate = false;
+                                    }
                                 }
                             }
                             $exam_to_val = $this->examToValidate($sheetData[$i]['A']);
                             $nb_days = $this->numberOfDays($sheetData[$i]['A']);
                             //$written = $this->writtenExamTable->counWritten($sheetData[$i]['A']);
                             $practical = 0;
-                            if ($exam_to_val > 0) {
+                            if ($dataValidate && $exam_to_val > 0) {
                                 $data['reason'] = 'This tester has a review pending validation. you must first validate it in the Examination tab.';
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
                             }
-                            if (isset($nb_days) && $nb_days <= 30) {
+                            if ($dataValidate && isset($nb_days) && $nb_days <= 30) {
                                 $data['reason'] = 'The last attempt of this tester was ' . $nb_days . ' day(s) ago. Please wait at lease ' . date("d-m-Y", strtotime(date("Y-m-d") . "  + " . (31 - $nb_days) . " day"));
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
                             }
                             if ($dataValidate && isset($attemptvalue) ){
                                 $data['exam_type'] = $attemptvalue;
+                                $data['total_points'] = $sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L'];
+                                $data['final_score'] = (($sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L']) * 100) / 25;
                                 $inserted = false;
                                 if($uploadOption == "update"){
                                     if(!empty($regrowset)){
@@ -634,11 +645,10 @@ class WrittenExamTable extends AbstractTableGateway
                                         $response['data']['duplicate'][$j] = $data;
                                     }
                                 }
-                                if(empty($practical) && $inserted){
-                                    $last_id = $this->last_id();
+                                $last_id = $this->last_id();
+                                if(empty($practical) && !empty($last_id) && $inserted){
                                     $this->insertToExamination($last_id);
-                                }elseif (!empty($practical) && $inserted) {
-                                    $last_id = $this->last_id();
+                                }elseif (!empty($practical) && !empty($last_id) && $inserted) {
                                     $nombre2 = $this->countPractical2($practical);
                                     if ($nombre2 == 0) {
                                         $this->examination($last_id, $practical);
@@ -667,5 +677,21 @@ class WrittenExamTable extends AbstractTableGateway
             $container->alertMsg = 'Written exams details imported successfully';
             return $response;
         }
+    }
+
+    function validateNumericKeys($data, $keys) {
+        foreach ($keys as $key) {
+            $formattedKey = str_replace('_', ' ', strtoupper($key));
+            if (!is_numeric($data[$key])) {
+                return "Please give numeric data in {$formattedKey}";
+            } else if ($key == "qa_point" && $key == "rt_point" && $key == "safety_point" && $key == "testing_algo_point" && $key == "report_keeping_point" && ($data[$key] < 0 || $data[$key] > 3)){
+                return "{$formattedKey} sections had more points than allowed"; 
+            } else if ($key == "specimen_point" && $key == "ethics_point" && $key == "inventory_point" && ($data[$key] < 0 || $data[$key] > 2)){
+                return "{$formattedKey} sections had more points than allowed"; 
+            } else if ($key == "EQA_PT_points" && ($data[$key] < 0 || $data[$key] > 4)){
+                return "{$formattedKey} sections had more points than allowed";
+            }
+        }
+        return '';
     }
 }
