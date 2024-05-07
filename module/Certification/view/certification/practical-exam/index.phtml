@@ -26,7 +26,10 @@ $role = $sessionLogin->roleCode;
                 <h2>Practical Exams</h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($this->isAllowed($role, 'Certification\Controller\PracticalExamController', 'add')) { ?>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\PracticalExamController', 'import-excel')) { ?>
+                    <a href="<?php echo $this->url('practical-exam', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import practical Exam</a>
+                <?php } 
+                    if ($this->isAllowed($role, 'Certification\Controller\PracticalExamController', 'add')) { ?>
                     <a href="<?php echo $this->url('practical-exam', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add a practical exam</a>
                 <?php } ?>
             </div>

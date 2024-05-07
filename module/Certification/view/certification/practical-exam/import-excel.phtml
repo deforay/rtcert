@@ -100,11 +100,11 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
     <div class="page-head">
         <div class="row">
             <div class="col-sm-8">
-                <h2>Import Written Exams</h2>
+                <h2>Import Practical Exams</h2>
             </div>
             <div class="col-sm-4 ">
-                <?php if ($this->isAllowed($role, 'Certification\Controller\WrittenExamController', 'index')) {  ?>
-                    <a href="<?php echo $this->url('written-exam', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Writtens Exams</a>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\PracticalExamController', 'index')) {  ?>
+                    <a href="<?php echo $this->url('practical-exam', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Practicals Exams</a>
                 <?php }  ?>
             </div>
         </div>
@@ -115,8 +115,8 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <form action="<?php $this->url('written-exam', array('action' => 'import_excel')); ?>" name="form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
-                                    <legend style="color: #00b3ee">Upload Written Exam File </legend>
+                            <form action="<?php $this->url('practical-exam', array('action' => 'import_excel')); ?>" name="form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
+                                    <legend style="color: #00b3ee">Upload Practical Exam File </legend>
                                     <div class="row">
                                         <div class="form-group">
                                             <label for="uploadOption" class="col-lg-2 control-label">
@@ -132,11 +132,11 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                     </div><br>
                                     <div class="row">
                                         <div class="form-group">
-                                            <label for="written_exam_excel" class="col-lg-2 control-label">
+                                            <label for="practical_exam_excel" class="col-lg-2 control-label">
                                                 Upload File<span class="mandatory">*</span>
                                             </label>
                                             <div class="col-lg-5">
-                                                <input class="form-control isRequired" type="file" name="written_exam_excel" title="Please Select File" />
+                                                <input class="form-control isRequired" type="file" name="practical_exam_excel" title="Please Select File" />
                                             </div>
                                         </div>
                                     </div><br>
@@ -144,11 +144,11 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                         <div class="form-group col-lg-3"></div>
                                         <div class="form-group col-lg-2">
                                             <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                            <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('written-exam', array('action' => 'index')); ?>">CANCEL</a>
+                                            <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('practical-exam', array('action' => 'index')); ?>">CANCEL</a>
                                         </div>
-                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'written_exam' . DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx')) { ?>
+                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'practical_exam' . DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx')) { ?>
                                             <div class="form-group col-lg-4">
-                                                <a href="/files/written_exam/Written_Exam_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
+                                                <a href="/files/practical_exam/Practical_Exam_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -184,7 +184,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                         <?php if (isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0) { ?>
                                             <div class="tab-pane <?php echo ($mandatory) ? 'active' : ''; ?>" id="mandatory-tabpanel" role="tabpanel" aria-labelledby="mandatory-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following written exams were NOT imported. Some key or Mandatory fields are missing in following written exam. Please edit the excel and try again.</div>
+                                                    <div>The following practical exams were NOT imported. Some key or Mandatory fields are missing in following practical exam. Please edit the excel and try again.</div>
                                                 </div>
                                                 <table id="mandatoryTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
@@ -235,7 +235,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             } ?>
                                             <div class="tab-pane <?php echo $active; ?>" id="duplicates-tabpanel" role="tabpanel" aria-labelledby="duplicates-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following written exams were NOT imported. These informations are already exist.</div>
+                                                    <div>The following practical exams were NOT imported. These informations are already exist.</div>
                                                 </div>
                                                 <table id="duplicatesTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
@@ -290,7 +290,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             } ?>
                                             <div class="tab-pane <?php echo $active; ?>" id="notimported-tabpanel" role="tabpanel" aria-labelledby="notimported-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following written exams were NOT imported. Please edit the excel and try again. You can ignore this list if you added these written exams by mistake.</div>
+                                                    <div>The following practical exams were NOT imported. Please edit the excel and try again. You can ignore this list if you added these practical exams by mistake.</div>
                                                 </div>
                                                 <table id="notimportedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
@@ -345,7 +345,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             } ?>
                                             <div class="tab-pane <?php echo $active; ?>" id="imported-tabpanel" role="tabpanel" aria-labelledby="imported-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>Following written exams were imported successfully.</div>
+                                                    <div>Following practical exams were imported successfully.</div>
                                                 </div>
                                                 <table id="importedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
@@ -409,7 +409,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
     });
     function handleOptionChange(select) {
         if (select.value === 'update') {
-            var confirmUpdate = confirm("This option will overwrite any existing written exam with matching Registration Number. Are you sure you want to continue?");
+            var confirmUpdate = confirm("This option will overwrite any existing practical exam with matching Registration Number. Are you sure you want to continue?");
             if (!confirmUpdate) {
                 // Revert selection back to "Skip" option
                 select.value = 'skip';

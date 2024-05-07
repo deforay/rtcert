@@ -174,4 +174,32 @@ class PracticalExamController extends AbstractActionController
             }
         }
     }
+    public function importExcelAction()
+    {
+        $logincontainer = new Container('credo');
+        if (empty($logincontainer->userId)) {
+            return $this->redirect()->toRoute("login");
+        }
+
+        $this->practicalExamForm->get('submit')->setValue('SUBMIT');
+
+
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            );
+            $result = $this->practicalExamTable->uploadPracticalExamExcel($post);
+            return array(
+                'form' => $this->practicalExamForm,
+                'result' => $result,
+            );
+        }
+        return array(
+            'form' => $this->practicalExamForm,
+            'writtens' => $this->practicalExamTable->fetchAll(),
+        );
+    }
 }

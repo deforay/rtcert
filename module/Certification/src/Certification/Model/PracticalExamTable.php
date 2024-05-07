@@ -15,6 +15,7 @@ use Laminas\Paginator\Paginator;
 use \Application\Model\GlobalTable;
 use \Application\Service\CommonService;
 use Laminas\Db\TableGateway\TableGateway;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PracticalExamTable extends AbstractTableGateway
 {
@@ -474,4 +475,167 @@ class PracticalExamTable extends AbstractTableGateway
 		}
 		return $selectData;
 	}
+
+	public function uploadPracticalExamExcel($params)
+    {
+        $loginContainer    = new Container('credo');
+        $container = new Container('alert');
+        $dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
+        $sql               = new Sql($dbAdapter);
+        $allowedExtensions = array('xls', 'xlsx', 'csv');
+
+        $fileName = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['practical_exam_excel']['name']);
+        $fileName = str_replace(" ", "-", $fileName);
+        $ranNumber = str_pad(rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileName = $ranNumber . "." . $extension;
+        $response = array();
+        $response['data']['mandatory'] = []; // Initialize as an empty array
+        $response['data']['duplicate'] = []; // Initialize as an empty array
+        $response['data']['imported'] = []; // Initialize as an empty array
+        $response['data']['notimported'] = []; // Initialize as an empty array
+        $uploadOption = $params['uploadOption'];
+
+        if (in_array($extension, $allowedExtensions)) {
+            $uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'practical_exam';
+            if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "practical_exam");
+            }
+            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['practical_exam_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+                $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
+                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'practical_exam'. DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx';
+                $validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
+
+                if($validate) {
+                    $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                    $count = count($sheetData);
+                    
+                    $j = 0;
+                    for ($i = 2; $i <= $count; ++$i) {
+                        $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A']))->current();
+                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '') {                            
+                            $response['data']['mandatory'][]  = array(
+                                'provider_id' => $sheetData[$i]['A'],
+                                'exam_admin' => $sheetData[$i]['B'],
+								'direct_observation_score' => $sheetData[$i]['C'],
+                                'Sample_testing_score' => $sheetData[$i]['D'],
+                                'date' => $sheetData[$i]['E'],
+                                'training_id' => $sheetData[$i]['F'],
+                            );
+                        } else {
+                            $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A'],'display' => 'yes'))->current();
+                            $dataValidate = true;
+                            $data = array(
+                                'provider_id' => $sheetData[$i]['A'],
+                                'exam_admin' => $sheetData[$i]['B'],
+								'direct_observation_score' => $sheetData[$i]['C'],
+                                'Sample_testing_score' => $sheetData[$i]['D'],
+								'practical_total_score' => ($sheetData[$i]['C'] + $sheetData[$i]['D']) / 2,
+                                'date' => $sheetData[$i]['E'],
+                                'training_id' => $sheetData[$i]['F'],
+                            );
+                            $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
+                            $attemptNumArray = explode('##',$attemptNum);
+                            if(count($attemptNumArray) > 1){
+                                $data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
+                                $response['data']['notimported'][$j] = $data;
+                                $dataValidate = false;
+                            }else{
+                                if($attemptNum==0){
+                                    $attemptvalue="1st attempt";
+                                }elseif($attemptNum==1){
+                                    $attemptvalue="2nd attempt";
+                                }elseif($attemptNum==2){
+                                    $attemptvalue="3rd attempt";
+                                } elseif ($attemptNum>=3) {
+                                    $attemptNum=$attemptNum+1;
+                                    $attemptvalue=$attemptNum;
+                                    $data['exam_type'] = $attemptvalue;
+                                    $data['reason'] = 'This tester has already made three unsuccessful attempts';
+                                    $response['data']['notimported'][$j] = $data;
+                                    $dataValidate = false;
+                                }
+                            }
+                            $exam_to_val = $this->examToValidate($sheetData[$i]['A']);
+                            $nb_days = $this->numberOfDays($sheetData[$i]['A']);
+                            //$written = $this->writtenExamTable->counWritten($sheetData[$i]['A']);
+                            $written = 0;
+                            if ($exam_to_val > 0) {
+                                $data['reason'] = 'This tester has a review pending validation. you must first validate it in the Examination tab.';
+                                $response['data']['notimported'][$j] = $data;
+                                $dataValidate = false;
+                            }
+                            if (isset($nb_days) && $nb_days <= 30) {
+                                $data['reason'] = 'The last attempt of this tester was ' . $nb_days . ' day(s) ago. Please wait at lease ' . date("d-m-Y", strtotime(date("Y-m-d") . "  + " . (31 - $nb_days) . " day"));
+                                $response['data']['notimported'][$j] = $data;
+                                $dataValidate = false;
+                            }
+                            if ($dataValidate && isset($attemptvalue) ){
+                                $data['exam_type'] = $attemptvalue;
+                                $inserted = false;
+                                if($uploadOption == "update"){
+                                    if(!empty($regrowset)){
+                                        $practice_exam_id = (int) $regrowset->practice_exam_id;
+                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['updated_by'] = $loginContainer->userId;
+                                        $response['data']['duplicate'][$j] = $data;
+                                        $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
+                                        $inserted = true; 
+                                    }else{
+                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['added_by'] = $loginContainer->userId;
+                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['updated_by'] = $loginContainer->userId;
+                                        $response['data']['imported'][$j] = $data;
+                                        $this->tableGateway->insert($data);
+                                        $inserted = true;
+                                    }
+                                }else{
+                                    if(empty($regrowset)){
+                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['added_by'] = $loginContainer->userId;
+                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['updated_by'] = $loginContainer->userId;
+                                        $response['data']['imported'][$j] = $data;
+                                        $this->tableGateway->insert($data);
+                                        $inserted = true;
+                                    }else{
+                                        $response['data']['duplicate'][$j] = $data;
+                                    }
+                                }
+                                if(empty($written) && $inserted){
+                                    $last_id = $this->last_id();
+                                    $this->insertToExamination($last_id);
+                                }elseif (!empty($written) && $inserted) {
+                                    $last_id = $this->last_id();
+                                    $nombre2 = $this->countWritten2($written);
+                                    if ($nombre2 == 0) {
+                                        $this->examination($last_id, $written);
+                                    } else {
+                                        $this->insertToExamination($last_id);
+                                    }
+                                }
+                            }
+                        }
+                        $j++;
+                    }
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'practical_exam' . DIRECTORY_SEPARATOR . $fileName);
+                }else{
+                    $container->alertMsg = 'Uploaded file column mismatched'; 
+                    return $response;
+                }
+            }
+        }
+        if ($response['data'] !== [] && $response['data']['mandatory'] !== [] ) {
+            $container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the highlighted fields.';
+            return $response;
+        } else if ($response['data'] !== [] && $response['data']['notimported'] !== [] ) {
+            $container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the file.';
+            return $response;
+        }else{
+            $container->alertMsg = 'practical exams details imported successfully';
+            return $response;
+        }
+    }
 }
