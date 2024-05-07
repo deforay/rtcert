@@ -40,7 +40,7 @@ class Module implements ConfigProviderInterface
                     public function __invoke($diContainer)
                     {
                         $dbAdapter = $diContainer->get('Laminas\Db\Adapter\Adapter');
-                        return new \Certification\Model\WrittenExamTable($dbAdapter);
+                        return new \Certification\Model\WrittenExamTable($dbAdapter, $diContainer);
                     }
                 },
                 'Certification\Model\PracticalExamTable'  => new class

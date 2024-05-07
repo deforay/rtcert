@@ -100,11 +100,11 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
     <div class="page-head">
         <div class="row">
             <div class="col-sm-8">
-                <h2>Import Testers</h2>
+                <h2>Import Written Exams</h2>
             </div>
             <div class="col-sm-4 ">
-                <?php if ($this->isAllowed($role, 'Certification\Controller\ProviderController', 'index')) {  ?>
-                    <a href="<?php echo $this->url('provider', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Testers</a>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\WrittenExamController', 'index')) {  ?>
+                    <a href="<?php echo $this->url('written-exam', array('action' => 'index')); ?>" class="btn btn-success pull-right" style="margin-left: 5px;"><i class="fa fa-list"></i>&nbsp;List of Writtens Exams</a>
                 <?php }  ?>
             </div>
         </div>
@@ -116,7 +116,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <form action="<?php $this->url('provider', array('action' => 'import_excel')); ?>" name="form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
-                                    <legend style="color: #00b3ee">Upload Tester File </legend>
+                                    <legend style="color: #00b3ee">Upload Written Exam File </legend>
                                     <div class="row">
                                         <div class="form-group">
                                             <label for="uploadOption" class="col-lg-2 control-label">
@@ -124,33 +124,33 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             </label>
                                             <div class="col-lg-5">
                                                 <select name="uploadOption" id="uploadOption" class="form-control" onchange="handleOptionChange(this)">
-                                                    <option value="skip" <?php echo ($_GET['option'] == 'skip') ? 'selected="selected"' : ''; ?>>Skip Testers with duplicate Email, Registration Number or Phone Number</option>
-                                                    <option value="update" <?php echo ($_GET['option'] == 'update') ? 'selected="selected"' : ''; ?>>Update Testers with duplicate Email, Registration Number or Phone Number</option>
+                                                    <option value="skip" <?php echo ($_GET['option'] == 'skip') ? 'selected="selected"' : ''; ?>>Skip Written Exam with Registration Number</option>
+                                                    <option value="update" <?php echo ($_GET['option'] == 'update') ? 'selected="selected"' : ''; ?>>Update Written Exam with duplicate Registration Number</option>
                                                 </select>
                                             </div>
                                         </div>
                                     </div><br>
                                     <div class="row">
                                         <div class="form-group">
-                                            <label for="tester_excel" class="col-lg-2 control-label">
+                                            <label for="written_exam_excel" class="col-lg-2 control-label">
                                                 Upload File<span class="mandatory">*</span>
                                             </label>
                                             <div class="col-lg-5">
-                                                <input class="form-control isRequired" type="file" name="tester_excel" title="Please Select File" />
+                                                <input class="form-control isRequired" type="file" name="written_exam_excel" title="Please Select File" />
                                             </div>
                                         </div>
                                     </div><br>
                                     <div class="row">
-                                            <div class="form-group col-lg-3"></div>
-                                            <div class="form-group col-lg-2">
-                                                <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
-                                                <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'index')); ?>">CANCEL</a>
+                                        <div class="form-group col-lg-3"></div>
+                                        <div class="form-group col-lg-2">
+                                            <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
+                                            <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('provider', array('action' => 'index')); ?>">CANCEL</a>
+                                        </div>
+                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'written_exam' . DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx')) { ?>
+                                            <div class="form-group col-lg-4">
+                                                <a href="/files/written_exam/Written_Exam_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
                                             </div>
-                                            <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'tester' . DIRECTORY_SEPARATOR . 'Tester_Bulk_Upload_Excel_format.xlsx')) { ?>
-                                                <div class="form-group col-lg-4">
-                                                    <a href="/files/tester/Tester_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
-                                                </div>
-                                            <?php } ?>
+                                        <?php } ?>
                                     </div>
                             </form>
                             <?php if ((isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0) || (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0) || (isset($result['data']['imported']) && count($result['data']['imported']) > 0) || (isset($result['data']['notimported']) && count($result['data']['notimported']) > 0)) { ?>
@@ -166,7 +166,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                         <?php }
                                         if (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0) { ?>
                                             <li class="nav-item" style="background: #ff00004a;color:white;">
-                                                <a class="nav-link" id="duplicates-tab" data-toggle="tab" href="#duplicates-tabpanel" role="tab" aria-controls="duplicates-tabpanel" aria-selected="true">Not Imported - Duplicates (<?php echo count($result['data']['duplicate']); ?>)</a>
+                                                <a class="nav-link" id="duplicates-tab" data-toggle="tab" href="#duplicates-tabpanel" role="tab" aria-controls="duplicates-tabpanel" aria-selected="true">Duplicates (<?php echo count($result['data']['duplicate']); ?>)</a>
                                             </li>
                                         <?php }
                                         if (isset($result['data']['notimported']) && count($result['data']['notimported']) > 0) { ?>
@@ -184,36 +184,42 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                         <?php if (isset($result['data']['mandatory']) && count($result['data']['mandatory']) > 0) { ?>
                                             <div class="tab-pane <?php echo ($mandatory) ? 'active' : ''; ?>" id="mandatory-tabpanel" role="tabpanel" aria-labelledby="mandatory-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following testers were NOT imported. Some key or Mandatory fields are missing in following testers. Please edit the excel and try again.</div>
+                                                    <div>The following written exams were NOT imported. Some key or Mandatory fields are missing in following written exam. Please edit the excel and try again.</div>
                                                 </div>
                                                 <table id="mandatoryTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
                                                         <tr>
                                                             <th>REG NO</th>
-                                                            <th>FIRST NAME</th>
-                                                            <th>LAST NAME</th>
-                                                            <th>PROVINCE</th>
-                                                            <th>DISTRICT</th>
-                                                            <th>TYPE OF HIV TEST MODALITY/POINT</th>
-                                                            <th>PHONE</th>
-                                                            <th>EMAIL</th>
-                                                            <th>CURRENT JOB TITLE</th>
-                                                            <th>FACILITY NAME</th>
+                                                            <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DATE</th>
+                                                            <th>QA (points)</th>
+                                                            <th>RT (points)</th>
+                                                            <th>SAFETY (points)</th>
+                                                            <th>SPECIMEN COLLECTION (points)</th>
+                                                            <th>TESTING ALGORITHM (points)</th>
+                                                            <th>RECORD KEEPING (points)</th>
+                                                            <th>EQA/PT (points)</th>
+                                                            <th>ETHICS (points)</th>
+                                                            <th>INVENTORY (points)</th>
+                                                            <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($result['data']['mandatory'] as $key => $row) { ?>
                                                             <tr class="row<?php echo ($key + 1); ?>">
-                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['professional_reg_no']; ?></span>
-                                                                <td><span name="rows[]" id="firstName<?php echo ($key + 1); ?>"><?php echo $row['first_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="lastName<?php echo ($key + 1); ?>"><?php echo $row['last_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="region<?php echo ($key + 1); ?>"><?php echo $row['region']; ?></span></td>
-                                                                <td><span name="rows[]" id="district<?php echo ($key + 1); ?>"><?php echo $row['district']; ?></span></td>
-                                                                <td><span name="rows[]" id="typeVihTest<?php echo ($key + 1); ?>"><?php echo $row['type_vih_test']; ?></span></td>
-                                                                <td><span name="rows[]" id="phone<?php echo ($key + 1); ?>"><?php echo $row['phone']; ?></span></td>
-                                                                <td><span name="rows[]" id="email<?php echo ($key + 1); ?>"><?php echo $row['email']; ?></td>
-                                                                <td><span name="rows[]" id="job<?php echo ($key + 1); ?>"><?php echo $row['current_jod']; ?></span></td>
-                                                                <td><span name="rows[]" id="facility<?php echo ($key + 1); ?>"><?php echo $row['facility_id']; ?></td>
+                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
+                                                                <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
+                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
+                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
+                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
+                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
+                                                                <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     </tbody>
@@ -223,44 +229,48 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                         if (isset($result['data']['duplicate']) && count($result['data']['duplicate']) > 0) {
                                             $active = '';
                                             if (!$mandatory) {
-                                                if (!$duplicate) {
-                                                    if ($imported) {
-                                                        $active = 'active';
-                                                    }
+                                                if ($duplicate) {
+                                                    $active = 'active';
                                                 }
                                             } ?>
                                             <div class="tab-pane <?php echo $active; ?>" id="duplicates-tabpanel" role="tabpanel" aria-labelledby="duplicates-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following testers were NOT imported. These informations are already exist.</div>
+                                                    <div>The following written exams were NOT imported. These informations are already exist.</div>
                                                 </div>
                                                 <table id="duplicatesTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
                                                         <tr>
                                                             <th>REG NO</th>
-                                                            <th>FIRST NAME</th>
-                                                            <th>LAST NAME</th>
-                                                            <th>PROVINCE</th>
-                                                            <th>DISTRICT</th>
-                                                            <th>TYPE OF HIV TEST MODALITY/POINT</th>
-                                                            <th>PHONE</th>
-                                                            <th>EMAIL</th>
-                                                            <th>CURRENT JOB TITLE</th>
-                                                            <th>FACILITY NAME</th>
+                                                            <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DATE</th>
+                                                            <th>QA (points)</th>
+                                                            <th>RT (points)</th>
+                                                            <th>SAFETY (points)</th>
+                                                            <th>SPECIMEN COLLECTION (points)</th>
+                                                            <th>TESTING ALGORITHM (points)</th>
+                                                            <th>RECORD KEEPING (points)</th>
+                                                            <th>EQA/PT (points)</th>
+                                                            <th>ETHICS (points)</th>
+                                                            <th>INVENTORY (points)</th>
+                                                            <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="duplicates">
                                                         <?php foreach ($result['data']['duplicate'] as $key => $row) { ?>
                                                             <tr class="row<?php echo ($key + 1); ?>">
-                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['professional_reg_no']; ?></span>
-                                                                <td><span name="rows[]" id="firstName<?php echo ($key + 1); ?>"><?php echo $row['first_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="lastName<?php echo ($key + 1); ?>"><?php echo $row['last_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="region<?php echo ($key + 1); ?>"><?php echo $row['region']; ?></span></td>
-                                                                <td><span name="rows[]" id="district<?php echo ($key + 1); ?>"><?php echo $row['district']; ?></span></td>
-                                                                <td><span name="rows[]" id="typeVihTest<?php echo ($key + 1); ?>"><?php echo $row['type_vih_test']; ?></span></td>
-                                                                <td><span name="rows[]" id="phone<?php echo ($key + 1); ?>"><?php echo $row['phone']; ?></span></td>
-                                                                <td><span name="rows[]" id="email<?php echo ($key + 1); ?>"><?php echo $row['email']; ?></td>
-                                                                <td><span name="rows[]" id="job<?php echo ($key + 1); ?>"><?php echo $row['current_jod']; ?></span></td>
-                                                                <td><span name="rows[]" id="facility<?php echo ($key + 1); ?>"><?php echo $row['facility_id']; ?></td>
+                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
+                                                                <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
+                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
+                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
+                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
+                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
+                                                                <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     </tbody>
@@ -280,36 +290,44 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             } ?>
                                             <div class="tab-pane <?php echo $active; ?>" id="notimported-tabpanel" role="tabpanel" aria-labelledby="notimported-tab">
                                                 <div class="alert alert-info alert-dismissable"><i class="fa fa-info"></i>
-                                                    <div>The following testers were NOT imported. Some of the testers information is mapped. Please edit the excel and try again. You can ignore this list if you added these testers by mistake.</div>
+                                                    <div>The following written exams were NOT imported. Please edit the excel and try again. You can ignore this list if you added these written exams by mistake.</div>
                                                 </div>
                                                 <table id="notimportedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
                                                         <tr>
                                                             <th>REG NO</th>
-                                                            <th>FIRST NAME</th>
-                                                            <th>LAST NAME</th>
-                                                            <th>PROVINCE</th>
-                                                            <th>DISTRICT</th>
-                                                            <th>TYPE OF HIV TEST MODALITY/POINT</th>
-                                                            <th>PHONE</th>
-                                                            <th>EMAIL</th>
-                                                            <th>CURRENT JOB TITLE</th>
-                                                            <th>FACILITY NAME</th>
+                                                            <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DATE</th>
+                                                            <th>QA (points)</th>
+                                                            <th>RT (points)</th>
+                                                            <th>SAFETY (points)</th>
+                                                            <th>SPECIMEN COLLECTION (points)</th>
+                                                            <th>TESTING ALGORITHM (points)</th>
+                                                            <th>RECORD KEEPING (points)</th>
+                                                            <th>EQA/PT (points)</th>
+                                                            <th>ETHICS (points)</th>
+                                                            <th>INVENTORY (points)</th>
+                                                            <th>TRAINING</th>
+                                                            <th>REASON</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="notimporteds">
                                                         <?php foreach ($result['data']['notimported'] as $key => $row) { ?>
                                                             <tr class="row<?php echo ($key + 1); ?>">
-                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['professional_reg_no']; ?></span>
-                                                                <td><span name="rows[]" id="firstName<?php echo ($key + 1); ?>"><?php echo $row['first_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="lastName<?php echo ($key + 1); ?>"><?php echo $row['last_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="region<?php echo ($key + 1); ?>"><?php echo $row['region']; ?></span></td>
-                                                                <td><span name="rows[]" id="district<?php echo ($key + 1); ?>"><?php echo $row['district']; ?></span></td>
-                                                                <td><span name="rows[]" id="typeVihTest<?php echo ($key + 1); ?>"><?php echo $row['type_vih_test']; ?></span></td>
-                                                                <td><span name="rows[]" id="phone<?php echo ($key + 1); ?>"><?php echo $row['phone']; ?></span></td>
-                                                                <td><span name="rows[]" id="email<?php echo ($key + 1); ?>"><?php echo $row['email']; ?></td>
-                                                                <td><span name="rows[]" id="job<?php echo ($key + 1); ?>"><?php echo $row['current_jod']; ?></span></td>
-                                                                <td><span name="rows[]" id="facility<?php echo ($key + 1); ?>"><?php echo $row['facility_id']; ?></td>
+                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
+                                                                <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
+                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
+                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
+                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
+                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
+                                                                <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
+                                                                <td><span name="rows[]" id="reason<?php echo ($key + 1); ?>"><?php echo $row['reason']; ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     </tbody>
@@ -332,31 +350,37 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                 <table id="importedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
                                                         <tr>
-                                                            <th>REG NO</th>
-                                                            <th>FIRST NAME</th>
-                                                            <th>LAST NAME</th>
-                                                            <th>PROVINCE</th>
-                                                            <th>DISTRICT</th>
-                                                            <th>TYPE OF HIV TEST MODALITY/POINT</th>
-                                                            <th>PHONE</th>
-                                                            <th>EMAIL</th>
-                                                            <th>CURRENT JOB TITLE</th>
-                                                            <th>FACILITY NAME</th>
+                                                        <th>REG NO</th>
+                                                            <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DATE</th>
+                                                            <th>QA (points)</th>
+                                                            <th>RT (points)</th>
+                                                            <th>SAFETY (points)</th>
+                                                            <th>SPECIMEN COLLECTION (points)</th>
+                                                            <th>TESTING ALGORITHM (points)</th>
+                                                            <th>RECORD KEEPING (points)</th>
+                                                            <th>EQA/PT (points)</th>
+                                                            <th>ETHICS (points)</th>
+                                                            <th>INVENTORY (points)</th>
+                                                            <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="imported">
                                                         <?php foreach ($result['data']['imported'] as $key => $row) { ?>
                                                             <tr class="row<?php echo ($key + 1); ?>">
-                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['professional_reg_no']; ?></span>
-                                                                <td><span name="rows[]" id="firstName<?php echo ($key + 1); ?>"><?php echo $row['first_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="lastName<?php echo ($key + 1); ?>"><?php echo $row['last_name']; ?></span></td>
-                                                                <td><span name="rows[]" id="region<?php echo ($key + 1); ?>"><?php echo $row['region']; ?></span></td>
-                                                                <td><span name="rows[]" id="district<?php echo ($key + 1); ?>"><?php echo $row['district']; ?></span></td>
-                                                                <td><span name="rows[]" id="typeVihTest<?php echo ($key + 1); ?>"><?php echo $row['type_vih_test']; ?></span></td>
-                                                                <td><span name="rows[]" id="phone<?php echo ($key + 1); ?>"><?php echo $row['phone']; ?></span></td>
-                                                                <td><span name="rows[]" id="email<?php echo ($key + 1); ?>"><?php echo $row['email']; ?></td>
-                                                                <td><span name="rows[]" id="job<?php echo ($key + 1); ?>"><?php echo $row['current_jod']; ?></span></td>
-                                                                <td><span name="rows[]" id="facility<?php echo ($key + 1); ?>"><?php echo $row['facility_id']; ?></td>
+                                                                <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
+                                                                <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
+                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
+                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
+                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
+                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
+                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
+                                                                <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     </tbody>
@@ -385,7 +409,7 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
     });
     function handleOptionChange(select) {
         if (select.value === 'update') {
-            var confirmUpdate = confirm("This option will overwrite any existing tester with matching Email, Registration Number or Phone Number. Are you sure you want to continue?");
+            var confirmUpdate = confirm("This option will overwrite any existing written exam with matching Registration Number. Are you sure you want to continue?");
             if (!confirmUpdate) {
                 // Revert selection back to "Skip" option
                 select.value = 'skip';

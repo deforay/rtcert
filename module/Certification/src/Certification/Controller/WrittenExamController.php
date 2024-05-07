@@ -176,4 +176,33 @@ class WrittenExamController extends AbstractActionController
             }
         }
     }
+
+    public function importExcelAction()
+    {
+        $logincontainer = new Container('credo');
+        if (empty($logincontainer->userId)) {
+            return $this->redirect()->toRoute("login");
+        }
+
+        $this->writtenExamform->get('submit')->setValue('SUBMIT');
+
+
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $post = array_merge_recursive(
+                $request->getPost()->toArray(),
+                $request->getFiles()->toArray()
+            );
+            $result = $this->writtenExamTable->uploadWrittenExamExcel($post);
+            return array(
+                'form' => $this->writtenExamform,
+                'result' => $result,
+            );
+        }
+        return array(
+            'form' => $this->writtenExamform,
+            'writtens' => $this->writtenExamTable->fetchAll(),
+        );
+    }
 }

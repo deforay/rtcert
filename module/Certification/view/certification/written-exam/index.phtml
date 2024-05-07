@@ -48,7 +48,10 @@ $role = $sessionLogin->roleCode;
                 <h2>Written Exams </h2>
             </div>
             <div class="col-sm-4">
-                <?php if ($this->isAllowed($role, 'Certification\Controller\WrittenExamController', 'add')) {  ?>
+                <?php if ($this->isAllowed($role, 'Certification\Controller\WrittenExamController', 'import-excel')) { ?>
+                    <a href="<?php echo $this->url('written-exam', array('action' => 'import-excel')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Import Written Exam</a>
+                <?php }
+                    if ($this->isAllowed($role, 'Certification\Controller\WrittenExamController', 'add')) {  ?>
                     <a href="<?php echo $this->url('written-exam', array('action' => 'add')); ?>" class="btn btn-dark pull-right" style="margin-left: 5px;"><i class="fa fa-plus"></i>&nbsp;Add Written Exam</a>
                 <?php }  ?>
             </div>

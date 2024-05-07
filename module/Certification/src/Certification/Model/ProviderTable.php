@@ -737,8 +737,7 @@ class ProviderTable extends AbstractTableGateway
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['tester_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
                 $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
                 $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'tester'. DIRECTORY_SEPARATOR . 'Tester_Bulk_Upload_Excel_format.xlsx';
-
-                $validate = $this->validateUploadedFile($uploadedFilePath, $templateFilePath);
+                $validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
                 
                 if($validate) {
                     $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
@@ -934,46 +933,6 @@ class ProviderTable extends AbstractTableGateway
             $container->alertMsg = 'Tester details imported successfully';
             return $response;
         }
-    }
-
-    public function validateUploadedFile($uploadedFilePath, $templateFilePath)
-    {
-        // Load the uploaded Excel file
-        $uploadedSpreadsheet = IOFactory::load($uploadedFilePath);
-
-        // Load the template Excel file
-        $templateSpreadsheet = IOFactory::load($templateFilePath);
-
-        // Get the first sheet of the uploaded file
-        $uploadedSheet = $uploadedSpreadsheet->getSheet(0);
-
-        // Get the first sheet of the template file
-        $templateSheet = $templateSpreadsheet->getSheet(0);
-
-        // Extract headers from both sheets for comparison
-        $uploadedHeaders = $uploadedSheet->rangeToArray('A1:Z1')[0];  // Adjust range as needed
-        $templateHeaders = $templateSheet->rangeToArray('A1:Z1')[0];  // Adjust range as needed
-
-        // Normalize headers for case-insensitive comparison and remove spaces/newlines
-        $normalizedUploadedHeaders = array_map(function ($header) {
-            return strtolower(preg_replace('/\s+/', '', $header));
-        }, $uploadedHeaders);
-
-        $normalizedTemplateHeaders = array_map(function ($header) {
-            return strtolower(preg_replace('/\s+/', '', $header));
-        }, $templateHeaders);
-
-        // Compare the column headers
-        if ($normalizedUploadedHeaders !== $normalizedTemplateHeaders) {
-            // The column headers do not match the template
-            return false;
-        }
-
-        // Compare additional formatting, data types, or any other specific requirements
-        // ...
-
-        // If all checks pass, return true
-        return true;
     }
 
     public function importManuallyData($params)
