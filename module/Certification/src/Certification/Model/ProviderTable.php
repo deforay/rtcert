@@ -812,9 +812,9 @@ class ProviderTable extends AbstractTableGateway
                             }
                             $data = array(
                                 'professional_reg_no'       => $sheetData[$i]['A'],
-                                'first_name'                => $sheetData[$i]['B'],
-                                'middle_name'               => $sheetData[$i]['C'],
-                                'last_name'                 => $sheetData[$i]['D'],
+                                'first_name'                => strtoupper($sheetData[$i]['B']),
+                                'middle_name'               => strtoupper($sheetData[$i]['C']),
+                                'last_name'                 => strtoupper($sheetData[$i]['D']),
                                 'region'                    => $regionLocId,
                                 'district'                  => $districtLocId,
                                 'type_vih_test'             => strtoupper($sheetData[$i]['G']),
@@ -832,89 +832,93 @@ class ProviderTable extends AbstractTableGateway
                                 'facility_in_charge_phone'  => $sheetData[$i]['S'],
                                 'facility_in_charge_email'  => $sheetData[$i]['T'],
                                 'certification_reg_no'      => $certification_reg_no,
-                                'added_on'                  => \Application\Service\CommonService::getDateTime(),
-                                'added_by'                  => $loginContainer->userId,
-                                'last_updated_on'           => \Application\Service\CommonService::getDateTime(),
-                                'last_updated_by'           => $loginContainer->userId,
                             );
-
-                            if ((!$regrowset || !$phonerowset || !$emailrowset) && $uploadOption == "update"){
-                                if (!empty($regrowset)) {
-                                    $db->where("id", $regrowset['id']);
-                                    $db->update('provider', $data);
-                                }
-                                if (!empty($phonerowset)) {
-                                    $db->where("id", $phonerowset['id']);
-                                    $db->update('provider', $data);
-                                }
-                                if (!empty($emailrowset)) {
-                                    $db->where("id", $emailrowset['id']);
-                                    $db->update('provider', $data);
-                                }
-                                $response['data']['imported'][$j] = $data;
-                                $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
-                                $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                                $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                                $status = true;
-
-                            } else if(($regrowset && $phonerowset && $emailrowset) && isset($facility) && $facility != ''){
-                                if (!empty($userRegion) || !empty($userDistrict)){
-                                    if (!empty($userRegion)){
-                                        if ($regionLocId != '' && in_array($regionLocId, $userRegion)){
-                                            $mappedRegion == true;
+                            if (!empty($userRegion) || !empty($userDistrict)) {
+                                $mappedRegion = (!empty($userRegion) && $regionLocId != '' && in_array($regionLocId, $userRegion));
+                                $mappedDistrict = (!empty($userDistrict) && $districtLocId != '' && in_array($districtLocId, $userDistrict));
+                            }   
+                            if($uploadOption == "update"){
+                                if(!empty($regrowset) || !empty($phonerowset) || !empty($emailrowset)){
+                                    $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+                                    $data['last_updated_by'] = $loginContainer->userId;
+                                    foreach ([$regrowset, $phonerowset, $emailrowset] as $row) {
+                                        if (!empty($row)) {
+                                            $db->where("id", $row['id']);
+                                            $db->update('provider', $data);
                                         }
                                     }
-                                    if (!empty($userDistrict)) {
-                                        if ($districtLocId != '' && in_array($districtLocId, $userDistrict)){
-                                            $mappedDistrict == true;
+                                    $response['data']['duplicate'][$j] = $data;
+                                    $response['data']['duplicate'][$j]['region'] = $sheetData[$i]['E'];
+                                    $response['data']['duplicate'][$j]['district'] = $sheetData[$i]['F'];
+                                    $response['data']['duplicate'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                }else{
+                                    if (!empty($userRegion) || !empty($userDistrict)){
+                                        if($mappedRegion || $mappedDistrict){
+                                            $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                            $data['added_by'] = $loginContainer->userId;
+                                            $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+                                            $data['last_updated_by'] = $loginContainer->userId;
+                                            $response['data']['imported'][$j] = $data;
+                                            $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                            $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                            $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                            $this->tableGateway->insert($data);
+                                        }else{
+                                            $data['reason'] = 'Given User location not mapped. Please edit excel and try again.';
+                                            $response['data']['notimported'][$j] = $data;
+                                            $response['data']['notimported'][$j]['region'] = $sheetData[$i]['E'];
+                                            $response['data']['notimported'][$j]['district'] = $sheetData[$i]['F'];
+                                            $response['data']['notimported'][$j]['facility_id'] = $sheetData[$i]['L'];
                                         }
-                                    }
-                                    if ($mappedRegion || $mappedDistrict) {       
+                                    }else{
+                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['added_by'] = $loginContainer->userId;
+                                        $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['last_updated_by'] = $loginContainer->userId;
                                         $response['data']['imported'][$j] = $data;
                                         $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
                                         $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                                        $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
+                                        $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['L'];
                                         $this->tableGateway->insert($data);
-                                        $status = true;
-                                    } else {
-                                        $response['data']['notimported'][$j] = $data;
-                                        $response['data']['notimported'][$j]['region'] = $sheetData[$i]['E'];
-                                        $response['data']['notimported'][$j]['district'] = $sheetData[$i]['F'];
-                                        $response['data']['notimported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                                        $status = true;
-                                    }
-                                } else {
-                                    $response['data']['imported'][$j] = $data;
-                                    $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
-                                    $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
-                                    $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['K'];
-                                    $this->tableGateway->insert($data);
-                                    $status = true;
+                                    } 
                                 }
-                            } else {
-                                $response['data']['duplicate'][] = array(
-                                    'professional_reg_no'       => $sheetData[$i]['A'],
-                                    'first_name'                => $sheetData[$i]['B'],
-                                    'middle_name'               => $sheetData[$i]['C'],
-                                    'last_name'                 => $sheetData[$i]['D'],
-                                    'region'                    => $sheetData[$i]['E'],
-                                    'district'                  => $sheetData[$i]['F'],
-                                    'type_vih_test'             => strtoupper($sheetData[$i]['G']),
-                                    'phone'                     => $sheetData[$i]['H'],
-                                    'email'                     => $sheetData[$i]['I'],
-                                    'prefered_contact_method'   => $sheetData[$i]['J'],
-                                    'current_jod'               => $sheetData[$i]['K'],
-                                    'facility_id'               => $sheetData[$i]['L'],
-                                    'time_worked'               => $sheetData[$i]['M'],
-                                    'password'                  => $sheetData[$i]['N'],
-                                    'test_site_in_charge_name'  => strtoupper($sheetData[$i]['O']),
-                                    'test_site_in_charge_phone' => $sheetData[$i]['P'],
-                                    'test_site_in_charge_email' => $sheetData[$i]['Q'],
-                                    'facility_in_charge_name'   => strtoupper($sheetData[$i]['R']),
-                                    'facility_in_charge_phone'  => $sheetData[$i]['S'],
-                                    'facility_in_charge_email'  => $sheetData[$i]['T'],
-                                );
-                                $status = true;
+                            }else{
+                                if(empty($regrowset) && empty($phonerowset) && empty($emailrowset) ){
+                                    if (!empty($userRegion) || !empty($userDistrict)){
+                                        if($mappedRegion || $mappedDistrict){
+                                            $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                            $data['added_by'] = $loginContainer->userId;
+                                            $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+                                            $data['last_updated_by'] = $loginContainer->userId;
+                                            $response['data']['imported'][$j] = $data;
+                                            $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                            $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                            $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                            $this->tableGateway->insert($data);
+                                        }else{
+                                            $data['reason'] = 'Given User location not mapped. Please edit excel and try again.';
+                                            $response['data']['notimported'][$j] = $data;
+                                            $response['data']['notimported'][$j]['region'] = $sheetData[$i]['E'];
+                                            $response['data']['notimported'][$j]['district'] = $sheetData[$i]['F'];
+                                            $response['data']['notimported'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                        }
+                                    }else{
+                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['added_by'] = $loginContainer->userId;
+                                        $data['last_updated_on'] = \Application\Service\CommonService::getDateTime();
+                                        $data['last_updated_by'] = $loginContainer->userId;
+                                        $response['data']['imported'][$j] = $data;
+                                        $response['data']['imported'][$j]['region'] = $sheetData[$i]['E'];
+                                        $response['data']['imported'][$j]['district'] = $sheetData[$i]['F'];
+                                        $response['data']['imported'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                        $this->tableGateway->insert($data);
+                                    }
+                                }else{
+                                    $response['data']['duplicate'][$j] = $data;
+                                    $response['data']['duplicate'][$j]['region'] = $sheetData[$i]['E'];
+                                    $response['data']['duplicate'][$j]['district'] = $sheetData[$i]['F'];
+                                    $response['data']['duplicate'][$j]['facility_id'] = $sheetData[$i]['L'];
+                                }
                             }
                         }
                         $j++;
@@ -929,7 +933,10 @@ class ProviderTable extends AbstractTableGateway
         if ($response['data'] !== [] && $response['data']['mandatory'] !== [] ) {
             $container->alertMsg = 'Some testers from the excel file were not imported. Please check the highlighted fields.';
             return $response;
-        } elseif ($status) {
+        } elseif ($response['data'] !== [] && $response['data']['notimported'] !== [] ) {
+            $container->alertMsg = 'Some testers from the excel file were not imported. Please check the file.';
+            return $response;
+        } else {
             $container->alertMsg = 'Tester details imported successfully';
             return $response;
         }
