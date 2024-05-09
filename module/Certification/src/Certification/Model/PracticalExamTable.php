@@ -524,9 +524,9 @@ class PracticalExamTable extends AbstractTableGateway
                                 'training_id' => $sheetData[$i]['F'],
                             );
                         } else {
-                            $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A'],'display' => 'yes'))->current();
-                            $dataValidate = true;
-                            $data = array(
+							$dataValidate = true;
+                            $regrowset = [];
+							$data = array(
                                 'provider_id' => $sheetData[$i]['A'],
                                 'exam_admin' => $sheetData[$i]['B'],
 								'direct_observation_score' => $sheetData[$i]['C'],
@@ -535,6 +535,14 @@ class PracticalExamTable extends AbstractTableGateway
                                 'date' => $sheetData[$i]['E'],
                                 'training_id' => $sheetData[$i]['F'],
                             );
+							$provider = $this->getProvider($sheetData[$i]['A']);
+                            if(empty($provider)){
+                                $data['reason'] = 'Tester is invalid. Please give correct Registration number';
+                                $response['data']['notimported'][$j] = $data;
+                                $dataValidate = false;
+                            }else{
+                                $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'],'display' => 'yes'))->current();
+                            }                            
                             $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
                             $attemptNumArray = explode('##',$attemptNum);
                             if(count($attemptNumArray) > 1){
@@ -577,37 +585,40 @@ class PracticalExamTable extends AbstractTableGateway
                                 if($uploadOption == "update"){
                                     if(!empty($regrowset)){
                                         $practice_exam_id = (int) $regrowset->practice_exam_id;
+										$response['data']['duplicate'][$j] = $data;
+										$data['provider_id'] = $provider['id'];
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['duplicate'][$j] = $data;
                                         $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
                                         $inserted = true; 
                                     }else{
+										$response['data']['imported'][$j] = $data;
+										$data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['added_by'] = $loginContainer->userId;
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['imported'][$j] = $data;
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
                                     }
                                 }else{
                                     if(empty($regrowset)){
+										$response['data']['imported'][$j] = $data;
+										$data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['added_by'] = $loginContainer->userId;
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['imported'][$j] = $data;
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
                                     }else{
                                         $response['data']['duplicate'][$j] = $data;
                                     }
                                 }
-                                if(empty($written) && $inserted){
+                                if(empty($written) && !empty($last_id) && $inserted){
                                     $last_id = $this->last_id();
                                     $this->insertToExamination($last_id);
-                                }elseif (!empty($written) && $inserted) {
+                                }elseif (!empty($written) && !empty($last_id) && $inserted) {
                                     $last_id = $this->last_id();
                                     $nombre2 = $this->countWritten2($written);
                                     if ($nombre2 == 0) {
@@ -638,4 +649,20 @@ class PracticalExamTable extends AbstractTableGateway
             return $response;
         }
     }
+
+	public function getProvider($regNo)
+    {
+        $db = $this->adapter;
+        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no ='. $regNo;;
+        $statement = $db->query($sql1);
+        $result = $statement->execute();
+        $selectData = array();
+
+        foreach ($result as $res) {
+            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            $selectData['id'] = $res['id'];
+        }
+        return $selectData;
+    }
+	
 }

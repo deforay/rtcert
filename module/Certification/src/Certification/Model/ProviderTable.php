@@ -843,8 +843,8 @@ class ProviderTable extends AbstractTableGateway
                                     $data['last_updated_by'] = $loginContainer->userId;
                                     foreach ([$regrowset, $phonerowset, $emailrowset] as $row) {
                                         if (!empty($row)) {
-                                            $db->where("id", $row['id']);
-                                            $db->update('provider', $data);
+                                            $id = (int) $row->id;
+                                            $this->tableGateway->update($data, array('id' => $id));
                                         }
                                     }
                                     $response['data']['duplicate'][$j] = $data;
@@ -1192,7 +1192,7 @@ class ProviderTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $providerID = base64_encode($aRow['id']);
-            $providerName = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $providerName = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $link = '<a href="javascript:void(0);" style="cursor:pointer;text-decoration:underline;" onclick="getTestHistory(\'' . $providerID . '\');">' . $providerName . '</a>';
 
             $certificationTime = '';
@@ -1255,7 +1255,7 @@ class ProviderTable extends AbstractTableGateway
             if ($parameters['addproviders'] == '') {
                 $row[] = $link;
             } else {
-                $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+                $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             }
             $row[] = $aRow['region_name'];
             $row[] = $aRow['district_name'];

@@ -191,16 +191,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                         <tr>
                                                             <th>REG NO</th>
                                                             <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DIRECT ObSERVATION SCORE</th>
+                                                            <th>SAMPLE TESTING SCORE</th>
                                                             <th>DATE</th>
-                                                            <th>QA (points)</th>
-                                                            <th>RT (points)</th>
-                                                            <th>SAFETY (points)</th>
-                                                            <th>SPECIMEN COLLECTION (points)</th>
-                                                            <th>TESTING ALGORITHM (points)</th>
-                                                            <th>RECORD KEEPING (points)</th>
-                                                            <th>EQA/PT (points)</th>
-                                                            <th>ETHICS (points)</th>
-                                                            <th>INVENTORY (points)</th>
                                                             <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
@@ -209,16 +202,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                             <tr class="row<?php echo ($key + 1); ?>">
                                                                 <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
                                                                 <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="directObservationScore<?php echo ($key + 1); ?>"><?php echo $row['direct_observation_score']; ?></span></td>
+                                                                <td><span name="rows[]" id="SampleTestingScore<?php echo ($key + 1); ?>"><?php echo $row['Sample_testing_score']; ?></span></td>
                                                                 <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
-                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
-                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
-                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
-                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
                                                                 <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>
@@ -242,16 +228,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                         <tr>
                                                             <th>REG NO</th>
                                                             <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DIRECT ObSERVATION SCORE</th>
+                                                            <th>SAMPLE TESTING SCORE</th>
                                                             <th>DATE</th>
-                                                            <th>QA (points)</th>
-                                                            <th>RT (points)</th>
-                                                            <th>SAFETY (points)</th>
-                                                            <th>SPECIMEN COLLECTION (points)</th>
-                                                            <th>TESTING ALGORITHM (points)</th>
-                                                            <th>RECORD KEEPING (points)</th>
-                                                            <th>EQA/PT (points)</th>
-                                                            <th>ETHICS (points)</th>
-                                                            <th>INVENTORY (points)</th>
                                                             <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
@@ -260,16 +239,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                             <tr class="row<?php echo ($key + 1); ?>">
                                                                 <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
                                                                 <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="directObservationScore<?php echo ($key + 1); ?>"><?php echo $row['direct_observation_score']; ?></span></td>
+                                                                <td><span name="rows[]" id="SampleTestingScore<?php echo ($key + 1); ?>"><?php echo $row['Sample_testing_score']; ?></span></td>
                                                                 <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
-                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
-                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
-                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
-                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
                                                                 <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>
@@ -297,18 +269,10 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                         <tr>
                                                             <th>REG NO</th>
                                                             <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DIRECT ObSERVATION SCORE</th>
+                                                            <th>SAMPLE TESTING SCORE</th>
                                                             <th>DATE</th>
-                                                            <th>QA (points)</th>
-                                                            <th>RT (points)</th>
-                                                            <th>SAFETY (points)</th>
-                                                            <th>SPECIMEN COLLECTION (points)</th>
-                                                            <th>TESTING ALGORITHM (points)</th>
-                                                            <th>RECORD KEEPING (points)</th>
-                                                            <th>EQA/PT (points)</th>
-                                                            <th>ETHICS (points)</th>
-                                                            <th>INVENTORY (points)</th>
                                                             <th>TRAINING</th>
-                                                            <th>REASON</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="notimporteds">
@@ -316,18 +280,10 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                             <tr class="row<?php echo ($key + 1); ?>">
                                                                 <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
                                                                 <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="directObservationScore<?php echo ($key + 1); ?>"><?php echo $row['direct_observation_score']; ?></span></td>
+                                                                <td><span name="rows[]" id="SampleTestingScore<?php echo ($key + 1); ?>"><?php echo $row['Sample_testing_score']; ?></span></td>
                                                                 <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
-                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
-                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
-                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
-                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
                                                                 <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
-                                                                <td><span name="rows[]" id="reason<?php echo ($key + 1); ?>"><?php echo $row['reason']; ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     </tbody>
@@ -350,18 +306,11 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                 <table id="importedTable" class="table table-bordered table-responsive table-striped table-hover dataTable">
                                                     <thead class="frezz">
                                                         <tr>
-                                                        <th>REG NO</th>
+                                                            <th>REG NO</th>
                                                             <th>EXAM ADMINISTERED BY</th>
+                                                            <th>DIRECT ObSERVATION SCORE</th>
+                                                            <th>SAMPLE TESTING SCORE</th>
                                                             <th>DATE</th>
-                                                            <th>QA (points)</th>
-                                                            <th>RT (points)</th>
-                                                            <th>SAFETY (points)</th>
-                                                            <th>SPECIMEN COLLECTION (points)</th>
-                                                            <th>TESTING ALGORITHM (points)</th>
-                                                            <th>RECORD KEEPING (points)</th>
-                                                            <th>EQA/PT (points)</th>
-                                                            <th>ETHICS (points)</th>
-                                                            <th>INVENTORY (points)</th>
                                                             <th>TRAINING</th>
                                                         </tr>
                                                     </thead>
@@ -370,16 +319,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                                             <tr class="row<?php echo ($key + 1); ?>">
                                                                 <td><span name="rows[]" id="regNo<?php echo ($key + 1); ?>"><?php echo $row['provider_id']; ?></span>
                                                                 <td><span name="rows[]" id="examAdmin<?php echo ($key + 1); ?>"><?php echo $row['exam_admin']; ?></span></td>
+                                                                <td><span name="rows[]" id="directObservationScore<?php echo ($key + 1); ?>"><?php echo $row['direct_observation_score']; ?></span></td>
+                                                                <td><span name="rows[]" id="SampleTestingScore<?php echo ($key + 1); ?>"><?php echo $row['Sample_testing_score']; ?></span></td>
                                                                 <td><span name="rows[]" id="date<?php echo ($key + 1); ?>"><?php echo $row['date']; ?></span></td>
-                                                                <td><span name="rows[]" id="qaPoint<?php echo ($key + 1); ?>"><?php echo $row['qa_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="rtPoint<?php echo ($key + 1); ?>"><?php echo $row['rt_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="safetyPoint<?php echo ($key + 1); ?>"><?php echo $row['safety_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="specimenPoint<?php echo ($key + 1); ?>"><?php echo $row['specimen_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="testingAlgoPoint<?php echo ($key + 1); ?>"><?php echo $row['testing_algo_point']; ?></td>
-                                                                <td><span name="rows[]" id="reportKeepingPoint<?php echo ($key + 1); ?>"><?php echo $row['report_keeping_point']; ?></span></td>
-                                                                <td><span name="rows[]" id="EQAPTPoints<?php echo ($key + 1); ?>"><?php echo $row['EQA_PT_points']; ?></td>
-                                                                <td><span name="rows[]" id="ethicsPoint<?php echo ($key + 1); ?>"><?php echo $row['ethics_point']; ?></td>
-                                                                <td><span name="rows[]" id="inventoryPoint<?php echo ($key + 1); ?>"><?php echo $row['inventory_point']; ?></td>
                                                                 <td><span name="rows[]" id="training<?php echo ($key + 1); ?>"><?php echo $row['training_id']; ?></td>
                                                             </tr>
                                                         <?php } ?>

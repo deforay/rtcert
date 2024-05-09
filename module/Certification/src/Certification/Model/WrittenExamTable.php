@@ -525,7 +525,6 @@ class WrittenExamTable extends AbstractTableGateway
                     
                     $j = 0;
                     for ($i = 2; $i <= $count; ++$i) {
-                        $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A']))->current();
                         if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['G'] == '' || $sheetData[$i]['H'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['J'] == '' || $sheetData[$i]['K'] == '' || $sheetData[$i]['L'] == '' ) {                            
                             $response['data']['mandatory'][]  = array(
                                 'provider_id' => $sheetData[$i]['A'],
@@ -543,8 +542,8 @@ class WrittenExamTable extends AbstractTableGateway
                                 'training_id' => $sheetData[$i]['M'],
                             );
                         } else {
-                            $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A'],'display' => 'yes'))->current();
                             $dataValidate = true;
+                            $regrowset = [];
                             $data = array(
                                 'test_id' => '',
                                 'provider_id' => $sheetData[$i]['A'],
@@ -561,10 +560,18 @@ class WrittenExamTable extends AbstractTableGateway
                                 'inventory_point' => $sheetData[$i]['L'],
                                 'training_id' => $sheetData[$i]['M'],
                             );
-                            
+                            $provider = $this->getProvider($sheetData[$i]['A']);
+                            if(empty($provider)){
+                                $data['reason'] = 'Tester is invalid. Please give correct Registration number';
+                                $response['data']['notimported'][$j] = $data;
+                                $dataValidate = false;
+                            }else{
+                                $data['provider_id'] = $provider['id'];
+                                $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'],'display' => 'yes'))->current();
+                            }
                             $keysToCheck = ['qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point'];
                             $numericReason = $this->validateNumericKeys($data, $keysToCheck);
-                            if (!empty($numericReason)) {
+                            if (!empty($numericReason) && $dataValidate) {
                                 $data['reason'] = $numericReason;
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
@@ -618,27 +625,30 @@ class WrittenExamTable extends AbstractTableGateway
                                 if($uploadOption == "update"){
                                     if(!empty($regrowset)){
                                         $id_written_exam = (int) $regrowset->id_written_exam;
+                                        $response['data']['duplicate'][$j] = $data;
+                                        $data['provider_id'] = $provider['id'];
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['duplicate'][$j] = $data;
                                         $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
                                         $inserted = true; 
                                     }else{
+                                        $response['data']['imported'][$j] = $data;
+                                        $data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['added_by'] = $loginContainer->userId;
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['imported'][$j] = $data;
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
                                     }
                                 }else{
                                     if(empty($regrowset)){
+                                        $response['data']['imported'][$j] = $data;
+                                        $data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['added_by'] = $loginContainer->userId;
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
-                                        $response['data']['imported'][$j] = $data;
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
                                     }else{
@@ -693,5 +703,20 @@ class WrittenExamTable extends AbstractTableGateway
             }
         }
         return '';
+    }
+
+    public function getProvider($regNo)
+    {
+        $db = $this->adapter;
+        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no ='. $regNo;;
+        $statement = $db->query($sql1);
+        $result = $statement->execute();
+        $selectData = array();
+
+        foreach ($result as $res) {
+            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+            $selectData['id'] = $res['id'];
+        }
+        return $selectData;
     }
 }
