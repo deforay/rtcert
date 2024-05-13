@@ -183,7 +183,7 @@ class GlobalTable extends AbstractTableGateway
 
         if (isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $_POST['removedSignatureImage'])) {
             unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
-            $this->update(array('global_value' => ''), array('global_name' => 'logo'));
+            $this->update(array('global_value' => ''), array('global_name' => 'registrar-digital-signature'));
         }
 
         if (isset($_FILES['logo']['name']) && $_FILES['logo']['name'] != "") {
