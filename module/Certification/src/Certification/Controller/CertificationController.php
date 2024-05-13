@@ -154,6 +154,7 @@ class CertificationController extends AbstractActionController
     public function pdfAction()
     {
         $showProfile =  $this->commonService->getGlobalValue('show-tester-photo-in-certificate');
+        $certificate_text =  $this->commonService->getGlobalValue('certificate-text');
         $header_text = $this->certificationTable->SelectTexteHeader();
         $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
         $globalConfigDetails = $this->certificationTable->fetchCertificationConfig();
@@ -180,7 +181,8 @@ class CertificationController extends AbstractActionController
             'header_text_font_size' => $header_text_font_size,
             'config_info'           => $globalConfigDetails,
             'provider'              => $provider,
-            'showProfile'           => $showProfile
+            'showProfile'           => $showProfile,
+            'certificate_text'      => $certificate_text,
         );
     }
 

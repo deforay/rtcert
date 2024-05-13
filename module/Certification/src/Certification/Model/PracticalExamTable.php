@@ -615,11 +615,10 @@ class PracticalExamTable extends AbstractTableGateway
                                         $response['data']['duplicate'][$j] = $data;
                                     }
                                 }
+								$last_id = $this->last_id();
                                 if(empty($written) && !empty($last_id) && $inserted){
-                                    $last_id = $this->last_id();
                                     $this->insertToExamination($last_id);
                                 }elseif (!empty($written) && !empty($last_id) && $inserted) {
-                                    $last_id = $this->last_id();
                                     $nombre2 = $this->countWritten2($written);
                                     if ($nombre2 == 0) {
                                         $this->examination($last_id, $written);

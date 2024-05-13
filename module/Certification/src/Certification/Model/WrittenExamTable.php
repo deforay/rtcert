@@ -566,7 +566,6 @@ class WrittenExamTable extends AbstractTableGateway
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
                             }else{
-                                $data['provider_id'] = $provider['id'];
                                 $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'],'display' => 'yes'))->current();
                             }
                             $keysToCheck = ['qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point'];
