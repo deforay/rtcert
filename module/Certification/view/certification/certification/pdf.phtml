@@ -64,7 +64,8 @@ $certificate_title = '<div style="width=10px; height=10px; text-align:center;"><
                                     <span style="line-height: 0.0">is issued to</span></div>';
 $tester = '<div style="color:#4B77BE; font-size:170%; text-align:center;">&nbsp;&nbsp;' . strtoupper($first).' '. strtoupper($middle).' '. strtoupper($last) . '&nbsp;&nbsp;</div>';
 
-$concatenate = (!empty($config_info['registrar-name']) && !empty($config_info['registrar-title'])) ? ' and ' : ' ';
+$concatenate = (!empty($config_info['registrar-name']) && !empty($config_info['registrar-title'])) ? ', ' : ' ';
+
 $text_content = '<div style="font-size:85%;text-align:center;">For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council<br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
                 <br><span style="font-size:65%; font-style: normal;"> Note : This certificate is <span style="Font-Weight: Bold">only </span>issued for HIV Rapid Testing and does not allow to perform any other test.</span>
 
@@ -86,22 +87,6 @@ $text_content = '<div style="font-size:85%;text-align:center;">For having succes
                 </table>
 
                 </div>';
-$text_content1='
-<div style="font-size:75%;text-align:center;">
-    For having successfully fulfilled the requirements of the Health Laboratory Practitioners’ Council
-    <br>and is certified to be competent in the area of <strong>HIV Rapid Testing</strong>
-    <br><br>
-
-    Professional Registration Number : <span style=" color:#4B77BE;">' . $professional_reg_no . '</span>
-    <br>
-    Certification Number : <span style=" color:#4B77BE; ">' . $certification_id . '</span>
-    <br>
-    <span style="font-size:90%; font-style: normal;">Validity : <span> ' . date("d-M-Y", strtotime($date_end_validity ." -{$config_info['month-valid']} month")) . ' to ' . date("d-M-Y", strtotime($date_end_validity)) . '</span>
-    <br><br><br><br><br><br>
-    .......................
-    <span style=" font-size:15px; ">'.$config_info['registrar-name'].'</b> '.$config_info['registrar-title'].'</span>
-    <li>&nbsp;&nbsp;&nbsp;&nbsp;<code><b><span style=" font-size:15px; ">'.ucwords($signatureText).'</span></b></code></li>
-    </div>';
     
 // set different text position
 $pdf->writeHTMLCell(0, 0, 10, 30, $header_text, 0, 0, 0, true, 'J', true);
