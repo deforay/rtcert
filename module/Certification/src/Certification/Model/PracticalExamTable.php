@@ -497,13 +497,13 @@ class PracticalExamTable extends AbstractTableGateway
         $uploadOption = $params['uploadOption'];
 
         if (in_array($extension, $allowedExtensions)) {
-            $uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'practical_exam';
+            $uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'practical-exam';
             if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
-                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "practical_exam");
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "practical-exam");
             }
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['practical_exam_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
                 $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
-                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'practical_exam'. DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx';
+                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'practical-exam'. DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx';
                 $validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
 
                 if($validate) {
@@ -630,7 +630,7 @@ class PracticalExamTable extends AbstractTableGateway
                         }
                         $j++;
                     }
-                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'practical_exam' . DIRECTORY_SEPARATOR . $fileName);
+                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'practical-exam' . DIRECTORY_SEPARATOR . $fileName);
                 }else{
                     $container->alertMsg = 'Uploaded file column mismatched'; 
                     return $response;

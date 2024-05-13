@@ -146,9 +146,9 @@ $notimported = (isset($result['data']['notimported']) && count($result['data']['
                                             <?php echo $this->formSubmit($form->get('submit')->setAttribute('class', 'btn  btn-space btn-primary')); ?>
                                             <a class="btn btn-space btn-default" role="button" href="<?php echo $this->url('written-exam', array('action' => 'index')); ?>">CANCEL</a>
                                         </div>
-                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'written_exam' . DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx')) { ?>
+                                        <?php if (file_exists(FILE_PATH . DIRECTORY_SEPARATOR . 'written-exam' . DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx')) { ?>
                                             <div class="form-group col-lg-4">
-                                                <a href="/files/written_exam/Written_Exam_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
+                                                <a href="/files/written-exam/Written_Exam_Bulk_Upload_Excel_format.xlsx" class="btn btn-space btn-danger"><i class="fa fa-download"></i>&nbsp;DOWNLOAD FORMAT</a>
                                             </div>
                                         <?php } ?>
                                     </div>

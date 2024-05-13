@@ -181,7 +181,7 @@ class GlobalTable extends AbstractTableGateway
             $this->update(array('global_value' => ''), array('global_name' => 'logo'));
         }
 
-        if (isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $_POST['removedSignatureImage'])) {
+        if (isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature" . DIRECTORY_SEPARATOR . $_POST['removedSignatureImage'])) {
             unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
             $this->update(array('global_value' => ''), array('global_name' => 'registrar-digital-signature'));
         }
@@ -199,13 +199,13 @@ class GlobalTable extends AbstractTableGateway
         }
 
         if (isset($_FILES['digitalSignature']['name']) && $_FILES['digitalSignature']['name'] != "") {
-            if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature")) {
-                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature");
+            if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature")) {
+                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature");
             }
             $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $_FILES['digitalSignature']['name'], PATHINFO_EXTENSION));
             $string = \Application\Service\CommonService::generateRandomString(6) . ".";
             $imageName = "ds_" . $string . $extension;
-            if (move_uploaded_file($_FILES["digitalSignature"]["tmp_name"], UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital_signature" . DIRECTORY_SEPARATOR . $imageName)) {
+            if (move_uploaded_file($_FILES["digitalSignature"]["tmp_name"], UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature" . DIRECTORY_SEPARATOR . $imageName)) {
                 $this->update(array('global_value' => $imageName), array('global_name' => 'registrar-digital-signature'));
             }
         }

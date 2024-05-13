@@ -125,8 +125,8 @@ if(file_exists(dirname(__CLASS__) . 'public/uploads/logo/logo_cert2.png')){
     $img_file2 = dirname(__CLASS__) . 'public/assets/img/logo_cert2.png';
 }
 
-if(file_exists(dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'])){
-    $signature = dirname(__CLASS__) . 'public/uploads/digital_signature/'.$config_info['registrar-digital-signature'];
+if(file_exists(dirname(__CLASS__) . 'public/uploads/digital-signature/'.$config_info['registrar-digital-signature'])){
+    $signature = dirname(__CLASS__) . 'public/uploads/digital-signature/'.$config_info['registrar-digital-signature'];
 }
 
 $pathname = dirname(__CLASS__) . 'public/uploads' . DIRECTORY_SEPARATOR . "tester-proile" . DIRECTORY_SEPARATOR . $provider['providerId'] . DIRECTORY_SEPARATOR . 'pic';
