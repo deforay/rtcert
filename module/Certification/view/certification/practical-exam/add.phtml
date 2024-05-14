@@ -235,7 +235,7 @@ if ($nombre != null) {
                     <?php foreach ($practicals as $exam) : ?>
                         <tr>
                             <td>
-                                <div><?php echo $this->escapeHtml($exam->last_name . ' ' . $exam->first_name . ' ' . $exam->middle_name); ?></div>
+                                <div><?php echo $this->escapeHtml($exam->first_name . ' ' . $exam->middle_name . ' ' . $exam->last_name); ?></div>
                             </td>
                             <td>
                                 <div><?php echo date("d-M-Y", strtotime($this->escapeHtml($exam->date))); ?></div>

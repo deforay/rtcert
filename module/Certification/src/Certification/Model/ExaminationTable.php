@@ -247,7 +247,7 @@ class ExaminationTable extends AbstractTableGateway
                 }
             }
 
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -396,7 +396,7 @@ class ExaminationTable extends AbstractTableGateway
 
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -549,7 +549,7 @@ class ExaminationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['certification_reg_no'];
             $row[] = $aRow['certification_id'];
@@ -717,7 +717,7 @@ class ExaminationTable extends AbstractTableGateway
 
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
             $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
             $row[] = $aRow['phone'];
@@ -881,7 +881,7 @@ class ExaminationTable extends AbstractTableGateway
 
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
             $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
             $row[] = $aRow['phone'];
@@ -1188,7 +1188,7 @@ class ExaminationTable extends AbstractTableGateway
             if ($parameters['Exam'] == 'online-exam') {
                 $row[] =  date('d-M-Y (h:i:s a)', strtotime($aRow['pretest_start_datetime']));
             }
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['phone'];
             $row[] = $aRow['email'];

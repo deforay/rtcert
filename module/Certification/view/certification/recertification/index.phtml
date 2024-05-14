@@ -97,7 +97,7 @@ $role = $sessionLogin->roleCode;
                                 <td><?php echo $this->escapeHtml($certification['professional_reg_no']); ?></td>
                                 <td><?php echo $this->escapeHtml($certification['certification_reg_no']); ?></td>
                                 <td><?php echo $this->escapeHtml($certification['certification_id']); ?></td>
-                                <td><?php echo $this->escapeHtml($certification['last_name'] . ' ' . $certification['first_name'] . ' ' . $certification['middle_name']); ?></td>
+                                <td><?php echo $this->escapeHtml($certification['first_name'] . ' ' . $certification['middle_name'] . ' ' . $certification['last_name']); ?></td>
                                 <td><?php echo $this->escapeHtml($certification['final_decision']); ?></td>
                                 <td><?php echo $this->escapeHtml($certification['certification_issuer']); ?></td>
                                 <td><?php echo date("d-m-Y", strtotime($this->escapeHtml($certification['date_certificate_issued']))); ?></td>
@@ -175,7 +175,7 @@ $role = $sessionLogin->roleCode;
                         <?php foreach ($this->recertifications as $recertification) : ?>
                             <tr>
                                 <td><?php echo date("d-m-Y", strtotime($this->escapeHtml($recertification->due_date))); ?></td>
-                                <td><?php echo $this->escapeHtml($recertification->last_name . ' ' . $recertification->first_name . ' ' . $recertification->middle_name); ?></td>
+                                <td><?php echo $this->escapeHtml($recertification->first_name . ' ' . $recertification->middle_name . ' ' . $recertification->last_name); ?></td>
                                 <td><?php echo $this->escapeHtml($recertification->certification_id); ?></td>
                                 <td><?php echo $this->escapeHtml($recertification->reminder_type); ?></td>
                                 <td><?php echo $this->escapeHtml($recertification->reminder_sent_to); ?></td>

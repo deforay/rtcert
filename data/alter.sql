@@ -974,3 +974,6 @@ INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global
 
 -- Brindha 10-May-2024
 INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Certificate Text', 'certificate-text', 'Certificate of Competency');
+
+-- Brindha 14-May-2024
+INSERT INTO `country` (`country_id`, `country_name`, `country_code`, `country_status`) VALUES (NULL, 'Healthland', 'HL', 'active');

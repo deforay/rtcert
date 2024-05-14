@@ -483,7 +483,7 @@ class RecertificationTable
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = ucwords($aRow['region_name']);
             $row[] = ucwords($aRow['district_name']);

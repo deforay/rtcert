@@ -1653,7 +1653,7 @@ class CertificationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['region_name'];
             $row[] = $aRow['district_name'];
@@ -1893,7 +1893,7 @@ class CertificationTable extends AbstractTableGateway
         $acl = $this->sm->get('AppAcl');
         foreach ($rResult as $aRow) {
             $row = array();
-            $row[] = $aRow['last_name'] . ' ' . $aRow['first_name'] . ' ' . $aRow['middle_name'];
+            $row[] = $aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name'];
             $row[] = $aRow['professional_reg_no'];
             $row[] = $aRow['region_name'];
             $row[] = $aRow['district_name'];

@@ -604,7 +604,7 @@ class WrittenExamTable extends AbstractTableGateway
                             }
                             $exam_to_val = $this->examToValidate($sheetData[$i]['A']);
                             $nb_days = $this->numberOfDays($sheetData[$i]['A']);
-                            //$written = $this->writtenExamTable->counWritten($sheetData[$i]['A']);
+                            //$practical = $this->counPractical($sheetData[$i]['A']);
                             $practical = 0;
                             if ($dataValidate && $exam_to_val > 0) {
                                 $data['reason'] = 'This tester has a review pending validation. you must first validate it in the Examination tab.';

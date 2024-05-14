@@ -258,9 +258,9 @@ class CertificationController extends AbstractActionController
             $sheet->SetCellValue('A2', 'Certification registration no');
             $sheet->SetCellValue('B2', 'Certification id');
             $sheet->SetCellValue('C2', 'Professional registration no');
-            $sheet->SetCellValue('D2', 'Last name');
-            $sheet->SetCellValue('E2', 'First name');
-            $sheet->SetCellValue('F2', 'Middle name');
+            $sheet->SetCellValue('D2', 'First name');
+            $sheet->SetCellValue('E2', 'Middle name');
+            $sheet->SetCellValue('F2', 'Last name');
             $sheet->SetCellValue('G2', 'Country');
             $sheet->SetCellValue('H2', 'Region');
             $sheet->SetCellValue('I2', 'District');
@@ -310,9 +310,9 @@ class CertificationController extends AbstractActionController
                 $row[] = $aRow['certification_reg_no'];
                 $row[] = $aRow['certification_id'];
                 $row[] = $aRow['professional_reg_no'];
-                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['last_name'] : '';
                 $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['first_name'] : '';
                 $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['middle_name'] : '';
+                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['last_name'] : '';
                 $row[] = isset($aRow['country_name']) ? $aRow['country_name'] : '';
                 $row[] = isset($aRow['region_name']) ? $aRow['region_name'] : '';
                 $row[] = isset($aRow['district_name']) ? $aRow['district_name'] : '';

@@ -129,9 +129,9 @@ class ExaminationController extends AbstractActionController
             }
 
             $sheet->SetCellValue('A2', 'Professional registration no');
-            $sheet->SetCellValue('B2', 'Last name');
-            $sheet->SetCellValue('C2', 'First name');
-            $sheet->SetCellValue('D2', 'Middle name');
+            $sheet->SetCellValue('B2', 'First name');
+            $sheet->SetCellValue('C2', 'Middle name');
+            $sheet->SetCellValue('D2', 'Last name');
             $sheet->SetCellValue('E2', 'Country');
             $sheet->SetCellValue('F2', 'Region');
             $sheet->SetCellValue('G2', 'District');
@@ -158,9 +158,9 @@ class ExaminationController extends AbstractActionController
             foreach($sResult as $aRow) {
                 $row = array();
                 $row[] = $aRow['professional_reg_no'];
-                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['last_name'] : '';
                 $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['first_name'] : '';
                 $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['middle_name'] : '';
+                $row[] = (isset($excludeTesterName) && $excludeTesterName == 'yes') ? $aRow['last_name'] : '';
                 $row[] = (isset($aRow['country_name'])) ? $aRow['country_name'] : '';
                 $row[] = (isset($aRow['regionName'])) ? $aRow['regionName'] : '';
                 $row[] = (isset($aRow['districtName'])) ? $aRow['districtName'] : '';
