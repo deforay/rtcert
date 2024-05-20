@@ -120,13 +120,13 @@ if(isset($showProfile) && $showProfile == 'yes'){
     $pic = $pathname.DIRECTORY_SEPARATOR.$provider['profile_picture'];
     
     if(file_exists($pic)){
-        $pdf->Image($pic, 72, 118, 25, 25, '', '', '', false, 300, '', false, false, 14);
+        $pdf->Image($pic, 72, 118, 25, '', '', '', '', false, 300, '', false, false, 14);
     }   
 }
 
-$pdf->Image($img_file, 30, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
+$pdf->Image($img_file, 30, 28, 30, '', '', '', '', false, 300, '', false, false, 0);
 
-$pdf->Image($img_file2, 245, 28, 30, 23, '', '', '', false, 300, '', false, false, 0);
+$pdf->Image($img_file2, 245, 28, 30, '', '', '', '', false, 300, '', false, false, 0);
 
 $pdf->Image($signature, 225, 153, 33, 18, '', '', '', false, 300, '', false, false, 0);
 $pdf->SetAlpha(1);

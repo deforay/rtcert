@@ -37,6 +37,173 @@ class WrittenExamTable extends AbstractTableGateway
         $this->tableGateway = new TableGateway($this->table, $this->adapter, null, $resultSetPrototype);
     }
 
+    public function fetchAllWrittenExam($parameters)
+    {
+        $sessionLogin = new Container('credo');
+        $role = $sessionLogin->roleCode;
+        $acl = $this->sm->get('AppAcl');
+        /* Array of database columns which should be read and sent back to DataTables. Use a space where
+         * you want to insert a non-database field (for example a counter or static image)
+         */
+        $aColumns = array('test_id','first_name', 'exam_type', 'exam_admin', 'date', 'last_name', 'first_name', 'middle_name');
+        /*
+         * Paging
+         */
+        $sLimit = "";
+        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+            $sOffset = $parameters['iDisplayStart'];
+            $sLimit = $parameters['iDisplayLength'];
+        }
+
+        /*
+         * Ordering
+         */
+
+        $sOrder = "";
+        if (isset($parameters['iSortCol_0'])) {
+            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+                    $sOrder .= $aColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
+                }
+            }
+            $sOrder = substr_replace($sOrder, "", -1);
+        }
+
+        /*
+         * Filtering
+         * NOTE this does not match the built-in DataTables filtering which does it
+         * word by word on any field. It's possible to do here, but concerned about efficiency
+         * on very large tables, and MySQL's regex functionality is very limited
+         */
+
+        $sWhere = "";
+        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+            $searchArray = explode(" ", $parameters['sSearch']);
+            $sWhereSub = "";
+            foreach ($searchArray as $search) {
+                if ($sWhereSub == "") {
+                    $sWhereSub .= "(";
+                } else {
+                    $sWhereSub .= " AND (";
+                }
+                $colSize = count($aColumns);
+
+                for ($i = 0; $i < $colSize; $i++) {
+                    if ($i < $colSize - 1) {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+                    } else {
+                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+                    }
+                }
+                $sWhereSub .= ")";
+            }
+            $sWhere .= $sWhereSub;
+        }
+        /* Individual column filtering */
+        $counter = count($aColumns);
+
+        /* Individual column filtering */
+        for ($i = 0; $i < $counter; $i++) {
+            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+                if ($sWhere == "") {
+                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                } else {
+                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                }
+            }
+        }
+
+        /*
+         * SQL queries
+         * Get data to display
+         */
+        $dbAdapter = $this->adapter;
+        $sql = new Sql($dbAdapter);
+        $sQuery = $sql->select()->from('written_exam')
+                      ->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
+                      ->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
+        if (isset($sWhere) && $sWhere != "") {
+            $sQuery->where($sWhere);
+        }
+        if ($parameters['display'] != '') {
+            $sQuery->where(array('display' => $parameters['display']));
+        }
+        if (!empty($sessionLogin->district)) {
+            $sQuery->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
+        } elseif (!empty($sessionLogin->region)) {
+            $sQuery->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
+        }
+
+        if (isset($sOrder) && $sOrder != "") {
+            $sQuery->order($sOrder);
+        }
+        if (isset($sLimit) && isset($sOffset)) {
+            $sQuery->limit($sLimit);
+            $sQuery->offset($sOffset);
+        }
+
+        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
+        //error_log($sQueryForm);
+        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+
+        /* Data set length after filtering */
+        $sQuery->reset('limit');
+        $sQuery->reset('offset');
+        $fQuery = $sql->buildSqlString($sQuery);
+        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+        $iFilteredTotal = count($aResultFilterTotal);
+
+        /* Total data set length */
+        $iTotal = $this->select()->count();
+
+
+        $output = array(
+            "sEcho" => (int) $parameters['sEcho'],
+            "iTotalRecords" => $iTotal,
+            "iTotalDisplayRecords" => $iFilteredTotal,
+            "aaData" => array()
+        );
+
+        foreach ($rResult as $aRow) {
+            $row = array();
+            $row[] = '';
+            $row[] = ucwords($aRow['first_name'].' '.$aRow['middle_name'].' '.$aRow['last_name']);
+            $row[] = $aRow['exam_type'];
+            $row[] = $aRow['exam_admin'];
+            $row[] = date("d-M-Y", strtotime($aRow['date']));
+            $row[] = $aRow['qa_point'];
+            $row[] = $aRow['rt_point'];
+            $row[] = $aRow['safety_point'];
+            $row[] = $aRow['specimen_point'];
+            $row[] = $aRow['testing_algo_point'];
+            $row[] = $aRow['report_keeping_point'];
+            $row[] = $aRow['EQA_PT_points'];
+            $row[] = $aRow['ethics_point'];
+            $row[] = $aRow['inventory_point'];
+            $row[] = $aRow['total_points'];
+            $row[] = round($aRow['final_score']).' %';
+            if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'edit')) {
+                    $row[] = '<a href="/written-exam/edit/' . base64_encode($aRow['id_written_exam']) . '"><span class=\'glyphicon glyphicon-pencil\'></span> Edit</a>';
+                if ($aRow['final_score'] < 80 || strcasecmp($aRow['exam_type'], '3rd attempt') == 0) {
+                    $row[] = "<span class='glyphicon glyphicon-repeat'></span> Add practical exam";
+                } else {
+                    $row[] = '<a href="/practical-exam/add/' . base64_encode($aRow['id_written_exam']) . '" ><span class=\'glyphicon glyphicon-repeat\'></span> Add practical exam</a>';
+                }
+            }
+            
+            if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'delete')) {
+                $row[] = '<a onclick="if (!confirm(\'Do you really want to remove this written exam?\')) {
+                    alert(\'Canceled!\');
+                    return false;
+                };" href="/written-exam/delete/' . base64_encode($aRow['id_written_exam']) . '">
+                    <span class="glyphicon glyphicon-trash"> Delete</span>
+                </a>';
+            }
+            $output['aaData'][] = $row;
+        }
+        return $output;
+    }
+
     public function fetchAll()
     {
         $sessionLogin = new Container('credo');

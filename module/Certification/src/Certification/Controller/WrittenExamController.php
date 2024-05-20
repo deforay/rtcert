@@ -5,6 +5,7 @@ namespace Certification\Controller;
 use Laminas\Session\Container;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use Laminas\Json\Json;
 
 class WrittenExamController extends AbstractActionController
 {
@@ -22,9 +23,13 @@ class WrittenExamController extends AbstractActionController
     public function indexAction()
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
-        return new ViewModel(array(
-            'writtens' => $this->writtenExamTable->fetchAll()
-        ));
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = $this->writtenExamTable->fetchAllWrittenExam($params);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
     }
 
     public function addAction()
@@ -92,7 +97,6 @@ class WrittenExamController extends AbstractActionController
             'practical' => $practical,
             'nombre' => $nombre,
             'provider' => $provider,
-            'writtens' => $this->writtenExamTable->fetchAll(),
         ));
     }
 

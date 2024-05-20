@@ -977,3 +977,8 @@ INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global
 
 -- Brindha 14-May-2024
 INSERT INTO `country` (`country_id`, `country_name`, `country_code`, `country_status`) VALUES (NULL, 'Healthland', 'HL', 'active');
+
+-- Brindha 16-May-2024
+ALTER TABLE roles
+ADD CONSTRAINT role_name UNIQUE (role_name),
+ADD CONSTRAINT role_code UNIQUE (role_code);

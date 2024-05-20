@@ -90,15 +90,14 @@ if ($this->isAllowed($role, "Certification\Controller\PracticalExamController", 
 //if ($this->isAllowed($role, "Certification\Controller\ExaminationController", "pending")) {
 //$testerExamMenu.="<li><a href=".$this->url('examination',array('action' => 'pending')).">Pending/Other Tests</a></li>";
 //}
-
+if ($this->isAllowed($role, "Certification\Controller\ExaminationController", "index")) {
+	$certificateMenu .= "<li><a href=" . $this->url('examination', array('action' => 'index')) . ">Recommendations</a></li>";
+}
 if ($this->isAllowed($role, "Certification\Controller\CertificationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('certification', array('action' => 'index')) . ">Certifications</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\CertificationMailController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('certification-mail', array('action' => 'index')) . "> E-mail</a></li>";
-}
-if ($this->isAllowed($role, "Certification\Controller\ExaminationController", "index")) {
-	$certificateMenu .= "<li><a href=" . $this->url('examination', array('action' => 'index')) . ">Recommendations</a></li>";
 }
 if ($this->isAllowed($role, "Certification\Controller\RecertificationController", "index")) {
 	$certificateMenu .= "<li><a href=" . $this->url('recertification', array('action' => 'index')) . ">Recertifications Reminder</a></li>";

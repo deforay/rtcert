@@ -6,6 +6,7 @@ use Laminas\Session\Container;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Certification\Model\PracticalExam;
+use Laminas\Json\Json;
 
 class PracticalExamController extends AbstractActionController
 {
@@ -22,10 +23,13 @@ class PracticalExamController extends AbstractActionController
     public function indexAction()
     {
         $this->forward()->dispatch('Certification\Controller\CertificationController', array('action' => 'index'));
-
-        return new ViewModel(array(
-            'practicals' => $this->practicalExamTable->fetchAll(),
-        ));
+        /** @var \Laminas\Http\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $params = $request->getPost();
+            $result = $this->practicalExamTable->fetchAllPracticalExam($params);
+            return $this->getResponse()->setContent(Json::encode($result));
+        }
     }
 
     public function addAction()
@@ -91,8 +95,7 @@ class PracticalExamController extends AbstractActionController
             'form' => $this->practicalExamForm,
             'written' => $id_written,
             'nombre' => $nombre,
-            'provider' => $provider,
-            'practicals' => $this->practicalExamTable->fetchAll()
+            'provider' => $provider
         );
     }
 
