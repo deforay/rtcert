@@ -369,7 +369,10 @@ class Module
                 {
                     public function __invoke($diContainer)
                     {
-                        return new \Application\Service\DashboardService($diContainer);
+                        $certificationTable = $diContainer->get('Certification\Model\CertificationTable');
+                        $writtenExamTable = $diContainer->get('Certification\Model\WrittenExamTable');
+                        $practicalExamTable = $diContainer->get('Certification\Model\PracticalExamTable');
+                        return new \Application\Service\DashboardService($diContainer, $certificationTable, $writtenExamTable, $practicalExamTable);
                     }
                 },
                 'CommonService' => new class
