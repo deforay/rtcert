@@ -18,7 +18,7 @@
                             </div>
                             <div class="spacer col-lg-10 text-center">
                             <input type="hidden" name="configId" id="configId" value="<?php echo base64_encode($result['config_id']);?>"/>
-                                    <input type="button" class="btn btn-primary" value="Create" onclick="validateNow(); return false;">
+                                    <input type="button" class="btn btn-primary" value="Save" onclick="validateNow(); return false;">
                                     &nbsp;&nbsp;&nbsp;<a href="<?php echo $this->url('config', array('action' => 'dashboard-content')); ?>" class="btn btn-default">Cancel</a>
                                 </div>
                             </form>
