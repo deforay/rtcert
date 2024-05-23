@@ -1305,7 +1305,7 @@ class CertificationTable extends AbstractTableGateway
         $query = $sql->select()->from(array('c' => 'certification'))
             ->columns(array('locCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
-            ->join(array('p' => 'provider'), 'p.id=e.id', array())
+            ->join(array('p' => 'provider'), 'p.id=e.provider', array())
             ->join(array('c_f' => 'certification_facilities'), 'c_f.id=p.facility_id', array('facility_name', 'longitude', 'latitude'))
             ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
             ->group('p.facility_id');
@@ -1320,7 +1320,7 @@ class CertificationTable extends AbstractTableGateway
         $query = $sql->select()->from(array('c' => 'certification'))
             ->columns(array('regCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
-            ->join(array('p' => 'provider'), 'p.id=e.id', array())
+            ->join(array('p' => 'provider'), 'p.id=e.provider', array())
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('location_name', 'longitude', 'latitude'))
             ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
             ->group('p.region');
@@ -1335,7 +1335,7 @@ class CertificationTable extends AbstractTableGateway
         $query = $sql->select()->from(array('c' => 'certification'))->columns(array())
             ->columns(array('districtCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
-            ->join(array('p' => 'provider'), 'p.id=e.id', array())
+            ->join(array('p' => 'provider'), 'p.id=e.provider', array())
             ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('location_name', 'longitude', 'latitude'))
             ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
             ->group('p.district');
