@@ -2,18 +2,15 @@
 
 namespace Certification\Model;
 
-use Laminas\Session\Container;
-
-use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Sql;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Zend\Debug\Debug;
+
 use Laminas\Db\Sql\Expression;
-//use Laminas\Db\Sql\Where;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
 use \Application\Model\GlobalTable;
-use \Application\Service\CommonService;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 
 class CertificationTable extends AbstractTableGateway
 {
@@ -36,7 +33,7 @@ class CertificationTable extends AbstractTableGateway
     public function getQuickStats()
     {
         $sessionLogin = new Container('credo');
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $adapter = $this->adapter;
         $globalDb = new GlobalTable($adapter);
@@ -76,7 +73,7 @@ class CertificationTable extends AbstractTableGateway
     public function getCertificationPieChartResults($params)
     {
         $sessionLogin = new Container('credo');
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))
             ->columns(array("total_certification" => new Expression('COUNT(*)')))
@@ -97,7 +94,7 @@ class CertificationTable extends AbstractTableGateway
     public function getCertifiedProvinceChartResults($params)
     {
 
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))
             ->columns(array("total_certification" => new Expression('COUNT(*)')))
@@ -114,7 +111,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getCertifiedistrictChartResults($params)
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))
             ->columns(array("total_certification" => new Expression('COUNT(*)')))
@@ -131,7 +128,7 @@ class CertificationTable extends AbstractTableGateway
     public function getCertificationBarChartResults($params)
     {
         $sessionLogin = new Container('credo');
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $start = strtotime(date("Y", strtotime("-2 year")) . '-' . date('m', strtotime('+1 month', strtotime('-2 year'))));
         $end = strtotime(date('Y') . '-' . date('m'));
@@ -219,7 +216,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getProvider($id)
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT provider FROM certification, examination WHERE certification.examination=examination.id AND certification.id=' . $id;
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -516,7 +513,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getAllActiveCountries()
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT * FROM country ORDER by country_name asc ';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -530,7 +527,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getRegions()
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT id, region_name FROM certification_regions  ORDER by region_name asc ';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -544,7 +541,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function SelectTexteHeader()
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT id, header_texte FROM pdf_header_texte';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -557,7 +554,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function SelectHeaderTextFontSize()
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT header_font_size FROM pdf_header_texte';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute();
@@ -614,7 +611,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getCertificationValiditydate($id)
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = 'SELECT date_end_validity FROM certification WHERE certification.id = ?';
         $statement = $dbAdapter->query($sql);
         $result = $statement->execute([$id]);
@@ -1300,10 +1297,10 @@ class CertificationTable extends AbstractTableGateway
     public function getCertificationMapResults($params)
     {
         $sessionLogin = new Container('credo');
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))
-            ->columns(array('locCount' => new \Laminas\Db\Sql\Expression("COUNT(*)")))
+            ->columns(array('locCount' => new Expression("COUNT(*)")))
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
             ->join(array('p' => 'provider'), 'p.id=e.provider', array())
             ->join(array('c_f' => 'certification_facilities'), 'c_f.id=p.facility_id', array('facility_name', 'longitude', 'latitude'))
@@ -1351,10 +1348,8 @@ class CertificationTable extends AbstractTableGateway
 
     public function fetchCertificationConfig()
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
-        $sql = new Sql($dbAdapter);
-        $adapter = $this->adapter;
-        $globalDb = new GlobalTable($adapter);
+        $dbAdapter = $this->adapter;
+        $globalDb = new GlobalTable($dbAdapter);
         $monthValid = $globalDb->getGlobalValue('month-valid');
         $registrarName = $globalDb->getGlobalValue('registrar-name');
         $registrarTitle = $globalDb->getGlobalValue('registrar-title');
@@ -1378,7 +1373,7 @@ class CertificationTable extends AbstractTableGateway
         $logincontainer = new Container('credo');
         $roleCode = $logincontainer->roleCode;
 
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $adapter = $this->adapter;
         $globalDb = new GlobalTable($adapter);
@@ -1387,7 +1382,7 @@ class CertificationTable extends AbstractTableGateway
         $upForRecertificationdate = $monthValid - 2;
         $didNotRecertifydate = $monthValid + $registrarName;
 
-        $db = $this->tableGateway->getAdapter();
+        $db = $this->adapter;
 
         $sql = 'select certification.certification_issuer,certification.certification_type, certification.date_certificate_issued,certification.date_end_validity, certification.final_decision,provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, written_exam.exam_type as written_exam_type,written_exam.exam_admin as written_exam_admin,written_exam.date as written_exam_date,written_exam.qa_point,written_exam.rt_point,written_exam.safety_point,written_exam.specimen_point, written_exam.testing_algo_point, written_exam.report_keeping_point,written_exam.EQA_PT_points, written_exam.ethics_point, written_exam.inventory_point, written_exam.total_points,written_exam.final_score, practical_exam.exam_type as practical_exam_type , practical_exam.exam_admin as practical_exam_admin , practical_exam.Sample_testing_score, practical_exam.direct_observation_score,practical_exam.practical_total_score,practical_exam.date as practical_exam_date from certification,examination,written_exam,practical_exam,provider,location_details as l_d_r,location_details as l_d_d, country as c, certification_facilities WHERE certification.examination= examination.id and examination.id_written_exam= written_exam.id_written_exam and examination.practical_exam_id= practical_exam.practice_exam_id and provider.id=examination.provider and provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
 
@@ -2141,7 +2136,7 @@ class CertificationTable extends AbstractTableGateway
 
     public function getProviderDetailsByCertifyId($id)
     {
-        $dbAdapter = $this->tableGateway->getAdapter();
+        $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $query = $sql->select()->from(array('c' => 'certification'))->columns(array('certifyId' => 'id', 'date_certificate_issued', 'date_end_validity'))
             ->join(array('e' => 'examination'), 'c.examination=e.id', array('add_to_certification'))

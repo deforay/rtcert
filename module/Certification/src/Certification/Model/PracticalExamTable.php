@@ -2,20 +2,17 @@
 
 namespace Certification\Model;
 
-use Laminas\Session\Container;
-
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\Sql\Select;
 use Laminas\Db\Sql\Sql;
+
 use Laminas\Db\Sql\Expression;
-use Laminas\Paginator\Adapter\DbSelect;
-use Laminas\Paginator\Paginator;
+use Laminas\Session\Container;
+use Laminas\Db\Adapter\Adapter;
 use \Application\Model\GlobalTable;
-use \Application\Service\CommonService;
-use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Application\Service\CommonService;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 
 class PracticalExamTable extends AbstractTableGateway
 {
@@ -36,161 +33,161 @@ class PracticalExamTable extends AbstractTableGateway
 	}
 
 	public function fetchAllPracticalExam($parameters)
-    {
-        $sessionLogin = new Container('credo');
-        $role = $sessionLogin->roleCode;
-        $acl = $this->sm->get('AppAcl');
-        /* Array of database columns which should be read and sent back to DataTables. Use a space where
+	{
+		$sessionLogin = new Container('credo');
+		$role = $sessionLogin->roleCode;
+		$acl = $this->sm->get('AppAcl');
+		/* Array of database columns which should be read and sent back to DataTables. Use a space where
          * you want to insert a non-database field (for example a counter or static image)
          */
-        $aColumns = array('first_name', 'date', 'exam_type', 'exam_admin',  'direct_observation_score', 'Sample_testing_score', 'practical_total_score', 'last_name', 'first_name', 'middle_name');
-        /*
+		$aColumns = array('first_name', 'date', 'exam_type', 'exam_admin',  'direct_observation_score', 'Sample_testing_score', 'practical_total_score', 'last_name', 'first_name', 'middle_name');
+		/*
          * Paging
          */
-        $sLimit = "";
-        if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
-            $sOffset = $parameters['iDisplayStart'];
-            $sLimit = $parameters['iDisplayLength'];
-        }
+		$sLimit = "";
+		if (isset($parameters['iDisplayStart']) && $parameters['iDisplayLength'] != '-1') {
+			$sOffset = $parameters['iDisplayStart'];
+			$sLimit = $parameters['iDisplayLength'];
+		}
 
-        /*
+		/*
          * Ordering
          */
 
-        $sOrder = "";
-        if (isset($parameters['iSortCol_0'])) {
-            for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
-                if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
-                    $sOrder .= $aColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
-                }
-            }
-            $sOrder = substr_replace($sOrder, "", -1);
-        }
+		$sOrder = "";
+		if (isset($parameters['iSortCol_0'])) {
+			for ($i = 0; $i < (int) $parameters['iSortingCols']; $i++) {
+				if ($parameters['bSortable_' . (int) $parameters['iSortCol_' . $i]] == "true") {
+					$sOrder .= $aColumns[(int) $parameters['iSortCol_' . $i]] . " " . ($parameters['sSortDir_' . $i]) . ",";
+				}
+			}
+			$sOrder = substr_replace($sOrder, "", -1);
+		}
 
-        /*
+		/*
          * Filtering
          * NOTE this does not match the built-in DataTables filtering which does it
          * word by word on any field. It's possible to do here, but concerned about efficiency
          * on very large tables, and MySQL's regex functionality is very limited
          */
 
-        $sWhere = "";
-        if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
-            $sWhereSub = "";
-            foreach ($searchArray as $search) {
-                if ($sWhereSub == "") {
-                    $sWhereSub .= "(";
-                } else {
-                    $sWhereSub .= " AND (";
-                }
-                $colSize = count($aColumns);
+		$sWhere = "";
+		if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
+			$searchArray = explode(" ", $parameters['sSearch']);
+			$sWhereSub = "";
+			foreach ($searchArray as $search) {
+				if ($sWhereSub == "") {
+					$sWhereSub .= "(";
+				} else {
+					$sWhereSub .= " AND (";
+				}
+				$colSize = count($aColumns);
 
-                for ($i = 0; $i < $colSize; $i++) {
-                    if ($i < $colSize - 1) {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
-                    } else {
-                        $sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
-                    }
-                }
-                $sWhereSub .= ")";
-            }
-            $sWhere .= $sWhereSub;
-        }
-        /* Individual column filtering */
-        $counter = count($aColumns);
+				for ($i = 0; $i < $colSize; $i++) {
+					if ($i < $colSize - 1) {
+						$sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' OR ";
+					} else {
+						$sWhereSub .= $aColumns[$i] . " LIKE '%" . ($search) . "%' ";
+					}
+				}
+				$sWhereSub .= ")";
+			}
+			$sWhere .= $sWhereSub;
+		}
+		/* Individual column filtering */
+		$counter = count($aColumns);
 
-        /* Individual column filtering */
-        for ($i = 0; $i < $counter; $i++) {
-            if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
-                if ($sWhere == "") {
-                    $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
-                } else {
-                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
-                }
-            }
-        }
+		/* Individual column filtering */
+		for ($i = 0; $i < $counter; $i++) {
+			if (isset($parameters['bSearchable_' . $i]) && $parameters['bSearchable_' . $i] == "true" && $parameters['sSearch_' . $i] != '') {
+				if ($sWhere == "") {
+					$sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+				} else {
+					$sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+				}
+			}
+		}
 
-        /*
+		/*
          * SQL queries
          * Get data to display
          */
-        $dbAdapter = $this->adapter;
-        $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from('practical_exam')
-                      ->join('provider', ' provider.id= practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
-                      ->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
-        if (isset($sWhere) && $sWhere != "") {
-            $sQuery->where($sWhere);
-        }
-        if ($parameters['display'] != '') {
-            $sQuery->where(array('display' => $parameters['display']));
-        }
-        if (!empty($sessionLogin->district)) {
-            $sQuery->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
-        } elseif (!empty($sessionLogin->region)) {
-            $sQuery->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
-        }
+		$dbAdapter = $this->adapter;
+		$sql = new Sql($dbAdapter);
+		$sQuery = $sql->select()->from('practical_exam')
+			->join('provider', ' provider.id= practical_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
+			->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
+		if (isset($sWhere) && $sWhere != "") {
+			$sQuery->where($sWhere);
+		}
+		if ($parameters['display'] != '') {
+			$sQuery->where(array('display' => $parameters['display']));
+		}
+		if (!empty($sessionLogin->district)) {
+			$sQuery->where('provider.district IN(' . implode(',', $sessionLogin->district) . ')');
+		} elseif (!empty($sessionLogin->region)) {
+			$sQuery->where('provider.region IN(' . implode(',', $sessionLogin->region) . ')');
+		}
 
-        if (isset($sOrder) && $sOrder != "") {
-            $sQuery->order($sOrder);
-        }
-        if (isset($sLimit) && isset($sOffset)) {
-            $sQuery->limit($sLimit);
-            $sQuery->offset($sOffset);
-        }
+		if (isset($sOrder) && $sOrder != "") {
+			$sQuery->order($sOrder);
+		}
+		if (isset($sLimit) && isset($sOffset)) {
+			$sQuery->limit($sLimit);
+			$sQuery->offset($sOffset);
+		}
 
-        $sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance 
-        //error_log($sQueryForm);
-        $rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
+		$sQueryStr = $sql->buildSqlString($sQuery); // Get the string of the Sql, instead of the Select-instance
+		//error_log($sQueryForm);
+		$rResult = $dbAdapter->query($sQueryStr, $dbAdapter::QUERY_MODE_EXECUTE);
 
-        /* Data set length after filtering */
-        $sQuery->reset('limit');
-        $sQuery->reset('offset');
-        $fQuery = $sql->buildSqlString($sQuery);
-        $aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
-        $iFilteredTotal = count($aResultFilterTotal);
+		/* Data set length after filtering */
+		$sQuery->reset('limit');
+		$sQuery->reset('offset');
+		$fQuery = $sql->buildSqlString($sQuery);
+		$aResultFilterTotal = $dbAdapter->query($fQuery, $dbAdapter::QUERY_MODE_EXECUTE);
+		$iFilteredTotal = count($aResultFilterTotal);
 
-        /* Total data set length */
-        $iTotal = $this->select()->count();
+		/* Total data set length */
+		$iTotal = $this->select()->count();
 
 
-        $output = array(
-            "sEcho" => (int) $parameters['sEcho'],
-            "iTotalRecords" => $iTotal,
-            "iTotalDisplayRecords" => $iFilteredTotal,
-            "aaData" => array()
-        );
+		$output = array(
+			"sEcho" => (int) $parameters['sEcho'],
+			"iTotalRecords" => $iTotal,
+			"iTotalDisplayRecords" => $iFilteredTotal,
+			"aaData" => array()
+		);
 
-        foreach ($rResult as $aRow) {
-            $row = array();
-            $row[] = ucwords($aRow['first_name'].' '.$aRow['middle_name'].' '.$aRow['last_name']);
+		foreach ($rResult as $aRow) {
+			$row = array();
+			$row[] = ucwords($aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name']);
 			$row[] = date("d-M-Y", strtotime($aRow['date']));
 			$row[] = $aRow['exam_type'];
-            $row[] = $aRow['exam_admin'];
-            $row[] = $aRow['direct_observation_score'].' %';
-            $row[] = $aRow['Sample_testing_score'].' %';
-            $row[] = $aRow['practical_total_score'].' %';
-            if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'edit')) {
-                    $row[] = '<a href="/practical-exam/edit/' . base64_encode($aRow['practice_exam_id']) . '"><span class=\'glyphicon glyphicon-pencil\'></span> Edit</a>';
-                if ($aRow['direct_observation_score'] < 90 || $aRow['Sample_testing_score'] < 100 ||strcasecmp($aRow['exam_type'], '3rd attempt') == 0) {
-                    $row[] = "<span class='glyphicon glyphicon-repeat'></span> Add written exam";
-                } else {
-                    $row[] = '<a href="/practical-exam/add/' . base64_encode($aRow['practice_exam_id']) . '" ><span class=\'glyphicon glyphicon-repeat\'></span> Add written exam</a>';
-                }
-            }
-            if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'delete')) {
-                $row[] = '<a onclick="if (!confirm(\'Do you really want to remove this practical exam?\')) {
+			$row[] = $aRow['exam_admin'];
+			$row[] = $aRow['direct_observation_score'] . ' %';
+			$row[] = $aRow['Sample_testing_score'] . ' %';
+			$row[] = $aRow['practical_total_score'] . ' %';
+			if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'edit')) {
+				$row[] = '<a href="/practical-exam/edit/' . base64_encode($aRow['practice_exam_id']) . '"><span class=\'glyphicon glyphicon-pencil\'></span> Edit</a>';
+				if ($aRow['direct_observation_score'] < 90 || $aRow['Sample_testing_score'] < 100 || strcasecmp($aRow['exam_type'], '3rd attempt') == 0) {
+					$row[] = "<span class='glyphicon glyphicon-repeat'></span> Add written exam";
+				} else {
+					$row[] = '<a href="/practical-exam/add/' . base64_encode($aRow['practice_exam_id']) . '" ><span class=\'glyphicon glyphicon-repeat\'></span> Add written exam</a>';
+				}
+			}
+			if ($acl->isAllowed($role, 'Certification\Controller\PracticalExamController', 'delete')) {
+				$row[] = '<a onclick="if (!confirm(\'Do you really want to remove this practical exam?\')) {
                     alert(\'Canceled!\');
                     return false;
                 };" href="/practical-exam/delete/' . base64_encode($aRow['practice_exam_id']) . '">
                     <span class="glyphicon glyphicon-trash"> Delete</span>
                 </a>';
-            }
-            $output['aaData'][] = $row;
-        }
-        return $output;
-    }
+			}
+			$output['aaData'][] = $row;
+		}
+		return $output;
+	}
 
 	public function fetchAll()
 	{
@@ -542,15 +539,15 @@ class PracticalExamTable extends AbstractTableGateway
 		return $examResultsScores;
 	}
 
-	public function fecthPracticalWrittenCountResults($params = nul)
+	public function fecthPracticalWrittenCountResults($params = null)
 	{
 		$dbAdapter = $this->adapter;
 		$sql = new Sql($dbAdapter);
 		/* Current Week */
-		$week_array = \Application\Service\CommonService::getCurrentWeekStartAndEndDate();
+		$week_array = CommonService::getCurrentWeekStartAndEndDate();
 		$start_date = $week_array['weekStart'];
 		$end_date = $week_array['weekEnd'];
-		$dateSet = \Application\Service\CommonService::humanReadableDateFormat($start_date) . ' to ' . \Application\Service\CommonService::humanReadableDateFormat($end_date);
+		$dateSet = CommonService::humanReadableDateFormat($start_date) . ' to ' . CommonService::humanReadableDateFormat($end_date);
 
 		$pquery = $sql->select()->from('practical_exam')
 			->columns(array(
@@ -634,191 +631,190 @@ class PracticalExamTable extends AbstractTableGateway
 	}
 
 	public function uploadPracticalExamExcel($params)
-    {
-        $loginContainer    = new Container('credo');
-        $container = new Container('alert');
-        $dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
-        $sql               = new Sql($dbAdapter);
-        $allowedExtensions = array('xls', 'xlsx', 'csv');
+	{
+		$loginContainer    = new Container('credo');
+		$container = new Container('alert');
+		$dbAdapter         = $this->sm->get('Laminas\Db\Adapter\Adapter');
+		$sql               = new Sql($dbAdapter);
+		$allowedExtensions = array('xls', 'xlsx', 'csv');
 
-        $fileName = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['practical_exam_excel']['name']);
-        $fileName = str_replace(" ", "-", $fileName);
-        $ranNumber = str_pad(rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $fileName = $ranNumber . "." . $extension;
-        $response = array();
-        $response['data']['mandatory'] = []; // Initialize as an empty array
-        $response['data']['duplicate'] = []; // Initialize as an empty array
-        $response['data']['imported'] = []; // Initialize as an empty array
-        $response['data']['notimported'] = []; // Initialize as an empty array
-        $uploadOption = $params['uploadOption'];
+		$fileName = preg_replace('/[^A-Za-z0-9.]/', '-', $_FILES['practical_exam_excel']['name']);
+		$fileName = str_replace(" ", "-", $fileName);
+		$ranNumber = str_pad(rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+		$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+		$fileName = $ranNumber . "." . $extension;
+		$response = array();
+		$response['data']['mandatory'] = []; // Initialize as an empty array
+		$response['data']['duplicate'] = []; // Initialize as an empty array
+		$response['data']['imported'] = []; // Initialize as an empty array
+		$response['data']['notimported'] = []; // Initialize as an empty array
+		$uploadOption = $params['uploadOption'];
 
-        if (in_array($extension, $allowedExtensions)) {
-            $uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'practical-exam';
-            if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
-                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "practical-exam");
-            }
-            if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['practical_exam_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-                $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
-                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'practical-exam'. DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx';
-                $validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
+		if (in_array($extension, $allowedExtensions)) {
+			$uploadPath = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'practical-exam';
+			if (!file_exists($uploadPath) && !is_dir($uploadPath)) {
+				mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "practical-exam");
+			}
+			if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['practical_exam_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
+				$uploadedFilePath = $uploadPath . DIRECTORY_SEPARATOR . $fileName;
+				$templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'practical-exam' . DIRECTORY_SEPARATOR . 'Practical_Exam_Bulk_Upload_Excel_format.xlsx';
+				$validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
 
-                if($validate) {
-                    $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
-                    $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-                    $count = count($sheetData);
-                    
-                    $j = 0;
-                    for ($i = 2; $i <= $count; ++$i) {
-                        $regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A']))->current();
-                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '') {                            
-                            $response['data']['mandatory'][]  = array(
-                                'provider_id' => $sheetData[$i]['A'],
-                                'exam_admin' => $sheetData[$i]['B'],
+				if ($validate) {
+					$objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
+					$sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+					$count = count($sheetData);
+
+					$j = 0;
+					for ($i = 2; $i <= $count; ++$i) {
+						$regrowset = $this->tableGateway->select(array('provider_id' => $sheetData[$i]['A']))->current();
+						if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '') {
+							$response['data']['mandatory'][]  = array(
+								'provider_id' => $sheetData[$i]['A'],
+								'exam_admin' => $sheetData[$i]['B'],
 								'direct_observation_score' => $sheetData[$i]['C'],
-                                'Sample_testing_score' => $sheetData[$i]['D'],
-                                'date' => $sheetData[$i]['E'],
-                                'training_id' => $sheetData[$i]['F'],
-                            );
-                        } else {
+								'Sample_testing_score' => $sheetData[$i]['D'],
+								'date' => $sheetData[$i]['E'],
+								'training_id' => $sheetData[$i]['F'],
+							);
+						} else {
 							$dataValidate = true;
-                            $regrowset = [];
+							$regrowset = [];
 							$data = array(
-                                'provider_id' => $sheetData[$i]['A'],
-                                'exam_admin' => $sheetData[$i]['B'],
+								'provider_id' => $sheetData[$i]['A'],
+								'exam_admin' => $sheetData[$i]['B'],
 								'direct_observation_score' => $sheetData[$i]['C'],
-                                'Sample_testing_score' => $sheetData[$i]['D'],
+								'Sample_testing_score' => $sheetData[$i]['D'],
 								'practical_total_score' => ($sheetData[$i]['C'] + $sheetData[$i]['D']) / 2,
-                                'date' => $sheetData[$i]['E'],
-                                'training_id' => $sheetData[$i]['F'],
-                            );
+								'date' => $sheetData[$i]['E'],
+								'training_id' => $sheetData[$i]['F'],
+							);
 							$provider = $this->getProvider($sheetData[$i]['A']);
-                            if(empty($provider)){
-                                $data['reason'] = 'Tester is invalid. Please give correct Registration number';
-                                $response['data']['notimported'][$j] = $data;
-                                $dataValidate = false;
-                            }else{
-                                $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'],'display' => 'yes'))->current();
-                            }                            
-                            $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
-                            $attemptNumArray = explode('##',$attemptNum);
-                            if(count($attemptNumArray) > 1){
-                                $data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
-                                $response['data']['notimported'][$j] = $data;
-                                $dataValidate = false;
-                            }else{
-                                if($attemptNum==0){
-                                    $attemptvalue="1st attempt";
-                                }elseif($attemptNum==1){
-                                    $attemptvalue="2nd attempt";
-                                }elseif($attemptNum==2){
-                                    $attemptvalue="3rd attempt";
-                                } elseif ($attemptNum>=3) {
-                                    $attemptNum=$attemptNum+1;
-                                    $attemptvalue=$attemptNum;
-                                    $data['exam_type'] = $attemptvalue;
-                                    $data['reason'] = 'This tester has already made three unsuccessful attempts';
-                                    $response['data']['notimported'][$j] = $data;
-                                    $dataValidate = false;
-                                }
-                            }
-                            $exam_to_val = $this->examToValidate($sheetData[$i]['A']);
-                            $nb_days = $this->numberOfDays($sheetData[$i]['A']);
-                            //$written = $this->writtenExamTable->counWritten($sheetData[$i]['A']);
-                            $written = 0;
-                            if ($exam_to_val > 0) {
-                                $data['reason'] = 'This tester has a review pending validation. you must first validate it in the Examination tab.';
-                                $response['data']['notimported'][$j] = $data;
-                                $dataValidate = false;
-                            }
-                            if (isset($nb_days) && $nb_days <= 30) {
-                                $data['reason'] = 'The last attempt of this tester was ' . $nb_days . ' day(s) ago. Please wait at lease ' . date("d-m-Y", strtotime(date("Y-m-d") . "  + " . (31 - $nb_days) . " day"));
-                                $response['data']['notimported'][$j] = $data;
-                                $dataValidate = false;
-                            }
-                            if ($dataValidate && isset($attemptvalue) ){
-                                $data['exam_type'] = $attemptvalue;
-                                $inserted = false;
-                                if($uploadOption == "update"){
-                                    if(!empty($regrowset)){
-                                        $practice_exam_id = (int) $regrowset->practice_exam_id;
+							if (empty($provider)) {
+								$data['reason'] = 'Tester is invalid. Please give correct Registration number';
+								$response['data']['notimported'][$j] = $data;
+								$dataValidate = false;
+							} else {
+								$regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'], 'display' => 'yes'))->current();
+							}
+							$attemptNum = $this->attemptNumber($sheetData[$i]['A']);
+							$attemptNumArray = explode('##', $attemptNum);
+							if (count($attemptNumArray) > 1) {
+								$data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
+								$response['data']['notimported'][$j] = $data;
+								$dataValidate = false;
+							} else {
+								if ($attemptNum == 0) {
+									$attemptvalue = "1st attempt";
+								} elseif ($attemptNum == 1) {
+									$attemptvalue = "2nd attempt";
+								} elseif ($attemptNum == 2) {
+									$attemptvalue = "3rd attempt";
+								} elseif ($attemptNum >= 3) {
+									$attemptNum = $attemptNum + 1;
+									$attemptvalue = $attemptNum;
+									$data['exam_type'] = $attemptvalue;
+									$data['reason'] = 'This tester has already made three unsuccessful attempts';
+									$response['data']['notimported'][$j] = $data;
+									$dataValidate = false;
+								}
+							}
+							$exam_to_val = $this->examToValidate($sheetData[$i]['A']);
+							$nb_days = $this->numberOfDays($sheetData[$i]['A']);
+							//$written = $this->writtenExamTable->counWritten($sheetData[$i]['A']);
+							$written = 0;
+							if ($exam_to_val > 0) {
+								$data['reason'] = 'This tester has a review pending validation. you must first validate it in the Examination tab.';
+								$response['data']['notimported'][$j] = $data;
+								$dataValidate = false;
+							}
+							if (isset($nb_days) && $nb_days <= 30) {
+								$data['reason'] = 'The last attempt of this tester was ' . $nb_days . ' day(s) ago. Please wait at lease ' . date("d-m-Y", strtotime(date("Y-m-d") . "  + " . (31 - $nb_days) . " day"));
+								$response['data']['notimported'][$j] = $data;
+								$dataValidate = false;
+							}
+							if ($dataValidate && isset($attemptvalue)) {
+								$data['exam_type'] = $attemptvalue;
+								$inserted = false;
+								if ($uploadOption == "update") {
+									if (!empty($regrowset)) {
+										$practice_exam_id = (int) $regrowset->practice_exam_id;
 										$response['data']['duplicate'][$j] = $data;
 										$data['provider_id'] = $provider['id'];
-                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-                                        $data['updated_by'] = $loginContainer->userId;
-                                        $this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
-                                        $inserted = true; 
-                                    }else{
+										$data['updated_on'] = \Application\Service\CommonService::getDateTime();
+										$data['updated_by'] = $loginContainer->userId;
+										$this->tableGateway->update($data, array('practice_exam_id' => $practice_exam_id));
+										$inserted = true;
+									} else {
 										$response['data']['imported'][$j] = $data;
 										$data['provider_id'] = $provider['id'];
-                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
-                                        $data['added_by'] = $loginContainer->userId;
-                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-                                        $data['updated_by'] = $loginContainer->userId;
-                                        $this->tableGateway->insert($data);
-                                        $inserted = true;
-                                    }
-                                }else{
-                                    if(empty($regrowset)){
+										$data['added_on'] = \Application\Service\CommonService::getDateTime();
+										$data['added_by'] = $loginContainer->userId;
+										$data['updated_on'] = \Application\Service\CommonService::getDateTime();
+										$data['updated_by'] = $loginContainer->userId;
+										$this->tableGateway->insert($data);
+										$inserted = true;
+									}
+								} else {
+									if (empty($regrowset)) {
 										$response['data']['imported'][$j] = $data;
 										$data['provider_id'] = $provider['id'];
-                                        $data['added_on'] = \Application\Service\CommonService::getDateTime();
-                                        $data['added_by'] = $loginContainer->userId;
-                                        $data['updated_on'] = \Application\Service\CommonService::getDateTime();
-                                        $data['updated_by'] = $loginContainer->userId;
-                                        $this->tableGateway->insert($data);
-                                        $inserted = true;
-                                    }else{
-                                        $response['data']['duplicate'][$j] = $data;
-                                    }
-                                }
+										$data['added_on'] = \Application\Service\CommonService::getDateTime();
+										$data['added_by'] = $loginContainer->userId;
+										$data['updated_on'] = \Application\Service\CommonService::getDateTime();
+										$data['updated_by'] = $loginContainer->userId;
+										$this->tableGateway->insert($data);
+										$inserted = true;
+									} else {
+										$response['data']['duplicate'][$j] = $data;
+									}
+								}
 								$last_id = $this->last_id();
-                                if(empty($written) && !empty($last_id) && $inserted){
-                                    $this->insertToExamination($last_id);
-                                }elseif (!empty($written) && !empty($last_id) && $inserted) {
-                                    $nombre2 = $this->countWritten2($written);
-                                    if ($nombre2 == 0) {
-                                        $this->examination($last_id, $written);
-                                    } else {
-                                        $this->insertToExamination($last_id);
-                                    }
-                                }
-                            }
-                        }
-                        $j++;
-                    }
-                    unlink($uploadPath . DIRECTORY_SEPARATOR . 'practical-exam' . DIRECTORY_SEPARATOR . $fileName);
-                }else{
-                    $container->alertMsg = 'Uploaded file column mismatched'; 
-                    return $response;
-                }
-            }
-        }
-        if ($response['data'] !== [] && $response['data']['mandatory'] !== [] ) {
-            $container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the highlighted fields.';
-            return $response;
-        } else if ($response['data'] !== [] && $response['data']['notimported'] !== [] ) {
-            $container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the file.';
-            return $response;
-        }else{
-            $container->alertMsg = 'practical exams details imported successfully';
-            return $response;
-        }
-    }
+								if (empty($written) && !empty($last_id) && $inserted) {
+									$this->insertToExamination($last_id);
+								} elseif (!empty($written) && !empty($last_id) && $inserted) {
+									$nombre2 = $this->countWritten2($written);
+									if ($nombre2 == 0) {
+										$this->examination($last_id, $written);
+									} else {
+										$this->insertToExamination($last_id);
+									}
+								}
+							}
+						}
+						$j++;
+					}
+					unlink($uploadPath . DIRECTORY_SEPARATOR . 'practical-exam' . DIRECTORY_SEPARATOR . $fileName);
+				} else {
+					$container->alertMsg = 'Uploaded file column mismatched';
+					return $response;
+				}
+			}
+		}
+		if ($response['data'] !== [] && $response['data']['mandatory'] !== []) {
+			$container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the highlighted fields.';
+			return $response;
+		} else if ($response['data'] !== [] && $response['data']['notimported'] !== []) {
+			$container->alertMsg = 'Some practical exams from the excel file were not imported. Please check the file.';
+			return $response;
+		} else {
+			$container->alertMsg = 'practical exams details imported successfully';
+			return $response;
+		}
+	}
 
 	public function getProvider($regNo)
-    {
-        $db = $this->adapter;
-        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no ='. $regNo;;
-        $statement = $db->query($sql1);
-        $result = $statement->execute();
-        $selectData = array();
+	{
+		$db = $this->adapter;
+		$sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no =' . $regNo;;
+		$statement = $db->query($sql1);
+		$result = $statement->execute();
+		$selectData = array();
 
-        foreach ($result as $res) {
-            $selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
-            $selectData['id'] = $res['id'];
-        }
-        return $selectData;
-    }
-	
+		foreach ($result as $res) {
+			$selectData['name'] = $res['last_name'] . ' ' . $res['first_name'] . ' ' . $res['middle_name'];
+			$selectData['id'] = $res['id'];
+		}
+		return $selectData;
+	}
 }
