@@ -144,6 +144,11 @@ class ComposerStaticInitb10e5a0b197a1158dfec9135e14a0356
             'Laminas\\Cache\\' => 14,
             'Laminas\\Authentication\\' => 23,
         ),
+        'I' => 
+        array (
+            'Intervention\\Image\\' => 19,
+            'Intervention\\Gif\\' => 17,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -490,6 +495,14 @@ class ComposerStaticInitb10e5a0b197a1158dfec9135e14a0356
         'Laminas\\Authentication\\' => 
         array (
             0 => __DIR__ . '/..' . '/laminas/laminas-authentication/src',
+        ),
+        'Intervention\\Image\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/intervention/image/src',
+        ),
+        'Intervention\\Gif\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/intervention/gif/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (

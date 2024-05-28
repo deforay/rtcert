@@ -4,6 +4,7 @@ namespace Application\Controller;
 
 
 use Laminas\Mvc\Controller\AbstractActionController;
+use Intervention\Image\ImageManager;
 use Laminas\View\Model\ViewModel;
 use Laminas\Session\Container;
 use Laminas\Json\Json;
@@ -58,11 +59,6 @@ class ConfigController extends AbstractActionController
         /** @var \Laminas\Http\Request $request */
         $request = $this->getRequest();
 
-        //$nb = $this->getCertificationTable()->countCertificate();
-        //$nb2 = $this->getCertificationTable()->countReminder();
-        //$this->layout()->setVariable('nb', $nb);
-        //$this->layout()->setVariable('nb2', $nb2);
-
         if ($request->isPost()) {
             //\Zend\Debug\Debug::dump($_FILES);die;
             $image_left = $request->getPost('logo_left', null);
@@ -93,41 +89,46 @@ class ConfigController extends AbstractActionController
             }
 
             $imagePath = UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo";
-            // echo $imagePath;die;
+            $maxSize = 300;
+
             if (is_uploaded_file($imagetemp_left)) {
                 $array_type = explode('/', $imagetype_left);
-                list($width, $height, $type, $attr) = getimagesize($imagetemp_left);
-
+    
                 if (strcasecmp($array_type[1], 'png') != 0) {
                     $msg_logo_left = 'You must load an image in PNG format for LOGO LEFT.';
-                } elseif ($width > 425 || $height > 352) {
-                    $msg_logo_left = 'The size of your image LOGO LEFT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_left, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert1.png')) {
-                    $msg_logo_left = 'Image LOGO LEFT loaded successfully';
                 } else {
-                    $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
+                    $img = ImageManager::imagick()->read($imagetemp_left);
+                    $img->scale(width: $maxSize);
+    
+                    // Save the resized image
+                    $saved = $img->save($imagePath . DIRECTORY_SEPARATOR . 'logo_cert1.png');
+    
+                    if (!$saved) {
+                        $msg_logo_left = "Failure to save the image: LOGO LEFT. Try Again";
+                    }
                 }
             }
 
             if (is_uploaded_file($imagetemp_right)) {
                 $array_type = explode('/', $imagetype_right);
-                list($width, $height, $type, $attr) = getimagesize($imagetemp_right);
-
+    
                 if (strcasecmp($array_type[1], 'png') != 0) {
                     $msg_logo_right = 'You must load an image in PNG format for LOGO RIGHT.';
-                } elseif ($width > 425 || $height > 352) {
-                    $msg_logo_right = 'the size of your image LOGO RIGHT should not exceed: 425x352.';
-                } elseif (move_uploaded_file($imagetemp_right, $imagePath . DIRECTORY_SEPARATOR . 'logo_cert2.png')) {
-                    $msg_logo_right = 'image LOGO RIGHT loaded successfully';
-                    //                    
                 } else {
-                    $msg_logo_right = "Failure to save the image : LOGO RIGHT. Try Again";
+                    $img = ImageManager::imagick()->read($imagetemp_right);
+                    $img->scale(width: $maxSize);
+    
+                    // Save the resized image
+                    $saved = $img->save($imagePath . DIRECTORY_SEPARATOR . 'logo_cert2.png');
+    
+                    if (!$saved) {
+                        $msg_logo_right = "Failure to save the image: LOGO RIGHT. Try Again";
+                    }
                 }
             }
 
             $header_text = $request->getPost('header_text', null);
             $header_text_size = $request->getPost('header_text_font_size', null);
-            //echo $header_text_size;die;
 
             if (trim($header_text) != '' || trim($header_text_size) != '') {
                 $header_text = addslashes(trim($header_text));
@@ -136,10 +137,16 @@ class ConfigController extends AbstractActionController
                 $msg_header_text = "PDF Settings Saved Successfully.";
             }
             $container = new Container('alert');
-            $container->alertMsg = "PDF Settings Saved Successfully.";
+            if ($msg_logo_left != '') {
+                $container->alertMsg = $msg_logo_left;
+            } elseif ($msg_logo_right != '') {
+                $container->alertMsg = $msg_logo_right;
+            } else {
+                $container->alertMsg = "PDF Settings Saved Successfully.";
+            }
             return $this->redirect()->toRoute('config');
 
-            $headerText = $this->headerTextAction();
+            /*$headerText = $this->headerTextAction();
             $header_text_font_size = $this->certificationTable->SelectHeaderTextFontSize();
             return array(
                 'msg_logo_left' => $msg_logo_left,
@@ -147,7 +154,7 @@ class ConfigController extends AbstractActionController
                 'msg_header_text' => $msg_header_text,
                 'header_text' => $headerText['header_text'],
                 'header_text_font_size' => $header_text_font_size
-            );
+            );*/
         }
     }
 
