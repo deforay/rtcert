@@ -1319,7 +1319,7 @@ class CertificationTable extends AbstractTableGateway
             ->join(array('e' => 'examination'), 'e.id=c.examination', array())
             ->join(array('p' => 'provider'), 'p.id=e.provider', array())
             ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('location_name', 'longitude', 'latitude'))
-            //->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
+            ->where('(c.final_decision = "Certified" OR c.final_decision = "certified") AND date_end_validity >= NOW()')
             ->group('p.region');
         if (!empty($sessionLogin->district)) {
             $query->where('p.district IN(' . implode(',', $sessionLogin->district) . ')');
