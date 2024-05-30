@@ -982,3 +982,6 @@ INSERT INTO `country` (`country_id`, `country_name`, `country_code`, `country_st
 ALTER TABLE roles
 ADD CONSTRAINT role_name UNIQUE (role_name),
 ADD CONSTRAINT role_code UNIQUE (role_code);
+
+-- ilahir 30-May-2024
+INSERT INTO `global_config` (`config_id`, `display_name`, `global_name`, `global_value`) VALUES (NULL, 'Dashboard Map Zoom Level', 'dashboard_map_zoomlevel', '8');

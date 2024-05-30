@@ -539,7 +539,8 @@ class Module
                     public function __invoke($diContainer)
                     {
                         $dashboardService = $diContainer->get('DashboardService');
-                        return new \Application\Controller\DashboardController($dashboardService);
+                        $commonService = $diContainer->get('CommonService');
+                        return new \Application\Controller\DashboardController($dashboardService,$commonService);
                     }
                 },
                 'Application\Controller\UsersController' => new class
