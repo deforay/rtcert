@@ -116,10 +116,8 @@ if ($total >= $configResult['0']['test_config_value']) {
 </section>
 
 
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/chart/chart.bundle.min.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->basePath('assets/js/chart/chart.min.js'); ?>"></script>
 <script>
     new Chart(document.getElementById("scorePie"), {
         "type": "doughnut",

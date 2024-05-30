@@ -25,7 +25,7 @@ if(isset($result['selectedProvinces']) && count($result['selectedProvinces']) >0
    $selectedProvinces = $result['selectedProvinces'];
 }
 ?>
-<link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/themes/smoothness/jquery-ui.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/css/typeahead.min.css'); ?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->basePath('assets/lib/select2/css/select2.min.css'); ?>"/>
 <div class="am-content">
