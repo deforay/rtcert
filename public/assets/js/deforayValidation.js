@@ -7,28 +7,37 @@ if(!String.prototype.startsWith){
 
 //function to check if a given element has a particular class or not
 
-function hasClassName(objElement, strClass){
-   // if there is a class
-   if ( objElement.className )
-      {
-      // the classes are just a space separated list, so first get the list
-      var arrList = objElement.className.split(' ');
-      // get uppercase class for comparison purposes
-      var strClassUpper = strClass.toUpperCase();
-      // find all instances and remove them
-      for ( var i = 0; i < arrList.length; i++ )
-         {
-         // if class found
-         if ( arrList[i].toUpperCase() == strClassUpper )
-            {
-            // we found it
-            return true;
-            }
-         }
-      }
-   // if we got here then the class name is not there
-   return false;
+function hasClassName(objElement, strClass) {
+	var classAttr = objElement.className;
+    var classes = "";
 
+    // Check if classAttr is an SVGAnimatedString
+    if (classAttr.baseVal !== undefined) {
+        classes = classAttr.baseVal;
+    } else {
+        classes = classAttr;
+    }
+
+    // Ensure classes is a string
+    classes = classes || "";
+
+   // if there is a class
+   	if (classes) {
+      	// the classes are just a space separated list, so first get the list
+      	var arrList = classes.split(' ');
+      	// get uppercase class for comparison purposes
+      	var strClassUpper = strClass.toUpperCase();
+      	// find all instances and remove them
+      	for ( var i = 0; i < arrList.length; i++ ) {
+        	// if class found
+        	if ( arrList[i].toUpperCase() == strClassUpper ) {
+            	// we found it
+            	return true;
+        	}
+    	}
+    }
+   	// if we got here then the class name is not there
+   	return false;
    }
 
 
@@ -225,162 +234,135 @@ if (obj.offsetParent) {
 return [curleft,curtop];
 
 }
-function deforayValidatorInternal(formInputs, useTitleToShowMessage){
+function deforayValidatorInternal(formInputs, useTitleToShowMessage) {
 		// change color of inputs on focus
-	for(i=0;i<formInputs.length;i++){
-		classes = formInputs[i].className;
-		if(classes == "" || classes== null){
+	for (i=0;i<formInputs.length;i++) {
+		var classAttr = formInputs[i].className;
+		var classes = "";
+
+		// Check if classAttr is an SVGAnimatedString
+		if (classAttr.baseVal !== undefined) {
+			classes = classAttr.baseVal;
+		} else {
+			classes = classAttr;
+		}
+
+		// Ensure classes is a string
+		classes = classes || "";
+		
+		if (classes == "" || classes== null) {
 			valid = true;
 		}
 		var parts = classes.split(" ");
 
-                if(hasClassName(formInputs[i],"useTitle")){
+		if(hasClassName(formInputs[i],"useTitle")) {
 
-                    elementTitle = formInputs[i].title;
-                }
-                else if(useTitleToShowMessage){
-                    elementTitle = formInputs[i].title;
-                }
-                else{
-                    elementTitle = "";
-                }
-		for(var cCount=0; cCount< parts.length; cCount++){
-                    var required = false;
-			if(parts[cCount] == "isRequired"){
-                            required = true;
-                            if(formInputs[i].type == 'checkbox' || formInputs[i].type == 'radio'){
-				valid = isRequiredCheckBox(formInputs[i].name);
-				if(elementTitle != null && elementTitle != "")
-				{
-					errorMsg = elementTitle;
+			elementTitle = formInputs[i].title;
+		} else if(useTitleToShowMessage) {
+			elementTitle = formInputs[i].title;
+		} else {
+			elementTitle = "";
+		}
+		for (var cCount=0; cCount< parts.length; cCount++) {
+            var required = false;
+			if (parts[cCount] == "isRequired") {
+                required = true;
+                if (formInputs[i].type == 'checkbox' || formInputs[i].type == 'radio') {
+					valid = isRequiredCheckBox(formInputs[i].name);
+					if(elementTitle != null && elementTitle != "") {
+						errorMsg = elementTitle;
+					} else {
+						errorMsg = "Please select "+formInputs[i].name;
+					}
+                } else {
+					var valu = (formInputs[i].value);
+					valid = !isRequired(valu);
+					if (elementTitle != null && elementTitle != "") {
+						errorMsg = elementTitle;
+					} else {
+						errorMsg = "Please don't leave this field blank";
+					}
 				}
-				else{
-					errorMsg = "Please select "+formInputs[i].name;
-				}
-
-                            }
-                            else{
-
-                                    var valu = (formInputs[i].value);
-                                    valid = !isRequired(valu);
-                                    if(elementTitle != null && elementTitle != "")
-                                    {
-                                            errorMsg = elementTitle;
-                                    }
-                                    else{
-                                            errorMsg = "Please don't leave this field blank";
-                                    }
-				}
-			}
-			else if(parts[cCount] == "isEmail"){
+			} else if (parts[cCount] == "isEmail") {
 				var valu = (formInputs[i].value);
 				valid = isEmail(valu,required);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "Please enter a valid email id";
 				}
-			}
-			else if(parts[cCount] == "isNumeric"){
+			} else if (parts[cCount] == "isNumeric") {
 				valid = isNumeric(formInputs[i].value,required);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if(elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "Please enter a valid number.";
 				}
 			}
-			else if(parts[cCount] == "isAlpha"){
+			else if(parts[cCount] == "isAlpha") {
 				valid = isAlpha(formInputs[i].value,required);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "This field can only contain alphabets and numbers.";
 				}
-			}
-			else if(parts[cCount] == "isAlphaNum" ){
+			} else if (parts[cCount] == "isAlphaNum" ) {
 				valid = isAlphaNum(formInputs[i].value,required);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if(elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "This field can only contain alphabets and numbers.";
 				}
-			}
-			else if(parts[cCount] == "isSymbol"){
+			} else if (parts[cCount] == "isSymbol") {
 				valid = isSymbol(formInputs[i].value,required);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "This field cannot contain alphabets and numbers.";
 				}
-			}
-			else if(parts[cCount].startsWith("minLength")){
+			} else if (parts[cCount].startsWith("minLength")) {
 				innerParts = parts[cCount].split("_");
 				valid = minLength(formInputs[i].value,innerParts[1]);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "Minimum "+innerParts[1]+" characters required";
 				}
-            }
-			else if(parts[cCount].startsWith("maxLength")){
+            } else if (parts[cCount].startsWith("maxLength")) {
 				innerParts = parts[cCount].split("_");
 				valid = maxLength(formInputs[i].value,innerParts[1]);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "More than "+innerParts[1]+" characters not allowed";
 				}
-			}
-			else if(parts[cCount].startsWith("exactLength")){
+			} else if (parts[cCount].startsWith("exactLength")) {
 				innerParts = parts[cCount].split("_");
 				valid = exactLength(formInputs[i].value,innerParts[1]);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "This field should have exactly "+innerParts[1]+" characters";
 				}
-			}
-			else if(parts[cCount] == "confirmPassword"){
+			} else if (parts[cCount] == "confirmPassword") {
 				valid = confirmPassword(formInputs[i].name);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "Please make sure password and confirm password are same";
 				}
-			}
-			else if(parts[cCount].startsWith("isNumericBetween")){
+			} else if(parts[cCount].startsWith("isNumericBetween")) {
 				innerParts = parts[cCount].split("_");
 				valid = exactLength(formInputs[i].value,innerParts[1],innerParts[2]);
-				if(elementTitle != null && elementTitle != "")
-				{
+				if (elementTitle != null && elementTitle != "") {
 					errorMsg = elementTitle;
-				}
-				else{
+				} else {
 					errorMsg = "This field should have numbers between the range "+innerParts[1]+" and "+innerParts[2]+".";
 				}
-			}
-			else{
+			} else {
 				valid = true;
 			}
-			if(!valid) {
+			if (!valid) {
 				formInputs[i].style.background = "#FFFF99";
 				formInputs[i].style.border = "1px solid #CF3339";
 				$('.infocus').removeClass('infocus');
