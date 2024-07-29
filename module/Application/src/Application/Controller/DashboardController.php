@@ -9,10 +9,12 @@ use Laminas\Json\Json;
 class DashboardController extends AbstractActionController
 {
     public \Application\Service\DashboardService $dashboardService;
+    public \Application\Service\CommonService $commonService;
 
-    public function __construct($dashboardService)
+    public function __construct($dashboardService,$commonService)
     {
         $this->dashboardService = $dashboardService;
+        $this->commonService = $commonService;
     }
 
     public function indexAction()
@@ -87,9 +89,10 @@ class DashboardController extends AbstractActionController
         $request = $this->getRequest();
         if ($request->isPost()) {
             $params = $request->getPost();
+            $configData = $this->commonService->getGlobalConfigDetails();
             $result = $this->dashboardService->getCertificationMapResults($params);
             $viewModel = new ViewModel();
-            $viewModel->setVariables(array('result' => $result))
+            $viewModel->setVariables(array('result' => $result,'configData' => $configData))
                 ->setTerminal(true);
             return $viewModel;
         }
