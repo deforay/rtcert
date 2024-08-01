@@ -24,10 +24,6 @@ $(function() {
         forcePlaceholderSize: true,
         zIndex: 999999
     }).disableSelection();
-    ;
-
-    //bootstrap WYSIHTML5 - text editor
-   $(".richtextarea").wysihtml5();
 
     $('.daterange').daterangepicker(
             {

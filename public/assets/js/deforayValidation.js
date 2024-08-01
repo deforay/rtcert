@@ -274,7 +274,16 @@ function deforayValidatorInternal(formInputs, useTitleToShowMessage) {
 					} else {
 						errorMsg = "Please select "+formInputs[i].name;
 					}
-                } else {
+                } else if ($(formInputs[i]).hasClass('richtextarea')) {
+					var summernoteContent = $(formInputs[i]).summernote('code');
+					var textContent = $(summernoteContent).text().trim();
+					valid = !isRequired(textContent);
+					if (elementTitle != null && elementTitle != "") {
+						errorMsg = elementTitle;
+					} else {
+						errorMsg = "Please don't leave this field blank";
+					}
+				} else {
 					var valu = (formInputs[i].value);
 					valid = !isRequired(valu);
 					if (elementTitle != null && elementTitle != "") {
