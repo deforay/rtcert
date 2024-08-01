@@ -406,13 +406,14 @@ if ($this->isAllowed($role, "Certification\Controller\ProviderController", "freq
 	<script src="<?php echo $this->basePath('assets/js/main.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/lib/bootstrap/dist/js/bootstrap.min.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/lib/jquery-ui/jquery-ui.min.js'); ?>" type="text/javascript"></script>
-	<script src="<?php echo $this->basePath('assets/js/jasny-bootstrap.min.js'); ?>" type="text/javascript" />
+	<script src="<?php echo $this->basePath('assets/js/jasny-bootstrap.min.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/lib/countup/countUp.min.js'); ?>" type="text/javascript"></script>
-	<script src="<?php echo $this->basePath('assets/js/tokenfield.min.js'); ?>" type="text/javascript" />
+	<script src="<?php echo $this->basePath('assets/js/tokenfield.min.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/lib/chartjs/Chart.js?v=0.1'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/js/deforayValidation.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/js/deforayModal.js'); ?>" type="text/javascript"></script>
 	<script src="<?php echo $this->basePath('assets/js/cookie.js'); ?>" type="text/javascript"></script>
+	<script src="<?php echo $this->basePath('assets/js/summernote.min.js'); ?>" type="text/javascript"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//initialize the javascript
@@ -420,6 +421,17 @@ if ($this->isAllowed($role, "Certification\Controller\ProviderController", "freq
 		});
 
 		$(document).ready(function() {
+			$('.richtextarea').summernote({
+				callbacks: {
+					onInit: function() {
+						$('.note-toolbar button').each(function() {
+							$(this).removeAttr('title');  // Remove the title attribute
+						});
+					}
+				},
+				height: 250
+			});
+
 			<?php
 			if (isset($container->alertMsg) && $container->alertMsg != "") {
 			?>

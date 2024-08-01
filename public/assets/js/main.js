@@ -38,12 +38,6 @@ var App = (function () {
     return color;
   }
 
-
-  //bootstrap summernote - text editor
-    $(".richtextarea").summernote({
-      height: 250,   // set editor height
-    });
-
   //Core private functions
   function leftSidebarInit(){
 
