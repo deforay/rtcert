@@ -806,25 +806,43 @@ class CommonService
             $body->setParts(array($html));
 
             if (isset($params['attachedfile']) && trim($params['attachedfile']) != '') {
-                $fileArray = explode('##', $params['attachedfile']);
+                // Sanitize the file input to avoid directory traversal
+                $attachedFile = basename($params['attachedfile']);
+                $fileArray = explode('##', $attachedFile);
+            
+                // Construct the directory path securely
                 $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
+            
+                // Check if the directory exists and is valid
                 if (is_dir($dirPath)) {
-                    $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
-                    while (($filename = readdir($dh)) !== false) {
-                        if ($filename != "." && $filename != "..") {
-                            $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $fileArray[1], 'r');
-                            $attachment = new MimePart($fileContent);
-                            $attachment->filename    = $filename;
-                            $attachment->type        = Mime::TYPE_OCTETSTREAM;
-                            $attachment->encoding    = Mime::ENCODING_BASE64;
-                            $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
-                            $body->addPart($attachment);
+                    $dh = opendir($dirPath); // Open the directory securely
+                    if ($dh) {
+                        // Iterate through the directory contents
+                        while (($filename = readdir($dh)) !== false) {
+                            if ($filename != "." && $filename != "..") {
+                                // Ensure the file exists and is readable before processing
+                                $filePath = $dirPath . DIRECTORY_SEPARATOR . $fileArray[1]; 
+                                if (is_file($filePath) && is_readable($filePath)) {
+                                    // Open the file securely
+                                    $fileContent = fopen($filePath, 'r');
+                                    if ($fileContent) {
+                                        // Create the MIME part for the attachment
+                                        $attachment = new MimePart($fileContent);
+                                        $attachment->filename    = $filename;
+                                        $attachment->type        = Mime::TYPE_OCTETSTREAM;
+                                        $attachment->encoding    = Mime::ENCODING_BASE64;
+                                        $attachment->disposition = Mime::DISPOSITION_ATTACHMENT;
+                                        $body->addPart($attachment);
+            
+                                        // Close the file resource
+                                        fclose($fileContent);
+                                    }
+                                }
+                            }
                         }
+                        // Close the directory handler
+                        closedir($dh);
                     }
-                    closedir($dh);
-                    //$this->removeDirectory($dirPath);
-                }
-            }
 
             $alertMail->setBody($body);
             $result = $transport->send($alertMail);

@@ -1382,43 +1382,60 @@ class CertificationTable extends AbstractTableGateway
         $upForRecertificationdate = $monthValid - 2;
         $didNotRecertifydate = $monthValid + $registrarName;
 
-        $db = $this->adapter;
+        // Start building the SELECT query
+        $select = $sql->select();
+        $select->from(['certification' => 'certification'])
+            ->join(['examination' => 'examination'], 'certification.examination = examination.id', [])
+            ->join(['written_exam' => 'written_exam'], 'examination.id_written_exam = written_exam.id_written_exam', [])
+            ->join(['practical_exam' => 'practical_exam'], 'examination.practical_exam_id = practical_exam.practice_exam_id', [])
+            ->join(['provider' => 'provider'], 'provider.id = examination.provider', [])
+            ->join(['l_d_r' => 'location_details'], 'provider.region = l_d_r.location_id', [])
+            ->join(['l_d_d' => 'location_details'], 'provider.district = l_d_d.location_id', [])
+            ->join(['c' => 'country'], 'l_d_r.country = c.country_id', [])
+            ->join(['certification_facilities' => 'certification_facilities'], 'provider.facility_id = certification_facilities.id', [])
+            ->columns(['certification_issuer','certification_type','date_certificate_issued','date_end_validity','final_decision','certification_reg_no','certification_id','professional_reg_no',
+                'first_name','last_name','middle_name','region_name' => 'l_d_r.location_name','district_name' => 'l_d_d.location_name','country_name' => 'c.country_name','type_vih_test',
+                'phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name',
+                'facility_in_charge_phone','facility_in_charge_email','facility_name' => 'certification_facilities.facility_name','written_exam_type' => 'written_exam.exam_type',
+                'written_exam_admin' => 'written_exam.exam_admin','written_exam_date' => 'written_exam.date','qa_point','rt_point','safety_point', 'specimen_point','testing_algo_point',
+                'report_keeping_point','EQA_PT_points','ethics_point','inventory_point','total_points','final_score','practical_exam_type' => 'practical_exam.exam_type','practical_exam_admin' => 'practical_exam.exam_admin',
+                'Sample_testing_score','direct_observation_score','practical_total_score','practical_exam_date' => 'practical_exam.date'
+            ]);
 
-        $sql = 'select certification.certification_issuer,certification.certification_type, certification.date_certificate_issued,certification.date_end_validity, certification.final_decision,provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, written_exam.exam_type as written_exam_type,written_exam.exam_admin as written_exam_admin,written_exam.date as written_exam_date,written_exam.qa_point,written_exam.rt_point,written_exam.safety_point,written_exam.specimen_point, written_exam.testing_algo_point, written_exam.report_keeping_point,written_exam.EQA_PT_points, written_exam.ethics_point, written_exam.inventory_point, written_exam.total_points,written_exam.final_score, practical_exam.exam_type as practical_exam_type , practical_exam.exam_admin as practical_exam_admin , practical_exam.Sample_testing_score, practical_exam.direct_observation_score,practical_exam.practical_total_score,practical_exam.date as practical_exam_date from certification,examination,written_exam,practical_exam,provider,location_details as l_d_r,location_details as l_d_d, country as c, certification_facilities WHERE certification.examination= examination.id and examination.id_written_exam= written_exam.id_written_exam and examination.practical_exam_id= practical_exam.practice_exam_id and provider.id=examination.provider and provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
-
+        // Conditional clauses based on $expirydata
         if ($expirydata == 'upForRecertification') {
             $syearmonth = date('Y-m', strtotime('first day of -' . $upForRecertificationdate . ' month'));
-
             $startDate = $syearmonth . '-01';
             $endDate = $syearmonth . '-' . date('d');
-            // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
-            $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
+            $select->where(['certification.date_end_validity <= ?' => $endDate]);
         }
+
         if ($expirydata == 'remindersSent') {
-            $sql .= ' and certification.reminder_sent="yes"';
+            $select->where(['certification.reminder_sent = ?' => 'yes']);
         }
 
         if ($expirydata == 'didNotRecertify') {
             $syearmonth = date('Y-m', strtotime('first day of -' . $didNotRecertifydate . ' month'));
             $startDate = $syearmonth . '-01';
             $endDate = $syearmonth . '-' . date('d');
-            // $sql = $sql . ' and  certification.date_end_validity between"' . $startDate . '" and "' . $endDate . '"';
-            $sql = $sql . ' and certification.date_end_validity<="' . $endDate . '"';
+            $select->where(['certification.date_end_validity <= ?' => $endDate]);
         }
 
-
+        // Conditional filters based on user input
         if (!empty($country)) {
-            $sql = $sql . ' and c.country_id=' . $country;
+            $select->where(['c.country_id = ?' => $country]);
         }
+
         if (!empty($region)) {
-            $sql = $sql . ' and l_d_r.location_id=' . $region;
+            $select->where(['l_d_r.location_id = ?' => $region]);
         }
 
         if (!empty($district)) {
-            $sql = $sql . ' and l_d_d.location_id=' . $district;
+            $select->where(['l_d_d.location_id = ?' => $district]);
         }
-        //  echo $sql; die;
-        $statement = $db->query($sql);
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
 
