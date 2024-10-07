@@ -417,12 +417,12 @@ class PracticalExamTable extends AbstractTableGateway
 		// Building the SELECT query using the SQL abstraction
 		$select = $sql->select();
 		$select->from('examination')
-			->columns(['nombre' => new \Laminas\Db\Sql\Expression('COUNT(*)')])
+			->columns(['nombre' => new Expression('COUNT(*)')]) // COUNT(*) as 'nombre'
 			->where([
-				'practical_exam_id IS NOT NULL',
-				'id_written_exam IS NULL',
-				'provider' => $provider,
-				'add_to_certification' => 'no'
+				'practical_exam_id IS NOT NULL',  // Ensure practical_exam_id is not null
+				'id_written_exam IS NULL',        // Ensure id_written_exam is null
+				'provider' => $provider,          // Securely bind provider
+				'add_to_certification' => 'no'    // Securely bind 'no'
 			]);
 
 		// Prepare and execute the query
@@ -581,12 +581,12 @@ class PracticalExamTable extends AbstractTableGateway
 		// Build the SELECT query using Laminas abstraction
 		$select = $sql->select();
 		$select->from('examination')
-			->columns(['nombre' => new \Laminas\Db\Sql\Expression('COUNT(*)')])
+			->columns(['nombre' => new Expression('COUNT(*)')]) // COUNT(*) as 'nombre'
 			->where([
-				'id_written_exam IS NOT NULL',
-				'practical_exam_id IS NOT NULL',
-				'add_to_certification' => 'no',
-				'provider' => $provider // Safely binding $provider
+				'id_written_exam IS NOT NULL',        // Ensure id_written_exam is not null
+				'practical_exam_id IS NOT NULL',      // Ensure practical_exam_id is not null
+				'add_to_certification' => 'no',       // Securely bind 'no'
+				'provider' => $provider               // Securely bind provider ID
 			]);
 
 		// Prepare and execute the query
@@ -595,7 +595,6 @@ class PracticalExamTable extends AbstractTableGateway
 		foreach ($result as $res) {
 			$nombre = $res['nombre'];
 		}
-		//        die($nombre);
 		return $nombre;
 	}
 

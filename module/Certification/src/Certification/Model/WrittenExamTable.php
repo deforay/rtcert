@@ -476,10 +476,10 @@ class WrittenExamTable extends AbstractTableGateway
         $select->from('examination')
             ->columns(['nombre' => new Expression('COUNT(*)')])
             ->where([
-                'id_written_exam IS NOT NULL',
-                'practical_exam_id IS NULL',
-                'provider = ?' => $provider, // Securely bind provider
-                'add_to_certification = ?' => 'no' // Bind 'no' as a parameter
+                'id_written_exam IS NOT NULL',          // Securely check for non-null written exam ID
+                'practical_exam_id IS NULL',            // Securely check for null practical exam ID
+                'provider' => $provider,                // Securely bind provider ID
+                'add_to_certification' => 'no'          // Securely bind 'add_to_certification' to 'no'
             ]);
 
         // Prepare and execute the query
@@ -517,12 +517,11 @@ class WrittenExamTable extends AbstractTableGateway
         $select->from('examination')
             ->columns(['nombre' => new Expression('COUNT(*)')])
             ->where([
-                'practical_exam_id IS NOT NULL',
-                'id_written_exam IS NULL',
-                'practical_exam_id = ?' => $practical, // Securely bind the practical_exam_id
-                'add_to_certification = ?' => 'no' // Bind 'no' as a parameter
+                'practical_exam_id IS NOT NULL',         // Condition for non-null practical_exam_id
+                'id_written_exam IS NULL',               // Condition for null id_written_exam
+                'practical_exam_id' => $practical,       // Securely bind practical_exam_id
+                'add_to_certification' => 'no'           // Securely bind 'no' for add_to_certification
             ]);
-
         // Prepare and execute the query
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
@@ -645,14 +644,14 @@ class WrittenExamTable extends AbstractTableGateway
         // Build the SELECT query
         $select = $sql->select();
         $select->from('examination')
-               ->columns(['nombre' => new Expression('COUNT(*)')])
-               ->where([
-                   'id_written_exam IS NOT NULL',
-                   'practical_exam_id IS NOT NULL',
-                   'add_to_certification = ?' => 'no', // Securely bind 'no'
-                   'provider = ?' => $provider // Securely bind the provider
-               ]);
-        
+            ->columns(['nombre' => new Expression('COUNT(*)')])
+            ->where([
+                'id_written_exam IS NOT NULL',
+                'practical_exam_id IS NOT NULL',
+                'add_to_certification' => 'no', // Securely bind 'no'
+                'provider' => $provider // Securely bind the provider
+            ]);
+
         // Prepare and execute the query
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
