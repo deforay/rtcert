@@ -18,7 +18,7 @@ final class NotFoundHandler implements MiddlewareInterface
     private NotFoundRequestHandler $notFoundHandler;
 
     /**
-     * @param callable $responseFactory A factory capable of returning an
+     * @param callable(): ResponseInterface $responseFactory A factory capable of returning an
      *     empty ResponseInterface instance to update and return when returning
      *     an 404 response.
      */

@@ -26,6 +26,7 @@ use SplQueue;
  */
 final class MiddlewarePipe implements MiddlewarePipeInterface
 {
+    /** @var SplQueue<MiddlewareInterface> */
     private SplQueue $pipeline;
 
     /**
@@ -33,6 +34,7 @@ final class MiddlewarePipe implements MiddlewarePipeInterface
      */
     public function __construct()
     {
+        /** @psalm-var SplQueue<MiddlewareInterface> */
         $this->pipeline = new SplQueue();
     }
 

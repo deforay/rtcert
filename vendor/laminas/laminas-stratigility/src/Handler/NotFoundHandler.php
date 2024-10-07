@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Laminas\Stratigility\Handler;
 
+use Closure;
 use Fig\Http\Message\StatusCodeInterface as StatusCode;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,11 +14,11 @@ use function sprintf;
 
 final class NotFoundHandler implements RequestHandlerInterface
 {
-    /** @var callable */
-    private $responseFactory;
+    /** @var Closure(): ResponseInterface */
+    private Closure $responseFactory;
 
     /**
-     * @param callable $responseFactory A factory capable of returning an
+     * @param callable(): ResponseInterface $responseFactory A factory capable of returning an
      *     empty ResponseInterface instance to update and return when returning
      *     an 404 response.
      */

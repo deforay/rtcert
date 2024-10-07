@@ -167,13 +167,26 @@ class ProviderTable extends AbstractTableGateway
     public function getRegion($params)
     {
         $logincontainer = new Container('credo');
-        $regionWhere = '';
-        if (!empty($logincontainer->region)) {
-            $regionWhere = ' AND location_id IN(' . implode(',', $logincontainer->region) . ')';
-        }
         $db = $this->adapter;
-        $sql = "SELECT location_id, location_name FROM location_details WHERE parent_location = 0 AND country ='" . $params['q'] . "'" . $regionWhere;
-        $statement = $db->query($sql);
+        $sql = new Sql($db);
+
+        // Start building the SELECT query
+        $select = $sql->select();
+        $select->from('location_details')
+            ->columns(['location_id', 'location_name'])
+            ->where([
+                'parent_location' => 0,
+                'country' => $params['q']  // Securely binding $params['q']
+            ]);
+
+        // Check if there are regions to filter
+        if (!empty($logincontainer->region)) {
+            $regionWhere = $logincontainer->region;  // Assuming this is an array of region IDs
+            $select->where->in('location_id', $regionWhere);  // Securely add the IN clause
+        }
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
 

@@ -3,7 +3,7 @@
 namespace Certification\Model;
 
 use Laminas\Db\Sql\Sql;
-
+use Laminas\Db\Sql\Select;
 use Laminas\Db\Sql\Expression;
 use Laminas\Session\Container;
 use Laminas\Db\Adapter\Adapter;
@@ -301,15 +301,42 @@ class PracticalExamTable extends AbstractTableGateway
 	public function examination($written, $last_id)
 	{
 		$db = $this->adapter;
-		$sql1 = 'select provider_id from practical_exam where practice_exam_id=' . $last_id;
-		$statement = $db->query($sql1);
+		// $sql1 = 'select provider_id from practical_exam where practice_exam_id=' . $last_id;
+		// $statement = $db->query($sql1);
+		// $result = $statement->execute();
+		// foreach ($result as $res) {
+		// 	$provider = $res['provider_id'];
+		// }
+
+		// $sql2 = 'insert into examination (provider,id_written_exam,practical_exam_id) values (' . $provider . ',' . $written . ',' . $last_id . ')';
+		// $statement2 = $db->query($sql2);
+		// $result2 = $statement2->execute();
+
+		$sql = new Sql($db);
+
+		// For the SELECT query
+		$select = $sql->select();
+		$select->from('practical_exam');
+		$select->where(['practice_exam_id' => $last_id]);
+
+		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
+
+		// Fetch provider_id from the result
+		$provider = null;
 		foreach ($result as $res) {
 			$provider = $res['provider_id'];
 		}
 
-		$sql2 = 'insert into examination (provider,id_written_exam,practical_exam_id) values (' . $provider . ',' . $written . ',' . $last_id . ')';
-		$statement2 = $db->query($sql2);
+		// For the INSERT query
+		$insert = $sql->insert('examination');
+		$insert->values([
+			'provider' => $provider,
+			'id_written_exam' => $written,
+			'practical_exam_id' => $last_id
+		]);
+
+		$statement2 = $sql->prepareStatementForSqlObject($insert);
 		$result2 = $statement2->execute();
 	}
 
@@ -382,8 +409,24 @@ class PracticalExamTable extends AbstractTableGateway
 	public function counPractical($provider)
 	{
 		$db = $this->adapter;
-		$sql = 'SELECT count(*) as nombre FROM examination WHERE practical_exam_id is not null and id_written_exam is null and  provider=' . $provider . ' and add_to_certification="no"';
-		$statement = $db->query($sql);
+		// $sql = 'SELECT count(*) as nombre FROM examination WHERE practical_exam_id is not null and id_written_exam is null and  provider=' . $provider . ' and add_to_certification="no"';
+		// $statement = $db->query($sql);
+		// $result = $statement->execute();
+		$sql = new Sql($db);
+
+		// Building the SELECT query using the SQL abstraction
+		$select = $sql->select();
+		$select->from('examination')
+			->columns(['nombre' => new \Laminas\Db\Sql\Expression('COUNT(*)')])
+			->where([
+				'practical_exam_id IS NOT NULL',
+				'id_written_exam IS NULL',
+				'provider' => $provider,
+				'add_to_certification' => 'no'
+			]);
+
+		// Prepare and execute the query
+		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
 		foreach ($result as $res) {
 			$nombre = $res['nombre'];
@@ -418,8 +461,40 @@ class PracticalExamTable extends AbstractTableGateway
 	public function numberOfDays($provider)
 	{
 		$db = $this->adapter;
-		$sql = 'SELECT DATEDIFF(now(),MAX(date_certificate_issued)) as nb_days from (SELECT provider, final_decision, date_certificate_issued, written_exam.id_written_exam , practical_exam.practice_exam_id ,last_name, first_name, middle_name, provider.id from examination, certification, written_exam,practical_exam, provider WHERE examination.id= certification.examination and examination.id_written_exam=written_exam.id_written_exam and practical_exam.practice_exam_id=examination.practical_exam_id and practical_exam.provider_id=provider.id and final_decision in ("pending","failed") and provider.id=' . $provider . ') as tab';
-		$statement = $db->query($sql);
+		// $sql = 'SELECT DATEDIFF(now(),MAX(date_certificate_issued)) as nb_days from (SELECT provider, final_decision, date_certificate_issued, written_exam.id_written_exam , practical_exam.practice_exam_id ,last_name, first_name, middle_name, provider.id from examination, certification, written_exam,practical_exam, provider WHERE examination.id= certification.examination and examination.id_written_exam=written_exam.id_written_exam and practical_exam.practice_exam_id=examination.practical_exam_id and practical_exam.provider_id=provider.id and final_decision in ("pending","failed") and provider.id=' . $provider . ') as tab';
+		// $statement = $db->query($sql);
+		// $result = $statement->execute();
+		$sql = new Sql($db);
+
+		// Building the inner SELECT query using SQL abstraction
+		$select = $sql->select();
+		$select->from(['examination' => 'examination'])
+			->columns([
+				'provider',
+				'final_decision',
+				'date_certificate_issued',
+				'id_written_exam' => 'written_exam.id_written_exam',
+				'practice_exam_id' => 'practical_exam.practice_exam_id',
+				'last_name',
+				'first_name',
+				'middle_name',
+				'provider_id' => 'provider.id'
+			])
+			->join('certification', 'examination.id = certification.examination', [])
+			->join('written_exam', 'examination.id_written_exam = written_exam.id_written_exam', [])
+			->join('practical_exam', 'practical_exam.practice_exam_id = examination.practical_exam_id', [])
+			->join('provider', 'practical_exam.provider_id = provider.id', [])
+			->where([
+				'final_decision' => ['pending', 'failed'],
+				'provider.id' => $provider
+			]);
+
+		// Building the outer query using a subquery
+		$subQuery = new Expression('DATEDIFF(NOW(), MAX(date_certificate_issued)) as nb_days');
+		$mainSelect = $sql->select()->from(['tab' => $select])->columns([$subQuery]);
+
+		// Preparing and executing the query
+		$statement = $sql->prepareStatementForSqlObject($mainSelect);
 		$result = $statement->execute();
 		foreach ($result as $res) {
 			$nb_days = $res['nb_days'];
@@ -497,9 +572,25 @@ class PracticalExamTable extends AbstractTableGateway
 	public function examToValidate($provider)
 	{
 		$db = $this->adapter;
-		$sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is not null and add_to_certification="no" and provider=' . $provider;
-		//        die($sql);
-		$statement = $db->query($sql);
+		// $sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is not null and add_to_certification="no" and provider=' . $provider;
+		// //        die($sql);
+		// $statement = $db->query($sql);
+		// $result = $statement->execute();
+		$sql = new Sql($db);
+
+		// Build the SELECT query using Laminas abstraction
+		$select = $sql->select();
+		$select->from('examination')
+			->columns(['nombre' => new \Laminas\Db\Sql\Expression('COUNT(*)')])
+			->where([
+				'id_written_exam IS NOT NULL',
+				'practical_exam_id IS NOT NULL',
+				'add_to_certification' => 'no',
+				'provider' => $provider // Safely binding $provider
+			]);
+
+		// Prepare and execute the query
+		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
 		foreach ($result as $res) {
 			$nombre = $res['nombre'];

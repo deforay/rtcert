@@ -6,7 +6,9 @@ use Exception;
 use Laminas\Validator\Exception\InvalidArgumentException;
 
 use function array_merge;
+use function assert;
 use function call_user_func_array;
+use function is_bool;
 use function is_callable;
 
 /**
@@ -14,13 +16,16 @@ use function is_callable;
  *     callback: callable|null,
  *     callbackOptions: array<array-key, mixed>,
  *     throwExceptions: bool,
+ *     bind: bool,
  * }
  * @psalm-type OptionsArgument = array{
  *     callback: callable,
  *     callbackOptions?: array<array-key, mixed>,
  *     throwExceptions?: bool,
+ *     bind?: bool,
  *     ...<string, mixed>
  * }
+ * @final
  */
 class Callback extends AbstractValidator
 {
@@ -53,6 +58,7 @@ class Callback extends AbstractValidator
         'callback'        => null, // Callback in a call_user_func format, string || array
         'callbackOptions' => [], // Options for the callback
         'throwExceptions' => false, // Whether to throw exceptions raised within the callback or not
+        'bind'            => false, // Bind the callback to the validator instance
     ];
 
     /** @param OptionsArgument|callable $options */
@@ -62,11 +68,20 @@ class Callback extends AbstractValidator
             $options = ['callback' => $options];
         }
 
+        $bind = $options['bind'] ?? false;
+        assert(is_bool($bind));
+        $closure = $options['callback'] ?? null;
+        if (is_callable($closure) && $bind === true) {
+            $options['callback'] = $closure(...)->bindTo($this);
+        }
+
         parent::__construct($options);
     }
 
     /**
      * Returns the set callback
+     *
+     * @deprecated Since 2.60.0 All option setters and getters will be removed in v3.0
      *
      * @return callable|null
      */
@@ -77,6 +92,8 @@ class Callback extends AbstractValidator
 
     /**
      * Sets the callback
+     *
+     * @deprecated Since 2.60.0 All option setters and getters will be removed in v3.0
      *
      * @param callable $callback
      * @return $this Provides a fluent interface
@@ -95,6 +112,8 @@ class Callback extends AbstractValidator
     /**
      * Returns the set options for the callback
      *
+     * @deprecated Since 2.60.0 All option setters and getters will be removed in v3.0
+     *
      * @return array<array-key, mixed>
      */
     public function getCallbackOptions()
@@ -104,6 +123,8 @@ class Callback extends AbstractValidator
 
     /**
      * Sets options for the callback
+     *
+     * @deprecated Since 2.60.0 All option setters and getters will be removed in v3.0
      *
      * @param array<array-key, mixed> $options
      * @return $this Provides a fluent interface

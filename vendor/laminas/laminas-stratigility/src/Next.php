@@ -7,6 +7,7 @@ namespace Laminas\Stratigility;
 use Laminas\Stratigility\Exception\MiddlewarePipeNextHandlerAlreadyCalledException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use SplQueue;
 
@@ -17,11 +18,13 @@ final class Next implements RequestHandlerInterface
 {
     private RequestHandlerInterface $fallbackHandler;
 
+    /** @var SplQueue<MiddlewareInterface> */
     private ?SplQueue $queue;
 
     /**
      * Clones the queue provided to allow re-use.
      *
+     * @param SplQueue<MiddlewareInterface> $queue
      * @param RequestHandlerInterface $fallbackHandler Fallback handler to
      *     invoke when the queue is exhausted.
      */

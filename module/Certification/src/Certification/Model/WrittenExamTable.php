@@ -45,7 +45,7 @@ class WrittenExamTable extends AbstractTableGateway
         /* Array of database columns which should be read and sent back to DataTables. Use a space where
          * you want to insert a non-database field (for example a counter or static image)
          */
-        $aColumns = array('test_id','first_name', 'exam_type', 'exam_admin', 'date', 'last_name', 'first_name', 'middle_name');
+        $aColumns = array('test_id', 'first_name', 'exam_type', 'exam_admin', 'date', 'last_name', 'first_name', 'middle_name');
         /*
          * Paging
          */
@@ -120,8 +120,8 @@ class WrittenExamTable extends AbstractTableGateway
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
         $sQuery = $sql->select()->from('written_exam')
-                      ->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
-                      ->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
+            ->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
+            ->join('location_details', 'provider.district=location_details.location_id', array('location_name'));
         if (isset($sWhere) && $sWhere != "") {
             $sQuery->where($sWhere);
         }
@@ -167,7 +167,7 @@ class WrittenExamTable extends AbstractTableGateway
         foreach ($rResult as $aRow) {
             $row = array();
             $row[] = '';
-            $row[] = ucwords($aRow['first_name'].' '.$aRow['middle_name'].' '.$aRow['last_name']);
+            $row[] = ucwords($aRow['first_name'] . ' ' . $aRow['middle_name'] . ' ' . $aRow['last_name']);
             $row[] = $aRow['exam_type'];
             $row[] = $aRow['exam_admin'];
             $row[] = date("d-M-Y", strtotime($aRow['date']));
@@ -181,16 +181,16 @@ class WrittenExamTable extends AbstractTableGateway
             $row[] = $aRow['ethics_point'];
             $row[] = $aRow['inventory_point'];
             $row[] = $aRow['total_points'];
-            $row[] = round($aRow['final_score']).' %';
+            $row[] = round($aRow['final_score']) . ' %';
             if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'edit')) {
-                    $row[] = '<a href="/written-exam/edit/' . base64_encode($aRow['id_written_exam']) . '"><span class=\'glyphicon glyphicon-pencil\'></span> Edit</a>';
+                $row[] = '<a href="/written-exam/edit/' . base64_encode($aRow['id_written_exam']) . '"><span class=\'glyphicon glyphicon-pencil\'></span> Edit</a>';
                 if ($aRow['final_score'] < 80 || strcasecmp($aRow['exam_type'], '3rd attempt') == 0) {
                     $row[] = "<span class='glyphicon glyphicon-repeat'></span> Add practical exam";
                 } else {
                     $row[] = '<a href="/practical-exam/add/' . base64_encode($aRow['id_written_exam']) . '" ><span class=\'glyphicon glyphicon-repeat\'></span> Add practical exam</a>';
                 }
             }
-            
+
             if ($acl->isAllowed($role, 'Certification\Controller\WrittenExamController', 'delete')) {
                 $row[] = '<a onclick="if (!confirm(\'Do you really want to remove this written exam?\')) {
                     alert(\'Canceled!\');
@@ -209,8 +209,23 @@ class WrittenExamTable extends AbstractTableGateway
         $sessionLogin = new Container('credo');
         $sqlSelect = $this->tableGateway->getSql()->select();
         $sqlSelect->columns(array(
-            'id_written_exam', 'test_id', 'exam_type', 'provider_id', 'exam_admin', 'date', 'qa_point', 'rt_point',
-            'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'
+            'id_written_exam',
+            'test_id',
+            'exam_type',
+            'provider_id',
+            'exam_admin',
+            'date',
+            'qa_point',
+            'rt_point',
+            'safety_point',
+            'specimen_point',
+            'testing_algo_point',
+            'report_keeping_point',
+            'EQA_PT_points',
+            'ethics_point',
+            'inventory_point',
+            'total_points',
+            'final_score'
         ));
         $sqlSelect->join('provider', ' provider.id= written_exam.provider_id ', array('last_name', 'first_name', 'middle_name', 'district'), 'left')
             ->where(array('display' => 'yes'));
@@ -372,16 +387,32 @@ class WrittenExamTable extends AbstractTableGateway
     {
 
         $db = $this->adapter;
-        $sql1 = 'select provider_id from written_exam where id_written_exam=' . $last_id;
-        $statement = $db->query($sql1);
+        $sql = new Sql($db);
+
+        // 1. Safely retrieving provider_id using a prepared statement
+        $select = $sql->select();
+        $select->from('written_exam')
+            ->columns(['provider_id'])
+            ->where(['id_written_exam' => $last_id]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
+
+        $provider = null;  // Initialize provider variable
         foreach ($result as $res) {
             $provider = $res['provider_id'];
         }
 
-        $sql2 = 'insert into examination (provider,id_written_exam,practical_exam_id) values (' . $provider . ',' . $last_id . ',' . $practical . ')';
-        $statement2 = $db->query($sql2);
-        $result2 = $statement2->execute();
+        // 2. Inserting into examination using a prepared statement
+        $insert = $sql->insert('examination');
+        $insert->values([
+            'provider' => $provider,
+            'id_written_exam' => $last_id,
+            'practical_exam_id' => $practical
+        ]);
+
+        $statement2 = $sql->prepareStatementForSqlObject($insert);
+        $statement2->execute();
     }
 
     /**
@@ -438,9 +469,21 @@ class WrittenExamTable extends AbstractTableGateway
     public function counWritten($provider)
     {
         $db = $this->adapter;
-        $sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is null and  provider=' . $provider . ' and add_to_certification="no"';
-        //        die($sql3);
-        $statement = $db->query($sql);
+        $sql = new Sql($db);
+
+        // Build the SELECT query
+        $select = $sql->select();
+        $select->from('examination')
+            ->columns(['nombre' => new Expression('COUNT(*)')])
+            ->where([
+                'id_written_exam IS NOT NULL',
+                'practical_exam_id IS NULL',
+                'provider = ?' => $provider, // Securely bind provider
+                'add_to_certification = ?' => 'no' // Bind 'no' as a parameter
+            ]);
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         foreach ($result as $res) {
             $nombre = $res['nombre'];
@@ -467,8 +510,21 @@ class WrittenExamTable extends AbstractTableGateway
     public function countPractical2($practical)
     {
         $db = $this->adapter;
-        $sql = 'SELECT count(*) as nombre FROM examination WHERE practical_exam_id is not null and id_written_exam is null and practical_exam_id=' . $practical . ' and add_to_certification="no"';
-        $statement = $db->query($sql);
+        $sql = new Sql($db);
+
+        // Build the SELECT query
+        $select = $sql->select();
+        $select->from('examination')
+            ->columns(['nombre' => new Expression('COUNT(*)')])
+            ->where([
+                'practical_exam_id IS NOT NULL',
+                'id_written_exam IS NULL',
+                'practical_exam_id = ?' => $practical, // Securely bind the practical_exam_id
+                'add_to_certification = ?' => 'no' // Bind 'no' as a parameter
+            ]);
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         foreach ($result as $res) {
             $nombre = $res['nombre'];
@@ -484,8 +540,28 @@ class WrittenExamTable extends AbstractTableGateway
     public function numberOfDays($provider)
     {
         $db = $this->adapter;
-        $sql = 'SELECT DATEDIFF(now(),MAX(date_certificate_issued)) as nb_days from (SELECT provider, final_decision, date_certificate_issued, written_exam.id_written_exam , practical_exam.practice_exam_id ,last_name, first_name, middle_name, provider.id from examination, certification, written_exam,practical_exam, provider WHERE examination.id= certification.examination and examination.id_written_exam=written_exam.id_written_exam and practical_exam.practice_exam_id=examination.practical_exam_id and written_exam.provider_id=provider.id and final_decision in ("pending","failed") and provider.id=' . $provider . ') as tab';
-        $statement = $db->query($sql);
+        $sql = new Sql($db);
+
+        // Build the inner SELECT query
+        $innerSelect = $sql->select();
+        $innerSelect->from(['examination' => 'examination'])
+            ->columns(['provider', 'final_decision', 'date_certificate_issued', 'id_written_exam' => 'written_exam.id_written_exam', 'practice_exam_id' => 'practical_exam.practice_exam_id', 'last_name', 'first_name', 'middle_name', 'provider_id' => 'provider.id'])
+            ->join('certification', 'examination.id = certification.examination', [])
+            ->join('written_exam', 'examination.id_written_exam = written_exam.id_written_exam', [])
+            ->join('practical_exam', 'practical_exam.practice_exam_id = examination.practical_exam_id', [])
+            ->join('provider', 'written_exam.provider_id = provider.id', [])
+            ->where([
+                'final_decision IN (?)' => ['pending', 'failed'], // Securely bind final_decision
+                'provider.id = ?' => $provider // Securely bind the provider ID
+            ]);
+
+        // Build the outer query
+        $outerSelect = $sql->select();
+        $outerSelect->from(['tab' => $innerSelect])
+            ->columns(['nb_days' => new Expression('DATEDIFF(NOW(), MAX(date_certificate_issued))')]);
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($outerSelect);
         $result = $statement->execute();
         foreach ($result as $res) {
             $nb_days = $res['nb_days'];
@@ -564,14 +640,25 @@ class WrittenExamTable extends AbstractTableGateway
     public function examToValidate($provider)
     {
         $db = $this->adapter;
-        $sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is not null and add_to_certification="no" and provider=' . $provider;
-        //        die($sql);
-        $statement = $db->query($sql);
+        $sql = new Sql($db);
+
+        // Build the SELECT query
+        $select = $sql->select();
+        $select->from('examination')
+               ->columns(['nombre' => new Expression('COUNT(*)')])
+               ->where([
+                   'id_written_exam IS NOT NULL',
+                   'practical_exam_id IS NOT NULL',
+                   'add_to_certification = ?' => 'no', // Securely bind 'no'
+                   'provider = ?' => $provider // Securely bind the provider
+               ]);
+        
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         foreach ($result as $res) {
             $nombre = $res['nombre'];
         }
-        //        die($nombre);
         return $nombre;
     }
 
@@ -680,19 +767,19 @@ class WrittenExamTable extends AbstractTableGateway
                 mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "written-exam");
             }
             if (!file_exists($uploadPath . DIRECTORY_SEPARATOR . $fileName) && move_uploaded_file($_FILES['written_exam_excel']['tmp_name'], $uploadPath . DIRECTORY_SEPARATOR . $fileName)) {
-                $uploadedFilePath = $uploadPath. DIRECTORY_SEPARATOR . $fileName;
-                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'written-exam'. DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx';
+                $uploadedFilePath = $uploadPath . DIRECTORY_SEPARATOR . $fileName;
+                $templateFilePath = FILE_PATH . DIRECTORY_SEPARATOR . 'written-exam' . DIRECTORY_SEPARATOR . 'Written_Exam_Bulk_Upload_Excel_format.xlsx';
                 $validate = \Application\Service\CommonService::validateUploadedFile($uploadedFilePath, $templateFilePath);
 
-                if($validate) {
+                if ($validate) {
                     $objPHPExcel = IOFactory::load($uploadPath . DIRECTORY_SEPARATOR . $fileName);
                     $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
                     // Debug::dump($sheetData);die;
                     $count = count($sheetData);
-                    
+
                     $j = 0;
                     for ($i = 2; $i <= $count; ++$i) {
-                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['G'] == '' || $sheetData[$i]['H'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['J'] == '' || $sheetData[$i]['K'] == '' || $sheetData[$i]['L'] == '' ) {                            
+                        if ($sheetData[$i]['A'] == '' || $sheetData[$i]['B'] == '' || $sheetData[$i]['C'] == '' || $sheetData[$i]['D'] == '' || $sheetData[$i]['E'] == '' || $sheetData[$i]['F'] == '' || $sheetData[$i]['G'] == '' || $sheetData[$i]['H'] == '' || $sheetData[$i]['I'] == '' || $sheetData[$i]['J'] == '' || $sheetData[$i]['K'] == '' || $sheetData[$i]['L'] == '') {
                             $response['data']['mandatory'][]  = array(
                                 'provider_id' => $sheetData[$i]['A'],
                                 'exam_admin' => $sheetData[$i]['B'],
@@ -728,12 +815,12 @@ class WrittenExamTable extends AbstractTableGateway
                                 'training_id' => $sheetData[$i]['M'],
                             );
                             $provider = $this->getProvider($sheetData[$i]['A']);
-                            if(empty($provider)){
+                            if (empty($provider)) {
                                 $data['reason'] = 'Tester is invalid. Please give correct Registration number';
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
-                            }else{
-                                $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'],'display' => 'yes'))->current();
+                            } else {
+                                $regrowset = $this->tableGateway->select(array('provider_id' => $provider['id'], 'display' => 'yes'))->current();
                             }
                             $keysToCheck = ['qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point'];
                             $numericReason = $this->validateNumericKeys($data, $keysToCheck);
@@ -742,25 +829,25 @@ class WrittenExamTable extends AbstractTableGateway
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
                             }
-                            
-                            if($dataValidate) {
+
+                            if ($dataValidate) {
                                 $attemptNum = $this->attemptNumber($sheetData[$i]['A']);
-                                $attemptNumArray = explode('##',$attemptNum);
-                                if(count($attemptNumArray) > 1){
+                                $attemptNumArray = explode('##', $attemptNum);
+                                if (count($attemptNumArray) > 1) {
                                     $data['reason'] = 'Last Certificate for ' . attemptNumArray[1] . ' was issued on ' . attemptNumArray[2] . '. You can do re-certification only after ' . attemptNumArray[3] . ' or before ' . attemptNumArray[4];
                                     //You cannot do re-certification
                                     $response['data']['notimported'][$j] = $data;
                                     $dataValidate = false;
-                                }else{
-                                    if($attemptNum==0){
-                                        $attemptvalue="1st attempt";
-                                    }elseif($attemptNum==1){
-                                        $attemptvalue="2nd attempt";
-                                    }elseif($attemptNum==2){
-                                        $attemptvalue="3rd attempt";
-                                    } elseif ($attemptNum>=3) {
-                                        $attemptNum=$attemptNum+1;
-                                        $attemptvalue=$attemptNum;
+                                } else {
+                                    if ($attemptNum == 0) {
+                                        $attemptvalue = "1st attempt";
+                                    } elseif ($attemptNum == 1) {
+                                        $attemptvalue = "2nd attempt";
+                                    } elseif ($attemptNum == 2) {
+                                        $attemptvalue = "3rd attempt";
+                                    } elseif ($attemptNum >= 3) {
+                                        $attemptNum = $attemptNum + 1;
+                                        $attemptvalue = $attemptNum;
                                         $data['exam_type'] = $attemptvalue;
                                         $data['reason'] = 'This tester has already made three unsuccessful attempts';
                                         //Already made three unsuccessful attempts
@@ -783,21 +870,21 @@ class WrittenExamTable extends AbstractTableGateway
                                 $response['data']['notimported'][$j] = $data;
                                 $dataValidate = false;
                             }
-                            if ($dataValidate && isset($attemptvalue) ){
+                            if ($dataValidate && isset($attemptvalue)) {
                                 $data['exam_type'] = $attemptvalue;
                                 $data['total_points'] = $sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L'];
                                 $data['final_score'] = (($sheetData[$i]['D'] + $sheetData[$i]['E'] + $sheetData[$i]['F'] + $sheetData[$i]['G'] + $sheetData[$i]['H'] + $sheetData[$i]['I'] + $sheetData[$i]['J'] + $sheetData[$i]['K'] + $sheetData[$i]['L']) * 100) / 25;
                                 $inserted = false;
-                                if($uploadOption == "update"){
-                                    if(!empty($regrowset)){
+                                if ($uploadOption == "update") {
+                                    if (!empty($regrowset)) {
                                         $id_written_exam = (int) $regrowset->id_written_exam;
                                         $response['data']['duplicate'][$j] = $data;
                                         $data['provider_id'] = $provider['id'];
                                         $data['updated_on'] = \Application\Service\CommonService::getDateTime();
                                         $data['updated_by'] = $loginContainer->userId;
                                         $this->tableGateway->update($data, array('id_written_exam' => $id_written_exam));
-                                        $inserted = true; 
-                                    }else{
+                                        $inserted = true;
+                                    } else {
                                         $response['data']['imported'][$j] = $data;
                                         $data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
@@ -807,8 +894,8 @@ class WrittenExamTable extends AbstractTableGateway
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
                                     }
-                                }else{
-                                    if(empty($regrowset)){
+                                } else {
+                                    if (empty($regrowset)) {
                                         $response['data']['imported'][$j] = $data;
                                         $data['provider_id'] = $provider['id'];
                                         $data['added_on'] = \Application\Service\CommonService::getDateTime();
@@ -817,14 +904,14 @@ class WrittenExamTable extends AbstractTableGateway
                                         $data['updated_by'] = $loginContainer->userId;
                                         $this->tableGateway->insert($data);
                                         $inserted = true;
-                                    }else{
+                                    } else {
                                         $response['data']['duplicate'][$j] = $data;
                                     }
                                 }
                                 $last_id = $this->last_id();
-                                if(empty($practical) && !empty($last_id) && $inserted){
+                                if (empty($practical) && !empty($last_id) && $inserted) {
                                     $this->insertToExamination($last_id);
-                                }elseif (!empty($practical) && !empty($last_id) && $inserted) {
+                                } elseif (!empty($practical) && !empty($last_id) && $inserted) {
                                     $nombre2 = $this->countPractical2($practical);
                                     if ($nombre2 == 0) {
                                         $this->examination($last_id, $practical);
@@ -837,34 +924,35 @@ class WrittenExamTable extends AbstractTableGateway
                         $j++;
                     }
                     unlink($uploadPath . DIRECTORY_SEPARATOR . 'written-exam' . DIRECTORY_SEPARATOR . $fileName);
-                }else{
-                    $container->alertMsg = 'Uploaded file column mismatched'; 
+                } else {
+                    $container->alertMsg = 'Uploaded file column mismatched';
                     return $response;
                 }
             }
         }
-        if ($response['data'] !== [] && $response['data']['mandatory'] !== [] ) {
+        if ($response['data'] !== [] && $response['data']['mandatory'] !== []) {
             $container->alertMsg = 'Some written exams from the excel file were not imported. Please check the highlighted fields.';
             return $response;
-        } else if ($response['data'] !== [] && $response['data']['notimported'] !== [] ) {
+        } else if ($response['data'] !== [] && $response['data']['notimported'] !== []) {
             $container->alertMsg = 'Some written exams from the excel file were not imported. Please check the file.';
             return $response;
-        }else{
+        } else {
             $container->alertMsg = 'Written exams details imported successfully';
             return $response;
         }
     }
 
-    function validateNumericKeys($data, $keys) {
+    function validateNumericKeys($data, $keys)
+    {
         foreach ($keys as $key) {
             $formattedKey = str_replace('_', ' ', strtoupper($key));
             if (!is_numeric($data[$key])) {
                 return "Please give numeric data in {$formattedKey}";
-            } else if ($key == "qa_point" && $key == "rt_point" && $key == "safety_point" && $key == "testing_algo_point" && $key == "report_keeping_point" && ($data[$key] < 0 || $data[$key] > 3)){
-                return "{$formattedKey} sections had more points than allowed"; 
-            } else if ($key == "specimen_point" && $key == "ethics_point" && $key == "inventory_point" && ($data[$key] < 0 || $data[$key] > 2)){
-                return "{$formattedKey} sections had more points than allowed"; 
-            } else if ($key == "EQA_PT_points" && ($data[$key] < 0 || $data[$key] > 4)){
+            } else if ($key == "qa_point" && $key == "rt_point" && $key == "safety_point" && $key == "testing_algo_point" && $key == "report_keeping_point" && ($data[$key] < 0 || $data[$key] > 3)) {
+                return "{$formattedKey} sections had more points than allowed";
+            } else if ($key == "specimen_point" && $key == "ethics_point" && $key == "inventory_point" && ($data[$key] < 0 || $data[$key] > 2)) {
+                return "{$formattedKey} sections had more points than allowed";
+            } else if ($key == "EQA_PT_points" && ($data[$key] < 0 || $data[$key] > 4)) {
                 return "{$formattedKey} sections had more points than allowed";
             }
         }
@@ -874,7 +962,7 @@ class WrittenExamTable extends AbstractTableGateway
     public function getProvider($regNo)
     {
         $db = $this->adapter;
-        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no ='. $regNo;;
+        $sql1 = 'select id, last_name, first_name, middle_name, phone, email  from provider where professional_reg_no =' . $regNo;;
         $statement = $db->query($sql1);
         $result = $statement->execute();
         $selectData = array();

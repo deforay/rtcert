@@ -174,21 +174,29 @@ class GlobalTable extends AbstractTableGateway
 
     public function updateConfigDetails($params)
     {
+        // print_r($_POST); die;
         
         $result = 0;
-        if (isset($_POST['removedLogoImage']) && trim($_POST['removedLogoImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage'])) {
-            unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
+       
+        $fileName = preg_replace('/[^a-zA-Z0-9_-]/', '', $_POST['removedLogoImage']);
+        $cleanedFileName = CommonService::cleanFileName($fileName);
+        $cleanedFilePath = CommonService::buildSafePath(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR , []);
+        if (isset($_POST['removedLogoImage']) && trim($_POST['removedLogoImage']) != "" && file_exists($cleanedFilePath .$cleanedFileName)) {
+            unlink($cleanedFilePath .$cleanedFileName);
             $this->update(array('global_value' => ''), array('global_name' => 'logo'));
         }
-
-        if (isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature" . DIRECTORY_SEPARATOR . $_POST['removedSignatureImage'])) {
-            unlink(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo" . DIRECTORY_SEPARATOR . $_POST['removedLogoImage']);
+        
+        $fileName = preg_replace('/[^a-zA-Z0-9_-]/', '', $_POST['removedSignatureImage']);
+        $cleanedFileName = CommonService::cleanFileName($fileName);
+        $cleanedFilePath = CommonService::buildSafePath(UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature" . DIRECTORY_SEPARATOR , []);
+           if (isset($_POST['removedSignatureImage']) && trim($_POST['removedSignatureImage']) != "" && file_exists($cleanedFilePath .$cleanedFileName)) {
+            unlink($cleanedFilePath .$cleanedFileName);
             $this->update(array('global_value' => ''), array('global_name' => 'registrar-digital-signature'));
         }
 
         if (isset($_FILES['logo']['name']) && $_FILES['logo']['name'] != "") {
             if (!file_exists(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo") && !is_dir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo")) {
-                mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
+               mkdir(UPLOAD_PATH . DIRECTORY_SEPARATOR . "logo");
             }
             $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $_FILES['logo']['name'], PATHINFO_EXTENSION));
             $string = \Application\Service\CommonService::generateRandomString(6) . ".";
@@ -204,7 +212,7 @@ class GlobalTable extends AbstractTableGateway
             }
             $extension = strtolower(pathinfo(UPLOAD_PATH . DIRECTORY_SEPARATOR . $_FILES['digitalSignature']['name'], PATHINFO_EXTENSION));
             $string = \Application\Service\CommonService::generateRandomString(6) . ".";
-            $imageName = "ds_" . $string . $extension;
+            $imageName = "digital-signature" . $string . $extension; // make as ds
             if (move_uploaded_file($_FILES["digitalSignature"]["tmp_name"], UPLOAD_PATH . DIRECTORY_SEPARATOR . "digital-signature" . DIRECTORY_SEPARATOR . $imageName)) {
                 $this->update(array('global_value' => $imageName), array('global_name' => 'registrar-digital-signature'));
             }
