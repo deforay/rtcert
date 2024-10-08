@@ -301,43 +301,48 @@ class PracticalExamTable extends AbstractTableGateway
 	public function examination($written, $last_id)
 	{
 		$db = $this->adapter;
-		// $sql1 = 'select provider_id from practical_exam where practice_exam_id=' . $last_id;
-		// $statement = $db->query($sql1);
-		// $result = $statement->execute();
-		// foreach ($result as $res) {
-		// 	$provider = $res['provider_id'];
-		// }
-
-		// $sql2 = 'insert into examination (provider,id_written_exam,practical_exam_id) values (' . $provider . ',' . $written . ',' . $last_id . ')';
-		// $statement2 = $db->query($sql2);
-		// $result2 = $statement2->execute();
-
 		$sql = new Sql($db);
 
-		// For the SELECT query
+		// For the SELECT query to get the provider_id
 		$select = $sql->select();
-		$select->from('practical_exam');
-		$select->where(['practice_exam_id' => $last_id]);
+		$select->from('practical_exam')
+			->columns(['provider_id']) // Specify the columns you want to select
+			->where(['practice_exam_id' => $last_id]); // Securely bind the practice_exam_id
 
+		// Prepare and execute the SELECT query
 		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
 
 		// Fetch provider_id from the result
 		$provider = null;
 		foreach ($result as $res) {
-			$provider = $res['provider_id'];
+			$provider = $res['provider_id']; // Store the provider_id
 		}
 
-		// For the INSERT query
-		$insert = $sql->insert('examination');
-		$insert->values([
-			'provider' => $provider,
-			'id_written_exam' => $written,
-			'practical_exam_id' => $last_id
-		]);
+		// Check if provider is found before inserting
+		if ($provider !== null) {
+			// Validate inputs before inserting
+			if (!is_numeric($written) || !is_numeric($last_id)) {
+				throw new \Exception("Invalid IDs provided.");
+			}
 
-		$statement2 = $sql->prepareStatementForSqlObject($insert);
-		$result2 = $statement2->execute();
+			// For the INSERT query
+			$insert = $sql->insert('examination');
+			$insert->values([
+				'provider' => $provider,           // Securely bind provider
+				'id_written_exam' => $written,     // Securely bind id_written_exam
+				'practical_exam_id' => $last_id    // Securely bind practical_exam_id
+			]);
+
+			// Prepare and execute the INSERT query
+			$statement2 = $sql->prepareStatementForSqlObject($insert);
+			$result2 = $statement2->execute();
+
+			// Optionally, you can return some result or confirmation
+			return $result2; // Return the result of the INSERT operation if needed
+		} else {
+			throw new \Exception("Provider not found for practice_exam_id: $last_id");
+		}
 	}
 
 	/**
@@ -409,9 +414,6 @@ class PracticalExamTable extends AbstractTableGateway
 	public function counPractical($provider)
 	{
 		$db = $this->adapter;
-		// $sql = 'SELECT count(*) as nombre FROM examination WHERE practical_exam_id is not null and id_written_exam is null and  provider=' . $provider . ' and add_to_certification="no"';
-		// $statement = $db->query($sql);
-		// $result = $statement->execute();
 		$sql = new Sql($db);
 
 		// Building the SELECT query using the SQL abstraction
@@ -419,15 +421,18 @@ class PracticalExamTable extends AbstractTableGateway
 		$select->from('examination')
 			->columns(['nombre' => new Expression('COUNT(*)')]) // COUNT(*) as 'nombre'
 			->where([
-				'practical_exam_id IS NOT NULL',  // Ensure practical_exam_id is not null
-				'id_written_exam IS NULL',        // Ensure id_written_exam is null
-				'provider' => $provider,          // Securely bind provider
-				'add_to_certification' => 'no'    // Securely bind 'no'
+				new \Laminas\Db\Sql\Predicate\IsNotNull('practical_exam_id'),  // Ensure practical_exam_id is not null
+				new \Laminas\Db\Sql\Predicate\IsNull('id_written_exam'),      // Ensure id_written_exam is null
+				'provider' => $provider,                                       // Securely bind provider
+				'add_to_certification' => 'no'                               // Securely bind 'no'
 			]);
 
 		// Prepare and execute the query
 		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
+
+		// Initialize $nombre to avoid undefined variable notice
+		$nombre = 0;
 		foreach ($result as $res) {
 			$nombre = $res['nombre'];
 		}
@@ -572,10 +577,6 @@ class PracticalExamTable extends AbstractTableGateway
 	public function examToValidate($provider)
 	{
 		$db = $this->adapter;
-		// $sql = 'SELECT count(*) as nombre FROM examination WHERE id_written_exam is not null and practical_exam_id is not null and add_to_certification="no" and provider=' . $provider;
-		// //        die($sql);
-		// $statement = $db->query($sql);
-		// $result = $statement->execute();
 		$sql = new Sql($db);
 
 		// Build the SELECT query using Laminas abstraction
@@ -583,17 +584,20 @@ class PracticalExamTable extends AbstractTableGateway
 		$select->from('examination')
 			->columns(['nombre' => new Expression('COUNT(*)')]) // COUNT(*) as 'nombre'
 			->where([
-				'id_written_exam IS NOT NULL',        // Ensure id_written_exam is not null
-				'practical_exam_id IS NOT NULL',      // Ensure practical_exam_id is not null
-				'add_to_certification' => 'no',       // Securely bind 'no'
-				'provider' => $provider               // Securely bind provider ID
+				new \Laminas\Db\Sql\Predicate\IsNotNull('id_written_exam'),       // Ensure id_written_exam is not null
+				new \Laminas\Db\Sql\Predicate\IsNotNull('practical_exam_id'),     // Ensure practical_exam_id is not null
+				'add_to_certification' => 'no',                                   // Securely bind 'no'
+				'provider' => $provider                                           // Securely bind provider ID
 			]);
 
 		// Prepare and execute the query
 		$statement = $sql->prepareStatementForSqlObject($select);
 		$result = $statement->execute();
+
+		// Initialize $nombre to ensure it has a default value
+		$nombre = 0;
 		foreach ($result as $res) {
-			$nombre = $res['nombre'];
+			$nombre = $res['nombre']; // Store the count result
 		}
 		return $nombre;
 	}

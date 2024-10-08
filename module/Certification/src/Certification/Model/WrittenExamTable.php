@@ -403,12 +403,16 @@ class WrittenExamTable extends AbstractTableGateway
             $provider = $res['provider_id'];
         }
 
-        // 2. Inserting into examination using a prepared statement
+        // 2. Using quoteValue() to sanitize user-controlled data
+        $last_id = $db->getPlatform()->quoteValue($last_id);        // Quote $last_id safely
+        $practical = $db->getPlatform()->quoteValue($practical);    // Quote $practical safely
+
+        // 3. Inserting into examination
         $insert = $sql->insert('examination');
         $insert->values([
-            'provider' => $provider,
-            'id_written_exam' => $last_id,
-            'practical_exam_id' => $practical
+            'provider' => $provider,              // Already fetched from DB, safe
+            'id_written_exam' => $last_id,        // Safely quoted
+            'practical_exam_id' => $practical     // Safely quoted
         ]);
 
         $statement2 = $sql->prepareStatementForSqlObject($insert);
@@ -471,24 +475,25 @@ class WrittenExamTable extends AbstractTableGateway
         $db = $this->adapter;
         $sql = new Sql($db);
 
-        // Build the SELECT query
+        // Build the SELECT query with proper handling of NULL checks
         $select = $sql->select();
         $select->from('examination')
             ->columns(['nombre' => new Expression('COUNT(*)')])
             ->where([
-                'id_written_exam IS NOT NULL',          // Securely check for non-null written exam ID
-                'practical_exam_id IS NULL',            // Securely check for null practical exam ID
-                'provider' => $provider,                // Securely bind provider ID
-                'add_to_certification' => 'no'          // Securely bind 'add_to_certification' to 'no'
+                new \Laminas\Db\Sql\Predicate\IsNotNull('id_written_exam'),  // Securely check for non-null written exam ID
+                new \Laminas\Db\Sql\Predicate\IsNull('practical_exam_id'),   // Securely check for null practical exam ID
+                'provider' => $provider,                                     // Securely bind provider ID
+                'add_to_certification' => 'no'                               // Securely bind 'add_to_certification' to 'no'
             ]);
 
         // Prepare and execute the query
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
+
+        $nombre = null;
         foreach ($result as $res) {
-            $nombre = $res['nombre'];
+            $nombre = $res['nombre'];  // Fetch the count result
         }
-        //        die($nombre);
         return $nombre;
     }
 
@@ -512,21 +517,24 @@ class WrittenExamTable extends AbstractTableGateway
         $db = $this->adapter;
         $sql = new Sql($db);
 
-        // Build the SELECT query
+        // Build the SELECT query with correct handling of NULL checks
         $select = $sql->select();
         $select->from('examination')
             ->columns(['nombre' => new Expression('COUNT(*)')])
             ->where([
-                'practical_exam_id IS NOT NULL',         // Condition for non-null practical_exam_id
-                'id_written_exam IS NULL',               // Condition for null id_written_exam
-                'practical_exam_id' => $practical,       // Securely bind practical_exam_id
-                'add_to_certification' => 'no'           // Securely bind 'no' for add_to_certification
+                new \Laminas\Db\Sql\Predicate\IsNotNull('practical_exam_id'),   // Check for non-null practical_exam_id
+                new \Laminas\Db\Sql\Predicate\IsNull('id_written_exam'),        // Check for null id_written_exam
+                'practical_exam_id' => $practical,                             // Bind practical_exam_id safely
+                'add_to_certification' => 'no'                                 // Bind 'no' for add_to_certification
             ]);
+
         // Prepare and execute the query
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
+
+        $nombre = null;
         foreach ($result as $res) {
-            $nombre = $res['nombre'];
+            $nombre = $res['nombre'];  // Fetch the count result
         }
         return $nombre;
     }
@@ -641,23 +649,29 @@ class WrittenExamTable extends AbstractTableGateway
         $db = $this->adapter;
         $sql = new Sql($db);
 
-        // Build the SELECT query
+        // Build the SELECT query using safe predicates
         $select = $sql->select();
         $select->from('examination')
             ->columns(['nombre' => new Expression('COUNT(*)')])
             ->where([
-                'id_written_exam IS NOT NULL',
-                'practical_exam_id IS NOT NULL',
-                'add_to_certification' => 'no', // Securely bind 'no'
-                'provider' => $provider // Securely bind the provider
+                new \Laminas\Db\Sql\Predicate\IsNotNull('id_written_exam'),        // Check for non-null id_written_exam
+                new \Laminas\Db\Sql\Predicate\IsNotNull('practical_exam_id'),     // Check for non-null practical_exam_id
+                'add_to_certification' => 'no',                                   // Securely bind 'no' for add_to_certification
+                'provider' => $provider                                            // Securely bind the provider
             ]);
 
         // Prepare and execute the query
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
+
+        // Initialize $nombre to ensure it has a default value
+        $nombre = null;
+
+        // Fetch the count result
         foreach ($result as $res) {
             $nombre = $res['nombre'];
         }
+
         return $nombre;
     }
 
