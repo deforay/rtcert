@@ -121,55 +121,73 @@ class TrainingTable extends AbstractTableGateway
         $roleCode = $logincontainer->roleCode;
 
         $db = $this->adapter;
-        $sql = 'SELECT provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name,c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, type_of_competency, last_training_date, type_of_training, length_of_training, facilitator, training_certificate, date_certificate_issued, Comments, training_organization_name, type_organization FROM provider,training, location_details as l_d_r,location_details as l_d_d,country as c,certification_facilities, training_organization where provider.id=training.Provider_id and provider.region=l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id and provider.facility_id=certification_facilities.id and training.training_organization_id=training_organization.training_organization_id';
+        $sql = new Sql($db);
+        $select = $sql->select();
+        $select->from(['p' => 'provider'])
+            ->columns([
+                'certification_reg_no','certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name','type_vih_test','phone','email','prefered_contact_method','current_jod','time_worked','test_site_in_charge_name','test_site_in_charge_phone','test_site_in_charge_email','facility_in_charge_name','facility_in_charge_phone','facility_in_charge_email'
+            ])
+            ->join(['l_d_r' => 'location_details'], 'p.region = l_d_r.location_id', ['region_name' => 'location_name'], Select::JOIN_LEFT)
+            ->join(['l_d_d' => 'location_details'], 'p.district = l_d_d.location_id', ['district_name' => 'location_name'], Select::JOIN_LEFT)
+            ->join(['c' => 'country'], 'l_d_r.country = c.country_id', ['country_name'], Select::JOIN_LEFT)
+            ->join(['cf' => 'certification_facilities'], 'p.facility_id = cf.id', ['facility_name'], Select::JOIN_LEFT)
+            ->join(['t' => 'training'], 'p.id = t.Provider_id', ['type_of_competency', 'last_training_date', 'type_of_training', 'length_of_training', 'facilitator', 'training_certificate', 'date_certificate_issued', 'Comments'], Select::JOIN_LEFT)
+            ->join(['to' => 'training_organization'], 't.training_organization_id = to.training_organization_id', ['training_organization_name', 'type_organization'], Select::JOIN_LEFT);
+
+        // Adding conditions based on user inputs, securely binding parameters
+        $where = [];
 
         if (!empty($type_of_competency)) {
-            $sql = $sql . ' and type_of_competency="' . $type_of_competency . '"';
+            $where['t.type_of_competency'] = $type_of_competency;
         }
 
         if (!empty($type_of_training)) {
-            $sql = $sql . ' and type_of_training="' . $type_of_training . '"';
+            $where['t.type_of_training'] = $type_of_training;
         }
 
         if (!empty($training_organization_id)) {
-            $sql = $sql . ' and training_organization.training_organization_id=' . $training_organization_id;
+            $where['t.training_organization_id'] = $training_organization_id;
         }
 
         if (!empty($training_certificate)) {
-            $sql = $sql . ' and training_certificate="' . $training_certificate . '"';
+            $where['t.training_certificate'] = $training_certificate;
         }
 
         if (!empty($typeHiv)) {
-            $sql = $sql . ' and provider.type_vih_test="' . $typeHiv . '"';
+            $where['p.type_vih_test'] = $typeHiv;
         }
+
         if (!empty($jobTitle)) {
-            $sql = $sql . ' and provider.current_jod="' . $jobTitle . '"';
+            $where['p.current_jod'] = $jobTitle;
         }
 
         if (!empty($country)) {
-            $sql = $sql . ' and c.country_id=' . $country;
+            $where['c.country_id'] = $country;
         } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
-            $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
+            $select->where->in('c.country_id', $logincontainer->country);
         }
 
         if (!empty($region)) {
-            $sql = $sql . ' and l_d_r.location_id=' . $region;
+            $where['l_d_r.location_id'] = $region;
         } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
-            $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
+            $select->where->in('l_d_r.location_id', $logincontainer->region);
         }
 
         if (!empty($district)) {
-            $sql = $sql . ' and l_d_d.location_id=' . $district;
+            $where['l_d_d.location_id'] = $district;
         } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
-            $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
+            $select->where->in('l_d_d.location_id', $logincontainer->district);
         }
 
         if (!empty($facility)) {
-            $sql = $sql . ' and certification_facilities.id=' . $facility;
+            $where['cf.id'] = $facility;
         }
-        //        die($sql);
 
-        $statement = $db->query($sql);
+        // Apply the constructed where conditions
+        $select->where($where);
+
+        // Prepare and execute the statement
+        $statement = $sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
 

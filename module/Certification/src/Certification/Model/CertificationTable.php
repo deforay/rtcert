@@ -1543,17 +1543,27 @@ class CertificationTable extends AbstractTableGateway
         */
         $dbAdapter = $this->adapter;
         $sql = new Sql($dbAdapter);
-        $sQuery = $sql->select()->from(array('c' => 'certification'))
-            ->columns(array('certification_issuer', 'certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'))
-            ->join(array('e' => 'examination'), 'e.id=c.examination', array('id_written_exam'))
-            ->join(array('we' => 'written_exam'), 'we.id_written_exam=e.id_written_exam', array('written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'))
-            ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id=e.practical_exam_id', array('practical_exam_type' => 'exam_type', 'practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'))
-            ->join(array('p' => 'provider'), "p.id=e.provider", array('certification_reg_no', 'certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'), 'left')
-            ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id=p.region', array('region_name' => 'location_name'))
-            ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id=p.district', array('district_name' => 'location_name'))
-            ->join(array('country' => 'country'), 'country.country_id=l_d_r.country', array('country_name'))
-            ->join(array('cf' => 'certification_facilities'), 'cf.id=p.facility_id', array('facility_name'))
-            ->group('p.id');
+        $sQuery = $sql->select()
+                ->from(array('c' => 'certification'))
+                ->columns(array(
+                    'certification_issuer','certification_type', 'date_certificate_issued', 'date_end_validity', 'final_decision'
+                ))
+                ->join(array('e' => 'examination'), 'e.id = c.examination', array('id_written_exam'))
+                ->join(array('we' => 'written_exam'), 'we.id_written_exam = e.id_written_exam', array(
+                    'written_exam_type' => 'exam_type',  'written_exam_admin' => 'exam_admin',  'written_exam_date' => 'date', 'qa_point','rt_point', 'safety_point', 'specimen_point', 'testing_algo_point', 'report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point','total_points','final_score'
+                ))
+                ->join(array('pe' => 'practical_exam'), 'pe.practice_exam_id = e.practical_exam_id', array(
+                    'practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin','Sample_testing_score','direct_observation_score', 'practical_total_score','practical_exam_date' => 'date'
+                ))
+                ->join(array('p' => 'provider'), 'p.id = e.provider', array(
+                    'certification_reg_no','certification_id','professional_reg_no','first_name','last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 
+                    'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'
+                ), 'left')
+                ->join(array('l_d_r' => 'location_details'), 'l_d_r.location_id = p.region', array('region_name' => 'location_name'))
+                ->join(array('l_d_d' => 'location_details'), 'l_d_d.location_id = p.district', array('district_name' => 'location_name'))
+                ->join(array('country' => 'country'), 'country.country_id = l_d_r.country', array('country_name'))
+                ->join(array('cf' => 'certification_facilities'), 'cf.id = p.facility_id', array('facility_name'))
+                ->group('p.id');
 
         if ($startDate !== '' && $endDate !== '') {
             $sQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
@@ -1561,33 +1571,40 @@ class CertificationTable extends AbstractTableGateway
         if (!empty($decision)) {
             $sQuery->where(array('c.final_decision' => $decision));
         }
+        
         if (!empty($typeHiv)) {
             $sQuery->where(array('p.type_vih_test' => $typeHiv));
         }
+        
         if (!empty($jobTitle)) {
             $sQuery->where(array('p.current_jod' => $jobTitle));
         }
+        
         if (!empty($facility)) {
             $sQuery->where(array('cf.id' => $facility));
         }
+        
         if (!empty($country)) {
             $sQuery->where(array('c.country_id' => $country));
         } elseif (!empty($sessionLogin->country) && $roleCode != 'AD') {
-            $sQuery->where('(country.country_id IN(' . implode(',', $sessionLogin->country) . '))');
+            $sQuery->where->in('country.country_id', $sessionLogin->country);
         }
+        
         if (!empty($region)) {
             $sQuery->where(array('l_d_r.location_id' => $region));
         } elseif (!empty($sessionLogin->region) && $roleCode != 'AD') {
-            $sQuery->where('(l_d_r.location_id IN(' . implode(',', $sessionLogin->country) . '))');
+            $sQuery->where->in('l_d_r.location_id', $sessionLogin->region);
         }
+        
         if (!empty($district)) {
             $sQuery->where(array('l_d_d.location_id' => $district));
         } elseif (!empty($sessionLogin->district) && $roleCode != 'AD') {
-            $sQuery->where('(l_d_d.location_id IN(' . implode(',', $sessionLogin->district) . '))');
+            $sQuery->where->in('l_d_d.location_id', $sessionLogin->district);
         }
-
+        
+        // If there's an additional where clause ($sWhere)
         if (isset($sWhere) && $sWhere != "") {
-            $sQuery->where($sWhere);
+            $sQuery->where($sWhere); // Assuming $sWhere is properly sanitized or prepared.
         }
 
         if (isset($sOrder) && $sOrder != "") {

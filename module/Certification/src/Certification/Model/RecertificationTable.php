@@ -141,59 +141,90 @@ class RecertificationTable
         $roleCode = $logincontainer->roleCode;
 
         $db = $this->adapter;
-        $sql = 'select certification.certification_issuer,certification.certification_type, certification.date_certificate_issued,certification.date_end_validity, certification.final_decision,provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name,l_d_r.location_name as region_name,l_d_d.location_name as district_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name, written_exam.exam_type as written_exam_type,written_exam.exam_admin as written_exam_admin,written_exam.date as written_exam_date,written_exam.qa_point,written_exam.rt_point,written_exam.safety_point,written_exam.specimen_point, written_exam.testing_algo_point, written_exam.report_keeping_point,written_exam.EQA_PT_points, written_exam.ethics_point, written_exam.inventory_point, written_exam.total_points,written_exam.final_score, practical_exam.exam_type as practical_exam_type , practical_exam.exam_admin as practical_exam_admin , practical_exam.Sample_testing_score, practical_exam.direct_observation_score,practical_exam.practical_total_score,practical_exam.date as practical_exam_date, recertification.reminder_type, recertification.reminder_sent_to, recertification.name_of_recipient, recertification.date_reminder_sent from certification,examination,written_exam,practical_exam,provider,location_details as l_d_r, location_details as l_d_d, country as c, certification_facilities, recertification WHERE certification.examination= examination.id and examination.id_written_exam= written_exam.id_written_exam and examination.practical_exam_id= practical_exam.practice_exam_id and provider.id=examination.provider and provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id and provider.id=recertification.provider_id and recertification.due_date=certification.date_end_validity';
+        $sql = new Sql($db);
+        $select = $sql->select();
+        $select->from(['cert' => 'certification'])
+            ->columns([
+                'certification_issuer','certification_type','date_certificate_issued', 'date_end_validity','final_decision'
+            ])
+            ->join(['p' => 'provider'], 'cert.examination = p.id', [
+                'certification_reg_no','certification_id', 'professional_reg_no', 'first_name', 'last_name', 'middle_name', 'type_vih_test', 'phone', 'email', 'prefered_contact_method', 'current_jod', 'time_worked', 'test_site_in_charge_name', 'test_site_in_charge_phone', 'test_site_in_charge_email', 'facility_in_charge_name', 'facility_in_charge_phone', 'facility_in_charge_email'
+            ])
+            ->join(['l_d_r' => 'location_details'], 'p.region = l_d_r.location_id', ['region_name' => 'location_name'], Select::JOIN_LEFT)
+            ->join(['l_d_d' => 'location_details'], 'p.district = l_d_d.location_id', ['district_name' => 'location_name'], Select::JOIN_LEFT)
+            ->join(['cf' => 'certification_facilities'], 'p.facility_id = cf.id', ['facility_name'], Select::JOIN_LEFT)
+            ->join(['re' => 'recertification'], 'p.id = re.provider_id', [
+                'reminder_type','reminder_sent_to', 'name_of_recipient', 'date_reminder_sent'
+            ])
+            ->join(['w_exam' => 'written_exam'], 'cert.id_written_exam = w_exam.id_written_exam', [
+                'written_exam_type' => 'exam_type', 'written_exam_admin' => 'exam_admin', 'written_exam_date' => 'date', 'qa_point', 'rt_point', 'safety_point', 'specimen_point', 'testing_algo_point','report_keeping_point', 'EQA_PT_points', 'ethics_point', 'inventory_point', 'total_points', 'final_score'
+            ])
+            ->join(['p_exam' => 'practical_exam'], 'cert.practical_exam_id = p_exam.practice_exam_id', [
+                'practical_exam_type' => 'exam_type','practical_exam_admin' => 'exam_admin', 'Sample_testing_score', 'direct_observation_score', 'practical_total_score', 'practical_exam_date' => 'date'
+            ]);
+
+        // Add conditions securely with parameter binding
+        $where = [];
+
         if (!empty($startDate) && !empty($endDate)) {
-            $sql = $sql . ' and  recertification.due_date >="' . $startDate . '" and recertification.due_date <="' . $endDate . '"';
+            $where[] = ['re.due_date >= ?' => $startDate];
+            $where[] = ['re.due_date <= ?' => $endDate];
         }
 
         if (!empty($decision)) {
-            $sql = $sql . ' and certification.final_decision="' . $decision . '"';
+            $where['cert.final_decision'] = $decision;
         }
 
         if (!empty($typeHiv)) {
-            $sql = $sql . ' and provider.type_vih_test="' . $typeHiv . '"';
+            $where['p.type_vih_test'] = $typeHiv;
         }
+
         if (!empty($jobTitle)) {
-            $sql = $sql . ' and provider.current_jod="' . $jobTitle . '"';
+            $where['p.current_jod'] = $jobTitle;
         }
 
         if (!empty($country)) {
-            $sql = $sql . ' and c.country_id=' . $country;
+            $where['l_d_r.country_id'] = $country;
         } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
-            $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
+            $select->where->in('l_d_r.country_id', $logincontainer->country);
         }
 
         if (!empty($region)) {
-            $sql = $sql . ' and l_d_r.location_id=' . $region;
+            $where['l_d_r.location_id'] = $region;
         } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
-            $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
+            $select->where->in('l_d_r.location_id', $logincontainer->region);
         }
 
         if (!empty($district)) {
-            $sql = $sql . ' and l_d_d.location_id=' . $district;
+            $where['l_d_d.location_id'] = $district;
         } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
-            $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
+            $select->where->in('l_d_d.location_id', $logincontainer->district);
         }
 
         if (!empty($facility)) {
-            $sql = $sql . ' and certification_facilities.id=' . $facility;
+            $where['cf.id'] = $facility;
         }
 
         if (!empty($reminder_type)) {
-            $sql = $sql . ' and recertification.reminder_type="' . $reminder_type . '"';
+            $where['re.reminder_type'] = $reminder_type;
         }
 
         if (!empty($reminder_sent_to)) {
-            $sql = $sql . ' and recertification.reminder_sent_to="' . $reminder_sent_to . '"';
+            $where['re.reminder_sent_to'] = $reminder_sent_to;
         }
 
         if (!empty($startDate2) && !empty($endDate2)) {
-            $sql = $sql . ' and recertification.date_reminder_sent >="' . $startDate2 . '" and recertification.date_reminder_sent <="' . $endDate2 . '"';
+            $where[] = ['re.date_reminder_sent >= ?' => $startDate2];
+            $where[] = ['re.date_reminder_sent <= ?' => $endDate2];
         }
-        //        die($sql);
 
-        $statement = $db->query($sql);
-        return $statement->execute();
+        // Apply all conditions securely
+        $select->where($where);
+
+        // Prepare and execute the query
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+        return $result;
     }
 
     public function getAllActiveCountries()
