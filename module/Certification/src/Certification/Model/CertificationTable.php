@@ -1532,7 +1532,7 @@ class CertificationTable extends AbstractTableGateway
                 if ($sWhere == "") {
                     $sWhere .= $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
                 } else {
-                    $sWhere .= " AND " . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
+                    $sWhere .= " AND "   . $aColumns[$i] . " LIKE '%" . ($parameters['sSearch_' . $i]) . "%' ";
                 }
             }
         }
@@ -1568,8 +1568,11 @@ class CertificationTable extends AbstractTableGateway
         if ($startDate !== '' && $endDate !== '') {
             $sQuery->where('c.date_certificate_issued >="' . $startDate . '" and c.date_certificate_issued <="' . $endDate . '"');
         }
+       // Secure handling of the decision parameter
         if (!empty($decision)) {
-            $sQuery->where(array('c.final_decision' => $decision));
+            // Use a Predicate to safely bind the value
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('c.final_decision = ?', $decision);
+            $sQuery->where($predicate);
         }
         
         if (!empty($typeHiv)) {
