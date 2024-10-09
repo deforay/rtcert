@@ -991,13 +991,16 @@ class CommonService
             $body->setParts(array($html));
 
             if (isset($params['attachedfile']) && trim($params['attachedfile']) != '') {
-                $fileArray = explode('##', $params['attachedfile']);
-                $dirPath = TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0];
+                $fileName = preg_replace('/[^a-zA-Z0-9_-]/', '', $params['attachedfile']);
+                $attachedFile = CommonService::cleanFileName($fileName);
+                $fileArray = explode('##', $attachedFile);
+                $dirPath = CommonService::buildSafePath(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0] , []);
                 if (is_dir($dirPath)) {
-                    $dh  = opendir(TEMP_UPLOAD_PATH . DIRECTORY_SEPARATOR . $fileArray[0]);
+                    $dh  = opendir($dirPath);
                     while (($filename = readdir($dh)) !== false) {
                         if ($filename != "." && $filename != "..") {
-                            $fileContent = fopen($dirPath . DIRECTORY_SEPARATOR . $fileArray[1], 'r');
+                            $cleanedFilePath = CommonService::buildSafePath($dirPath . DIRECTORY_SEPARATOR . $fileArray[1] , []);
+                            $fileContent = fopen($cleanedFilePath, 'r');
                             $attachment = new MimePart($fileContent);
                             $attachment->filename    = $filename;
                             $attachment->type        = Mime::TYPE_OCTETSTREAM;

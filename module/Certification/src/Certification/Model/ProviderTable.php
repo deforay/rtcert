@@ -290,30 +290,36 @@ class ProviderTable extends AbstractTableGateway
         }
 
         if (!empty($region)) {
+            $region = CommonService::cleanInput($region);
             $sql = $sql . ' and l_d_r.location_id=' . $region;
         } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
             $sql = $sql . ' AND l_d_r.location_id IN(' . implode(',', $logincontainer->region) . ')';
         }
 
         if (!empty($district)) {
+            $district = CommonService::cleanInput($district);
             $sql = $sql . ' and l_d_d.location_id=' . $district;
         } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
             $sql = $sql . ' AND l_d_d.location_id IN(' . implode(',', $logincontainer->district) . ')';
         }
 
         if (!empty($facility)) {
+            $facility = CommonService::cleanInput($facility);
             $sql = $sql . ' and certification_facilities.id=' . $facility;
         }
 
         if (!empty($typeHiv)) {
+            $typeHiv = CommonService::cleanInput($typeHiv);
             $sql = $sql . ' and provider.type_vih_test="' . $typeHiv . '"';
         }
 
         if (!empty($contact_method)) {
+            $contact_method = CommonService::cleanInput($contact_method);
             $sql = $sql . ' and prefered_contact_method="' . $contact_method . '"';
         }
 
         if (!empty($jobTitle)) {
+            $jobTitle = CommonService::cleanInput($jobTitle);
             $sql = $sql . ' and provider.current_jod="' . $jobTitle . '"';
         }
 
