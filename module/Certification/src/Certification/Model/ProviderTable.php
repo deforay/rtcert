@@ -171,12 +171,14 @@ class ProviderTable extends AbstractTableGateway
         $sql = new Sql($db);
 
         // Start building the SELECT query
+        $countryParameter = CommonService::cleanInput($params['q']);
+
         $select = $sql->select();
         $select->from('location_details')
             ->columns(['location_id', 'location_name'])
             ->where([
                 'parent_location' => 0,
-                'country' => $params['q']  // Securely binding $params['q']
+                'country' => $countryParameter  // Securely binding $params['q']
             ]);
 
         // Check if there are regions to filter
@@ -281,6 +283,7 @@ class ProviderTable extends AbstractTableGateway
         $sql = 'select provider.certification_reg_no, provider.certification_id, provider.professional_reg_no, provider.first_name, provider.last_name, provider.middle_name, l_d_r.location_name as region_name, l_d_d.location_name as district_name, c.country_name, provider.type_vih_test, provider.phone,provider.email, provider.prefered_contact_method,provider.current_jod, provider.time_worked,provider.username,provider.password,provider.test_site_in_charge_name, provider.test_site_in_charge_phone,provider.test_site_in_charge_email, provider.facility_in_charge_name, provider.facility_in_charge_phone, provider.facility_in_charge_email,certification_facilities.facility_name FROM provider, certification_facilities, country as c, location_details as l_d_r, location_details as l_d_d WHERE provider.facility_id=certification_facilities.id and provider.region= l_d_r.location_id and provider.district=l_d_d.location_id and l_d_r.country=c.country_id';
 
         if (!empty($country)) {
+            $country = CommonService::cleanInput($country);
             $sql = $sql . ' and c.country_id=' . $country;
         } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
             $sql = $sql . ' AND c.country_id IN(' . implode(',', $logincontainer->country) . ')';
@@ -1090,7 +1093,8 @@ class ProviderTable extends AbstractTableGateway
 
         $sWhere = "";
         if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
+            $searchParameter = CommonService::cleanInput($parameters['sSearch']);
+            $searchArray = explode(" ", $searchParameter);
             $sWhereSub = "";
             foreach ($searchArray as $search) {
                 if ($sWhereSub == "") {
@@ -1346,7 +1350,8 @@ class ProviderTable extends AbstractTableGateway
 
         $sWhere = "";
         if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
+            $sSearchParam = CommonService::cleanInput($parameters['sSearch']);
+            $searchArray = explode(" ", $sSearchParam);
             $sWhereSub = "";
             foreach ($searchArray as $search) {
                 if ($sWhereSub == "") {
@@ -1396,38 +1401,45 @@ class ProviderTable extends AbstractTableGateway
 
 
         if (!empty($parameters['country'])) {
-            $sQuery->where(array('c.country_id' => $parameters['country']));
+            $countryParam = CommonService::cleanInput($parameters['country']);
+            $sQuery->where(array('c.country_id' => $countryParam));
         } elseif (!empty($logincontainer->country) && $roleCode != 'AD') {
             $sQuery->where('(c.country_id IN(' . implode(',', $logincontainer->country) . '))');
         }
 
         if (!empty($parameters['region'])) {
-            $sQuery->where(array('l_d_r.location_id' => $parameters['region']));
+            $regionParam = CommonService::cleanInput($parameters['region']);
+            $sQuery->where(array('l_d_r.location_id' => $regionParam));
         } elseif (!empty($logincontainer->region) && $roleCode != 'AD') {
             $sQuery->where('(l_d_r.location_id IN(' . implode(',', $logincontainer->region) . '))');
         }
 
         if (!empty($parameters['district'])) {
-            $sQuery->where(array('l_d_d.location_id' => $parameters['district']));
+            $districtParam = CommonService::cleanInput($parameters['district']);
+            $sQuery->where(array('l_d_d.location_id' => $districtParam));
         } elseif (!empty($logincontainer->district) && $roleCode != 'AD') {
             $sQuery->where('(l_d_d.location_id IN(' . implode(',', $logincontainer->district) . '))');
         }
 
 
         if (!empty($parameters['facility'])) {
-            $sQuery->where(array('certification_facilities.id' => $parameters['facility']));
+            $facilityParam = CommonService::cleanInput($parameters['facility']);
+            $sQuery->where(array('certification_facilities.id' => $facilityParam));
         }
 
         if (!empty($parameters['typeHiv'])) {
-            $sQuery->where(array('p.type_vih_test' => $parameters['typeHiv']));
+            $typeHivParam = CommonService::cleanInput($parameters['typeHiv']);
+            $sQuery->where(array('p.type_vih_test' => $typeHivParam));
         }
 
         if (!empty($parameters['contact_method'])) {
-            $sQuery->where(array('p.prefered_contact_method' => $parameters['contact_method']));
+            $contactMethodParam = CommonService::cleanInput($parameters['contact_method']);
+            $sQuery->where(array('p.prefered_contact_method' => $contactMethodParam));
         }
 
         if (!empty($parameters['jobTitle'])) {
-            $sQuery->where(array('p.current_jod' => $parameters['jobTitle']));
+            $jobTitleParam = CommonService::cleanInput($parameters['jobTitle']);
+            $sQuery->where(array('p.current_jod' => $jobTitleParam));
         }
 
         if (isset($sWhere) && $sWhere != "") {

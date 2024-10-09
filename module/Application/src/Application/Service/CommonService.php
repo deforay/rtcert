@@ -843,6 +843,9 @@ class CommonService
                         // Close the directory handler
                         closedir($dh);
                     }
+                }
+            }
+                    
 
             $alertMail->setBody($body);
             $result = $transport->send($alertMail);
@@ -1164,5 +1167,11 @@ class CommonService
         }
 
         return mkdir($path, $mode, $recursive);
+    }
+
+    public static function cleanInput($input)
+    {
+        $cleanedInput = preg_replace('/[^a-zA-Z0-9_-]/', '', $input);
+        return $cleanedInput;
     }
 }

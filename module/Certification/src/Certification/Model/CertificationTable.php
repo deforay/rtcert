@@ -8,6 +8,7 @@ use Laminas\Db\Sql\Expression;
 use Laminas\Session\Container;
 use Laminas\Db\Adapter\Adapter;
 use \Application\Model\GlobalTable;
+use Application\Service\CommonService;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Db\TableGateway\AbstractTableGateway;
@@ -1502,7 +1503,8 @@ class CertificationTable extends AbstractTableGateway
 
         $sWhere = "";
         if (isset($parameters['sSearch']) && $parameters['sSearch'] != "") {
-            $searchArray = explode(" ", $parameters['sSearch']);
+            $searchParameter = CommonService::cleanInput($parameters['sSearch']);
+            $searchArray = explode(" ", $searchParameter);
             $sWhereSub = "";
             foreach ($searchArray as $search) {
                 if ($sWhereSub == "") {
