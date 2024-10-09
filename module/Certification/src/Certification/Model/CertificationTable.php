@@ -1576,31 +1576,37 @@ class CertificationTable extends AbstractTableGateway
         }
         
         if (!empty($typeHiv)) {
-            $sQuery->where(array('p.type_vih_test' => $typeHiv));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('p.type_vih_test = ?', $typeHiv);
+            $sQuery->where($predicate);
         }
         
         if (!empty($jobTitle)) {
-            $sQuery->where(array('p.current_jod' => $jobTitle));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('p.current_jod = ?', $jobTitle);
+            $sQuery->where($predicate);
         }
         
         if (!empty($facility)) {
-            $sQuery->where(array('cf.id' => $facility));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('cf.id = ?', $facility);
+            $sQuery->where($predicate);
         }
         
         if (!empty($country)) {
-            $sQuery->where(array('c.country_id' => $country));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('c.country_id = ?', $country);
+            $sQuery->where($predicate);
         } elseif (!empty($sessionLogin->country) && $roleCode != 'AD') {
             $sQuery->where->in('country.country_id', $sessionLogin->country);
         }
         
         if (!empty($region)) {
-            $sQuery->where(array('l_d_r.location_id' => $region));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('l_d_r.location_id = ?', $region);
+            $sQuery->where($predicate);
         } elseif (!empty($sessionLogin->region) && $roleCode != 'AD') {
             $sQuery->where->in('l_d_r.location_id', $sessionLogin->region);
         }
         
         if (!empty($district)) {
-            $sQuery->where(array('l_d_d.location_id' => $district));
+            $predicate = new \Laminas\Db\Sql\Predicate\Expression('l_d_d.location_id = ?', $district);
+            $sQuery->where($predicate);
         } elseif (!empty($sessionLogin->district) && $roleCode != 'AD') {
             $sQuery->where->in('l_d_d.location_id', $sessionLogin->district);
         }

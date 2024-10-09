@@ -474,6 +474,7 @@ class WrittenExamTable extends AbstractTableGateway
     {
         $db = $this->adapter;
         $sql = new Sql($db);
+        $provider = preg_replace('/[^a-zA-Z0-9_-]/', '', $provider);
 
         // Build the SELECT query with proper handling of NULL checks
         $select = $sql->select();
@@ -516,6 +517,8 @@ class WrittenExamTable extends AbstractTableGateway
     {
         $db = $this->adapter;
         $sql = new Sql($db);
+        $practical = preg_replace('/[^a-zA-Z0-9_-]/', '', $practical);
+        
 
         // Build the SELECT query with correct handling of NULL checks
         $select = $sql->select();
@@ -648,6 +651,8 @@ class WrittenExamTable extends AbstractTableGateway
     {
         $db = $this->adapter;
         $sql = new Sql($db);
+        $provider = preg_replace('/[^a-zA-Z0-9_-]/', '', $provider);
+        
 
         // Build the SELECT query using safe predicates
         $select = $sql->select();

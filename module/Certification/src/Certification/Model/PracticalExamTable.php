@@ -415,6 +415,7 @@ class PracticalExamTable extends AbstractTableGateway
 	{
 		$db = $this->adapter;
 		$sql = new Sql($db);
+        $provider = preg_replace('/[^a-zA-Z0-9_-]/', '', $provider);
 
 		// Building the SELECT query using the SQL abstraction
 		$select = $sql->select();
@@ -578,6 +579,7 @@ class PracticalExamTable extends AbstractTableGateway
 	{
 		$db = $this->adapter;
 		$sql = new Sql($db);
+        $provider = preg_replace('/[^a-zA-Z0-9_-]/', '', $provider);
 
 		// Build the SELECT query using Laminas abstraction
 		$select = $sql->select();
